@@ -1,0 +1,45 @@
+spring:
+  # 数据库配置 - 使用H2内存数据库进行测试
+  datasource:
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    username: sa
+    password: 
+    driver-class-name: org.h2.Driver
+  
+  # JPA配置
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+  
+  # 禁用Redis
+  data:
+    redis:
+      enabled: false
+  
+  # 禁用Flyway
+  flyway:
+    enabled: false
+
+# 服务器配置
+server:
+  port: 0 # 随机端口
+
+# 日志配置
+logging:
+  level:
+    root: INFO
+    com.insightdata: DEBUG
+    org.springframework: INFO
+    org.hibernate: INFO
+
+# 应用自定义配置
+insight:
+  # 安全配置
+  security:
+    jwt:
+      secret: test-secret-key-for-testing-only

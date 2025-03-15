@@ -1,0 +1,34 @@
+spring:
+  # 数据库配置
+  datasource:
+    url: jdbc:mysql://localhost:3306/insight_data?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai
+    username: root
+    password: root
+  
+  # JPA配置
+  jpa:
+    show-sql: true
+  
+  # Redis配置
+  data:
+    redis:
+      host: localhost
+      port: 6379
+  
+  # Flyway配置
+  flyway:
+    enabled: true
+
+# 服务器配置
+server:
+  port: 8080
+
+# 日志配置
+logging:
+  level:
+    root: INFO
+    com.insightdata: DEBUG
+    org.springframework: INFO
+    org.hibernate: INFO
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
