@@ -18,11 +18,18 @@
     
     <properties>
         <java.version>17</java.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+
         <mybatis.version>3.5.13</mybatis.version>
         <mybatis-spring.version>3.0.2</mybatis-spring.version>
         <mysql-connector.version>8.2.0</mysql-connector.version>
         <hikaricp.version>5.0.1</hikaricp.version>
         <caffeine.version>3.1.8</caffeine.version>
+        <jmh.version>1.33</jmh.version>
+        <lombok.version>1.18.36</lombok.version>
+        <mapstruct.version>1.6.0.Beta2</mapstruct.version>
+        <mapstruct-lombok.version>0.2.0</mapstruct-lombok.version>
         <commons-lang3.version>3.12.0</commons-lang3.version>
         <commons-io.version>2.14.0</commons-io.version>
         <guava.version>32.1.2-jre</guava.version>
@@ -145,6 +152,18 @@
             <artifactId>lombok</artifactId>
             <optional>true</optional>
         </dependency>
+
+        <!-- Mapstruct -->
+        <dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct</artifactId>
+            <version>${mapstruct.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok-mapstruct-binding</artifactId>
+            <version>${mapstruct-lombok.version}</version>
+        </dependency>
         
         <!-- Test -->
         <dependency>
@@ -189,6 +208,48 @@
                     <locations>
                         <location>classpath:db/migration</location>
                     </locations>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.8.1</version>
+                <configuration>
+                    <failOnError>true</failOnError>
+                    <verbose>true</verbose>
+                    <fork>true</fork>
+                    <compilerArgument>-nowarn</compilerArgument>
+                    <compilerArgument>-XDignore.symbol.file</compilerArgument>
+<!--                    <source>${maven.compiler.source}</source>-->
+<!--                    <target>${maven.compiler.target}</target>-->
+                    <encoding>UTF-8</encoding>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.mapstruct</groupId>
+                            <artifactId>mapstruct-processor</artifactId>
+                            <version>${mapstruct.version}</version>
+                        </path>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>${lombok.version}</version>
+                        </path>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok-mapstruct-binding</artifactId>
+                            <version>${mapstruct-lombok.version}</version>
+                        </path>
+                        <path>
+                            <groupId>org.openjdk.jmh</groupId>
+                            <artifactId>jmh-generator-annprocess</artifactId>
+                            <version>${jmh.version}</version>
+                        </path>
+                        <path>
+                            <groupId>com.tngtech.archunit</groupId>
+                            <artifactId>archunit-junit4</artifactId>
+                            <version>0.23.1</version>
+                        </path>
+                    </annotationProcessorPaths>
                 </configuration>
             </plugin>
         </plugins>

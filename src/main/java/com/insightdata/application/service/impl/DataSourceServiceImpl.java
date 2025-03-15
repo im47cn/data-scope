@@ -65,11 +65,6 @@ public class DataSourceServiceImpl implements DataSourceService {
         dataSource.setCreatedAt(now);
         dataSource.setUpdatedAt(now);
         
-        // 设置默认值
-        if (dataSource.isActive() == null) {
-            dataSource.setActive(true);
-        }
-        
         // 保存数据源
         return dataSourceRepository.save(dataSource);
     }

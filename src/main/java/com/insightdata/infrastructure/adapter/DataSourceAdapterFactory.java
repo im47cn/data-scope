@@ -6,9 +6,7 @@ import com.insightdata.domain.adapter.DataSourceAdapter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 数据源适配器工厂
@@ -70,6 +68,6 @@ public class DataSourceAdapterFactory {
      * @return 数据源类型列表
      */
     public List<String> getSupportedTypes() {
-        return List.copyOf(adapterMap.keySet());
+        return Collections.unmodifiableList(new ArrayList<>(adapterMap.keySet()));
     }
 }

@@ -1,6 +1,7 @@
 package com.insightdata.infrastructure.persistence.entity;
 
 import com.insightdata.common.enums.DataSourceType;
+import com.insightdata.infrastructure.persistence.converter.JsonMapConverter;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
