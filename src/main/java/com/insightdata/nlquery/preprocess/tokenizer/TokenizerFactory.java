@@ -12,7 +12,7 @@ public class TokenizerFactory {
      * @return 默认分词器
      */
     public static Tokenizer createDefaultTokenizer() {
-        return new DefaultTokenizer();
+        return new HanlpTokenizer();
     }
     
     /**
