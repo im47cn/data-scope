@@ -22,13 +22,13 @@ public class RuleBasedEntityExtractor implements EntityExtractor {
     private static final Pattern TABLE_PATTERN = Pattern.compile("表|用户|订单|产品|客户|员工|部门|table|user|order|product|customer|employee|department", Pattern.CASE_INSENSITIVE);
     
     // 列名相关的正则表达式
-    private static final Pattern COLUMN_PATTERN = Pattern.compile("名称|姓名|邮箱|电话|地址|价格|数量|日期|时间|状态|name|email|phone|address|price|quantity|date|time|status", Pattern.CASE_INSENSITIVE);
+    private static final Pattern COLUMN_PATTERN = Pattern.compile("名称|姓名|邮箱|电话|地址|价格|数量|日期|时间|状态|销售额|name|email|phone|address|price|quantity|date|time|status", Pattern.CASE_INSENSITIVE);
     
     // 值相关的正则表达式
     private static final Pattern VALUE_PATTERN = Pattern.compile("\\d+|'[^']+'|\"[^\"]+\"|true|false|null", Pattern.CASE_INSENSITIVE);
     
     // 函数相关的正则表达式
-    private static final Pattern FUNCTION_PATTERN = Pattern.compile("count|sum|avg|max|min|group|concat|substring", Pattern.CASE_INSENSITIVE);
+    private static final Pattern FUNCTION_PATTERN = Pattern.compile("计算|统计|count|sum|avg|max|min|group|concat|substring", Pattern.CASE_INSENSITIVE);
     
     // 操作符相关的正则表达式
     private static final Pattern OPERATOR_PATTERN = Pattern.compile("等于|大于|小于|不等于|包含|开始于|结束于|between|like|in|=|>|<|!=|<>|>=|<=", Pattern.CASE_INSENSITIVE);
@@ -37,16 +37,16 @@ public class RuleBasedEntityExtractor implements EntityExtractor {
     private static final Pattern CONDITION_PATTERN = Pattern.compile("条件|where|having|when|if|case", Pattern.CASE_INSENSITIVE);
     
     // 排序相关的正则表达式
-    private static final Pattern ORDER_PATTERN = Pattern.compile("排序|order|sort", Pattern.CASE_INSENSITIVE);
+    private static final Pattern ORDER_PATTERN = Pattern.compile("排序|降序|升序|order|sort", Pattern.CASE_INSENSITIVE);
     
     // 限制相关的正则表达式
-    private static final Pattern LIMIT_PATTERN = Pattern.compile("限制|limit|top", Pattern.CASE_INSENSITIVE);
+    private static final Pattern LIMIT_PATTERN = Pattern.compile("前|限制|limit|top", Pattern.CASE_INSENSITIVE);
     
     // 分组相关的正则表达式
     private static final Pattern GROUP_PATTERN = Pattern.compile("分组|group", Pattern.CASE_INSENSITIVE);
     
     // 日期相关的正则表达式
-    private static final Pattern DATE_PATTERN = Pattern.compile("\\d{4}-\\d{2}-\\d{2}|\\d{4}/\\d{2}/\\d{2}|\\d{2}-\\d{2}-\\d{4}|\\d{2}/\\d{2}/\\d{4}", Pattern.CASE_INSENSITIVE);
+    private static final Pattern DATE_PATTERN = Pattern.compile("\\d{4}-\\d{2}-\\d{2}|\\d{4}/\\d{2}/\\d{2}|\\d{2}-\\d{2}-\\d{4}|\\d{2}/\\d{2}/\\d{4}|\\d{4}年|\\d{4}年\\d{1,2}月|\\d{4}年\\d{1,2}月\\d{1,2}日", Pattern.CASE_INSENSITIVE);
     
     // 数字相关的正则表达式
     private static final Pattern NUMBER_PATTERN = Pattern.compile("\\d+\\.?\\d*", Pattern.CASE_INSENSITIVE);
@@ -241,10 +241,27 @@ public class RuleBasedEntityExtractor implements EntityExtractor {
      * 提取日期实体
      */
     private void extractDateEntities(String normalizedText, List<String> tokens, List<EntityTag> entities) {
+        // 使用正则表达式匹配日期
         Matcher matcher = DATE_PATTERN.matcher(normalizedText);
         while (matcher.find()) {
             String dateStr = matcher.group();
             entities.add(new EntityTag(dateStr, EntityType.DATE, matcher.start(), matcher.end(), 0.9));
+        }
+        
+        // 特殊处理分词后的日期
+        // 处理形如"2023-01-01"的日期，分词后可能变成"2023", " ", "01", " ", "01"
+        for (int i = 0; i < tokens.size() - 4; i++) {
+            if (tokens.get(i).matches("\\d{4}") &&
+                tokens.get(i+2).matches("\\d{1,2}") &&
+                tokens.get(i+4).matches("\\d{1,2}")) {
+                
+                String dateStr = tokens.get(i) + "-" + tokens.get(i+2) + "-" + tokens.get(i+4);
+                int startPosition = normalizedText.indexOf(tokens.get(i));
+                if (startPosition >= 0) {
+                    int endPosition = normalizedText.indexOf(tokens.get(i+4), startPosition) + tokens.get(i+4).length();
+                    entities.add(new EntityTag(dateStr, EntityType.DATE, startPosition, endPosition, 0.8));
+                }
+            }
         }
     }
     
@@ -263,10 +280,27 @@ public class RuleBasedEntityExtractor implements EntityExtractor {
      * 提取字符串实体
      */
     private void extractStringEntities(String normalizedText, List<String> tokens, List<EntityTag> entities) {
+        // 使用正则表达式匹配字符串
         Matcher matcher = STRING_PATTERN.matcher(normalizedText);
         while (matcher.find()) {
             String stringStr = matcher.group();
             entities.add(new EntityTag(stringStr, EntityType.STRING, matcher.start(), matcher.end(), 0.9));
+        }
+        
+        // 特殊处理分词后的字符串
+        // 处理形如"'测试'"的字符串，分词后可能变成" ", "测试", " "
+        for (int i = 0; i < tokens.size() - 2; i++) {
+            if (tokens.get(i).equals(" ") &&
+                !tokens.get(i+1).trim().isEmpty() &&
+                tokens.get(i+2).equals(" ")) {
+                
+                String stringStr = "'" + tokens.get(i+1) + "'";
+                int startPosition = normalizedText.indexOf(tokens.get(i));
+                if (startPosition >= 0) {
+                    int endPosition = normalizedText.indexOf(tokens.get(i+2), startPosition) + tokens.get(i+2).length();
+                    entities.add(new EntityTag(stringStr, EntityType.STRING, startPosition, endPosition, 0.8));
+                }
+            }
         }
     }
     
