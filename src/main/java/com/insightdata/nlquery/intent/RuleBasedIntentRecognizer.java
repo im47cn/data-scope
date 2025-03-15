@@ -87,20 +87,21 @@ public class RuleBasedIntentRecognizer implements IntentRecognizer {
      * 识别查询类型
      */
     private QueryType recognizeQueryType(String normalizedText, List<String> tokens) {
+        String tokenString = tokens.toString();
         // 按优先级顺序检查
-        if (AVG_PATTERN.matcher(tokens.toString()).find()) {
+        if (AVG_PATTERN.matcher(tokenString).find()) {
             return QueryType.AVG;
-        } else if (SUM_PATTERN.matcher(tokens.toString()).find()) {
+        } else if (SUM_PATTERN.matcher(tokenString).find()) {
             return QueryType.SUM;
-        } else if (MAX_PATTERN.matcher(tokens.toString()).find()) {
+        } else if (MAX_PATTERN.matcher(tokenString).find()) {
             return QueryType.MAX;
-        } else if (MIN_PATTERN.matcher(tokens.toString()).find()) {
+        } else if (MIN_PATTERN.matcher(tokenString).find()) {
             return QueryType.MIN;
-        } else if (GROUP_PATTERN.matcher(tokens.toString()).find()) {
+        } else if (GROUP_PATTERN.matcher(tokenString).find()) {
             return QueryType.GROUP;
-        } else if (COUNT_PATTERN.matcher(tokens.toString()).find()) {
+        } else if (COUNT_PATTERN.matcher(tokenString).find()) {
             return QueryType.COUNT;
-        } else if (SELECT_PATTERN.matcher(tokens.toString()).find()) {
+        } else if (SELECT_PATTERN.matcher(tokenString).find()) {
             return QueryType.SELECT;
         } else {
             return QueryType.UNKNOWN;
