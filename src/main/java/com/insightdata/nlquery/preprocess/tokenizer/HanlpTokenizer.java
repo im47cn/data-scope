@@ -53,7 +53,7 @@ public class HanlpTokenizer implements Tokenizer {
 
             companySet.add(name);
         }
-        log.info("segment 分词结果:{}, 提取结果:{}", terms, companySet);
+        log.debug("segment 分词结果:{}, 提取结果:{}", terms, companySet);
         return companySet;
     }
 
