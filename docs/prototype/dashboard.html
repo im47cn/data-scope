@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数据洞察平台 - 仪表盘</title>
+    <link href="https://cdn.staticfile.org/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdn.staticfile.org/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .bg-sidebar { background-color: #1a202c; }
+        .text-primary { color: #4c51bf; }
+        .border-primary { border-color: #4c51bf; }
+        .bg-primary { background-color: #4c51bf; }
+        .hover-bg-primary:hover { background-color: #434190; }
+        .card-shadow { box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); }
+        .transition-all { transition: all 0.3s ease; }
+    </style>
+</head>
+<body class="h-full bg-gray-100 font-sans">
+    <div class="flex h-full">
+        <!-- 侧边栏 -->
+        <div class="bg-sidebar text-white w-64 flex-shrink-0 hidden md:block">
+            <div class="p-4 flex items-center border-b border-gray-700">
+                <i class="fas fa-database text-2xl mr-3 text-primary"></i>
+                <h1 class="text-xl font-semibold">数据洞察平台</h1>
+            </div>
+            <nav class="mt-5">
+                <a href="dashboard.html" class="flex items-center py-3 px-4 bg-gray-800 border-l-4 border-primary">
+                    <i class="fas fa-tachometer-alt mr-3"></i>
+                    <span>仪表盘</span>
+                </a>
+                <a href="datasource.html" class="flex items-center py-3 px-4 hover:bg-gray-800 transition-all">
+                    <i class="fas fa-server mr-3"></i>
+                    <span>数据源管理</span>
+                </a>
+                <a href="data-browse.html" class="flex items-center py-3 px-4 hover:bg-gray-800 transition-all">
+                    <i class="fas fa-table mr-3"></i>
+                    <span>数据浏览</span>
+                </a>
+                <a href="query-builder.html" class="flex items-center py-3 px-4 hover:bg-gray-800 transition-all">
+                    <i class="fas fa-search mr-3"></i>
+                    <span>查询构建器</span>
+                </a>
+                <a href="nl-query.html" class="flex items-center py-3 px-4 hover:bg-gray-800 transition-all">
+                    <i class="fas fa-comment mr-3"></i>
+                    <span>自然语言查询</span>
+                </a>
+                <a href="low-code.html" class="flex items-center py-3 px-4 hover:bg-gray-800 transition-all">
+                    <i class="fas fa-code mr-3"></i>
+                    <span>低代码集成</span>
+                </a>
+                <a href="query-history.html" class="flex items-center py-3 px-4 hover:bg-gray-800 transition-all">
+                    <i class="fas fa-history mr-3"></i>
+                    <span>查询历史</span>
+                </a>
+                <a href="settings.html" class="flex items-center py-3 px-4 hover:bg-gray-800 transition-all">
+                    <i class="fas fa-cog mr-3"></i>
+                    <span>系统设置</span>
+                </a>
+            </nav>
+        </div>
+
+        <!-- 主内容区 -->
+        <div class="flex-1 flex flex-col overflow-hidden">
+            <!-- 顶部导航栏 -->
+            <header class="bg-white shadow-sm z-10">
+                <div class="flex items-center justify-between p-4">
+                    <div class="flex items-center">
+                        <button class="text-gray-600 md:hidden">
+                            <i class="fas fa-bars text-xl"></i>
+                        </button>
+                        <h2 class="text-xl font-semibold ml-4">仪表盘</h2>
+                    </div>
+                    <div class="flex items-center">
+                        <div class="relative mr-4">
+                            <input type="text" placeholder="搜索..." class="bg-gray-100 rounded-full py-2 px-4 pl-10 focus:outline-none focus:ring-2 focus:ring-primary focus:bg-white transition-all">
+                            <i class="fas fa-search absolute left-3 top-3 text-gray-500"></i>
+                        </div>
+                        <div class="relative mr-4">
+                            <button class="relative p-2 rounded-full hover:bg-gray-100 transition-all">
+                                <i class="fas fa-bell text-gray-600"></i>
+                                <span class="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
+                            </button>
+                        </div>
+                        <div class="flex items-center">
+                            <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="用户头像" class="w-8 h-8 rounded-full mr-2">
+                            <span class="text-gray-700">张经理</span>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- 内容区域 -->
+            <main class="flex-1 overflow-y-auto p-4 bg-gray-100">
+                <!-- 统计卡片 -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                    <div class="bg-white rounded-lg p-4 card-shadow flex items-center">
+                        <div class="rounded-full bg-blue-100 p-3 mr-4">
+                            <i class="fas fa-database text-blue-500 text-xl"></i>
+                        </div>
+                        <div>
+                            <p class="text-gray-500 text-sm">数据源</p>
+                            <p class="text-2xl font-semibold">12</p>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg p-4 card-shadow flex items-center">
+                        <div class="rounded-full bg-green-100 p-3 mr-4">
+                            <i class="fas fa-table text-green-500 text-xl"></i>
+                        </div>
+                        <div>
+                            <p class="text-gray-500 text-sm">表</p>
+                            <p class="text-2xl font-semibold">247</p>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg p-4 card-shadow flex items-center">
+                        <div class="rounded-full bg-purple-100 p-3 mr-4">
+                            <i class="fas fa-search text-purple-500 text-xl"></i>
+                        </div>
+                        <div>
+                            <p class="text-gray-500 text-sm">查询</p>
+                            <p class="text-2xl font-semibold">56</p>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg p-4 card-shadow flex items-center">
+                        <div class="rounded-full bg-yellow-100 p-3 mr-4">
+                            <i class="fas fa-code text-yellow-500 text-xl"></i>
+                        </div>
+                        <div>
+                            <p class="text-gray-500 text-sm">API</p>
+                            <p class="text-2xl font-semibold">23</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 最近活动和收藏查询 -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                    <!-- 最近活动 -->
+                    <div class="bg-white rounded-lg card-shadow">
+                        <div class="p-4 border-b border-gray-200 flex justify-between items-center">
+                            <h3 class="text-lg font-semibold">最近活动</h3>
+                            <button class="text-primary hover:text-indigo-700">查看全部</button>
+                        </div>
+                        <div class="p-4">
+                            <div class="space-y-4">
+                                <div class="flex items-start">
+                                    <div class="rounded-full bg-blue-100 p-2 mr-3">
+                                        <i class="fas fa-plus text-blue-500"></i>
+                                    </div>
+                                    <div class="flex-1">
+                                        <p class="font-medium">添加了新数据源 <span class="text-primary">销售数据库</span></p>
+                                        <p class="text-sm text-gray-500">10分钟前</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-start">
+                                    <div class="rounded-full bg-green-100 p-2 mr-3">
+                                        <i class="fas fa-search text-green-500"></i>
+                                    </div>
+                                    <div class="flex-1">
+                                        <p class="font-medium">执行了查询 <span class="text-primary">月度销售报表</span></p>
+                                        <p class="text-sm text-gray-500">30分钟前</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-start">
+                                    <div class="rounded-full bg-purple-100 p-2 mr-3">
+                                        <i class="fas fa-comment text-purple-500"></i>
+                                    </div>
+                                    <div class="flex-1">
+                                        <p class="font-medium">使用自然语言查询 <span class="text-primary">"查询上个月销售额最高的产品"</span></p>
+                                        <p class="text-sm text-gray-500">1小时前</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-start">
+                                    <div class="rounded-full bg-yellow-100 p-2 mr-3">
+                                        <i class="fas fa-code text-yellow-500"></i>
+                                    </div>
+                                    <div class="flex-1">
+                                        <p class="font-medium">创建了新API <span class="text-primary">客户信息查询</span></p>
+                                        <p class="text-sm text-gray-500">2小时前</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 收藏查询 -->
+                    <div class="bg-white rounded-lg card-shadow">
+                        <div class="p-4 border-b border-gray-200 flex justify-between items-center">
+                            <h3 class="text-lg font-semibold">收藏查询</h3>
+                            <button class="text-primary hover:text-indigo-700">管理收藏</button>
+                        </div>
+                        <div class="p-4">
+                            <div class="space-y-3">
+                                <div class="flex items-center p-3 hover:bg-gray-50 rounded-lg transition-all">
+                                    <i class="fas fa-star text-yellow-400 mr-3"></i>
+                                    <div class="flex-1">
+                                        <p class="font-medium">月度销售报表</p>
+                                        <p class="text-sm text-gray-500">销售数据库 - 上次运行: 今天</p>
+                                    </div>
+                                    <button class="text-gray-500 hover:text-primary">
+                                        <i class="fas fa-play"></i>
+                                    </button>
+                                </div>
+                                <div class="flex items-center p-3 hover:bg-gray-50 rounded-lg transition-all">
+                                    <i class="fas fa-star text-yellow-400 mr-3"></i>
+                                    <div class="flex-1">
+                                        <p class="font-medium">客户分析报告</p>
+                                        <p class="text-sm text-gray-500">CRM数据库 - 上次运行: 昨天</p>
+                                    </div>
+                                    <button class="text-gray-500 hover:text-primary">
+                                        <i class="fas fa-play"></i>
+                                    </button>
+                                </div>
+                                <div class="flex items-center p-3 hover:bg-gray-50 rounded-lg transition-all">
+                                    <i class="fas fa-star text-yellow-400 mr-3"></i>
+                                    <div class="flex-1">
+                                        <p class="font-medium">库存状态查询</p>
+                                        <p class="text-sm text-gray-500">仓储数据库 - 上次运行: 3天前</p>
+                                    </div>
+                                    <button class="text-gray-500 hover:text-primary">
+                                        <i class="fas fa-play"></i>
+                                    </button>
+                                </div>
+                                <div class="flex items-center p-3 hover:bg-gray-50 rounded-lg transition-all">
+                                    <i class="fas fa-star text-yellow-400 mr-3"></i>
+                                    <div class="flex-1">
+                                        <p class="font-medium">员工绩效统计</p>
+                                        <p class="text-sm text-gray-500">HR数据库 - 上次运行: 上周</p>
+                                    </div>
+                                    <button class="text-gray-500 hover:text-primary">
+                                        <i class="fas fa-play"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 数据源健康状态 -->
+                <div class="bg-white rounded-lg card-shadow mb-6">
+                    <div class="p-4 border-b border-gray-200">
+                        <h3 class="text-lg font-semibold">数据源健康状态</h3>
+                    </div>
+                    <div class="p-4">
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead>
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">数据源名称</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">类型</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">状态</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">上次同步</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">表数量</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    <tr>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="flex items-center">
+                                                <i class="fas fa-database text-blue-500 mr-2"></i>
+                                                <span>销售数据库</span>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">MySQL</td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">正常</span>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">10分钟前</td>
+                                        <td class="px-6 py-4 whitespace-nowrap">42</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="flex items-center">
+                                                <i class="fas fa-database text-blue-500 mr-2"></i>
+                                                <span>CRM数据库</span>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">MySQL</td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">正常</span>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">30分钟前</td>
+                                        <td class="px-6 py-4 whitespace-nowrap">28</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="flex items-center">
+                                                <i class="fas fa-database text-blue-500 mr-2"></i>
+                                                <span>仓储数据库</span>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">DB2</td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">同步中</span>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">正在进行</td>
+                                        <td class="px-6 py-4 whitespace-nowrap">35</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="flex items-center">
+                                                <i class="fas fa-database text-blue-500 mr-2"></i>
+                                                <span>HR数据库</span>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">MySQL</td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">连接错误</span>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">2天前</td>
+                                        <td class="px-6 py-4 whitespace-nowrap">19</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 快速操作 -->
+                <div class="bg-white rounded-lg card-shadow">
+                    <div class="p-4 border-b border-gray-200">
+                        <h3 class="text-lg font-semibold">快速操作</h3>
+                    </div>
+                    <div class="p-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <a href="datasource.html" class="flex flex-col items-center justify-center p-6 border border-gray-200 rounded-lg hover:border-primary hover:bg-gray-50 transition-all">
+                            <i class="fas fa-plus-circle text-primary text-3xl mb-3"></i>
+                            <span class="text-gray-700 font-medium">添加数据源</span>
+                        </a>
+                        <a href="query-builder.html" class="flex flex-col items-center justify-center p-6 border border-gray-200 rounded-lg hover:border-primary hover:bg-gray-50 transition-all">
+                            <i class="fas fa-search text-primary text-3xl mb-3"></i>
+                            <span class="text-gray-700 font-medium">新建查询</span>
+                        </a>
+                        <a href="nl-query.html" class="flex flex-col items-center justify-center p-6 border border-gray-200 rounded-lg hover:border-primary hover:bg-gray-50 transition-all">
+                            <i class="fas fa-comment text-primary text-3xl mb-3"></i>
+                            <span class="text-gray-700 font-medium">自然语言查询</span>
+                        </a>
+                        <a href="low-code.html" class="flex flex-col items-center justify-center p-6 border border-gray-200 rounded-lg hover:border-primary hover:bg-gray-50 transition-all">
+                            <i class="fas fa-code text-primary text-3xl mb-3"></i>
+                            <span class="text-gray-700 font-medium">创建API</span>
+                        </a>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        // 这里可以添加交互逻辑
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Dashboard loaded');
+        });
+    </script>
+</body>
+</html>

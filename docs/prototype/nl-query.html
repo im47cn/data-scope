@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数据洞察平台 - 自然语言查询</title>
+    <link href="https://cdn.staticfile.org/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdn.staticfile.org/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .bg-sidebar { background-color: #1a202c; }
+        .text-primary { color: #4c51bf; }
+        .border-primary { border-color: #4c51bf; }
+        .bg-primary { background-color: #4c51bf; }
+        .hover-bg-primary:hover { background-color: #434190; }
+        .card-shadow { box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); }
+        .transition-all { transition: all 0.3s ease; }
+        .query-area { min-height: 100px; }
+        .typing-indicator span {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background-color: #4c51bf;
+            border-radius: 50%;
+            margin-right: 3px;
+            animation: typing 1s infinite ease-in-out;
+        }
+        .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+        .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes typing {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+        .ai-message { background-color: #f3f4f6; }
+        .user-message { background-color: #e5edff; }
+    </style>
+</head>
+<body class="h-full bg-gray-100 font-sans">
+    <div class="flex h-full">
+        <!-- 侧边栏 -->
+        <div class="bg-sidebar text-white w-64 flex-shrink-0 hidden md:block">
+            <div class="p-4 flex items-center border-b border-gray-700">
+                <i class="fas fa-database text-2xl mr-3 text-primary"></i>
+                <h1 class="text-xl font-semibold">数据洞察平台</h1>
+            </div>
+            <nav class="mt-5">
+                <a href="dashboard.html" class="flex items-center py-3 px-4 hover:bg-gray-800 transition-all">
+                    <i class="fas fa-tachometer-alt mr-3"></i>
+                    <span>仪表盘</span>
+                </a>
+                <a href="datasource.html" class="flex items-center py-3 px-4 hover:bg-gray-800 transition-all">
+                    <i class="fas fa-server mr-3"></i>
+                    <span>数据源管理</span>
+                </a>
+                <a href="data-browse.html" class="flex items-center py-3 px-4 hover:bg-gray-800 transition-all">
+                    <i class="fas fa-table mr-3"></i>
+                    <span>数据浏览</span>
+                </a>
+                <a href="query-builder.html" class="flex items-center py-3 px-4 hover:bg-gray-800 transition-all">
+                    <i class="fas fa-search mr-3"></i>
+                    <span>查询构建器</span>
+                </a>
+                <a href="nl-query.html" class="flex items-center py-3 px-4 bg-gray-800 border-l-4 border-primary">
+                    <i class="fas fa-comment mr-3"></i>
+                    <span>自然语言查询</span>
+                </a>
+                <a href="low-code.html" class="flex items-center py-3 px-4 hover:bg-gray-800 transition-all">
+                    <i class="fas fa-code mr-3"></i>
+                    <span>低代码集成</span>
+                </a>
+                <a href="query-history.html" class="flex items-center py-3 px-4 hover:bg-gray-800 transition-all">
+                    <i class="fas fa-history mr-3"></i>
+                    <span>查询历史</span>
+                </a>
+                <a href="settings.html" class="flex items-center py-3 px-4 hover:bg-gray-800 transition-all">
+                    <i class="fas fa-cog mr-3"></i>
+                    <span>系统设置</span>
+                </a>
+            </nav>
+        </div>
+
+        <!-- 主内容区 -->
+        <div class="flex-1 flex flex-col overflow-hidden">
+            <!-- 顶部导航栏 -->
+            <header class="bg-white shadow-sm z-10">
+                <div class="flex items-center justify-between p-4">
+                    <div class="flex items-center">
+                        <button class="text-gray-600 md:hidden">
+                            <i class="fas fa-bars text-xl"></i>
+                        </button>
+                        <h2 class="text-xl font-semibold ml-4">自然语言查询</h2>
+                    </div>
+                    <div class="flex items-center">
+                        <div class="relative mr-4">
+                            <input type="text" placeholder="搜索..." class="bg-gray-100 rounded-full py-2 px-4 pl-10 focus:outline-none focus:ring-2 focus:ring-primary focus:bg-white transition-all">
+                            <i class="fas fa-search absolute left-3 top-3 text-gray-500"></i>
+                        </div>
+                        <div class="relative mr-4">
+                            <button class="relative p-2 rounded-full hover:bg-gray-100 transition-all">
+                                <i class="fas fa-bell text-gray-600"></i>
+                                <span class="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
+                            </button>
+                        </div>
+                        <div class="flex items-center">
+                            <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="用户头像" class="w-8 h-8 rounded-full mr-2">
+                            <span class="text-gray-700">张经理</span>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- 内容区域 -->
+            <main class="flex-1 overflow-y-auto bg-gray-100">
+                <div class="container mx-auto px-4 py-6 max-w-6xl">
+                    <!-- 页面标题和说明 -->
+                    <div class="mb-6">
+                        <h1 class="text-2xl font-semibold text-gray-800">自然语言查询</h1>
+                        <p class="text-gray-600 mt-1">使用自然语言描述您的数据需求，无需编写SQL</p>
+                    </div>
+
+                    <!-- 数据源选择 -->
+                    <div class="bg-white rounded-lg card-shadow p-4 mb-6">
+                        <div class="flex flex-wrap items-center">
+                            <div class="mr-4 mb-2">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">选择数据源</label>
+                                <select class="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary">
+                                    <option value="sales_db">销售数据库</option>
+                                    <option value="crm_db">CRM数据库</option>
+                                    <option value="warehouse_db">仓储数据库</option>
+                                    <option value="hr_db">HR数据库</option>
+                                </select>
+                            </div>
+                            <div class="flex-grow">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">上下文提示</label>
+                                <div class="text-sm text-gray-600 bg-blue-50 p-2 rounded-md border border-blue-100">
+                                    <p>当前数据源包含以下主要表：<span class="text-primary">orders</span> (订单), <span class="text-primary">customers</span> (客户), <span class="text-primary">products</span> (产品), <span class="text-primary">order_items</span> (订单项), <span class="text-primary">employees</span> (员工)</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 对话区域 -->
+                    <div class="bg-white rounded-lg card-shadow mb-6">
+                        <div class="p-4 border-b border-gray-200 flex justify-between items-center">
+                            <h3 class="font-semibold text-gray-800">对话</h3>
+                            <div class="flex space-x-2">
+                                <button class="text-gray-500 hover:text-gray-700" title="清除对话">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                                <button class="text-gray-500 hover:text-gray-700" title="保存对话">
+                                    <i class="fas fa-save"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="p-4 space-y-4 max-h-96 overflow-y-auto" id="conversation">
+                            <!-- AI欢迎消息 -->
+                            <div class="flex ai-message rounded-lg p-4">
+                                <div class="flex-shrink-0 mr-4">
+                                    <div class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center">
+                                        <i class="fas fa-robot text-primary"></i>
+                                    </div>
+                                </div>
+                                <div class="flex-grow">
+                                    <p class="text-gray-800">您好！我是您的数据助手。您可以用自然语言向我询问关于数据的问题，例如"查询上个月销售额最高的产品"或"统计各地区的客户数量"。</p>
+                                    <p class="text-gray-800 mt-2">我会尝试理解您的问题并生成相应的SQL查询。您可以随时修改生成的SQL或者调整您的问题描述。</p>
+                                </div>
+                            </div>
+
+                            <!-- 用户查询 -->
+                            <div class="flex user-message rounded-lg p-4">
+                                <div class="flex-shrink-0 mr-4">
+                                    <div class="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center">
+                                        <i class="fas fa-user text-gray-600"></i>
+                                    </div>
+                                </div>
+                                <div class="flex-grow">
+                                    <p class="text-gray-800">查询上个月销售额最高的前5个产品及其销售额</p>
+                                </div>
+                            </div>
+
+                            <!-- AI思考中 -->
+                            <div class="flex ai-message rounded-lg p-4" style="display: none;">
+                                <div class="flex-shrink-0 mr-4">
+                                    <div class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center">
+                                        <i class="fas fa-robot text-primary"></i>
+                                    </div>
+                                </div>
+                                <div class="flex-grow">
+                                    <div class="typing-indicator">
+                                        <span></span>
+                                        <span></span>
+                                        <span></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- AI响应 -->
+                            <div class="flex ai-message rounded-lg p-4">
+                                <div class="flex-shrink-0 mr-4">
+                                    <div class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center">
+                                        <i class="fas fa-robot text-primary"></i>
+                                    </div>
+                                </div>
+                                <div class="flex-grow">
+                                    <p class="text-gray-800">我理解您想查询上个月销售额最高的前5个产品及其销售额。以下是我生成的SQL查询：</p>
+                                    <div class="mt-3 bg-gray-50 p-3 rounded-md border border-gray-200">
+                                        <pre class="text-sm text-gray-800 overflow-x-auto">SELECT 
+    p.product_id,
+    p.product_name,
+    SUM(oi.quantity * oi.unit_price) AS total_sales
+FROM 
+    products p
+JOIN 
+    order_items oi ON p.product_id = oi.product_id
+JOIN 
+    orders o ON oi.order_id = o.order_id
+WHERE 
+    o.order_date >= DATE_FORMAT(DATE_SUB(CURRENT_DATE(), INTERVAL 1 MONTH), '%Y-%m-01')
+    AND o.order_date < DATE_FORMAT(CURRENT_DATE(), '%Y-%m-01')
+GROUP BY 
+    p.product_id, p.product_name
+ORDER BY 
+    total_sales DESC
+LIMIT 5;</pre>
+                                    </div>
+                                    <div class="mt-3 flex space-x-2">
+                                        <button class="text-primary hover:text-indigo-700 text-sm flex items-center">
+                                            <i class="fas fa-edit mr-1"></i>
+                                            <span>编辑SQL</span>
+                                        </button>
+                                        <button class="text-primary hover:text-indigo-700 text-sm flex items-center">
+                                            <i class="fas fa-play mr-1"></i>
+                                            <span>执行查询</span>
+                                        </button>
+                                        <button class="text-primary hover:text-indigo-700 text-sm flex items-center">
+                                            <i class="fas fa-save mr-1"></i>
+                                            <span>保存查询</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 查询结果 -->
+                            <div class="flex ai-message rounded-lg p-4">
+                                <div class="flex-shrink-0 mr-4">
+                                    <div class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center">
+                                        <i class="fas fa-robot text-primary"></i>
+                                    </div>
+                                </div>
+                                <div class="flex-grow">
+                                    <p class="text-gray-800">查询执行完成，以下是上个月销售额最高的前5个产品：</p>
+                                    <div class="mt-3 overflow-x-auto">
+                                        <table class="min-w-full divide-y divide-gray-200">
+                                            <thead class="bg-gray-50">
+                                                <tr>
+                                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">产品ID</th>
+                                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">产品名称</th>
+                                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">销售额</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody class="bg-white divide-y divide-gray-200">
+                                                <tr>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">1024</td>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">高级办公椅</td>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">¥125,600.00</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">2035</td>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">笔记本电脑Pro</td>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">¥98,750.00</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">3012</td>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">智能手机X</td>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">¥87,320.00</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">4056</td>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">会议室显示器</td>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">¥65,400.00</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">5078</td>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">无线耳机</td>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">¥52,180.00</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div class="mt-3 flex space-x-2">
+                                        <button class="text-primary hover:text-indigo-700 text-sm flex items-center">
+                                            <i class="fas fa-download mr-1"></i>
+                                            <span>导出CSV</span>
+                                        </button>
+                                        <button class="text-primary hover:text-indigo-700 text-sm flex items-center">
+                                            <i class="fas fa-chart-bar mr-1"></i>
+                                            <span>可视化</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 用户后续查询 -->
+                            <div class="flex user-message rounded-lg p-4">
+                                <div class="flex-shrink-0 mr-4">
+                                    <div class="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center">
+                                        <i class="fas fa-user text-gray-600"></i>
+                                    </div>
+                                </div>
+                                <div class="flex-grow">
+                                    <p class="text-gray-800">这些产品的销售趋势如何？能否显示它们过去6个月的月度销售额？</p>
+                                </div>
+                            </div>
+
+                            <!-- AI响应 -->
+                            <div class="flex ai-message rounded-lg p-4">
+                                <div class="flex-shrink-0 mr-4">
+                                    <div class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center">
+                                        <i class="fas fa-robot text-primary"></i>
+                                    </div>
+                                </div>
+                                <div class="flex-grow">
+                                    <p class="text-gray-800">我理解您想查看这些产品过去6个月的销售趋势。以下是我生成的SQL查询：</p>
+                                    <div class="mt-3 bg-gray-50 p-3 rounded-md border border-gray-200">
+                                        <pre class="text-sm text-gray-800 overflow-x-auto">SELECT 
+    p.product_id,
+    p.product_name,
+    DATE_FORMAT(o.order_date, '%Y-%m') AS month,
+    SUM(oi.quantity * oi.unit_price) AS monthly_sales
+FROM 
+    products p
+JOIN 
+    order_items oi ON p.product_id = oi.product_id
+JOIN 
+    orders o ON oi.order_id = o.order_id
+WHERE 
+    p.product_id IN (1024, 2035, 3012, 4056, 5078)
+    AND o.order_date >= DATE_SUB(CURRENT_DATE(), INTERVAL 6 MONTH)
+GROUP BY 
+    p.product_id, p.product_name, DATE_FORMAT(o.order_date, '%Y-%m')
+ORDER BY 
+    p.product_id, month;</pre>
+                                    </div>
+                                    <div class="mt-3 flex space-x-2">
+                                        <button class="text-primary hover:text-indigo-700 text-sm flex items-center">
+                                            <i class="fas fa-edit mr-1"></i>
+                                            <span>编辑SQL</span>
+                                        </button>
+                                        <button class="text-primary hover:text-indigo-700 text-sm flex items-center">
+                                            <i class="fas fa-play mr-1"></i>
+                                            <span>执行查询</span>
+                                        </button>
+                                        <button class="text-primary hover:text-indigo-700 text-sm flex items-center">
+                                            <i class="fas fa-save mr-1"></i>
+                                            <span>保存查询</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 查询结果（图表） -->
+                            <div class="flex ai-message rounded-lg p-4">
+                                <div class="flex-shrink-0 mr-4">
+                                    <div class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center">
+                                        <i class="fas fa-robot text-primary"></i>
+                                    </div>
+                                </div>
+                                <div class="flex-grow">
+                                    <p class="text-gray-800">查询执行完成，以下是这些产品过去6个月的销售趋势图表：</p>
+                                    <div class="mt-3">
+                                        <img src="https://via.placeholder.com/800x400.png?text=销售趋势图表" alt="销售趋势图表" class="w-full rounded-lg border border-gray-200">
+                                    </div>
+                                    <div class="mt-3 flex space-x-2">
+                                        <button class="text-primary hover:text-indigo-700 text-sm flex items-center">
+                                            <i class="fas fa-table mr-1"></i>
+                                            <span>查看表格数据</span>
+                                        </button>
+                                        <button class="text-primary hover:text-indigo-700 text-sm flex items-center">
+                                            <i class="fas fa-download mr-1"></i>
+                                            <span>导出图表</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 输入区域 -->
+                        <div class="p-4 border-t border-gray-200">
+                            <div class="flex items-end">
+                                <div class="flex-grow">
+                                    <textarea class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary query-area" placeholder="用自然语言描述您的数据需求..."></textarea>
+                                </div>
+                                <div class="ml-3">
+                                    <button class="bg-primary hover:bg-indigo-700 text-white py-2 px-4 rounded-lg flex items-center transition-all">
+                                        <i class="fas fa-paper-plane mr-2"></i>
+                                        <span>发送</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="mt-2 text-sm text-gray-500">
+                                <p>提示：尝试询问"查询最近一周每天的订单数量"或"统计各产品类别的销售额占比"</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 历史查询 -->
+                    <div class="bg-white rounded-lg card-shadow">
+                        <div class="p-4 border-b border-gray-200">
+                            <h3 class="font-semibold text-gray-800">历史查询</h3>
+                        </div>
+                        <div class="p-4">
+                            <div class="space-y-3">
+                                <div class="flex items-center p-3 hover:bg-gray-50 rounded-lg transition-all cursor-pointer">
+                                    <i class="fas fa-history text-gray-500 mr-3"></i>
+                                    <div class="flex-1">
+                                        <p class="font-medium">查询上个月销售额最高的前5个产品及其销售额</p>
+                                        <p class="text-sm text-gray-500">执行时间: 2分钟前</p>
+                                    </div>
+                                    <button class="text-gray-500 hover:text-primary">
+                                        <i class="fas fa-redo-alt"></i>
+                                    </button>
+                                </div>
+                                <div class="flex items-center p-3 hover:bg-gray-50 rounded-lg transition-all cursor-pointer">
+                                    <i class="fas fa-history text-gray-500 mr-3"></i>
+                                    <div class="flex-1">
+                                        <p class="font-medium">统计各地区的客户数量</p>
+                                        <p class="text-sm text-gray-500">执行时间: 昨天</p>
+                                    </div>
+                                    <button class="text-gray-500 hover:text-primary">
+                                        <i class="fas fa-redo-alt"></i>
+                                    </button>
+                                </div>
+                                <div class="flex items-center p-3 hover:bg-gray-50 rounded-lg transition-all cursor-pointer">
+                                    <i class="fas fa-history text-gray-500 mr-3"></i>
+                                    <div class="flex-1">
+                                        <p class="font-medium">查询客户"张三企业"的所有订单</p>
+                                        <p class="text-sm text-gray-500">执行时间: 3天前</p>
+                                    </div>
+                                    <button class="text-gray-500 hover:text-primary">
+                                        <i class="fas fa-redo-alt"></i>
+                                    </button>
+                                </div>
+                                <div class="flex items-center p-3 hover:bg-gray-50 rounded-lg transition-all cursor-pointer">
+                                    <i class="fas fa-history text-gray-500 mr-3"></i>
+                                    <div class="flex-1">
+                                        <p class="font-medium">统计每月的订单数量和销售额</p>
+                                        <p class="text-sm text-gray-500">执行时间: 上周</p>
+                                    </div>
+                                    <button class="text-gray-500 hover:text-primary">
+                                        <i class="fas fa-redo-alt"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        // 这里可以添加交互逻辑
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('NL Query page loaded');
+            
+            // 示例：发送按钮点击事件
+            document.querySelector('button.bg-primary').addEventListener('click', function() {
+                const textarea = document.querySelector('textarea.query-area');
+                const query = textarea.value.trim();
+                
+                if (query) {
+                    // 添加用户消息
+                    const userMessage = `
+                        <div class="flex user-message rounded-lg p-4">
+                            <div class="flex-shrink-0 mr-4">
+                                <div class="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center">
+                                    <i class="fas fa-user text-gray-600"></i>
+                                </div>
+                            </div>
+                            <div class="flex-grow">
+                                <p class="text-gray-800">${query}</p>
+                            </div>
+                        </div>
+                    `;
+                    
+                    const conversation = document.getElementById('conversation');
+                    conversation.insertAdjacentHTML('beforeend', userMessage);
+                    
+                    // 清空输入框
+                    textarea.value = '';
+                    
+                    // 显示AI思考中状态
+                    const thinkingMessage = document.querySelector('.typing-indicator').parentNode.parentNode.parentNode;
+                    thinkingMessage.style.display = 'flex';
+                    
+                    // 模拟AI响应（实际应用中这里会调用后端API）
+                    setTimeout(function() {
+                        thinkingMessage.style.display = 'none';
+                        
+                        // 这里只是示例，实际应用中会根据用户查询生成响应
+                        const aiResponse = `
+                            <div class="flex ai-message rounded-lg p-4">
+                                <div class="flex-shrink-0 mr-4">
+                                    <div class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center">
+                                        <i class="fas fa-robot text-primary"></i>
+                                    </div>
+                                </div>
+                                <div class="flex-grow">
+                                    <p class="text-gray-800">我正在分析您的查询："${query}"</p>
+                                    <p class="text-gray-800 mt-2">请稍等，我需要更多时间来处理这个复杂的查询...</p>
+                                </div>
+                            </div>
+                        `;
+                        
+                        conversation.insertAdjacentHTML('beforeend', aiResponse);
+                        
+                        // 滚动到底部
+                        conversation.scrollTop = conversation.scrollHeight;
+                    }, 1500);
+                }
+            });
+        });
+    </script>
+</body>
+</html>

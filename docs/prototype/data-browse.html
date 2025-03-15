@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数据洞察平台 - 数据浏览</title>
+    <link href="https://cdn.staticfile.org/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdn.staticfile.org/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .bg-sidebar { background-color: #1a202c; }
+        .text-primary { color: #4c51bf; }
+        .border-primary { border-color: #4c51bf; }
+        .bg-primary { background-color: #4c51bf; }
+        .hover-bg-primary:hover { background-color: #434190; }
+        .card-shadow { box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); }
+        .transition-all { transition: all 0.3s ease; }
+        .schema-item { cursor: pointer; }
+        .schema-item:hover { background-color: #f3f4f6; }
+        .table-item { cursor: pointer; }
+        .table-item:hover { background-color: #f3f4f6; }
+        .selected-table { background-color: #e5edff; border-left: 3px solid #4c51bf; }
+    </style>
+</head>
+<body class="h-full bg-gray-100 font-sans">
+    <div class="flex h-full">
+        <!-- 侧边栏 -->
+        <div class="bg-sidebar text-white w-64 flex-shrink-0 hidden md:block">
+            <div class="p-4 flex items-center border-b border-gray-700">
+                <i class="fas fa-database text-2xl mr-3 text-primary"></i>
+                <h1 class="text-xl font-semibold">数据洞察平台</h1>
+            </div>
+            <nav class="mt-5">
+                <a href="dashboard.html" class="flex items-center py-3 px-4 hover:bg-gray-800 transition-all">
+                    <i class="fas fa-tachometer-alt mr-3"></i>
+                    <span>仪表盘</span>
+                </a>
+                <a href="datasource.html" class="flex items-center py-3 px-4 hover:bg-gray-800 transition-all">
+                    <i class="fas fa-server mr-3"></i>
+                    <span>数据源管理</span>
+                </a>
+                <a href="data-browse.html" class="flex items-center py-3 px-4 bg-gray-800 border-l-4 border-primary">
+                    <i class="fas fa-table mr-3"></i>
+                    <span>数据浏览</span>
+                </a>
+                <a href="query-builder.html" class="flex items-center py-3 px-4 hover:bg-gray-800 transition-all">
+                    <i class="fas fa-search mr-3"></i>
+                    <span>查询构建器</span>
+                </a>
+                <a href="nl-query.html" class="flex items-center py-3 px-4 hover:bg-gray-800 transition-all">
+                    <i class="fas fa-comment mr-3"></i>
+                    <span>自然语言查询</span>
+                </a>
+                <a href="low-code.html" class="flex items-center py-3 px-4 hover:bg-gray-800 transition-all">
+                    <i class="fas fa-code mr-3"></i>
+                    <span>低代码集成</span>
+                </a>
+                <a href="query-history.html" class="flex items-center py-3 px-4 hover:bg-gray-800 transition-all">
+                    <i class="fas fa-history mr-3"></i>
+                    <span>查询历史</span>
+                </a>
+                <a href="settings.html" class="flex items-center py-3 px-4 hover:bg-gray-800 transition-all">
+                    <i class="fas fa-cog mr-3"></i>
+                    <span>系统设置</span>
+                </a>
+            </nav>
+        </div>
+
+        <!-- 主内容区 -->
+        <div class="flex-1 flex flex-col overflow-hidden">
+            <!-- 顶部导航栏 -->
+            <header class="bg-white shadow-sm z-10">
+                <div class="flex items-center justify-between p-4">
+                    <div class="flex items-center">
+                        <button class="text-gray-600 md:hidden">
+                            <i class="fas fa-bars text-xl"></i>
+                        </button>
+                        <h2 class="text-xl font-semibold ml-4">数据浏览</h2>
+                    </div>
+                    <div class="flex items-center">
+                        <div class="relative mr-4">
+                            <input type="text" placeholder="搜索..." class="bg-gray-100 rounded-full py-2 px-4 pl-10 focus:outline-none focus:ring-2 focus:ring-primary focus:bg-white transition-all">
+                            <i class="fas fa-search absolute left-3 top-3 text-gray-500"></i>
+                        </div>
+                        <div class="relative mr-4">
+                            <button class="relative p-2 rounded-full hover:bg-gray-100 transition-all">
+                                <i class="fas fa-bell text-gray-600"></i>
+                                <span class="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
+                            </button>
+                        </div>
+                        <div class="flex items-center">
+                            <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="用户头像" class="w-8 h-8 rounded-full mr-2">
+                            <span class="text-gray-700">张经理</span>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- 内容区域 -->
+            <main class="flex-1 overflow-hidden">
+                <div class="flex h-full">
+                    <!-- 左侧数据源和表格导航 -->
+                    <div class="w-64 bg-white border-r border-gray-200 flex-shrink-0 flex flex-col">
+                        <!-- 数据源选择 -->
+                        <div class="p-4 border-b border-gray-200">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">数据源</label>
+                            <select class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary">
+                                <option value="sales_db">销售数据库</option>
+                                <option value="crm_db">CRM数据库</option>
+                                <option value="warehouse_db">仓储数据库</option>
+                                <option value="hr_db">HR数据库</option>
+                            </select>
+                        </div>
+                        
+                        <!-- 模式列表 -->
+                        <div class="p-4 border-b border-gray-200">
+                            <div class="flex justify-between items-center mb-2">
+                                <h4 class="font-medium text-gray-700">模式</h4>
+                                <input type="text" placeholder="搜索..." class="text-sm border border-gray-300 rounded-md px-2 py-1 w-24 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary">
+                            </div>
+                            <div class="overflow-y-auto max-h-32">
+                                <div class="schema-item p-2 rounded mb-1 selected-table">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-folder text-primary mr-2"></i>
+                                        <span>public</span>
+                                    </div>
+                                </div>
+                                <div class="schema-item p-2 rounded mb-1">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-folder text-gray-500 mr-2"></i>
+                                        <span>sales</span>
+                                    </div>
+                                </div>
+                                <div class="schema-item p-2 rounded mb-1">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-folder text-gray-500 mr-2"></i>
+                                        <span>marketing</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 表格列表 -->
+                        <div class="p-4 flex-1 overflow-hidden flex flex-col">
+                            <div class="flex justify-between items-center mb-2">
+                                <h4 class="font-medium text-gray-700">表</h4>
+                                <input type="text" placeholder="搜索..." class="text-sm border border-gray-300 rounded-md px-2 py-1 w-24 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary">
+                            </div>
+                            <div class="overflow-y-auto flex-1">
+                                <div class="table-item selected-table p-2 rounded mb-1">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-table text-primary mr-2"></i>
+                                        <span>customers</span>
+                                    </div>
+                                    <div class="text-xs text-gray-500 ml-6">客户表 (45K 行)</div>
+                                </div>
+                                <div class="table-item p-2 rounded mb-1">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-table text-gray-500 mr-2"></i>
+                                        <span>orders</span>
+                                    </div>
+                                    <div class="text-xs text-gray-500 ml-6">订单表 (1.2M 行)</div>
+                                </div>
+                                <div class="table-item p-2 rounded mb-1">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-table text-gray-500 mr-2"></i>
+                                        <span>products</span>
+                                    </div>
+                                    <div class="text-xs text-gray-500 ml-6">产品表 (5K 行)</div>
+                                </div>
+                                <div class="table-item p-2 rounded mb-1">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-table text-gray-500 mr-2"></i>
+                                        <span>order_items</span>
+                                    </div>
+                                    <div class="text-xs text-gray-500 ml-6">订单项表 (3.5M 行)</div>
+                                </div>
+                                <div class="table-item p-2 rounded mb-1">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-table text-gray-500 mr-2"></i>
+                                        <span>employees</span>
+                                    </div>
+                                    <div class="text-xs text-gray-500 ml-6">员工表 (200 行)</div>
+                                </div>
+                                <div class="table-item p-2 rounded mb-1">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-table text-gray-500 mr-2"></i>
+                                        <span>regions</span>
+                                    </div>
+                                    <div class="text-xs text-gray-500 ml-6">地区表 (25 行)</div>
+                                </div>
+                                <div class="table-item p-2 rounded mb-1">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-table text-gray-500 mr-2"></i>
+                                        <span>categories</span>
+                                    </div>
+                                    <div class="text-xs text-gray-500 ml-6">类别表 (12 行)</div>
+                                </div>
+                                <div class="table-item p-2 rounded mb-1">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-table text-gray-500 mr-2"></i>
+                                        <span>suppliers</span>
+                                    </div>
+                                    <div class="text-xs text-gray-500 ml-6">供应商表 (150 行)</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 右侧内容区 -->
+                    <div class="flex-1 flex flex-col overflow-hidden">
+                        <!-- 表格信息和操作 -->
+                        <div class="bg-white p-4 border-b border-gray-200">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <h3 class="text-lg font-semibold text-gray-800">customers 表</h3>
+                                    <p class="text-sm text-gray-600">客户信息表，包含所有客户的基本信息</p>
+                                </div>
+                                <div class="flex space-x-2">
+                                    <button class="bg-white border border-gray-300 text-gray-700 py-2 px-4 rounded-lg flex items-center hover:bg-gray-50 transition-all">
+                                        <i class="fas fa-filter mr-2"></i>
+                                        <span>筛选</span>
+                                    </button>
+                                    <button class="bg-white border border-gray-300 text-gray-700 py-2 px-4 rounded-lg flex items-center hover:bg-gray-50 transition-all">
+                                        <i class="fas fa-download mr-2"></i>
+                                        <span>导出</span>
+                                    </button>
+                                    <button class="bg-primary hover:bg-indigo-700 text-white py-2 px-4 rounded-lg flex items-center transition-all">
+                                        <i class="fas fa-search mr-2"></i>
+                                        <span>查询</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 表格结构 -->
+                        <div class="bg-white p-4 border-b border-gray-200">
+                            <h4 class="font-medium text-gray-700 mb-3">表结构</h4>
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full divide-y divide-gray-200">
+                                    <thead>
+                                        <tr>
+                                            <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">列名</th>
+                                            <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">数据类型</th>
+                                            <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">约束</th>
+                                            <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">描述</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="bg-white divide-y divide-gray-200">
+                                        <tr>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <div class="flex items-center">
+                                                    <i class="fas fa-key text-yellow-500 mr-2"></i>
+                                                    <span>customer_id</span>
+                                                </div>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap">INT</td>
+                                            <td class="px-6 py-4 whitespace-nowrap">PRIMARY KEY</td>
+                                            <td class="px-6 py-4 whitespace-nowrap">客户唯一标识</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <div class="flex items-center">
+                                                    <i class="fas fa-font text-blue-500 mr-2"></i>
+                                                    <span>customer_name</span>
+                                                </div>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap">VARCHAR(100)</td>
+                                            <td class="px-6 py-4 whitespace-nowrap">NOT NULL</td>
+                                            <td class="px-6 py-4 whitespace-nowrap">客户名称</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <div class="flex items-center">
+                                                    <i class="fas fa-font text-blue-500 mr-2"></i>
+                                                    <span>contact_name</span>
+                                                </div>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap">VARCHAR(50)</td>
+                                            <td class="px-6 py-4 whitespace-nowrap"></td>
+                                            <td class="px-6 py-4 whitespace-nowrap">联系人姓名</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <div class="flex items-center">
+                                                    <i class="fas fa-font text-blue-500 mr-2"></i>
+                                                    <span>phone</span>
+                                                </div>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap">VARCHAR(20)</td>
+                                            <td class="px-6 py-4 whitespace-nowrap"></td>
+                                            <td class="px-6 py-4 whitespace-nowrap">联系电话</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <div class="flex items-center">
+                                                    <i class="fas fa-font text-blue-500 mr-2"></i>
+                                                    <span>email</span>
+                                                </div>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap">VARCHAR(100)</td>
+                                            <td class="px-6 py-4 whitespace-nowrap"></td>
+                                            <td class="px-6 py-4 whitespace-nowrap">电子邮箱</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <div class="flex items-center">
+                                                    <i class="fas fa-font text-blue-500 mr-2"></i>
+                                                    <span>address</span>
+                                                </div>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap">VARCHAR(200)</td>
+                                            <td class="px-6 py-4 whitespace-nowrap"></td>
+                                            <td class="px-6 py-4 whitespace-nowrap">地址</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <div class="flex items-center">
+                                                    <i class="fas fa-link text-green-500 mr-2"></i>
+                                                    <span>region_id</span>
+                                                </div>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap">INT</td>
+                                            <td class="px-6 py-4 whitespace-nowrap">FOREIGN KEY</td>
+                                            <td class="px-6 py-4 whitespace-nowrap">所属地区ID</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <div class="flex items-center">
+                                                    <i class="fas fa-calendar text-purple-500 mr-2"></i>
+                                                    <span>created_at</span>
+                                                </div>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap">DATETIME</td>
+                                            <td class="px-6 py-4 whitespace-nowrap">NOT NULL</td>
+                                            <td class="px-6 py-4 whitespace-nowrap">创建时间</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        
+                        <!-- 表格数据 -->
+                        <div class="flex-1 overflow-auto bg-white">
+                            <div class="p-4">
+                                <div class="flex justify-between items-center mb-3">
+                                    <h4 class="font-medium text-gray-700">表数据</h4>
+                                    <div class="flex items-center">
+                                        <span class="text-sm text-gray-600 mr-2">每页显示:</span>
+                                        <select class="border border-gray-300 rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary">
+                                            <option>10</option>
+                                            <option>20</option>
+                                            <option selected>50</option>
+                                            <option>100</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="overflow-x-auto">
+                                    <table class="min-w-full divide-y divide-gray-200">
+                                        <thead>
+                                            <tr>
+                                                <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">customer_id</th>
+                                                <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">customer_name</th>
+                                                <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">contact_name</th>
+                                                <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">phone</th>
+                                                <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">email</th>
+                                                <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">address</th>
+                                                <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">region_id</th>
+                                                <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">created_at</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="bg-white divide-y divide-gray-200">
+                                            <tr>
+                                                <td class="px-6 py-4 whitespace-nowrap">1001</td>
+                                                <td class="px-6 py-4 whitespace-nowrap">张三企业</td>
+                                                <td class="px-6 py-4 whitespace-nowrap">张三</td>
+                                                <td class="px-6 py-4 whitespace-nowrap">13800138001</td>
+                                                <td class="px-6 py-4 whitespace-nowrap">zhangsan@example.com</td>
+                                                <td class="px-6 py-4 whitespace-nowrap">北京市朝阳区建国路88号</td>
+                                                <td class="px-6 py-4 whitespace-nowrap">1</td>
+                                                <td class="px-6 py-4 whitespace-nowrap">2023-01-15 10:30:00</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="px-6 py-4 whitespace-nowrap">1002</td>
+                                                <td class="px-6 py-4 whitespace-nowrap">李四有限公司</td>
+                                                <td class="px-6 py-4 whitespace-nowrap">李四</td>
+                                                <td class="px-6 py-4 whitespace-nowrap">13900139002</td>
+                                                <td class="px-6 py-4 whitespace-nowrap">lisi@example.com</td>
+                                                <td class="px-6 py-4 whitespace-nowrap">上海市浦东新区陆家嘴1号</td>
+                                                <td class="px-6 py-4 whitespace-nowrap">2</td>
+                                                <td class="px-6 py-4 whitespace-nowrap">2023-01-20 14:15:00</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="px-6 py-4 whitespace-nowrap">1003</td>
+                                                <td class="px-6 py-4 whitespace-nowrap">王五科技</td>
+                                                <td class="px-6 py-4 whitespace-nowrap">王五</td>
+                                                <td class="px-6 py-4 whitespace-nowrap">13700137003</td>
+                                                <td class="px-6 py-4 whitespace-nowrap">wangwu@example.com</td>
+                                                <td class="px-6 py-4 whitespace-nowrap">深圳市南山区科技园路10号</td>
+                                                <td class="px-6 py-4 whitespace-nowrap">3</td>
+                                                <td class="px-6 py-4 whitespace-nowrap">2023-02-05 09:45:00</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="px-6 py-4 whitespace-nowrap">1004</td>
+                                                <td class="px-6 py-4 whitespace-nowrap">赵六贸易</td>
+                                                <td class="px-6 py-4 whitespace-nowrap">赵六</td>
+                                                <td class="px-6 py-4 whitespace-nowrap">13600136004</td>
+                                                <td class="px-6 py-4 whitespace-nowrap">zhaoliu@example.com</td>
+                                                <td class="px-6 py-4 whitespace-nowrap">广州市天河区体育西路5号</td>
+                                                <td class="px-6 py-4 whitespace-nowrap">4</td>
+                                                <td class="px-6 py-4 whitespace-nowrap">2023-02-10 16:20:00</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="px-6 py-4 whitespace-nowrap">1005</td>
+                                                <td class="px-6 py-4 whitespace-nowrap">钱七集团</td>
+                                                <td class="px-6 py-4 whitespace-nowrap">钱七</td>
+                                                <td class="px-6 py-4 whitespace-nowrap">13500135005</td>
+                                                <td class="px-6 py-4 whitespace-nowrap">qianqi@example.com</td>
+                                                <td class="px-6 py-4 whitespace-nowrap">成都市锦江区红星路3段</td>
+                                                <td class="px-6 py-4 whitespace-nowrap">5</td>
+                                                <td class="px-6 py-4 whitespace-nowrap">2023-03-01 11:10:00</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="mt-4 flex items-center justify-between">
+                                    <div>
+                                        <p class="text-sm text-gray-700">
+                                            显示第 <span class="font-medium">1</span> 到 <span class="font-medium">5</span> 条，共 <span class="font-medium">45,000</span> 条
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                                            <a href="#" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                                <span class="sr-only">上一页</span>
+                                                <i class="fas fa-chevron-left"></i>
+                                            </a>
+                                            <a href="#" aria-current="page" class="z-10 bg-primary border-primary text-white relative inline-flex items-center px-4 py-2 border text-sm font-medium">
+                                                1
+                                            </a>
+                                            <a href="#" class="bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium">
+                                                2
+                                            </a>
+                                            <a href="#" class="bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium">
+                                                3
+                                            </a>
+                                            <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700">
+                                                ...
+                                            </span>
+                                            <a href="#" class="bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium">
+                                                900
+                                            </a>
+                                            <a href="#" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                                <span class="sr-only">下一页</span>
+                                                <i class="fas fa-chevron-right"></i>
+                                            </a>
+                                        </nav>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        // 这里可以添加交互逻辑
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Data Browse page loaded');
+        });
+    </script>
+</body>
+</html>

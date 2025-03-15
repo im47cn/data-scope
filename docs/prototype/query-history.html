@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数据洞察平台 - 查询历史</title>
+    <link href="https://cdn.staticfile.org/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdn.staticfile.org/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .bg-sidebar { background-color: #1a202c; }
+        .text-primary { color: #4c51bf; }
+        .border-primary { border-color: #4c51bf; }
+        .bg-primary { background-color: #4c51bf; }
+        .hover-bg-primary:hover { background-color: #434190; }
+        .card-shadow { box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); }
+        .transition-all { transition: all 0.3s ease; }
+        .history-item:hover { background-color: #f9fafb; }
+    </style>
+</head>
+<body class="h-full bg-gray-100 font-sans">
+    <div class="flex h-full">
+        <!-- 侧边栏 -->
+        <div class="bg-sidebar text-white w-64 flex-shrink-0 hidden md:block">
+            <div class="p-4 flex items-center border-b border-gray-700">
+                <i class="fas fa-database text-2xl mr-3 text-primary"></i>
+                <h1 class="text-xl font-semibold">数据洞察平台</h1>
+            </div>
+            <nav class="mt-5">
+                <a href="dashboard.html" class="flex items-center py-3 px-4 hover:bg-gray-800 transition-all">
+                    <i class="fas fa-tachometer-alt mr-3"></i>
+                    <span>仪表盘</span>
+                </a>
+                <a href="datasource.html" class="flex items-center py-3 px-4 hover:bg-gray-800 transition-all">
+                    <i class="fas fa-server mr-3"></i>
+                    <span>数据源管理</span>
+                </a>
+                <a href="data-browse.html" class="flex items-center py-3 px-4 hover:bg-gray-800 transition-all">
+                    <i class="fas fa-table mr-3"></i>
+                    <span>数据浏览</span>
+                </a>
+                <a href="query-builder.html" class="flex items-center py-3 px-4 hover:bg-gray-800 transition-all">
+                    <i class="fas fa-search mr-3"></i>
+                    <span>查询构建器</span>
+                </a>
+                <a href="nl-query.html" class="flex items-center py-3 px-4 hover:bg-gray-800 transition-all">
+                    <i class="fas fa-comment mr-3"></i>
+                    <span>自然语言查询</span>
+                </a>
+                <a href="low-code.html" class="flex items-center py-3 px-4 hover:bg-gray-800 transition-all">
+                    <i class="fas fa-code mr-3"></i>
+                    <span>低代码集成</span>
+                </a>
+                <a href="query-history.html" class="flex items-center py-3 px-4 bg-gray-800 border-l-4 border-primary">
+                    <i class="fas fa-history mr-3"></i>
+                    <span>查询历史</span>
+                </a>
+                <a href="settings.html" class="flex items-center py-3 px-4 hover:bg-gray-800 transition-all">
+                    <i class="fas fa-cog mr-3"></i>
+                    <span>系统设置</span>
+                </a>
+            </nav>
+        </div>
+
+        <!-- 主内容区 -->
+        <div class="flex-1 flex flex-col overflow-hidden">
+            <!-- 顶部导航栏 -->
+            <header class="bg-white shadow-sm z-10">
+                <div class="flex items-center justify-between p-4">
+                    <div class="flex items-center">
+                        <button class="text-gray-600 md:hidden">
+                            <i class="fas fa-bars text-xl"></i>
+                        </button>
+                        <h2 class="text-xl font-semibold ml-4">查询历史</h2>
+                    </div>
+                    <div class="flex items-center">
+                        <div class="relative mr-4">
+                            <input type="text" placeholder="搜索..." class="bg-gray-100 rounded-full py-2 px-4 pl-10 focus:outline-none focus:ring-2 focus:ring-primary focus:bg-white transition-all">
+                            <i class="fas fa-search absolute left-3 top-3 text-gray-500"></i>
+                        </div>
+                        <div class="relative mr-4">
+                            <button class="relative p-2 rounded-full hover:bg-gray-100 transition-all">
+                                <i class="fas fa-bell text-gray-600"></i>
+                                <span class="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
+                            </button>
+                        </div>
+                        <div class="flex items-center">
+                            <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="用户头像" class="w-8 h-8 rounded-full mr-2">
+                            <span class="text-gray-700">张经理</span>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- 内容区域 -->
+            <main class="flex-1 overflow-y-auto p-4 bg-gray-100">
+                <!-- 筛选器 -->
+                <div class="bg-white rounded-lg card-shadow p-4 mb-6">
+                    <div class="flex flex-wrap items-center">
+                        <div class="mr-4 mb-2">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">数据源</label>
+                            <select class="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary">
+                                <option value="">全部</option>
+                                <option value="sales_db">销售数据库</option>
+                                <option value="crm_db">CRM数据库</option>
+                                <option value="warehouse_db">仓储数据库</option>
+                                <option value="hr_db">HR数据库</option>
+                            </select>
+                        </div>
+                        <div class="mr-4 mb-2">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">查询类型</label>
+                            <select class="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary">
+                                <option value="">全部</option>
+                                <option value="builder">查询构建器</option>
+                                <option value="nl">自然语言查询</option>
+                                <option value="sql">SQL查询</option>
+                            </select>
+                        </div>
+                        <div class="mr-4 mb-2">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">时间范围</label>
+                            <select class="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary">
+                                <option value="today">今天</option>
+                                <option value="yesterday">昨天</option>
+                                <option value="week" selected>本周</option>
+                                <option value="month">本月</option>
+                                <option value="custom">自定义</option>
+                            </select>
+                        </div>
+                        <div class="mr-4 mb-2">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">状态</label>
+                            <select class="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary">
+                                <option value="">全部</option>
+                                <option value="success">成功</option>
+                                <option value="error">错误</option>
+                            </select>
+                        </div>
+                        <div class="flex-grow mb-2">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">搜索</label>
+                            <div class="relative">
+                                <input type="text" placeholder="搜索查询内容..." class="w-full border border-gray-300 rounded-md px-3 py-2 pl-10 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary">
+                                <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 查询历史列表 -->
+                <div class="bg-white rounded-lg card-shadow mb-6">
+                    <div class="p-4 border-b border-gray-200 flex justify-between items-center">
+                        <h3 class="font-semibold text-gray-800">查询历史</h3>
+                        <div class="flex space-x-2">
+                            <button class="text-gray-500 hover:text-gray-700" title="导出历史">
+                                <i class="fas fa-download"></i>
+                            </button>
+                            <button class="text-gray-500 hover:text-gray-700" title="清除历史">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead>
+                                <tr>
+                                    <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">查询ID</th>
+                                    <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">查询内容</th>
+                                    <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">数据源</th>
+                                    <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">类型</th>
+                                    <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">执行时间</th>
+                                    <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">耗时</th>
+                                    <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">状态</th>
+                                    <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                <tr class="history-item">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">QH-10248</td>
+                                    <td class="px-6 py-4 text-sm text-gray-900 max-w-md truncate">
+                                        SELECT o.order_id, o.customer_id, o.order_date, c.customer_name FROM orders o INNER JOIN customers c ON o.customer_id = c.customer_id WHERE o.order_date >= '2023-01-01' AND o.status = '已完成' ORDER BY o.order_date DESC
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">销售数据库</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                        <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                                            <i class="fas fa-search mr-1"></i> 查询构建器
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">2023-12-15 14:30:25</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">1.2秒</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                        <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">成功</span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                        <div class="flex space-x-2">
+                                            <button class="text-indigo-600 hover:text-indigo-900" title="重新执行">
+                                                <i class="fas fa-play"></i>
+                                            </button>
+                                            <button class="text-blue-600 hover:text-blue-900" title="查看结果">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <button class="text-green-600 hover:text-green-900" title="编辑查询">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="text-red-600 hover:text-red-900" title="删除">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr class="history-item">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">QH-10247</td>
+                                    <td class="px-6 py-4 text-sm text-gray-900 max-w-md truncate">
+                                        查询上个月销售额最高的前5个产品及其销售额
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">销售数据库</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                        <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-purple-100 text-purple-800">
+                                            <i class="fas fa-comment mr-1"></i> 自然语言查询
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">2023-12-15 13:45:10</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">2.5秒</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                        <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">成功</span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                        <div class="flex space-x-2">
+                                            <button class="text-indigo-600 hover:text-indigo-900" title="重新执行">
+                                                <i class="fas fa-play"></i>
+                                            </button>
+                                            <button class="text-blue-600 hover:text-blue-900" title="查看结果">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <button class="text-green-600 hover:text-green-900" title="编辑查询">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="text-red-600 hover:text-red-900" title="删除">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr class="history-item">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">QH-10246</td>
+                                    <td class="px-6 py-4 text-sm text-gray-900 max-w-md truncate">
+                                        SELECT e.employee_id, e.employee_name, e.department, COUNT(o.order_id) AS order_count FROM employees e LEFT JOIN orders o ON e.employee_id = o.employee_id GROUP BY e.employee_id, e.employee_name, e.department ORDER BY order_count DESC
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">HR数据库</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                        <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
+                                            <i class="fas fa-code mr-1"></i> SQL查询
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">2023-12-14 16:20:35</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">3.7秒</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                        <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">成功</span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                        <div class="flex space-x-2">
+                                            <button class="text-indigo-600 hover:text-indigo-900" title="重新执行">
+                                                <i class="fas fa-play"></i>
+                                            </button>
+                                            <button class="text-blue-600 hover:text-blue-900" title="查看结果">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <button class="text-green-600 hover:text-green-900" title="编辑查询">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="text-red-600 hover:text-red-900" title="删除">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr class="history-item">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">QH-10245</td>
+                                    <td class="px-6 py-4 text-sm text-gray-900 max-w-md truncate">
+                                        统计各地区的客户数量
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">CRM数据库</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                        <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-purple-100 text-purple-800">
+                                            <i class="fas fa-comment mr-1"></i> 自然语言查询
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">2023-12-14 11:05:47</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">1.8秒</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                        <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">成功</span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                        <div class="flex space-x-2">
+                                            <button class="text-indigo-600 hover:text-indigo-900" title="重新执行">
+                                                <i class="fas fa-play"></i>
+                                            </button>
+                                            <button class="text-blue-600 hover:text-blue-900" title="查看结果">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <button class="text-green-600 hover:text-green-900" title="编辑查询">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="text-red-600 hover:text-red-900" title="删除">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr class="history-item">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">QH-10244</td>
+                                    <td class="px-6 py-4 text-sm text-gray-900 max-w-md truncate">
+                                        SELECT p.product_id, p.product_name, SUM(oi.quantity) AS total_quantity FROM products p JOIN order_items oi ON p.product_id = oi.product_id WHERE p.category_id = 3 GROUP BY p.product_id, p.product_name HAVING SUM(oi.quantity) > 100
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">仓储数据库</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                        <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                                            <i class="fas fa-search mr-1"></i> 查询构建器
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">2023-12-13 09:30:15</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">5.2秒</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                        <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">错误</span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                        <div class="flex space-x-2">
+                                            <button class="text-indigo-600 hover:text-indigo-900" title="重新执行">
+                                                <i class="fas fa-play"></i>
+                                            </button>
+                                            <button class="text-blue-600 hover:text-blue-900" title="查看错误">
+                                                <i class="fas fa-exclamation-circle"></i>
+                                            </button>
+                                            <button class="text-green-600 hover:text-green-900" title="编辑查询">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="text-red-600 hover:text-red-900" title="删除">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="bg-white px-4 py-3 border-t border-gray-200 sm:px-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-gray-700">
+                                    显示第 <span class="font-medium">1</span> 到 <span class="font-medium">5</span> 条，共 <span class="font-medium">56</span> 条
+                                </p>
+                            </div>
+                            <div>
+                                <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                                    <a href="#" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                        <span class="sr-only">上一页</span>
+                                        <i class="fas fa-chevron-left"></i>
+                                    </a>
+                                    <a href="#" aria-current="page" class="z-10 bg-primary border-primary text-white relative inline-flex items-center px-4 py-2 border text-sm font-medium">
+                                        1
+                                    </a>
+                                    <a href="#" class="bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium">
+                                        2
+                                    </a>
+                                    <a href="#" class="bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium">
+                                        3
+                                    </a>
+                                    <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700">
+                                        ...
+                                    </span>
+                                    <a href="#" class="bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium">
+                                        12
+                                    </a>
+                                    <a href="#" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                        <span class="sr-only">下一页</span>
+                                        <i class="fas fa-chevron-right"></i>
+                                    </a>
+                                </nav>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 查询统计 -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <!-- 查询类型分布 -->
+                    <div class="bg-white rounded-lg card-shadow">
+                        <div class="p-4 border-b border-gray-200">
+                            <h3 class="font-semibold text-gray-800">查询类型分布</h3>
+                        </div>
+                        <div class="p-4">
+                            <div class="h-64 flex items-center justify-center">
+                                <img src="https://via.placeholder.com/400x200.png?text=查询类型分布图表" alt="查询类型分布图表" class="max-w-full max-h-full">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 查询执行时间趋势 -->
+                    <div class="bg-white rounded-lg card-shadow">
+                        <div class="p-4 border-b border-gray-200">
+                            <h3 class="font-semibold text-gray-800">查询执行时间趋势</h3>
+                        </div>
+                        <div class="p-4">
+                            <div class="h-64 flex items-center justify-center">
+                                <img src="https://via.placeholder.com/400x200.png?text=查询执行时间趋势图表" alt="查询执行时间趋势图表" class="max-w-full max-h-full">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 常用查询 -->
+                <div class="bg-white rounded-lg card-shadow">
+                    <div class="p-4 border-b border-gray-200">
+                        <h3 class="font-semibold text-gray-800">常用查询</h3>
+                    </div>
+                    <div class="p-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <div class="border border-gray-200 rounded-lg p-4 hover:border-primary hover:shadow-md transition-all">
+                                <div class="flex justify-between items-start">
+                                    <h4 class="font-medium text-gray-800">月度销售报表</h4>
+                                    <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                                        <i class="fas fa-search mr-1"></i> 查询构建器
+                                    </span>
+                                </div>
+                                <p class="text-sm text-gray-600 mt-2 line-clamp-2">查询每月的销售额、订单数量和平均订单金额，按月份分组并按时间排序。</p>
+                                <div class="mt-3 flex justify-between items-center">
+                                    <span class="text-xs text-gray-500">执行次数: 28</span>
+                                    <button class="text-primary hover:text-indigo-700 text-sm">
+                                        <i class="fas fa-play mr-1"></i>
+                                        <span>执行</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="border border-gray-200 rounded-lg p-4 hover:border-primary hover:shadow-md transition-all">
+                                <div class="flex justify-between items-start">
+                                    <h4 class="font-medium text-gray-800">客户分析报告</h4>
+                                    <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-purple-100 text-purple-800">
+                                        <i class="fas fa-comment mr-1"></i> 自然语言查询
+                                    </span>
+                                </div>
+                                <p class="text-sm text-gray-600 mt-2 line-clamp-2">统计各地区的客户数量、平均订单金额和总销售额，按地区分组。</p>
+                                <div class="mt-3 flex justify-between items-center">
+                                    <span class="text-xs text-gray-500">执行次数: 23</span>
+                                    <button class="text-primary hover:text-indigo-700 text-sm">
+                                        <i class="fas fa-play mr-1"></i>
+                                        <span>执行</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="border border-gray-200 rounded-lg p-4 hover:border-primary hover:shadow-md transition-all">
+                                <div class="flex justify-between items-start">
+                                    <h4 class="font-medium text-gray-800">库存状态查询</h4>
+                                    <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
+                                        <i class="fas fa-code mr-1"></i> SQL查询
+                                    </span>
+                                </div>
+                                <p class="text-sm text-gray-600 mt-2 line-clamp-2">查询库存低于安全库存水平的产品，包括产品名称、当前库存和安全库存水平。</p>
+                                <div class="mt-3 flex justify-between items-center">
+                                    <span class="text-xs text-gray-500">执行次数: 19</span>
+                                    <button class="text-primary hover:text-indigo-700 text-sm">
+                                        <i class="fas fa-play mr-1"></i>
+                                        <span>执行</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        // 这里可以添加交互逻辑
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Query History page loaded');
+        });
+    </script>
+</body>
+</html>
