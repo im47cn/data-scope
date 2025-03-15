@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数据洞察平台 - 查询构建器</title>
+    <link href="https://cdn.staticfile.org/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdn.staticfile.org/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .bg-sidebar { background-color: #1a202c; }
+        .text-primary { color: #4c51bf; }
+        .border-primary { border-color: #4c51bf; }
+        .bg-primary { background-color: #4c51bf; }
+        .hover-bg-primary:hover { background-color: #434190; }
+        .card-shadow { box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); }
+        .transition-all { transition: all 0.3s ease; }
+        .query-area { min-height: 200px; }
+        .table-item { cursor: pointer; }
+        .table-item:hover { background-color: #f3f4f6; }
+        .column-item { cursor: pointer; }
+        .column-item:hover { background-color: #f3f4f6; }
+        .selected-table { background-color: #e5edff; border-left: 3px solid #4c51bf; }
+        .selected-column { background-color: #e5edff; }
+        .condition-badge { background-color: #e5edff; border: 1px solid #4c51bf; }
+        .join-line { border-top: 2px dashed #4c51bf; }
+    </style>
+</head>
+<body class="h-full bg-gray-100 font-sans">
+    <div class="flex h-full">
+        <!-- 侧边栏 -->
+        <div class="bg-sidebar text-white w-64 flex-shrink-0 hidden md:block">
+            <div class="p-4 flex items-center border-b border-gray-700">
+                <i class="fas fa-database text-2xl mr-3 text-primary"></i>
+                <h1 class="text-xl font-semibold">数据洞察平台</h1>
+            </div>
+            <nav class="mt-5">
+                <a href="dashboard.html" class="flex items-center py-3 px-4 hover:bg-gray-800 transition-all">
+                    <i class="fas fa-tachometer-alt mr-3"></i>
+                    <span>仪表盘</span>
+                </a>
+                <a href="datasource.html" class="flex items-center py-3 px-4 hover:bg-gray-800 transition-all">
+                    <i class="fas fa-server mr-3"></i>
+                    <span>数据源管理</span>
+                </a>
+                <a href="data-browse.html" class="flex items-center py-3 px-4 hover:bg-gray-800 transition-all">
+                    <i class="fas fa-table mr-3"></i>
+                    <span>数据浏览</span>
+                </a>
+                <a href="query-builder.html" class="flex items-center py-3 px-4 bg-gray-800 border-l-4 border-primary">
+                    <i class="fas fa-search mr-3"></i>
+                    <span>查询构建器</span>
+                </a>
+                <a href="nl-query.html" class="flex items-center py-3 px-4 hover:bg-gray-800 transition-all">
+                    <i class="fas fa-comment mr-3"></i>
+                    <span>自然语言查询</span>
+                </a>
+                <a href="low-code.html" class="flex items-center py-3 px-4 hover:bg-gray-800 transition-all">
+                    <i class="fas fa-code mr-3"></i>
+                    <span>低代码集成</span>
+                </a>
+                <a href="query-history.html" class="flex items-center py-3 px-4 hover:bg-gray-800 transition-all">
+                    <i class="fas fa-history mr-3"></i>
+                    <span>查询历史</span>
+                </a>
+                <a href="settings.html" class="flex items-center py-3 px-4 hover:bg-gray-800 transition-all">
+                    <i class="fas fa-cog mr-3"></i>
+                    <span>系统设置</span>
+                </a>
+            </nav>
+        </div>
+
+        <!-- 主内容区 -->
+        <div class="flex-1 flex flex-col overflow-hidden">
+            <!-- 顶部导航栏 -->
+            <header class="bg-white shadow-sm z-10">
+                <div class="flex items-center justify-between p-4">
+                    <div class="flex items-center">
+                        <button class="text-gray-600 md:hidden">
+                            <i class="fas fa-bars text-xl"></i>
+                        </button>
+                        <h2 class="text-xl font-semibold ml-4">查询构建器</h2>
+                    </div>
+                    <div class="flex items-center">
+                        <div class="relative mr-4">
+                            <input type="text" placeholder="搜索..." class="bg-gray-100 rounded-full py-2 px-4 pl-10 focus:outline-none focus:ring-2 focus:ring-primary focus:bg-white transition-all">
+                            <i class="fas fa-search absolute left-3 top-3 text-gray-500"></i>
+                        </div>
+                        <div class="relative mr-4">
+                            <button class="relative p-2 rounded-full hover:bg-gray-100 transition-all">
+                                <i class="fas fa-bell text-gray-600"></i>
+                                <span class="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
+                            </button>
+                        </div>
+                        <div class="flex items-center">
+                            <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="用户头像" class="w-8 h-8 rounded-full mr-2">
+                            <span class="text-gray-700">张经理</span>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- 内容区域 -->
+            <main class="flex-1 overflow-y-auto bg-gray-100">
+                <div class="p-4">
+                    <!-- 页面标题和操作按钮 -->
+                    <div class="flex justify-between items-center mb-4">
+                        <div>
+                            <h1 class="text-2xl font-semibold text-gray-800">查询构建器</h1>
+                            <p class="text-gray-600 text-sm mt-1">可视化构建SQL查询，无需编写代码</p>
+                        </div>
+                        <div class="flex space-x-2">
+                            <button class="bg-white border border-gray-300 text-gray-700 py-2 px-4 rounded-lg flex items-center hover:bg-gray-50 transition-all">
+                                <i class="fas fa-save mr-2"></i>
+                                <span>保存查询</span>
+                            </button>
+                            <button class="bg-white border border-gray-300 text-gray-700 py-2 px-4 rounded-lg flex items-center hover:bg-gray-50 transition-all">
+                                <i class="fas fa-folder-open mr-2"></i>
+                                <span>加载查询</span>
+                            </button>
+                            <button class="bg-primary hover:bg-indigo-700 text-white py-2 px-4 rounded-lg flex items-center transition-all">
+                                <i class="fas fa-play mr-2"></i>
+                                <span>执行查询</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 主要内容区 -->
+                    <div class="grid grid-cols-1 lg:grid-cols-4 gap-4">
+                        <!-- 左侧数据源面板 -->
+                        <div class="lg:col-span-1">
+                            <div class="bg-white rounded-lg card-shadow h-full">
+                                <div class="p-4 border-b border-gray-200">
+                                    <div class="flex justify-between items-center">
+                                        <h3 class="font-semibold text-gray-800">数据源</h3>
+                                        <div class="flex space-x-2">
+                                            <button class="text-gray-500 hover:text-gray-700">
+                                                <i class="fas fa-sync-alt"></i>
+                                            </button>
+                                            <button class="text-gray-500 hover:text-gray-700">
+                                                <i class="fas fa-search"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="mt-2">
+                                        <select class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary">
+                                            <option value="sales_db">销售数据库</option>
+                                            <option value="crm_db">CRM数据库</option>
+                                            <option value="warehouse_db">仓储数据库</option>
+                                            <option value="hr_db">HR数据库</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="p-4 border-b border-gray-200">
+                                    <div class="flex justify-between items-center mb-2">
+                                        <h4 class="font-medium text-gray-700">表</h4>
+                                        <input type="text" placeholder="搜索表..." class="text-sm border border-gray-300 rounded-md px-2 py-1 w-32 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary">
+                                    </div>
+                                    <div class="overflow-y-auto max-h-60">
+                                        <div class="table-item selected-table p-2 rounded mb-1">
+                                            <div class="flex items-center">
+                                                <i class="fas fa-table text-primary mr-2"></i>
+                                                <span class="font-medium">orders</span>
+                                            </div>
+                                            <div class="text-xs text-gray-500 ml-6">订单表 (1.2M 行)</div>
+                                        </div>
+                                        <div class="table-item p-2 rounded mb-1">
+                                            <div class="flex items-center">
+                                                <i class="fas fa-table text-gray-500 mr-2"></i>
+                                                <span>customers</span>
+                                            </div>
+                                            <div class="text-xs text-gray-500 ml-6">客户表 (45K 行)</div>
+                                        </div>
+                                        <div class="table-item p-2 rounded mb-1">
+                                            <div class="flex items-center">
+                                                <i class="fas fa-table text-gray-500 mr-2"></i>
+                                                <span>products</span>
+                                            </div>
+                                            <div class="text-xs text-gray-500 ml-6">产品表 (5K 行)</div>
+                                        </div>
+                                        <div class="table-item p-2 rounded mb-1">
+                                            <div class="flex items-center">
+                                                <i class="fas fa-table text-gray-500 mr-2"></i>
+                                                <span>order_items</span>
+                                            </div>
+                                            <div class="text-xs text-gray-500 ml-6">订单项表 (3.5M 行)</div>
+                                        </div>
+                                        <div class="table-item p-2 rounded mb-1">
+                                            <div class="flex items-center">
+                                                <i class="fas fa-table text-gray-500 mr-2"></i>
+                                                <span>employees</span>
+                                            </div>
+                                            <div class="text-xs text-gray-500 ml-6">员工表 (200 行)</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="p-4">
+                                    <div class="flex justify-between items-center mb-2">
+                                        <h4 class="font-medium text-gray-700">列</h4>
+                                        <input type="text" placeholder="搜索列..." class="text-sm border border-gray-300 rounded-md px-2 py-1 w-32 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary">
+                                    </div>
+                                    <div class="overflow-y-auto max-h-60">
+                                        <div class="column-item selected-column p-2 rounded mb-1">
+                                            <div class="flex items-center">
+                                                <i class="fas fa-key text-yellow-500 mr-2 text-xs"></i>
+                                                <span>order_id</span>
+                                            </div>
+                                            <div class="text-xs text-gray-500 ml-6">INT</div>
+                                        </div>
+                                        <div class="column-item selected-column p-2 rounded mb-1">
+                                            <div class="flex items-center">
+                                                <i class="fas fa-link text-blue-500 mr-2 text-xs"></i>
+                                                <span>customer_id</span>
+                                            </div>
+                                            <div class="text-xs text-gray-500 ml-6">INT</div>
+                                        </div>
+                                        <div class="column-item selected-column p-2 rounded mb-1">
+                                            <div class="flex items-center">
+                                                <i class="fas fa-calendar text-green-500 mr-2 text-xs"></i>
+                                                <span>order_date</span>
+                                            </div>
+                                            <div class="text-xs text-gray-500 ml-6">DATETIME</div>
+                                        </div>
+                                        <div class="column-item p-2 rounded mb-1">
+                                            <div class="flex items-center">
+                                                <i class="fas fa-dollar-sign text-green-500 mr-2 text-xs"></i>
+                                                <span>total_amount</span>
+                                            </div>
+                                            <div class="text-xs text-gray-500 ml-6">DECIMAL(10,2)</div>
+                                        </div>
+                                        <div class="column-item p-2 rounded mb-1">
+                                            <div class="flex items-center">
+                                                <i class="fas fa-tag text-purple-500 mr-2 text-xs"></i>
+                                                <span>status</span>
+                                            </div>
+                                            <div class="text-xs text-gray-500 ml-6">VARCHAR(20)</div>
+                                        </div>
+                                        <div class="column-item p-2 rounded mb-1">
+                                            <div class="flex items-center">
+                                                <i class="fas fa-user text-gray-500 mr-2 text-xs"></i>
+                                                <span>created_by</span>
+                                            </div>
+                                            <div class="text-xs text-gray-500 ml-6">VARCHAR(50)</div>
+                                        </div>
+                                        <div class="column-item p-2 rounded mb-1">
+                                            <div class="flex items-center">
+                                                <i class="fas fa-calendar text-gray-500 mr-2 text-xs"></i>
+                                                <span>created_at</span>
+                                            </div>
+                                            <div class="text-xs text-gray-500 ml-6">DATETIME</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 右侧查询构建区 -->
+                        <div class="lg:col-span-3">
+                            <div class="bg-white rounded-lg card-shadow mb-4">
+                                <div class="p-4 border-b border-gray-200">
+                                    <h3 class="font-semibold text-gray-800">查询设计</h3>
+                                </div>
+                                <div class="p-4">
+                                    <!-- 选择的表 -->
+                                    <div class="mb-4">
+                                        <h4 class="font-medium text-gray-700 mb-2">选择的表</h4>
+                                        <div class="flex flex-wrap gap-2">
+                                            <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 flex items-start">
+                                                <div>
+                                                    <div class="flex items-center">
+                                                        <i class="fas fa-table text-primary mr-2"></i>
+                                                        <span class="font-medium">orders</span>
+                                                        <span class="ml-2 text-gray-500 text-sm">o</span>
+                                                    </div>
+                                                    <div class="mt-2 space-y-1">
+                                                        <div class="flex items-center text-sm">
+                                                            <i class="fas fa-check text-green-500 mr-1"></i>
+                                                            <span>order_id</span>
+                                                        </div>
+                                                        <div class="flex items-center text-sm">
+                                                            <i class="fas fa-check text-green-500 mr-1"></i>
+                                                            <span>customer_id</span>
+                                                        </div>
+                                                        <div class="flex items-center text-sm">
+                                                            <i class="fas fa-check text-green-500 mr-1"></i>
+                                                            <span>order_date</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <button class="ml-4 text-gray-400 hover:text-red-500">
+                                                    <i class="fas fa-times"></i>
+                                                </button>
+                                            </div>
+                                            <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 flex items-start">
+                                                <div>
+                                                    <div class="flex items-center">
+                                                        <i class="fas fa-table text-primary mr-2"></i>
+                                                        <span class="font-medium">customers</span>
+                                                        <span class="ml-2 text-gray-500 text-sm">c</span>
+                                                    </div>
+                                                    <div class="mt-2 space-y-1">
+                                                        <div class="flex items-center text-sm">
+                                                            <i class="fas fa-check text-green-500 mr-1"></i>
+                                                            <span>customer_id</span>
+                                                        </div>
+                                                        <div class="flex items-center text-sm">
+                                                            <i class="fas fa-check text-green-500 mr-1"></i>
+                                                            <span>customer_name</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <button class="ml-4 text-gray-400 hover:text-red-500">
+                                                    <i class="fas fa-times"></i>
+                                                </button>
+                                            </div>
+                                            <button class="border border-dashed border-gray-300 rounded-lg p-3 flex items-center text-gray-500 hover:text-primary hover:border-primary">
+                                                <i class="fas fa-plus mr-2"></i>
+                                                <span>添加表</span>
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <!-- 表连接 -->
+                                    <div class="mb-4">
+                                        <h4 class="font-medium text-gray-700 mb-2">表连接</h4>
+                                        <div class="bg-gray-50 border border-gray-200 rounded-lg p-3">
+                                            <div class="flex items-center">
+                                                <span class="font-medium">orders</span>
+                                                <span class="mx-2 text-gray-500">o</span>
+                                                <span class="join-line flex-grow mx-2"></span>
+                                                <select class="border border-gray-300 rounded-md px-2 py-1 text-sm">
+                                                    <option>INNER JOIN</option>
+                                                    <option>LEFT JOIN</option>
+                                                    <option>RIGHT JOIN</option>
+                                                </select>
+                                                <span class="join-line flex-grow mx-2"></span>
+                                                <span class="font-medium">customers</span>
+                                                <span class="mx-2 text-gray-500">c</span>
+                                                <button class="ml-2 text-gray-400 hover:text-red-500">
+                                                    <i class="fas fa-times"></i>
+                                                </button>
+                                            </div>
+                                            <div class="mt-2 ml-4">
+                                                <div class="flex items-center text-sm">
+                                                    <span>ON</span>
+                                                    <span class="mx-2">o.customer_id</span>
+                                                    <span>=</span>
+                                                    <span class="mx-2">c.customer_id</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <button class="mt-2 text-primary hover:text-indigo-700 text-sm flex items-center">
+                                            <i class="fas fa-plus mr-1"></i>
+                                            <span>添加连接</span>
+                                        </button>
+                                    </div>
+
+                                    <!-- 查询条件 -->
+                                    <div class="mb-4">
+                                        <h4 class="font-medium text-gray-700 mb-2">查询条件</h4>
+                                        <div class="space-y-2">
+                                            <div class="flex items-center">
+                                                <select class="border border-gray-300 rounded-md px-2 py-1 text-sm">
+                                                    <option>WHERE</option>
+                                                    <option>AND</option>
+                                                    <option>OR</option>
+                                                </select>
+                                                <select class="ml-2 border border-gray-300 rounded-md px-2 py-1 text-sm">
+                                                    <option>o.order_date</option>
+                                                    <option>o.customer_id</option>
+                                                    <option>o.status</option>
+                                                </select>
+                                                <select class="ml-2 border border-gray-300 rounded-md px-2 py-1 text-sm">
+                                                    <option>=</option>
+                                                    <option>></option>
+                                                    <option><</option>
+                                                    <option>>=</option>
+                                                    <option><=</option>
+                                                    <option>LIKE</option>
+                                                    <option>IN</option>
+                                                </select>
+                                                <input type="text" value="2023-01-01" class="ml-2 border border-gray-300 rounded-md px-2 py-1 text-sm">
+                                                <button class="ml-2 text-gray-400 hover:text-red-500">
+                                                    <i class="fas fa-times"></i>
+                                                </button>
+                                            </div>
+                                            <div class="flex items-center">
+                                                <select class="border border-gray-300 rounded-md px-2 py-1 text-sm">
+                                                    <option>AND</option>
+                                                    <option>WHERE</option>
+                                                    <option>OR</option>
+                                                </select>
+                                                <select class="ml-2 border border-gray-300 rounded-md px-2 py-1 text-sm">
+                                                    <option>o.status</option>
+                                                    <option>o.order_date</option>
+                                                    <option>o.customer_id</option>
+                                                </select>
+                                                <select class="ml-2 border border-gray-300 rounded-md px-2 py-1 text-sm">
+                                                    <option>=</option>
+                                                    <option>></option>
+                                                    <option><</option>
+                                                    <option>>=</option>
+                                                    <option><=</option>
+                                                    <option>LIKE</option>
+                                                    <option>IN</option>
+                                                </select>
+                                                <input type="text" value="'已完成'" class="ml-2 border border-gray-300 rounded-md px-2 py-1 text-sm">
+                                                <button class="ml-2 text-gray-400 hover:text-red-500">
+                                                    <i class="fas fa-times"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <button class="mt-2 text-primary hover:text-indigo-700 text-sm flex items-center">
+                                            <i class="fas fa-plus mr-1"></i>
+                                            <span>添加条件</span>
+                                        </button>
+                                    </div>
+
+                                    <!-- 排序和分组 -->
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                        <div>
+                                            <h4 class="font-medium text-gray-700 mb-2">排序</h4>
+                                            <div class="flex items-center">
+                                                <select class="border border-gray-300 rounded-md px-2 py-1 text-sm">
+                                                    <option>o.order_date</option>
+                                                    <option>o.customer_id</option>
+                                                    <option>c.customer_name</option>
+                                                </select>
+                                                <select class="ml-2 border border-gray-300 rounded-md px-2 py-1 text-sm">
+                                                    <option>DESC</option>
+                                                    <option>ASC</option>
+                                                </select>
+                                                <button class="ml-2 text-gray-400 hover:text-red-500">
+                                                    <i class="fas fa-times"></i>
+                                                </button>
+                                            </div>
+                                            <button class="mt-2 text-primary hover:text-indigo-700 text-sm flex items-center">
+                                                <i class="fas fa-plus mr-1"></i>
+                                                <span>添加排序</span>
+                                            </button>
+                                        </div>
+                                        <div>
+                                            <h4 class="font-medium text-gray-700 mb-2">分组</h4>
+                                            <div class="flex items-center">
+                                                <select class="border border-gray-300 rounded-md px-2 py-1 text-sm">
+                                                    <option>o.order_date</option>
+                                                    <option>o.customer_id</option>
+                                                    <option>c.customer_name</option>
+                                                </select>
+                                                <button class="ml-2 text-gray-400 hover:text-red-500">
+                                                    <i class="fas fa-times"></i>
+                                                </button>
+                                            </div>
+                                            <button class="mt-2 text-primary hover:text-indigo-700 text-sm flex items-center">
+                                                <i class="fas fa-plus mr-1"></i>
+                                                <span>添加分组</span>
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <!-- 限制和偏移 -->
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <h4 class="font-medium text-gray-700 mb-2">限制</h4>
+                                            <input type="number" value="100" class="border border-gray-300 rounded-md px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary">
+                                        </div>
+                                        <div>
+                                            <h4 class="font-medium text-gray-700 mb-2">偏移</h4>
+                                            <input type="number" value="0" class="border border-gray-300 rounded-md px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- SQL预览 -->
+                            <div class="bg-white rounded-lg card-shadow mb-4">
+                                <div class="p-4 border-b border-gray-200 flex justify-between items-center">
+                                    <h3 class="font-semibold text-gray-800">SQL预览</h3>
+                                    <div class="flex space-x-2">
+                                        <button class="text-gray-500 hover:text-gray-700">
+                                            <i class="fas fa-copy"></i>
+                                        </button>
+                                        <button class="text-gray-500 hover:text-gray-700">
+                                            <i class="fas fa-code"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="p-4 bg-gray-50 rounded-b-lg">
+                                    <pre class="text-sm text-gray-800 overflow-x-auto">SELECT
+    o.order_id,
+    o.customer_id,
+    o.order_date,
+    c.customer_name
+FROM
+    orders o
+INNER JOIN
+    customers c ON o.customer_id = c.customer_id
+WHERE
+    o.order_date >= '2023-01-01'
+    AND o.status = '已完成'
+ORDER BY
+    o.order_date DESC
+LIMIT 100 OFFSET 0;</pre>
+                                </div>
+                            </div>
+
+                            <!-- 查询结果 -->
+                            <div class="bg-white rounded-lg card-shadow">
+                                <div class="p-4 border-b border-gray-200 flex justify-between items-center">
+                                    <h3 class="font-semibold text-gray-800">查询结果</h3>
+                                    <div class="flex space-x-2">
+                                        <button class="text-gray-500 hover:text-gray-700">
+                                            <i class="fas fa-download"></i>
+                                        </button>
+                                        <button class="text-gray-500 hover:text-gray-700">
+                                            <i class="fas fa-chart-bar"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="overflow-x-auto">
+                                    <table class="min-w-full divide-y divide-gray-200">
+                                        <thead>
+                                            <tr>
+                                                <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">order_id</th>
+                                                <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">customer_id</th>
+                                                <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">order_date</th>
+                                                <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">customer_name</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="bg-white divide-y divide-gray-200">
+                                            <tr>
+                                                <td class="px-6 py-4 whitespace-nowrap">10248</td>
+                                                <td class="px-6 py-4 whitespace-nowrap">1001</td>
+                                                <td class="px-6 py-4 whitespace-nowrap">2023-12-15 14:30:25</td>
+                                                <td class="px-6 py-4 whitespace-nowrap">张三企业</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="px-6 py-4 whitespace-nowrap">10247</td>
+                                                <td class="px-6 py-4 whitespace-nowrap">1042</td>
+                                                <td class="px-6 py-4 whitespace-nowrap">2023-12-10 09:15:32</td>
+                                                <td class="px-6 py-4 whitespace-nowrap">李四有限公司</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="px-6 py-4 whitespace-nowrap">10246</td>
+                                                <td class="px-6 py-4 whitespace-nowrap">1001</td>
+                                                <td class="px-6 py-4 whitespace-nowrap">2023-12-05 16:42:18</td>
+                                                <td class="px-6 py-4 whitespace-nowrap">张三企业</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="px-6 py-4 whitespace-nowrap">10245</td>
+                                                <td class="px-6 py-4 whitespace-nowrap">1023</td>
+                                                <td class="px-6 py-4 whitespace-nowrap">2023-11-28 11:05:47</td>
+                                                <td class="px-6 py-4 whitespace-nowrap">王五科技</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="px-6 py-4 whitespace-nowrap">10244</td>
+                                                <td class="px-6 py-4 whitespace-nowrap">1042</td>
+                                                <td class="px-6 py-4 whitespace-nowrap">2023-11-22 08:30:15</td>
+                                                <td class="px-6 py-4 whitespace-nowrap">李四有限公司</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="bg-white px-4 py-3 border-t border-gray-200 sm:px-6">
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <p class="text-sm text-gray-700">
+                                                显示第 <span class="font-medium">1</span> 到 <span class="font-medium">5</span> 条，共 <span class="font-medium">42</span> 条
+                                            </p>
+                                        </div>
+                                        <div>
+                                            <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                                                <a href="#" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                                    <span class="sr-only">上一页</span>
+                                                    <i class="fas fa-chevron-left"></i>
+                                                </a>
+                                                <a href="#" aria-current="page" class="z-10 bg-primary border-primary text-white relative inline-flex items-center px-4 py-2 border text-sm font-medium">
+                                                    1
+                                                </a>
+                                                <a href="#" class="bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium">
+                                                    2
+                                                </a>
+                                                <a href="#" class="bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium">
+                                                    3
+                                                </a>
+                                                <a href="#" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                                    <span class="sr-only">下一页</span>
+                                                    <i class="fas fa-chevron-right"></i>
+                                                </a>
+                                            </nav>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        // 这里可以添加交互逻辑
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Query Builder page loaded');
+        });
+    </script>
+</body>
+</html>

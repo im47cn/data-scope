@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数据洞察平台 - 系统设置</title>
+    <link href="https://cdn.staticfile.org/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdn.staticfile.org/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .bg-sidebar { background-color: #1a202c; }
+        .text-primary { color: #4c51bf; }
+        .border-primary { border-color: #4c51bf; }
+        .bg-primary { background-color: #4c51bf; }
+        .hover-bg-primary:hover { background-color: #434190; }
+        .card-shadow { box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); }
+        .transition-all { transition: all 0.3s ease; }
+    </style>
+</head>
+<body class="h-full bg-gray-100 font-sans">
+    <div class="flex h-full">
+        <!-- 侧边栏 -->
+        <div class="bg-sidebar text-white w-64 flex-shrink-0 hidden md:block">
+            <div class="p-4 flex items-center border-b border-gray-700">
+                <i class="fas fa-database text-2xl mr-3 text-primary"></i>
+                <h1 class="text-xl font-semibold">数据洞察平台</h1>
+            </div>
+            <nav class="mt-5">
+                <a href="dashboard.html" class="flex items-center py-3 px-4 hover:bg-gray-800 transition-all">
+                    <i class="fas fa-tachometer-alt mr-3"></i>
+                    <span>仪表盘</span>
+                </a>
+                <a href="datasource.html" class="flex items-center py-3 px-4 hover:bg-gray-800 transition-all">
+                    <i class="fas fa-server mr-3"></i>
+                    <span>数据源管理</span>
+                </a>
+                <a href="data-browse.html" class="flex items-center py-3 px-4 hover:bg-gray-800 transition-all">
+                    <i class="fas fa-table mr-3"></i>
+                    <span>数据浏览</span>
+                </a>
+                <a href="query-builder.html" class="flex items-center py-3 px-4 hover:bg-gray-800 transition-all">
+                    <i class="fas fa-search mr-3"></i>
+                    <span>查询构建器</span>
+                </a>
+                <a href="nl-query.html" class="flex items-center py-3 px-4 hover:bg-gray-800 transition-all">
+                    <i class="fas fa-comment mr-3"></i>
+                    <span>自然语言查询</span>
+                </a>
+                <a href="low-code.html" class="flex items-center py-3 px-4 hover:bg-gray-800 transition-all">
+                    <i class="fas fa-code mr-3"></i>
+                    <span>低代码集成</span>
+                </a>
+                <a href="query-history.html" class="flex items-center py-3 px-4 hover:bg-gray-800 transition-all">
+                    <i class="fas fa-history mr-3"></i>
+                    <span>查询历史</span>
+                </a>
+                <a href="settings.html" class="flex items-center py-3 px-4 bg-gray-800 border-l-4 border-primary">
+                    <i class="fas fa-cog mr-3"></i>
+                    <span>系统设置</span>
+                </a>
+            </nav>
+        </div>
+
+        <!-- 主内容区 -->
+        <div class="flex-1 flex flex-col overflow-hidden">
+            <!-- 顶部导航栏 -->
+            <header class="bg-white shadow-sm z-10">
+                <div class="flex items-center justify-between p-4">
+                    <div class="flex items-center">
+                        <button class="text-gray-600 md:hidden">
+                            <i class="fas fa-bars text-xl"></i>
+                        </button>
+                        <h2 class="text-xl font-semibold ml-4">系统设置</h2>
+                    </div>
+                    <div class="flex items-center">
+                        <div class="relative mr-4">
+                            <input type="text" placeholder="搜索..." class="bg-gray-100 rounded-full py-2 px-4 pl-10 focus:outline-none focus:ring-2 focus:ring-primary focus:bg-white transition-all">
+                            <i class="fas fa-search absolute left-3 top-3 text-gray-500"></i>
+                        </div>
+                        <div class="relative mr-4">
+                            <button class="relative p-2 rounded-full hover:bg-gray-100 transition-all">
+                                <i class="fas fa-bell text-gray-600"></i>
+                                <span class="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
+                            </button>
+                        </div>
+                        <div class="flex items-center">
+                            <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="用户头像" class="w-8 h-8 rounded-full mr-2">
+                            <span class="text-gray-700">张经理</span>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- 内容区域 -->
+            <main class="flex-1 overflow-y-auto p-4 bg-gray-100">
+                <!-- 设置选项卡 -->
+                <div class="bg-white rounded-lg card-shadow mb-6">
+                    <div class="border-b border-gray-200">
+                        <nav class="flex -mb-px">
+                            <button class="py-4 px-6 border-b-2 border-primary text-primary font-medium">
+                                常规设置
+                            </button>
+                            <button class="py-4 px-6 border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 font-medium">
+                                用户管理
+                            </button>
+                            <button class="py-4 px-6 border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 font-medium">
+                                权限设置
+                            </button>
+                            <button class="py-4 px-6 border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 font-medium">
+                                系统日志
+                            </button>
+                            <button class="py-4 px-6 border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 font-medium">
+                                备份与恢复
+                            </button>
+                        </nav>
+                    </div>
+
+                    <!-- 常规设置内容 -->
+                    <div class="p-6">
+                        <!-- 系统信息 -->
+                        <div class="mb-8">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">系统信息</h3>
+                            <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <p class="text-sm text-gray-500">系统版本</p>
+                                        <p class="font-medium">数据洞察平台 v2.5.3</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm text-gray-500">最后更新时间</p>
+                                        <p class="font-medium">2023-12-10 09:15:32</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm text-gray-500">许可证状态</p>
+                                        <p class="font-medium text-green-600">有效（企业版）</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm text-gray-500">许可证到期时间</p>
+                                        <p class="font-medium">2024-12-31</p>
+                                    </div>
+                                </div>
+                                <div class="mt-4 flex">
+                                    <button class="text-primary hover:text-indigo-700 text-sm flex items-center">
+                                        <i class="fas fa-sync-alt mr-1"></i>
+                                        <span>检查更新</span>
+                                    </button>
+                                    <button class="text-primary hover:text-indigo-700 text-sm flex items-center ml-4">
+                                        <i class="fas fa-key mr-1"></i>
+                                        <span>管理许可证</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 外观设置 -->
+                        <div class="mb-8">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">外观设置</h3>
+                            <div class="space-y-6">
+                                <!-- 主题设置 -->
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">主题</label>
+                                    <div class="flex space-x-4">
+                                        <div class="relative">
+                                            <input type="radio" id="theme-light" name="theme" class="sr-only" checked>
+                                            <label for="theme-light" class="flex flex-col items-center cursor-pointer">
+                                                <div class="w-16 h-16 rounded-md bg-white border-2 border-primary flex items-center justify-center">
+                                                    <i class="fas fa-sun text-yellow-500 text-xl"></i>
+                                                </div>
+                                                <span class="mt-2 text-sm font-medium text-gray-900">浅色</span>
+                                            </label>
+                                        </div>
+                                        <div class="relative">
+                                            <input type="radio" id="theme-dark" name="theme" class="sr-only">
+                                            <label for="theme-dark" class="flex flex-col items-center cursor-pointer">
+                                                <div class="w-16 h-16 rounded-md bg-gray-800 border-2 border-gray-300 flex items-center justify-center">
+                                                    <i class="fas fa-moon text-gray-300 text-xl"></i>
+                                                </div>
+                                                <span class="mt-2 text-sm font-medium text-gray-900">深色</span>
+                                            </label>
+                                        </div>
+                                        <div class="relative">
+                                            <input type="radio" id="theme-auto" name="theme" class="sr-only">
+                                            <label for="theme-auto" class="flex flex-col items-center cursor-pointer">
+                                                <div class="w-16 h-16 rounded-md bg-gradient-to-r from-white to-gray-800 border-2 border-gray-300 flex items-center justify-center">
+                                                    <i class="fas fa-adjust text-gray-600 text-xl"></i>
+                                                </div>
+                                                <span class="mt-2 text-sm font-medium text-gray-900">跟随系统</span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- 主色调设置 -->
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">主色调</label>
+                                    <div class="flex space-x-4">
+                                        <div class="relative">
+                                            <input type="radio" id="color-indigo" name="color" class="sr-only" checked>
+                                            <label for="color-indigo" class="flex flex-col items-center cursor-pointer">
+                                                <div class="w-8 h-8 rounded-full bg-indigo-600 border-2 border-white shadow-sm"></div>
+                                                <span class="mt-1 text-xs font-medium text-gray-700">靛蓝</span>
+                                            </label>
+                                        </div>
+                                        <div class="relative">
+                                            <input type="radio" id="color-blue" name="color" class="sr-only">
+                                            <label for="color-blue" class="flex flex-col items-center cursor-pointer">
+                                                <div class="w-8 h-8 rounded-full bg-blue-600 border-2 border-white shadow-sm"></div>
+                                                <span class="mt-1 text-xs font-medium text-gray-700">蓝色</span>
+                                            </label>
+                                        </div>
+                                        <div class="relative">
+                                            <input type="radio" id="color-green" name="color" class="sr-only">
+                                            <label for="color-green" class="flex flex-col items-center cursor-pointer">
+                                                <div class="w-8 h-8 rounded-full bg-green-600 border-2 border-white shadow-sm"></div>
+                                                <span class="mt-1 text-xs font-medium text-gray-700">绿色</span>
+                                            </label>
+                                        </div>
+                                        <div class="relative">
+                                            <input type="radio" id="color-purple" name="color" class="sr-only">
+                                            <label for="color-purple" class="flex flex-col items-center cursor-pointer">
+                                                <div class="w-8 h-8 rounded-full bg-purple-600 border-2 border-white shadow-sm"></div>
+                                                <span class="mt-1 text-xs font-medium text-gray-700">紫色</span>
+                                            </label>
+                                        </div>
+                                        <div class="relative">
+                                            <input type="radio" id="color-red" name="color" class="sr-only">
+                                            <label for="color-red" class="flex flex-col items-center cursor-pointer">
+                                                <div class="w-8 h-8 rounded-full bg-red-600 border-2 border-white shadow-sm"></div>
+                                                <span class="mt-1 text-xs font-medium text-gray-700">红色</span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- 字体大小设置 -->
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">字体大小</label>
+                                    <div class="flex items-center">
+                                        <span class="text-sm text-gray-500 mr-2">小</span>
+                                        <input type="range" min="1" max="5" value="3" class="w-64 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                                        <span class="text-sm text-gray-500 ml-2">大</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 语言和区域设置 -->
+                        <div class="mb-8">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">语言和区域设置</h3>
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">语言</label>
+                                    <select class="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary w-full md:w-64">
+                                        <option value="zh-CN" selected>简体中文</option>
+                                        <option value="en-US">English (US)</option>
+                                        <option value="ja-JP">日本語</option>
+                                        <option value="ko-KR">한국어</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">时区</label>
+                                    <select class="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary w-full md:w-64">
+                                        <option value="Asia/Shanghai" selected>(GMT+8:00) 北京，上海，香港</option>
+                                        <option value="Asia/Tokyo">(GMT+9:00) 东京</option>
+                                        <option value="America/New_York">(GMT-5:00) 纽约</option>
+                                        <option value="Europe/London">(GMT+0:00) 伦敦</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">日期格式</label>
+                                    <select class="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary w-full md:w-64">
+                                        <option value="yyyy-MM-dd" selected>YYYY-MM-DD</option>
+                                        <option value="dd/MM/yyyy">DD/MM/YYYY</option>
+                                        <option value="MM/dd/yyyy">MM/DD/YYYY</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 查询设置 -->
+                        <div class="mb-8">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">查询设置</h3>
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">默认查询超时时间（秒）</label>
+                                    <input type="number" value="30" min="5" max="300" class="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary w-full md:w-64">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">最大查询结果行数</label>
+                                    <input type="number" value="1000" min="100" max="10000" class="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary w-full md:w-64">
+                                </div>
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="save-query-history" class="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded" checked>
+                                    <label for="save-query-history" class="ml-2 block text-sm text-gray-900">保存查询历史</label>
+                                </div>
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="auto-suggest" class="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded" checked>
+                                    <label for="auto-suggest" class="ml-2 block text-sm text-gray-900">启用自动建议</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 通知设置 -->
+                        <div class="mb-8">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">通知设置</h3>
+                            <div class="space-y-4">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="text-sm font-medium text-gray-900">系统通知</p>
+                                        <p class="text-sm text-gray-500">接收系统更新、维护和安全提醒</p>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <button class="relative inline-flex flex-shrink-0 h-6 w-11 border-2 border-transparent rounded-full cursor-pointer transition-colors ease-in-out duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary bg-primary" role="switch" aria-checked="true">
+                                            <span class="translate-x-5 inline-block h-5 w-5 rounded-full bg-white shadow transform transition ease-in-out duration-200"></span>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="text-sm font-medium text-gray-900">查询完成通知</p>
+                                        <p class="text-sm text-gray-500">当长时间运行的查询完成时接收通知</p>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <button class="relative inline-flex flex-shrink-0 h-6 w-11 border-2 border-transparent rounded-full cursor-pointer transition-colors ease-in-out duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary bg-primary" role="switch" aria-checked="true">
+                                            <span class="translate-x-5 inline-block h-5 w-5 rounded-full bg-white shadow transform transition ease-in-out duration-200"></span>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="text-sm font-medium text-gray-900">数据源同步通知</p>
+                                        <p class="text-sm text-gray-500">当数据源元数据同步完成或失败时接收通知</p>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <button class="relative inline-flex flex-shrink-0 h-6 w-11 border-2 border-transparent rounded-full cursor-pointer transition-colors ease-in-out duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary bg-gray-200" role="switch" aria-checked="false">
+                                            <span class="translate-x-0 inline-block h-5 w-5 rounded-full bg-white shadow transform transition ease-in-out duration-200"></span>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="text-sm font-medium text-gray-900">电子邮件通知</p>
+                                        <p class="text-sm text-gray-500">通过电子邮件接收重要通知</p>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <button class="relative inline-flex flex-shrink-0 h-6 w-11 border-2 border-transparent rounded-full cursor-pointer transition-colors ease-in-out duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary bg-gray-200" role="switch" aria-checked="false">
+                                            <span class="translate-x-0 inline-block h-5 w-5 rounded-full bg-white shadow transform transition ease-in-out duration-200"></span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 保存按钮 -->
+                        <div class="flex justify-end">
+                            <button class="bg-primary hover:bg-indigo-700 text-white py-2 px-4 rounded-lg flex items-center transition-all">
+                                <i class="fas fa-save mr-2"></i>
+                                <span>保存设置</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        // 这里可以添加交互逻辑
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Settings page loaded');
+        });
+    </script>
+</body>
+</html>

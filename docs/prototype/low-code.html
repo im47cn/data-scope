@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数据洞察平台 - 低代码集成</title>
+    <link href="https://cdn.staticfile.org/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdn.staticfile.org/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .bg-sidebar { background-color: #1a202c; }
+        .text-primary { color: #4c51bf; }
+        .border-primary { border-color: #4c51bf; }
+        .bg-primary { background-color: #4c51bf; }
+        .hover-bg-primary:hover { background-color: #434190; }
+        .card-shadow { box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); }
+        .transition-all { transition: all 0.3s ease; }
+        .api-card:hover { transform: translateY(-5px); }
+        .component-item { cursor: pointer; }
+        .component-item:hover { background-color: #f3f4f6; }
+        .selected-component { background-color: #e5edff; border-left: 3px solid #4c51bf; }
+        .code-block {
+            background-color: #1a202c;
+            color: #e2e8f0;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+        }
+        .code-comment { color: #718096; }
+        .code-string { color: #68d391; }
+        .code-keyword { color: #f687b3; }
+        .code-function { color: #63b3ed; }
+        .code-property { color: #f6ad55; }
+    </style>
+</head>
+<body class="h-full bg-gray-100 font-sans">
+    <div class="flex h-full">
+        <!-- 侧边栏 -->
+        <div class="bg-sidebar text-white w-64 flex-shrink-0 hidden md:block">
+            <div class="p-4 flex items-center border-b border-gray-700">
+                <i class="fas fa-database text-2xl mr-3 text-primary"></i>
+                <h1 class="text-xl font-semibold">数据洞察平台</h1>
+            </div>
+            <nav class="mt-5">
+                <a href="dashboard.html" class="flex items-center py-3 px-4 hover:bg-gray-800 transition-all">
+                    <i class="fas fa-tachometer-alt mr-3"></i>
+                    <span>仪表盘</span>
+                </a>
+                <a href="datasource.html" class="flex items-center py-3 px-4 hover:bg-gray-800 transition-all">
+                    <i class="fas fa-server mr-3"></i>
+                    <span>数据源管理</span>
+                </a>
+                <a href="data-browse.html" class="flex items-center py-3 px-4 hover:bg-gray-800 transition-all">
+                    <i class="fas fa-table mr-3"></i>
+                    <span>数据浏览</span>
+                </a>
+                <a href="query-builder.html" class="flex items-center py-3 px-4 hover:bg-gray-800 transition-all">
+                    <i class="fas fa-search mr-3"></i>
+                    <span>查询构建器</span>
+                </a>
+                <a href="nl-query.html" class="flex items-center py-3 px-4 hover:bg-gray-800 transition-all">
+                    <i class="fas fa-comment mr-3"></i>
+                    <span>自然语言查询</span>
+                </a>
+                <a href="low-code.html" class="flex items-center py-3 px-4 bg-gray-800 border-l-4 border-primary">
+                    <i class="fas fa-code mr-3"></i>
+                    <span>低代码集成</span>
+                </a>
+                <a href="query-history.html" class="flex items-center py-3 px-4 hover:bg-gray-800 transition-all">
+                    <i class="fas fa-history mr-3"></i>
+                    <span>查询历史</span>
+                </a>
+                <a href="settings.html" class="flex items-center py-3 px-4 hover:bg-gray-800 transition-all">
+                    <i class="fas fa-cog mr-3"></i>
+                    <span>系统设置</span>
+                </a>
+            </nav>
+        </div>
+
+        <!-- 主内容区 -->
+        <div class="flex-1 flex flex-col overflow-hidden">
+            <!-- 顶部导航栏 -->
+            <header class="bg-white shadow-sm z-10">
+                <div class="flex items-center justify-between p-4">
+                    <div class="flex items-center">
+                        <button class="text-gray-600 md:hidden">
+                            <i class="fas fa-bars text-xl"></i>
+                        </button>
+                        <h2 class="text-xl font-semibold ml-4">低代码集成</h2>
+                    </div>
+                    <div class="flex items-center">
+                        <div class="relative mr-4">
+                            <input type="text" placeholder="搜索..." class="bg-gray-100 rounded-full py-2 px-4 pl-10 focus:outline-none focus:ring-2 focus:ring-primary focus:bg-white transition-all">
+                            <i class="fas fa-search absolute left-3 top-3 text-gray-500"></i>
+                        </div>
+                        <div class="relative mr-4">
+                            <button class="relative p-2 rounded-full hover:bg-gray-100 transition-all">
+                                <i class="fas fa-bell text-gray-600"></i>
+                                <span class="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
+                            </button>
+                        </div>
+                        <div class="flex items-center">
+                            <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="用户头像" class="w-8 h-8 rounded-full mr-2">
+                            <span class="text-gray-700">张经理</span>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- 内容区域 -->
+            <main class="flex-1 overflow-y-auto p-4 bg-gray-100">
+                <!-- 页面标题和说明 -->
+                <div class="mb-6">
+                    <h1 class="text-2xl font-semibold text-gray-800">低代码集成</h1>
+                    <p class="text-gray-600 mt-1">将查询结果无缝集成到低代码平台，快速构建数据驱动的应用</p>
+                </div>
+
+                <!-- 集成选项卡 -->
+                <div class="bg-white rounded-lg card-shadow mb-6">
+                    <div class="border-b border-gray-200">
+                        <nav class="flex -mb-px">
+                            <button class="py-4 px-6 border-b-2 border-primary text-primary font-medium">
+                                API集成
+                            </button>
+                            <button class="py-4 px-6 border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 font-medium">
+                                组件库
+                            </button>
+                            <button class="py-4 px-6 border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 font-medium">
+                                模板
+                            </button>
+                            <button class="py-4 px-6 border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 font-medium">
+                                文档
+                            </button>
+                        </nav>
+                    </div>
+
+                    <!-- API集成内容 -->
+                    <div class="p-6">
+                        <div class="mb-6">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-2">可用API</h3>
+                            <p class="text-gray-600">以下是您已创建的API，可以直接集成到低代码平台中</p>
+                        </div>
+
+                        <!-- API卡片列表 -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                            <!-- API卡片 1 -->
+                            <div class="bg-white border border-gray-200 rounded-lg p-5 card-shadow api-card transition-all">
+                                <div class="flex justify-between items-start mb-4">
+                                    <div>
+                                        <h4 class="font-semibold text-gray-800">月度销售报表</h4>
+                                        <p class="text-sm text-gray-500 mt-1">查询每月的销售额、订单数量和平均订单金额</p>
+                                    </div>
+                                    <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">活跃</span>
+                                </div>
+                                <div class="flex items-center text-sm text-gray-600 mb-4">
+                                    <i class="fas fa-database mr-2"></i>
+                                    <span>销售数据库</span>
+                                </div>
+                                <div class="flex items-center text-sm text-gray-600 mb-4">
+                                    <i class="fas fa-link mr-2"></i>
+                                    <span class="truncate">/api/v1/reports/monthly-sales</span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-xs text-gray-500">调用次数: 1,245</span>
+                                    <div class="flex space-x-2">
+                                        <button class="text-gray-500 hover:text-gray-700" title="查看文档">
+                                            <i class="fas fa-book"></i>
+                                        </button>
+                                        <button class="text-gray-500 hover:text-gray-700" title="测试API">
+                                            <i class="fas fa-vial"></i>
+                                        </button>
+                                        <button class="text-gray-500 hover:text-gray-700" title="编辑">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- API卡片 2 -->
+                            <div class="bg-white border border-gray-200 rounded-lg p-5 card-shadow api-card transition-all">
+                                <div class="flex justify-between items-start mb-4">
+                                    <div>
+                                        <h4 class="font-semibold text-gray-800">客户信息查询</h4>
+                                        <p class="text-sm text-gray-500 mt-1">根据客户ID或名称查询客户详细信息</p>
+                                    </div>
+                                    <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">活跃</span>
+                                </div>
+                                <div class="flex items-center text-sm text-gray-600 mb-4">
+                                    <i class="fas fa-database mr-2"></i>
+                                    <span>CRM数据库</span>
+                                </div>
+                                <div class="flex items-center text-sm text-gray-600 mb-4">
+                                    <i class="fas fa-link mr-2"></i>
+                                    <span class="truncate">/api/v1/customers/info</span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-xs text-gray-500">调用次数: 3,782</span>
+                                    <div class="flex space-x-2">
+                                        <button class="text-gray-500 hover:text-gray-700" title="查看文档">
+                                            <i class="fas fa-book"></i>
+                                        </button>
+                                        <button class="text-gray-500 hover:text-gray-700" title="测试API">
+                                            <i class="fas fa-vial"></i>
+                                        </button>
+                                        <button class="text-gray-500 hover:text-gray-700" title="编辑">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- API卡片 3 -->
+                            <div class="bg-white border border-gray-200 rounded-lg p-5 card-shadow api-card transition-all">
+                                <div class="flex justify-between items-start mb-4">
+                                    <div>
+                                        <h4 class="font-semibold text-gray-800">库存状态查询</h4>
+                                        <p class="text-sm text-gray-500 mt-1">查询产品库存状态和库存预警信息</p>
+                                    </div>
+                                    <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">活跃</span>
+                                </div>
+                                <div class="flex items-center text-sm text-gray-600 mb-4">
+                                    <i class="fas fa-database mr-2"></i>
+                                    <span>仓储数据库</span>
+                                </div>
+                                <div class="flex items-center text-sm text-gray-600 mb-4">
+                                    <i class="fas fa-link mr-2"></i>
+                                    <span class="truncate">/api/v1/inventory/status</span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-xs text-gray-500">调用次数: 956</span>
+                                    <div class="flex space-x-2">
+                                        <button class="text-gray-500 hover:text-gray-700" title="查看文档">
+                                            <i class="fas fa-book"></i>
+                                        </button>
+                                        <button class="text-gray-500 hover:text-gray-700" title="测试API">
+                                            <i class="fas fa-vial"></i>
+                                        </button>
+                                        <button class="text-gray-500 hover:text-gray-700" title="编辑">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 创建新API卡片 -->
+                            <div class="border-2 border-dashed border-gray-300 rounded-lg p-5 flex flex-col items-center justify-center text-gray-500 hover:text-primary hover:border-primary transition-all cursor-pointer">
+                                <i class="fas fa-plus-circle text-3xl mb-2"></i>
+                                <span class="font-medium">创建新API</span>
+                            </div>
+                        </div>
+
+                        <!-- API集成示例 -->
+                        <div class="mb-6">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-2">集成示例</h3>
+                            <p class="text-gray-600 mb-4">以下是在不同低代码平台中集成API的代码示例</p>
+
+                            <!-- 平台选择器 -->
+                            <div class="flex space-x-2 mb-4">
+                                <button class="px-3 py-2 bg-primary text-white rounded-md">通用REST</button>
+                                <button class="px-3 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300">阿里宜搭</button>
+                                <button class="px-3 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300">腾讯微搭</button>
+                                <button class="px-3 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300">Mendix</button>
+                                <button class="px-3 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300">OutSystems</button>
+                            </div>
+
+                            <!-- 代码示例 -->
+                            <div class="bg-gray-900 rounded-lg p-4 code-block">
+                                <pre class="text-sm">
+<span class="code-comment">// 使用fetch API调用月度销售报表</span>
+<span class="code-keyword">async function</span> <span class="code-function">getMonthlySalesReport</span>(params) {
+  <span class="code-keyword">const</span> response = <span class="code-keyword">await</span> fetch(<span class="code-string">'https://api.datainsight.com/api/v1/reports/monthly-sales'</span>, {
+    method: <span class="code-string">'POST'</span>,
+    headers: {
+      <span class="code-string">'Content-Type'</span>: <span class="code-string">'application/json'</span>,
+      <span class="code-string">'Authorization'</span>: <span class="code-string">'Bearer YOUR_API_KEY'</span>
+    },
+    body: <span class="code-function">JSON.stringify</span>(params)
+  });
+
+  <span class="code-keyword">if</span> (!response.ok) {
+    <span class="code-keyword">throw new</span> Error(<span class="code-string">'API request failed'</span>);
+  }
+
+  <span class="code-keyword">return await</span> response.<span class="code-function">json</span>();
+}
+
+<span class="code-comment">// 示例用法</span>
+<span class="code-function">getMonthlySalesReport</span>({
+  <span class="code-property">startDate</span>: <span class="code-string">'2023-01-01'</span>,
+  <span class="code-property">endDate</span>: <span class="code-string">'2023-12-31'</span>,
+  <span class="code-property">groupBy</span>: <span class="code-string">'month'</span>
+})
+.<span class="code-function">then</span>(data => {
+  console.<span class="code-function">log</span>(<span class="code-string">'Monthly sales report:'</span>, data);
+  <span class="code-comment">// 在这里处理数据，例如更新图表或表格</span>
+})
+.<span class="code-function">catch</span>(error => {
+  console.<span class="code-function">error</span>(<span class="code-string">'Error fetching monthly sales report:'</span>, error);
+});</pre>
+                            </div>
+
+                            <!-- 复制按钮 -->
+                            <div class="flex justify-end mt-2">
+                                <button class="flex items-center text-primary hover:text-indigo-700 text-sm">
+                                    <i class="fas fa-copy mr-1"></i>
+                                    <span>复制代码</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- API密钥管理 -->
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-800 mb-2">API密钥管理</h3>
+                            <p class="text-gray-600 mb-4">管理您的API密钥，用于授权访问API</p>
+
+                            <div class="bg-white border border-gray-200 rounded-lg overflow-hidden">
+                                <table class="min-w-full divide-y divide-gray-200">
+                                    <thead>
+                                        <tr>
+                                            <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">密钥名称</th>
+                                            <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">密钥</th>
+                                            <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">创建时间</th>
+                                            <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">状态</th>
+                                            <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="bg-white divide-y divide-gray-200">
+                                        <tr>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">开发环境</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                <div class="flex items-center">
+                                                    <span class="bg-gray-100 px-2 py-1 rounded">••••••••••••••••</span>
+                                                    <button class="ml-2 text-gray-500 hover:text-gray-700">
+                                                        <i class="fas fa-eye"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">2023-10-15</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">活跃</span>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                <div class="flex space-x-2">
+                                                    <button class="text-gray-500 hover:text-gray-700" title="重新生成">
+                                                        <i class="fas fa-sync-alt"></i>
+                                                    </button>
+                                                    <button class="text-red-500 hover:text-red-700" title="撤销">
+                                                        <i class="fas fa-ban"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">生产环境</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                <div class="flex items-center">
+                                                    <span class="bg-gray-100 px-2 py-1 rounded">••••••••••••••••</span>
+                                                    <button class="ml-2 text-gray-500 hover:text-gray-700">
+                                                        <i class="fas fa-eye"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">2023-11-20</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">活跃</span>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                <div class="flex space-x-2">
+                                                    <button class="text-gray-500 hover:text-gray-700" title="重新生成">
+                                                        <i class="fas fa-sync-alt"></i>
+                                                    </button>
+                                                    <button class="text-red-500 hover:text-red-700" title="撤销">
+                                                        <i class="fas fa-ban"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <!-- 添加新密钥按钮 -->
+                            <div class="mt-4">
+                                <button class="flex items-center text-primary hover:text-indigo-700">
+                                    <i class="fas fa-plus-circle mr-1"></i>
+                                    <span>创建新密钥</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        // 这里可以添加交互逻辑
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Low Code Integration page loaded');
+        });
+    </script>
+</body>
+</html>
