@@ -3,25 +3,63 @@ package com.insightdata.domain.model;
 import java.time.LocalDateTime;
 import java.util.Map;
 
-import com.insightdata.common.enums.DataSourceType;
+import com.insightdata.domain.model.base.BaseEntity;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 /**
- * 数据源领域模型
+ * 数据源
  */
 @Data
-@Builder
+@SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class DataSource {
+@EqualsAndHashCode(callSuper = true)
+public class DataSource extends BaseEntity {
+    
     /**
-     * 数据源ID
+     * 数据源类型
      */
-    private Long id;
+    public enum DataSourceType {
+        /**
+         * MySQL数据库
+         */
+        MYSQL("MySQL"),
+        
+        /**
+         * DB2数据库
+         */
+        DB2("DB2"),
+        
+        /**
+         * Oracle数据库
+         */
+        ORACLE("Oracle"),
+        
+        /**
+         * PostgreSQL数据库
+         */
+        POSTGRESQL("PostgreSQL"),
+        
+        /**
+         * SQL Server数据库
+         */
+        SQLSERVER("SQL Server");
+        
+        private final String displayName;
+        
+        DataSourceType(String displayName) {
+            this.displayName = displayName;
+        }
+        
+        public String getDisplayName() {
+            return displayName;
+        }
+    }
     
     /**
      * 数据源名称
@@ -52,12 +90,7 @@ public class DataSource {
      * 用户名
      */
     private String username;
-
-    /**
-     * 加密前的密码
-     */
-    private String password;
-
+    
     /**
      * 加密后的密码
      */
@@ -69,19 +102,19 @@ public class DataSource {
     private String encryptionSalt;
     
     /**
+     * 驱动类名
+     */
+    private String driverClassName;
+    
+    /**
+     * JDBC URL
+     */
+    private String jdbcUrl;
+    
+    /**
      * 连接属性
      */
     private Map<String, String> connectionProperties;
-    
-    /**
-     * 最后同步时间
-     */
-    private LocalDateTime lastSyncTime;
-    
-    /**
-     * 是否激活
-     */
-    private boolean active;
     
     /**
      * 描述
@@ -89,19 +122,23 @@ public class DataSource {
     private String description;
     
     /**
-     * 创建时间
+     * 是否启用
      */
-    private LocalDateTime createdAt;
+    private boolean active;
     
     /**
-     * 更新时间
+     * 最后同步时间
      */
-    private LocalDateTime updatedAt;
+    private LocalDateTime lastSyncTime;
     
     /**
-     * 获取JDBC URL
+     * 获取完整的JDBC URL
      */
-    public String getJdbcUrl() {
+    public String getFullJdbcUrl() {
+        if (jdbcUrl != null && !jdbcUrl.isEmpty()) {
+            return jdbcUrl;
+        }
+        
         switch (type) {
             case MYSQL:
                 return String.format("jdbc:mysql://%s:%d/%s", host, port, databaseName);
@@ -109,19 +146,19 @@ public class DataSource {
                 return String.format("jdbc:db2://%s:%d/%s", host, port, databaseName);
             case ORACLE:
                 return String.format("jdbc:oracle:thin:@%s:%d:%s", host, port, databaseName);
-            case SQL_SERVER:
-                return String.format("jdbc:sqlserver://%s:%d;databaseName=%s", host, port, databaseName);
             case POSTGRESQL:
                 return String.format("jdbc:postgresql://%s:%d/%s", host, port, databaseName);
+            case SQLSERVER:
+                return String.format("jdbc:sqlserver://%s:%d;databaseName=%s", host, port, databaseName);
             default:
-                throw new IllegalArgumentException("Unsupported database type: " + type);
+                throw new IllegalStateException("Unsupported database type: " + type);
         }
     }
     
     /**
-     * 获取驱动类名
+     * 获取默认驱动类名
      */
-    public String getDriverClassName() {
+    public String getDefaultDriverClassName() {
         switch (type) {
             case MYSQL:
                 return "com.mysql.cj.jdbc.Driver";
@@ -129,12 +166,12 @@ public class DataSource {
                 return "com.ibm.db2.jcc.DB2Driver";
             case ORACLE:
                 return "oracle.jdbc.OracleDriver";
-            case SQL_SERVER:
-                return "com.microsoft.sqlserver.jdbc.SQLServerDriver";
             case POSTGRESQL:
                 return "org.postgresql.Driver";
+            case SQLSERVER:
+                return "com.microsoft.sqlserver.jdbc.SQLServerDriver";
             default:
-                throw new IllegalArgumentException("Unsupported database type: " + type);
+                throw new IllegalStateException("Unsupported database type: " + type);
         }
     }
 }

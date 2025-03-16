@@ -2,142 +2,152 @@ package com.insightdata.application.service.impl;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.insightdata.application.service.DataSourceService;
+import com.insightdata.domain.model.DataSource;
+import com.insightdata.domain.model.QueryHistory;
+import com.insightdata.domain.model.SavedQuery;
 import com.insightdata.domain.model.metadata.SchemaInfo;
-import com.insightdata.domain.model.query.NLQueryRequest;
-import com.insightdata.domain.model.query.QueryHistory;
-import com.insightdata.domain.model.query.QueryResult;
-import com.insightdata.domain.model.query.SavedQuery;
 import com.insightdata.domain.repository.QueryHistoryRepository;
 import com.insightdata.domain.repository.SavedQueryRepository;
-import com.insightdata.domain.service.DataSourceService;
-import com.insightdata.domain.service.NLQueryService;
+import com.insightdata.nlquery.NLQueryRequest;
 import com.insightdata.nlquery.converter.NLToSqlConverter;
-import com.insightdata.nlquery.converter.NLToSqlConverter.SqlConversionResult;
+import com.insightdata.nlquery.converter.SqlConversionResult;
 import com.insightdata.nlquery.executor.QueryExecutor;
-import com.insightdata.nlquery.preprocess.PreprocessContext;
+import com.insightdata.nlquery.executor.QueryResult;
 import com.insightdata.nlquery.preprocess.PreprocessedText;
 import com.insightdata.nlquery.preprocess.TextPreprocessor;
-
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * 自然语言查询服务实现
  */
-@Slf4j
 @Service
-@RequiredArgsConstructor
-public class NLQueryServiceImpl implements NLQueryService {
+public class NLQueryServiceImpl {
 
-    private final DataSourceService dataSourceService;
-    private final TextPreprocessor textPreprocessor;
-    private final NLToSqlConverter nlToSqlConverter;
-    private final QueryExecutor queryExecutor;
-    private final QueryHistoryRepository queryHistoryRepository;
-    private final SavedQueryRepository savedQueryRepository;
+    private static final Logger log = LoggerFactory.getLogger(NLQueryServiceImpl.class);
 
-    @Override
+    @Autowired
+    private DataSourceService dataSourceService;
+    
+    @Autowired
+    private TextPreprocessor textPreprocessor;
+    
+    @Autowired
+    private NLToSqlConverter nlToSqlConverter;
+    
+    @Autowired
+    private QueryExecutor queryExecutor;
+    
+    @Autowired
+    private QueryHistoryRepository queryHistoryRepository;
+    
+    @Autowired
+    private SavedQueryRepository savedQueryRepository;
+
+    /**
+     * 执行自然语言查询
+     */
     public QueryResult executeQuery(NLQueryRequest request) {
-        log.info("执行自然语言查询: {}", request.getQuery());
-        
         try {
-            // 预处理文本
-            PreprocessedText preprocessedText = textPreprocessor.preprocess(request.getQuery(), new PreprocessContext());
+            log.info("执行自然语言查询: {}", request.getQuery());
             
-            // 获取数据源模式信息
-            SchemaInfo schemaInfo = dataSourceService.getSchemaInfo(request.getDataSourceId());
+            // 1. 获取数据源信息
+            DataSource dataSource = dataSourceService.getDataSource(request.getDataSourceId());
+            SchemaInfo schemaInfo = dataSourceService.getSchemaInfo(request.getDataSourceId(), dataSource.getName());
             
-            // 转换为SQL
+            // 2. 预处理文本
+            PreprocessedText preprocessedText = textPreprocessor.preprocess(request.getQuery());
+            
+            // 3. 转换为SQL
             SqlConversionResult conversionResult = nlToSqlConverter.convertToSql(preprocessedText, schemaInfo);
             
-            // 执行SQL查询
-            QueryResult result = queryExecutor.executeQuery(
-                    request.getDataSourceId(),
-                    conversionResult.getSql(),
-                    conversionResult.getParameters());
+            // 4. 执行查询
+            QueryResult result = queryExecutor.execute(conversionResult.getSql(), dataSource);
             
-            // 设置SQL
-            result.setSql(conversionResult.getSql());
-            
-            // 保存查询历史
+            // 5. 保存查询历史
             saveQueryHistory(request, conversionResult, result);
             
             return result;
             
         } catch (Exception e) {
             log.error("执行自然语言查询时发生错误", e);
-            
-            QueryResult result = new QueryResult();
-            result.setSuccess(false);
-            result.setErrorMessage(e.getMessage());
-            
-            return result;
+            throw new RuntimeException("执行自然语言查询失败: " + e.getMessage());
         }
     }
 
-    @Override
+    /**
+     * 获取查询历史
+     */
     public List<QueryHistory> getQueryHistory(Long dataSourceId) {
         log.info("获取查询历史: {}", dataSourceId);
-        return queryHistoryRepository.findByDataSourceIdOrderByCreatedAtDesc(dataSourceId);
+        return queryHistoryRepository.findByDataSourceId(dataSourceId);
     }
 
-    @Override
-    public Long saveQuery(String name, NLQueryRequest request, QueryResult result) {
+    /**
+     * 保存查询
+     */
+    public SavedQuery saveQuery(String name, NLQueryRequest request) {
         log.info("保存查询: {}", name);
-        
         try {
             SavedQuery savedQuery = new SavedQuery();
             savedQuery.setName(name);
             savedQuery.setDataSourceId(request.getDataSourceId());
-            savedQuery.setNaturalLanguageQuery(request.getQuery());
-            savedQuery.setGeneratedSql(result.getSql());
-            savedQuery.setParameters(request.getParameters());
-            savedQuery.setCreatedAt(LocalDateTime.now());
-            savedQuery.setUpdatedAt(LocalDateTime.now());
-            savedQuery.setIsPublic(false);
+            savedQuery.setQuery(request.getQuery());
+            savedQuery.setDescription(request.getDescription());
+            savedQuery.setTags(request.getTags());
+            savedQuery.setCreateTime(LocalDateTime.now());
+            savedQuery.setUpdateTime(LocalDateTime.now());
             
-            SavedQuery saved = savedQueryRepository.save(savedQuery);
-            return saved.getId();
+            return savedQueryRepository.save(savedQuery);
+            
         } catch (Exception e) {
             log.error("保存查询时发生错误", e);
-            return null;
+            throw new RuntimeException("保存查询失败: " + e.getMessage());
         }
     }
 
-    @Override
+    /**
+     * 获取保存的查询列表
+     */
     public List<SavedQuery> getSavedQueries(Long dataSourceId) {
         log.info("获取保存的查询: {}", dataSourceId);
-        return savedQueryRepository.findByDataSourceIdOrderByUpdatedAtDesc(dataSourceId);
+        return savedQueryRepository.findByDataSourceId(dataSourceId);
     }
 
-    @Override
+    /**
+     * 获取保存的查询
+     */
     public SavedQuery getSavedQuery(Long id) {
         log.info("获取保存的查询: {}", id);
         return savedQueryRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("查询不存在: " + id));
+                .orElseThrow(() -> new RuntimeException("查询不存在"));
     }
 
-    @Override
+    /**
+     * 删除保存的查询
+     */
     public void deleteSavedQuery(Long id) {
         log.info("删除保存的查询: {}", id);
         savedQueryRepository.deleteById(id);
     }
 
-    @Override
-    public SavedQuery updateSavedQuery(Long id, String name, String description, boolean isPublic) {
+    /**
+     * 更新保存的查询
+     */
+    public SavedQuery updateSavedQuery(Long id, String name, String description, List<String> tags) {
         log.info("更新保存的查询: {}", id);
-        
         SavedQuery savedQuery = savedQueryRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("查询不存在: " + id));
+                .orElseThrow(() -> new RuntimeException("查询不存在"));
         
         savedQuery.setName(name);
         savedQuery.setDescription(description);
-        savedQuery.setIsPublic(isPublic);
-        savedQuery.setUpdatedAt(LocalDateTime.now());
+        savedQuery.setTags(tags);
+        savedQuery.setUpdateTime(LocalDateTime.now());
         
         return savedQueryRepository.save(savedQuery);
     }
@@ -145,34 +155,24 @@ public class NLQueryServiceImpl implements NLQueryService {
     /**
      * 执行保存的查询
      */
-    @Override
-    public QueryResult executeQueryById(Long queryId, Map<String, Object> parameters) {
+    public QueryResult executeSavedQuery(Long queryId) {
         log.info("执行保存的查询: {}", queryId);
-        
         try {
-            // 获取保存的查询
+            // 1. 获取保存的查询
             SavedQuery savedQuery = savedQueryRepository.findById(queryId)
-                    .orElseThrow(() -> new IllegalArgumentException("查询不存在: " + queryId));
+                    .orElseThrow(() -> new RuntimeException("查询不存在"));
             
-            // 执行SQL查询
-            QueryResult result = queryExecutor.executeQuery(
-                    savedQuery.getDataSourceId(),
-                    savedQuery.getGeneratedSql(),
-                    parameters);
+            // 2. 构建查询请求
+            NLQueryRequest request = new NLQueryRequest();
+            request.setDataSourceId(savedQuery.getDataSourceId());
+            request.setQuery(savedQuery.getQuery());
             
-            // 设置SQL
-            result.setSql(savedQuery.getGeneratedSql());
-            
-            return result;
+            // 3. 执行查询
+            return executeQuery(request);
             
         } catch (Exception e) {
             log.error("执行保存的查询时发生错误", e);
-            
-            QueryResult result = new QueryResult();
-            result.setSuccess(false);
-            result.setErrorMessage(e.getMessage());
-            
-            return result;
+            throw new RuntimeException("执行保存的查询失败: " + e.getMessage());
         }
     }
 
@@ -183,15 +183,16 @@ public class NLQueryServiceImpl implements NLQueryService {
         try {
             QueryHistory history = new QueryHistory();
             history.setDataSourceId(request.getDataSourceId());
-            history.setOriginalSql(request.getQuery());
-            history.setExecutedSql(conversionResult.getSql());
-            // 设置状态
-            history.setStatus(result.isSuccess() ? "SUCCESS" : "FAILED");
+            history.setQuery(request.getQuery());
+            history.setSql(conversionResult.getSql());
+            history.setExecuteTime(LocalDateTime.now());
+            history.setDuration(result.getDuration());
+            history.setRowCount(result.getRowCount());
+            history.setSuccess(result.isSuccess());
             history.setErrorMessage(result.getErrorMessage());
-            history.setExecutionTimeMs(result.getExecutionTime());
-            history.setCreatedAt(LocalDateTime.now());
             
             queryHistoryRepository.save(history);
+            
         } catch (Exception e) {
             log.error("保存查询历史时发生错误", e);
         }

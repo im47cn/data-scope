@@ -1,51 +1,32 @@
 package com.insightdata.infrastructure.adapter;
 
-import com.insightdata.common.enums.DataSourceType;
-import com.insightdata.common.exception.DataSourceException;
-import com.insightdata.domain.adapter.DataSourceAdapter;
-import com.insightdata.domain.model.DataSource;
-import com.insightdata.domain.model.metadata.ColumnInfo;
-import com.insightdata.domain.model.metadata.ForeignKeyColumnInfo;
-import com.insightdata.domain.model.metadata.ForeignKeyInfo;
-import com.insightdata.domain.model.metadata.IndexColumnInfo;
-import com.insightdata.domain.model.metadata.IndexInfo;
-import com.insightdata.domain.model.metadata.SchemaInfo;
-import com.insightdata.domain.model.metadata.TableInfo;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.stereotype.Component;
-
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
+
+import com.insightdata.domain.model.metadata.*;
+import org.springframework.stereotype.Component;
+
+import com.insightdata.domain.model.DataSource;
+import com.insightdata.nlquery.executor.QueryResult;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
- * DB2数据源适配器实现
+ * DB2数据源适配器
  */
 @Slf4j
 @Component
 public class DB2DataSourceAdapter implements DataSourceAdapter {
-
-    private static final String TYPE = DataSourceType.DB2.name();
-    
-    @Override
-    public String getType() {
-        return TYPE;
-    }
     
     @Override
     public boolean testConnection(DataSource dataSource) {
-        try (Connection connection = getConnection(dataSource)) {
-            return connection != null && connection.isValid(5);
+        try (Connection conn = getConnection(dataSource)) {
+            return conn != null && !conn.isClosed();
         } catch (Exception e) {
             log.error("Failed to test connection to DB2 database: {}", dataSource.getName(), e);
             return false;
@@ -58,382 +39,317 @@ public class DB2DataSourceAdapter implements DataSourceAdapter {
             // 加载驱动
             Class.forName(dataSource.getDriverClassName());
             
-            // 构建连接属性
+            // 设置连接属性
             Properties props = new Properties();
             props.setProperty("user", dataSource.getUsername());
             props.setProperty("password", dataSource.getEncryptedPassword()); // 注意：这里应该使用解密后的密码
             
-            // 添加其他连接属性
+            // 添加自定义连接属性
             if (dataSource.getConnectionProperties() != null) {
                 dataSource.getConnectionProperties().forEach(props::setProperty);
             }
             
             // 获取连接
             return DriverManager.getConnection(dataSource.getJdbcUrl(), props);
+            
         } catch (ClassNotFoundException e) {
             log.error("DB2 JDBC driver not found", e);
-            throw DataSourceException.connectionError("DB2 JDBC driver not found: " + e.getMessage(), e);
+            throw new RuntimeException("DB2 JDBC driver not found", e);
         } catch (SQLException e) {
             log.error("Failed to connect to DB2 database: {}", dataSource.getName(), e);
-            throw DataSourceException.connectionError("Failed to connect to DB2 database: " + e.getMessage(), e);
+            throw new RuntimeException("Failed to connect to DB2 database", e);
+        }
+    }
+    
+    @Override
+    public SchemaInfo getSchema(DataSource dataSource, String schemaName) {
+        try (Connection conn = getConnection(dataSource)) {
+            DatabaseMetaData metaData = conn.getMetaData();
+            
+            try (ResultSet rs = metaData.getSchemas(null, schemaName)) {
+                if (rs.next()) {
+                    return SchemaInfo.builder()
+                            .name(schemaName)
+                            .dataSourceId(dataSource.getId())
+                            .build();
+                }
+            }
+            
+            return null;
+            
+        } catch (SQLException e) {
+            log.error("Failed to get schema from DB2 database: {}", dataSource.getName(), e);
+            throw new RuntimeException("Failed to get schema from DB2 database", e);
+        }
+    }
+    
+    @Override
+    public TableInfo getTable(DataSource dataSource, String schemaName, String tableName) {
+        try (Connection conn = getConnection(dataSource)) {
+            DatabaseMetaData metaData = conn.getMetaData();
+            
+            try (ResultSet rs = metaData.getTables(null, schemaName, tableName, new String[]{"TABLE"})) {
+                if (rs.next()) {
+                    TableInfo table = TableInfo.builder()
+                            .name(tableName)
+                            .type(rs.getString("TABLE_TYPE"))
+                            .remarks(rs.getString("REMARKS"))
+                            .schemaName(schemaName)
+                            .dataSourceId(dataSource.getId())
+                            .build();
+                    
+                    // 设置表的统计信息
+                    table.setRowCount(getRowCount(dataSource, schemaName, tableName));
+                    table.setDataSize(getDataSize(dataSource, schemaName, tableName));
+                    table.setIndexSize(getIndexSize(dataSource, schemaName, tableName));
+                    
+                    return table;
+                }
+            }
+            
+            return null;
+            
+        } catch (SQLException e) {
+            log.error("Failed to get table from DB2 database: {}", dataSource.getName(), e);
+            throw new RuntimeException("Failed to get table from DB2 database", e);
+        }
+    }
+    
+    @Override
+    public long getRowCount(DataSource dataSource, String schemaName, String tableName) {
+        String sql = "SELECT COUNT(*) FROM " + schemaName + "." + tableName;
+        
+        try (Connection conn = getConnection(dataSource);
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+            
+            if (rs.next()) {
+                return rs.getLong(1);
+            }
+            
+            return 0;
+            
+        } catch (SQLException e) {
+            log.warn("Failed to get row count for table {}.{}: {}", schemaName, tableName, e.getMessage());
+            return -1;
         }
     }
     
     @Override
     public List<SchemaInfo> getSchemas(DataSource dataSource) {
-        List<SchemaInfo> schemas = new ArrayList<>();
-        
-        try (Connection connection = getConnection(dataSource)) {
-            // 获取所有模式
-            try (ResultSet rs = connection.getMetaData().getSchemas()) {
+        try (Connection conn = getConnection(dataSource)) {
+            DatabaseMetaData metaData = conn.getMetaData();
+            List<SchemaInfo> schemas = new ArrayList<>();
+            
+            try (ResultSet rs = metaData.getSchemas()) {
                 while (rs.next()) {
-                    String schemaName = rs.getString("TABLE_SCHEM");
-                    
-                    // 排除系统模式
-                    if (isSystemSchema(schemaName)) {
-                        continue;
-                    }
-                    
                     SchemaInfo schema = SchemaInfo.builder()
+                            .name(rs.getString("TABLE_SCHEM"))
                             .dataSourceId(dataSource.getId())
-                            .name(schemaName)
-//                            .createdAt(LocalDateTime.now())
-//                            .updatedAt(LocalDateTime.now())
                             .build();
-                    
                     schemas.add(schema);
                 }
             }
+            
+            return schemas;
+            
         } catch (SQLException e) {
             log.error("Failed to get schemas from DB2 database: {}", dataSource.getName(), e);
-            throw DataSourceException.metadataExtractionError("Failed to get schemas: " + e.getMessage(), e);
+            throw new RuntimeException("Failed to get schemas from DB2 database", e);
         }
-        
-        return schemas;
     }
-
-    @Override
-    public SchemaInfo getSchemaInfo(DataSource dataSource, String schemaName) {
-        try (Connection connection = getConnection(dataSource)) {
-            // 获取所有模式
-            try (ResultSet rs = connection.getMetaData().getSchemas()) {
-                while (rs.next()) {
-                    String schemaName0 = rs.getString("TABLE_SCHEM");
-
-                    // 排除系统模式
-                    if (isSystemSchema(schemaName0)) {
-                        continue;
-                    }
-
-                    if (!StringUtils.equals(schemaName0, schemaName)) {
-                        continue;
-                    }
-
-                    return SchemaInfo.builder()
-                            .dataSourceId(dataSource.getId())
-                            .name(schemaName0)
-//                            .createdAt(LocalDateTime.now())
-//                            .updatedAt(LocalDateTime.now())
-                            .build();
-                }
-            }
-        } catch (SQLException e) {
-            log.error("Failed to get schemas from DB2 database: {}", dataSource.getName(), e);
-            throw DataSourceException.metadataExtractionError("Failed to get schemas: " + e.getMessage(), e);
-        }
-
-        return null;
-    }
-
+    
     @Override
     public List<TableInfo> getTables(DataSource dataSource, String schemaName) {
-        List<TableInfo> tables = new ArrayList<>();
-        
-        try (Connection connection = getConnection(dataSource)) {
-            DatabaseMetaData metaData = connection.getMetaData();
+        try (Connection conn = getConnection(dataSource)) {
+            DatabaseMetaData metaData = conn.getMetaData();
+            List<TableInfo> tables = new ArrayList<>();
             
-            try (ResultSet rs = metaData.getTables(null, schemaName, "%", new String[]{"TABLE", "VIEW"})) {
+            try (ResultSet rs = metaData.getTables(null, schemaName, null, new String[]{"TABLE"})) {
                 while (rs.next()) {
-                    String tableName = rs.getString("TABLE_NAME");
-                    String tableType = rs.getString("TABLE_TYPE");
-                    String remarks = rs.getString("REMARKS");
-                    
                     TableInfo table = TableInfo.builder()
-                            .dataSourceId(null) // 需要在保存时设置
-                            .name(tableName)
-                            .type(tableType)
-                            .description(remarks)
-//                            .createdAt(LocalDateTime.now())
-//                            .updatedAt(LocalDateTime.now())
+                            .name(rs.getString("TABLE_NAME"))
+                            .type(rs.getString("TABLE_TYPE"))
+                            .remarks(rs.getString("REMARKS"))
+                            .schemaName(schemaName)
+                            .dataSourceId(dataSource.getId())
                             .build();
+                    
+                    // 设置表的统计信息
+                    table.setRowCount(getRowCount(dataSource, schemaName, table.getName()));
+                    table.setDataSize(getDataSize(dataSource, schemaName, table.getName()));
+                    table.setIndexSize(getIndexSize(dataSource, schemaName, table.getName()));
                     
                     tables.add(table);
                 }
             }
             
-            // 获取表的行数和大小信息
-            for (TableInfo table : tables) {
-//                table.setEstimatedRowCount(getEstimatedRowCount(dataSource, schemaName, table.getName()));
-                table.setRowCount(getDataSize(dataSource, schemaName, table.getName()));
-//                table.setIndexSize(getIndexSize(dataSource, schemaName, table.getName()));
-            }
+            return tables;
+            
         } catch (SQLException e) {
             log.error("Failed to get tables from DB2 database: {}", dataSource.getName(), e);
-            throw DataSourceException.metadataExtractionError("Failed to get tables: " + e.getMessage(), e);
+            throw new RuntimeException("Failed to get tables from DB2 database", e);
         }
-        
-        return tables;
     }
     
     @Override
     public List<ColumnInfo> getColumns(DataSource dataSource, String schemaName, String tableName) {
-        List<ColumnInfo> columns = new ArrayList<>();
-        
-        try (Connection connection = getConnection(dataSource)) {
-            DatabaseMetaData metaData = connection.getMetaData();
+        try (Connection conn = getConnection(dataSource)) {
+            DatabaseMetaData metaData = conn.getMetaData();
+            List<ColumnInfo> columns = new ArrayList<>();
             
-            // 获取主键信息
-            Map<String, Boolean> primaryKeys = new HashMap<>();
-            try (ResultSet pkRs = metaData.getPrimaryKeys(null, schemaName, tableName)) {
-                while (pkRs.next()) {
-                    String columnName = pkRs.getString("COLUMN_NAME");
-                    primaryKeys.put(columnName, true);
-                }
-            }
-            
-            // 获取列信息
-            try (ResultSet rs = metaData.getColumns(null, schemaName, tableName, "%")) {
+            try (ResultSet rs = metaData.getColumns(null, schemaName, tableName, null)) {
                 while (rs.next()) {
-                    String columnName = rs.getString("COLUMN_NAME");
-                    String dataType = rs.getString("TYPE_NAME");
-                    String columnType = dataType;
-                    int ordinalPosition = rs.getInt("ORDINAL_POSITION");
-                    int columnSize = rs.getInt("COLUMN_SIZE");
-                    int decimalDigits = rs.getInt("DECIMAL_DIGITS");
-                    boolean nullable = rs.getInt("NULLABLE") == DatabaseMetaData.columnNullable;
-                    String defaultValue = rs.getString("COLUMN_DEF");
-                    String remarks = rs.getString("REMARKS");
-                    
-                    // DB2不直接提供自增列信息，需要通过其他方式获取
-                    boolean isAutoIncrement = isAutoIncrementColumn(connection, schemaName, tableName, columnName);
-                    
-                    // 构建列类型（包含长度、精度等信息）
-                    if (columnSize > 0) {
-                        if (decimalDigits > 0) {
-                            columnType = dataType + "(" + columnSize + "," + decimalDigits + ")";
-                        } else {
-                            columnType = dataType + "(" + columnSize + ")";
-                        }
-                    }
-                    
                     ColumnInfo column = ColumnInfo.builder()
-                            .dataSourceId(null) // 需要在保存时设置
-                            .name(columnName)
-                            .dataType(dataType)
-                            .columnType(columnType)
-                            .ordinalPosition(ordinalPosition)
-                            .length(columnSize)
-                            .precision(columnSize)
-                            .scale(decimalDigits)
-                            .nullable(nullable)
-                            .defaultValue(defaultValue)
-                            .description(remarks)
-                            .primaryKey(primaryKeys.containsKey(columnName))
-                            .foreignKey(false) // 将在获取外键信息时更新
-                            .autoIncrement(isAutoIncrement)
-//                            .createdAt(LocalDateTime.now())
-//                            .updatedAt(LocalDateTime.now())
+                            .name(rs.getString("COLUMN_NAME"))
+                            .dataType(rs.getString("TYPE_NAME"))
+                            .columnSize(rs.getInt("COLUMN_SIZE"))
+                            .decimalDigits(rs.getInt("DECIMAL_DIGITS"))
+                            .nullable(rs.getInt("NULLABLE") == DatabaseMetaData.columnNullable)
+                            .defaultValue(rs.getString("COLUMN_DEF"))
+                            .remarks(rs.getString("REMARKS"))
+                            .ordinalPosition(rs.getInt("ORDINAL_POSITION"))
+                            .autoIncrement(isAutoIncrement(dataSource, schemaName, tableName, rs.getString("COLUMN_NAME")))
                             .build();
                     
                     columns.add(column);
                 }
             }
+            
+            return columns;
+            
         } catch (SQLException e) {
             log.error("Failed to get columns from DB2 database: {}", dataSource.getName(), e);
-            throw DataSourceException.metadataExtractionError("Failed to get columns: " + e.getMessage(), e);
+            throw new RuntimeException("Failed to get columns from DB2 database", e);
         }
-        
-        return columns;
     }
     
     @Override
     public List<IndexInfo> getIndexes(DataSource dataSource, String schemaName, String tableName) {
-        Map<String, IndexInfo> indexMap = new HashMap<>();
-        
-        try (Connection connection = getConnection(dataSource)) {
-            DatabaseMetaData metaData = connection.getMetaData();
+        try (Connection conn = getConnection(dataSource)) {
+            DatabaseMetaData metaData = conn.getMetaData();
+            List<IndexInfo> indexes = new ArrayList<>();
+            IndexInfo currentIndex = null;
             
-            try (ResultSet rs = metaData.getIndexInfo(null, schemaName, tableName, false, true)) {
+            try (ResultSet rs = metaData.getIndexInfo(null, schemaName, tableName, false, false)) {
                 while (rs.next()) {
                     String indexName = rs.getString("INDEX_NAME");
-                    
-                    // 跳过主键索引
-                    if (indexName == null || isPrimaryKeyIndex(indexName)) {
+                    if (indexName == null) {
                         continue;
                     }
                     
-                    boolean nonUnique = rs.getBoolean("NON_UNIQUE");
-                    String columnName = rs.getString("COLUMN_NAME");
-                    int ordinalPosition = rs.getInt("ORDINAL_POSITION");
-                    String ascOrDesc = rs.getString("ASC_OR_DESC");
+                    // 如果是新索引，创建新的IndexInfo对象
+                    if (currentIndex == null || !indexName.equals(currentIndex.getName())) {
+                        currentIndex = IndexInfo.builder()
+                                .name(indexName)
+                                .unique(!rs.getBoolean("NON_UNIQUE"))
+                                .type(rs.getShort("TYPE") == DatabaseMetaData.tableIndexClustered ? "CLUSTERED" : "NONCLUSTERED")
+                                .build();
+                        indexes.add(currentIndex);
+                    }
                     
-                    // 获取或创建索引
-                    IndexInfo index = indexMap.computeIfAbsent(indexName, k -> 
-                        IndexInfo.builder()
-                            .dataSourceId(null) // 需要在保存时设置
-                            .name(indexName)
-                            .type("BTREE") // DB2默认使用BTREE
-                            .unique(!nonUnique)
-//                            .createdAt(LocalDateTime.now())
-//                            .updatedAt(LocalDateTime.now())
-                            .columns(new ArrayList<>())
-                            .build()
-                    );
-                    
-                    // 创建索引列
+                    // 添加索引列
                     IndexColumnInfo indexColumn = IndexColumnInfo.builder()
-                            .id(null) // 需要在保存时设置
-                            .dataSourceId(null) // 需要在保存时设置
-                            .columnName(null) // 需要在保存时设置
-                            .ordinalPosition(ordinalPosition)
-                            .sortOrder(ascOrDesc)
-//                            .createdAt(LocalDateTime.now())
-//                            .updatedAt(LocalDateTime.now())
+                            .columnName(rs.getString("COLUMN_NAME"))
+                            .ordinalPosition(rs.getShort("ORDINAL_POSITION"))
+                            .ascending(rs.getString("ASC_OR_DESC").equals("A"))
                             .build();
                     
-                    index.getColumns().add(indexColumn);
+                    currentIndex.getColumns().add(indexColumn);
                 }
             }
+            
+            return indexes;
+            
         } catch (SQLException e) {
             log.error("Failed to get indexes from DB2 database: {}", dataSource.getName(), e);
-            throw DataSourceException.metadataExtractionError("Failed to get indexes: " + e.getMessage(), e);
+            throw new RuntimeException("Failed to get indexes from DB2 database", e);
         }
-        
-        return new ArrayList<>(indexMap.values());
     }
     
     @Override
     public List<ForeignKeyInfo> getForeignKeys(DataSource dataSource, String schemaName, String tableName) {
-        Map<String, ForeignKeyInfo> foreignKeyMap = new HashMap<>();
-        
-        try (Connection connection = getConnection(dataSource)) {
-            DatabaseMetaData metaData = connection.getMetaData();
+        try (Connection conn = getConnection(dataSource)) {
+            DatabaseMetaData metaData = conn.getMetaData();
+            List<ForeignKeyInfo> foreignKeys = new ArrayList<>();
+            ForeignKeyInfo currentFK = null;
             
             try (ResultSet rs = metaData.getImportedKeys(null, schemaName, tableName)) {
                 while (rs.next()) {
                     String fkName = rs.getString("FK_NAME");
-                    String pkTableName = rs.getString("PKTABLE_NAME");
-                    String pkColumnName = rs.getString("PKCOLUMN_NAME");
-                    String fkColumnName = rs.getString("FKCOLUMN_NAME");
-                    int keySeq = rs.getInt("KEY_SEQ");
-                    int updateRule = rs.getInt("UPDATE_RULE");
-                    int deleteRule = rs.getInt("DELETE_RULE");
                     
-                    // 获取或创建外键
-                    ForeignKeyInfo foreignKey = foreignKeyMap.computeIfAbsent(fkName, k -> 
-                        ForeignKeyInfo.builder()
-                            .name(fkName)
-                            .sourceTableName(null) // 需要在保存时设置
-                            .targetTableName(null) // 需要在保存时设置
-                            .updateRule(getForeignKeyRuleName(updateRule))
-                            .deleteRule(getForeignKeyRuleName(deleteRule))
-//                            .createdAt(LocalDateTime.now())
-//                            .updatedAt(LocalDateTime.now())
-                            .columns(new ArrayList<>())
-                            .build()
-                    );
+                    // 如果是新外键，创建新的ForeignKeyInfo对象
+                    if (currentFK == null || !fkName.equals(currentFK.getName())) {
+                        currentFK = ForeignKeyInfo.builder()
+                                .name(fkName)
+                                .sourceTableName(rs.getString("FKTABLE_NAME"))
+                                .targetTableName(rs.getString("PKTABLE_NAME"))
+                                .updateRule(rs.getInt("UPDATE_RULE"))
+                                .deleteRule(rs.getInt("DELETE_RULE"))
+                                .deferrable(rs.getInt("DEFERRABILITY") != DatabaseMetaData.importedKeyNotDeferrable)
+                                .build();
+                        foreignKeys.add(currentFK);
+                    }
                     
-                    // 创建外键列映射
+                    // 添加外键列
                     ForeignKeyColumnInfo foreignKeyColumn = ForeignKeyColumnInfo.builder()
-                            .dataSourceId(null) // 需要在保存时设置
-                            .sourceTableName(null) // 需要在保存时设置
-                            .sourceColumnName(null) // 需要在保存时设置
-                            .targetTableName(null) // 需要在保存时设置
-                            .targetColumnName(null) // 需要在保存时设置
-                            .ordinalPosition(keySeq)
-//                            .createdAt(LocalDateTime.now())
-//                            .updatedAt(LocalDateTime.now())
+                            .sourceColumnName(rs.getString("FKCOLUMN_NAME"))
+                            .targetColumnName(rs.getString("PKCOLUMN_NAME"))
+                            .ordinalPosition(rs.getShort("KEY_SEQ"))
                             .build();
                     
-                    foreignKey.getColumns().add(foreignKeyColumn);
+                    currentFK.getColumns().add(foreignKeyColumn);
                 }
             }
+            
+            return foreignKeys;
+            
         } catch (SQLException e) {
             log.error("Failed to get foreign keys from DB2 database: {}", dataSource.getName(), e);
-            throw DataSourceException.metadataExtractionError("Failed to get foreign keys: " + e.getMessage(), e);
+            throw new RuntimeException("Failed to get foreign keys from DB2 database", e);
         }
-        
-        return new ArrayList<>(foreignKeyMap.values());
     }
     
     @Override
-    public List<List<Object>> executeQuery(DataSource dataSource, String sql, Object... params) {
-        List<List<Object>> results = new ArrayList<>();
-        
-        try (Connection connection = getConnection(dataSource);
-             PreparedStatement stmt = connection.prepareStatement(sql)) {
+    public QueryResult executeQuery(String sql, DataSource dataSource) {
+        try (Connection conn = getConnection(dataSource);
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
             
-            // 设置参数
-            for (int i = 0; i < params.length; i++) {
-                stmt.setObject(i + 1, params[i]);
+            // 获取列信息
+            List<String> columnLabels = new ArrayList<>();
+            for (int i = 1; i <= rs.getMetaData().getColumnCount(); i++) {
+                columnLabels.add(rs.getMetaData().getColumnLabel(i));
             }
             
-            // 执行查询
-            try (ResultSet rs = stmt.executeQuery()) {
-                int columnCount = rs.getMetaData().getColumnCount();
-                
-                // 添加列名作为第一行
-                List<Object> columnNames = new ArrayList<>();
-                for (int i = 1; i <= columnCount; i++) {
-                    columnNames.add(rs.getMetaData().getColumnName(i));
+            // 获取数据
+            List<Map<String, Object>> rows = new ArrayList<>();
+            while (rs.next()) {
+                Map<String, Object> row = new HashMap<>();
+                for (String label : columnLabels) {
+                    row.put(label, rs.getObject(label));
                 }
-                results.add(columnNames);
-                
-                // 添加数据行
-                while (rs.next()) {
-                    List<Object> row = new ArrayList<>();
-                    for (int i = 1; i <= columnCount; i++) {
-                        row.add(rs.getObject(i));
-                    }
-                    results.add(row);
-                }
+                rows.add(row);
             }
+            
+            return QueryResult.builder()
+                    .success(true)
+                    .columnLabels(columnLabels)
+                    .rows(rows)
+                    .build();
+            
         } catch (SQLException e) {
             log.error("Failed to execute query on DB2 database: {}", dataSource.getName(), e);
-            throw DataSourceException.metadataExtractionError("Failed to execute query: " + e.getMessage(), e);
+            throw new RuntimeException("Failed to execute query on DB2 database", e);
         }
-        
-        return results;
-    }
-    
-    @Override
-    public long getEstimatedRowCount(DataSource dataSource, String schemaName, String tableName) {
-        String sql = "SELECT CARD FROM SYSIBM.SYSTABLES WHERE CREATOR = ? AND NAME = ?";
-        
-        try (Connection connection = getConnection(dataSource);
-             PreparedStatement stmt = connection.prepareStatement(sql)) {
-            
-            stmt.setString(1, schemaName);
-            stmt.setString(2, tableName);
-            
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    return rs.getLong(1);
-                }
-            }
-        } catch (SQLException e) {
-            log.warn("Failed to get estimated row count for table {}.{}: {}", schemaName, tableName, e.getMessage());
-        }
-        
-        return 0;
     }
     
     @Override
     public long getDataSize(DataSource dataSource, String schemaName, String tableName) {
-        String sql = "SELECT FPAGES * 4096 FROM SYSIBM.SYSTABLES WHERE CREATOR = ? AND NAME = ?";
+        String sql = "SELECT SUM(DATA_OBJECT_P_SIZE) FROM TABLE(SYSPROC.ADMIN_GET_TAB_INFO(?, ?))";
         
-        try (Connection connection = getConnection(dataSource);
-             PreparedStatement stmt = connection.prepareStatement(sql)) {
+        try (Connection conn = getConnection(dataSource);
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
             
             stmt.setString(1, schemaName);
             stmt.setString(2, tableName);
@@ -443,19 +359,21 @@ public class DB2DataSourceAdapter implements DataSourceAdapter {
                     return rs.getLong(1);
                 }
             }
+            
+            return 0;
+            
         } catch (SQLException e) {
             log.warn("Failed to get data size for table {}.{}: {}", schemaName, tableName, e.getMessage());
+            return -1;
         }
-        
-        return 0;
     }
     
     @Override
     public long getIndexSize(DataSource dataSource, String schemaName, String tableName) {
-        String sql = "SELECT SUM(NLEAF * 4096) FROM SYSIBM.SYSINDEXES WHERE TBCREATOR = ? AND TBNAME = ?";
+        String sql = "SELECT SUM(INDEX_OBJECT_P_SIZE) FROM TABLE(SYSPROC.ADMIN_GET_TAB_INFO(?, ?))";
         
-        try (Connection connection = getConnection(dataSource);
-             PreparedStatement stmt = connection.prepareStatement(sql)) {
+        try (Connection conn = getConnection(dataSource);
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
             
             stmt.setString(1, schemaName);
             stmt.setString(2, tableName);
@@ -465,74 +383,76 @@ public class DB2DataSourceAdapter implements DataSourceAdapter {
                     return rs.getLong(1);
                 }
             }
+            
+            return 0;
+            
         } catch (SQLException e) {
             log.warn("Failed to get index size for table {}.{}: {}", schemaName, tableName, e.getMessage());
+            return -1;
         }
-        
-        return 0;
     }
     
-    /**
-     * 判断是否为系统模式
-     */
-    private boolean isSystemSchema(String schemaName) {
-        return "SYSIBM".equalsIgnoreCase(schemaName) ||
-               "SYSCAT".equalsIgnoreCase(schemaName) ||
-               "SYSSTAT".equalsIgnoreCase(schemaName) ||
-               "SYSFUN".equalsIgnoreCase(schemaName) ||
-               "SYSPROC".equalsIgnoreCase(schemaName) ||
-               "SYSIBMADM".equalsIgnoreCase(schemaName);
-    }
-    
-    /**
-     * 判断是否为主键索引
-     */
-    private boolean isPrimaryKeyIndex(String indexName) {
-        return indexName != null && indexName.toUpperCase().startsWith("SQL");
-    }
-    
-    /**
-     * 判断列是否为自增列
-     */
-    private boolean isAutoIncrementColumn(Connection connection, String schemaName, String tableName, String columnName) {
+    @Override
+    public boolean isAutoIncrement(DataSource dataSource, String schemaName, String tableName, String columnName) {
         String sql = "SELECT IDENTITY FROM SYSCAT.COLUMNS WHERE TABSCHEMA = ? AND TABNAME = ? AND COLNAME = ?";
         
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+        try (Connection conn = getConnection(dataSource);
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            
             stmt.setString(1, schemaName);
             stmt.setString(2, tableName);
             stmt.setString(3, columnName);
             
             try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    String identity = rs.getString(1);
-                    return "Y".equals(identity);
-                }
+                return rs.next() && rs.getString(1) != null;
             }
+            
         } catch (SQLException e) {
-            log.warn("Failed to check if column is auto increment: {}.{}.{}: {}", 
+            log.warn("Failed to check if column is auto increment: {}.{}.{}: {}",
                     schemaName, tableName, columnName, e.getMessage());
+            return false;
         }
-        
-        return false;
     }
     
-    /**
-     * 获取外键规则名称
-     */
-    private String getForeignKeyRuleName(int rule) {
-        switch (rule) {
-            case DatabaseMetaData.importedKeyCascade:
-                return "CASCADE";
-            case DatabaseMetaData.importedKeySetNull:
-                return "SET NULL";
-            case DatabaseMetaData.importedKeySetDefault:
-                return "SET DEFAULT";
-            case DatabaseMetaData.importedKeyRestrict:
-                return "RESTRICT";
-            case DatabaseMetaData.importedKeyNoAction:
-                return "NO ACTION";
-            default:
-                return "UNKNOWN";
+    @Override
+    public String getDatabaseVersion(DataSource dataSource) {
+        try (Connection conn = getConnection(dataSource)) {
+            return conn.getMetaData().getDatabaseProductVersion();
+        } catch (SQLException e) {
+            return "Unknown";
         }
+    }
+    
+    @Override
+    public String getDriverVersion(DataSource dataSource) {
+        try (Connection conn = getConnection(dataSource)) {
+            return conn.getMetaData().getDriverVersion();
+        } catch (SQLException e) {
+            return "Unknown";
+        }
+    }
+    
+    @Override
+    public String getDefaultSchema(DataSource dataSource) {
+        try (Connection conn = getConnection(dataSource)) {
+            return conn.getSchema();
+        } catch (SQLException e) {
+            return null;
+        }
+    }
+    
+    @Override
+    public List<String> getSystemSchemas(DataSource dataSource) {
+        return Arrays.asList("SYSCAT", "SYSIBM", "SYSIBMADM", "SYSPUBLIC", "SYSSTAT", "SYSTOOLS");
+    }
+    
+    @Override
+    public boolean isSystemSchema(DataSource dataSource, String schemaName) {
+        return getSystemSchemas(dataSource).contains(schemaName.toUpperCase());
+    }
+    
+    @Override
+    public boolean isSystemTable(DataSource dataSource, String schemaName, String tableName) {
+        return isSystemSchema(dataSource, schemaName) || tableName.startsWith("SYS");
     }
 }

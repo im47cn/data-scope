@@ -1,22 +1,23 @@
-package com.insightdata.domain.model.metadata;
-
-import com.insightdata.domain.model.base.BaseEntity;
+package com.insightdata.facade.rest.dto;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.experimental.SuperBuilder;
 
 /**
- * 外键列信息
+ * 外键列响应DTO
  */
 @Data
-@SuperBuilder
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(callSuper = true)
-public class ForeignKeyColumnInfo extends BaseEntity {
+public class ForeignKeyColumnResponse {
+    
+    /**
+     * ID
+     */
+    private Long id;
     
     /**
      * 外键ID
@@ -67,6 +68,11 @@ public class ForeignKeyColumnInfo extends BaseEntity {
      * 目标列默认值
      */
     private String targetDefaultValue;
+    
+    /**
+     * 备注
+     */
+    private String remark;
     
     /**
      * 获取完整的列定义

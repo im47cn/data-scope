@@ -8,19 +8,21 @@ import com.insightdata.nlquery.preprocess.PreprocessedText;
 public interface IntentRecognizer {
     
     /**
-     * 识别查询意图
-     *
-     * @param preprocessedText 预处理后的文本
-     * @return 查询意图
-     */
-    QueryIntent recognizeIntent(PreprocessedText preprocessedText);
-    
-    /**
-     * 识别查询意图
+     * 识别意图
      *
      * @param preprocessedText 预处理后的文本
      * @param context 意图识别上下文
      * @return 查询意图
      */
     QueryIntent recognizeIntent(PreprocessedText preprocessedText, IntentRecognitionContext context);
+    
+    /**
+     * 识别意图(使用默认上下文)
+     *
+     * @param preprocessedText 预处理后的文本
+     * @return 查询意图
+     */
+    default QueryIntent recognizeIntent(PreprocessedText preprocessedText) {
+        return recognizeIntent(preprocessedText, new IntentRecognitionContext());
+    }
 }

@@ -1,87 +1,158 @@
 package com.insightdata.nlquery.executor;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * 查询结果
- * 包含查询执行的结果信息、数据、元数据等
  */
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class QueryResult {
-
+    
     /**
-     * 执行是否成功
+     * 列名列表
+     */
+    @Builder.Default
+    private List<String> columnLabels = new ArrayList<>();
+    
+    /**
+     * 数据行列表
+     */
+    @Builder.Default
+    private List<Map<String, Object>> rows = new ArrayList<>();
+    
+    /**
+     * 总行数
+     */
+    private Long totalRows;
+    
+    /**
+     * 执行时长(毫秒)
+     */
+    private long duration;
+    
+    /**
+     * 是否成功
      */
     private boolean success;
-
-    /**
-     * 执行的SQL语句
-     */
-    private String sql;
-
+    
     /**
      * 错误信息
-     * 当success为false时有效
      */
     private String errorMessage;
-
+    
     /**
-     * 执行时间（毫秒）
+     * 警告信息
      */
-    private long executionTime;
-
+    @Builder.Default
+    private List<String> warnings = new ArrayList<>();
+    
     /**
-     * 查询结果的列名
+     * 影响行数
      */
-    private List<String> columns;
-
+    private int affectedRows;
+    
     /**
-     * 查询结果的数据
-     * 每一行是一个Map，key为列名，value为对应的值
+     * 是否来自缓存
      */
-    private List<Map<String, Object>> data;
-
+    private boolean fromCache;
+    
     /**
-     * 查询结果的元数据
+     * 缓存过期时间
      */
-    private QueryMetadata metadata;
-
+    private long cacheExpireTime;
+    
     /**
-     * 总记录数
+     * 元数据
      */
-    private Long totalCount;
-
+    @Builder.Default
+    private Map<String, Object> metadata = new HashMap<>();
+    
     /**
-     * 当前页码
+     * 创建一个成功的查询结果
      */
-    private Integer currentPage;
-
+    public static QueryResult success(List<String> columnLabels, List<Map<String, Object>> rows) {
+        return QueryResult.builder()
+                .columnLabels(columnLabels)
+                .rows(rows)
+                .success(true)
+                .build();
+    }
+    
     /**
-     * 每页记录数
+     * 创建一个失败的查询结果
      */
-    private Integer pageSize;
-
+    public static QueryResult failed(String errorMessage) {
+        return QueryResult.builder()
+                .success(false)
+                .errorMessage(errorMessage)
+                .build();
+    }
+    
     /**
-     * 是否还有更多数据
+     * 创建一个带警告的查询结果
      */
-    private Boolean hasMore;
-
+    public static QueryResult withWarnings(List<String> columnLabels, List<Map<String, Object>> rows, List<String> warnings) {
+        return QueryResult.builder()
+                .columnLabels(columnLabels)
+                .rows(rows)
+                .success(true)
+                .warnings(warnings)
+                .build();
+    }
+    
     /**
-     * 查询是否被超时中断
+     * 添加元数据
      */
-    private boolean timeout;
-
+    public QueryResult addMetadata(String key, Object value) {
+        metadata.put(key, value);
+        return this;
+    }
+    
     /**
-     * 查询是否被限流中断
+     * 添加警告
      */
-    private boolean throttled;
-
+    public QueryResult addWarning(String warning) {
+        warnings.add(warning);
+        return this;
+    }
+    
     /**
-     * 附加信息
-     * 可用于传递其他扩展信息
+     * 获取指定列的值列表
      */
-    private Map<String, Object> additionalInfo;
+    public List<Object> getColumnValues(String columnLabel) {
+        List<Object> values = new ArrayList<>();
+        for (Map<String, Object> row : rows) {
+            values.add(row.get(columnLabel));
+        }
+        return values;
+    }
+    
+    /**
+     * 获取第一行数据
+     */
+    public Map<String, Object> getFirstRow() {
+        return rows.isEmpty() ? null : rows.get(0);
+    }
+    
+    /**
+     * 获取单个值
+     */
+    public Object getSingleValue() {
+        Map<String, Object> firstRow = getFirstRow();
+        if (firstRow == null || firstRow.isEmpty()) {
+            return null;
+        }
+        return firstRow.values().iterator().next();
+    }
 }

@@ -1,91 +1,118 @@
 package com.insightdata.nlquery.executor;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.experimental.FieldDefaults;
 
 /**
- * 查询元数据信息
- * 包含查询结果的元数据信息，如列名、列类型、是否可为空等
+ * 查询元数据
  */
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class QueryMetadata {
-
+    
     /**
-     * 列名称列表
+     * 查询ID
      */
-    private List<ColumnMetadata> columns;
-
+    String queryId;
+    
     /**
-     * 总记录数
-     * 在部分数据库中，可能无法获取到准确的总记录数
+     * 查询类型
      */
-    private Long totalCount;
-
+    QueryType queryType;
+    
     /**
-     * 是否还有更多数据
+     * 查询参数
      */
-    private Boolean hasMore;
-
+    @Builder.Default
+    Map<String, Object> parameters = new HashMap<>();
+    
     /**
-     * 列元数据信息
+     * 是否缓存结果
      */
-    @Data
-    public static class ColumnMetadata {
+    @Builder.Default
+    boolean cacheResult = false;
+    
+    /**
+     * 缓存过期时间(秒)
+     */
+    @Builder.Default
+    int cacheExpireSeconds = 300;
+    
+    /**
+     * 是否异步执行
+     */
+    @Builder.Default
+    boolean async = false;
+    
+    /**
+     * 超时时间(毫秒)
+     */
+    @Builder.Default
+    int timeout = 30000;
+    
+    /**
+     * 最大返回行数
+     */
+    @Builder.Default
+    int maxRows = 1000;
+    
+    /**
+     * 是否返回总行数
+     */
+    @Builder.Default
+    boolean returnTotalRows = false;
+    
+    /**
+     * 是否返回元数据
+     */
+    @Builder.Default
+    boolean returnMetadata = false;
+    
+    /**
+     * 查询标签
+     */
+    @Builder.Default
+    List<String> tags = new ArrayList<>();
+    
+    /**
+     * 查询类型枚举
+     */
+    public enum QueryType {
         /**
-         * 列名
+         * 查询
          */
-        private String name;
+        QUERY,
         
         /**
-         * 列标签，用于展示
+         * 更新
          */
-        private String label;
+        UPDATE,
         
         /**
-         * 数据类型
+         * 批量更新
          */
-        private String dataType;
+        BATCH_UPDATE,
         
         /**
-         * 是否可为空
+         * 存储过程
          */
-        private Boolean nullable;
+        PROCEDURE,
         
         /**
-         * 列长度
+         * 函数
          */
-        private Integer length;
-        
-        /**
-         * 精度（对于数值类型）
-         */
-        private Integer precision;
-        
-        /**
-         * 小数位数（对于数值类型）
-         */
-        private Integer scale;
-        
-        /**
-         * 是否为主键
-         */
-        private Boolean isPrimaryKey;
-        
-        /**
-         * 列的显示宽度建议值
-         */
-        private Integer displayWidth;
-        
-        /**
-         * 列的对齐方式
-         * LEFT, RIGHT, CENTER
-         */
-        private String alignment;
-        
-        /**
-         * 是否为敏感数据
-         */
-        private Boolean isSensitive;
+        FUNCTION
     }
 }

@@ -1,132 +1,179 @@
 package com.insightdata.nlquery.preprocess;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 /**
  * 预处理上下文
- * 包含预处理过程中需要的上下文信息
  */
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class PreprocessContext {
     
-    // 数据源ID
+    /**
+     * 数据源ID
+     */
     private Long dataSourceId;
     
-    // 用户ID
+    /**
+     * 用户ID
+     */
     private Long userId;
     
-    // 会话ID
+    /**
+     * 会话ID
+     */
     private String sessionId;
     
-    // 上一次查询
-    private String previousQuery;
-    
-    // 领域
+    /**
+     * 领域
+     */
     private String domain;
     
     /**
-     * 默认构造函数
+     * 语言
      */
-    public PreprocessContext() {
+    @Builder.Default
+    private String language = "zh-CN";
+    
+    /**
+     * 是否使用模糊匹配
+     */
+    @Builder.Default
+    private boolean useFuzzyMatching = true;
+    
+    /**
+     * 最小置信度
+     */
+    @Builder.Default
+    private double minConfidence = 0.6;
+    
+    /**
+     * 是否使用元数据
+     */
+    @Builder.Default
+    private boolean useMetadata = true;
+    
+    /**
+     * 是否使用缓存
+     */
+    @Builder.Default
+    private boolean useCache = true;
+    
+    /**
+     * 缓存过期时间(秒)
+     */
+    @Builder.Default
+    private int cacheExpireSeconds = 300;
+    
+    /**
+     * 上下文参数
+     */
+    @Builder.Default
+    private Map<String, Object> parameters = new HashMap<>();
+    
+    /**
+     * 上下文标签
+     */
+    @Builder.Default
+    private List<String> tags = new ArrayList<>();
+    
+    /**
+     * 创建一个简单的预处理上下文
+     */
+    public static PreprocessContext simple(Long dataSourceId) {
+        return PreprocessContext.builder()
+                .dataSourceId(dataSourceId)
+                .build();
     }
     
     /**
-     * 构造函数
-     *
-     * @param dataSourceId 数据源ID
-     * @param userId 用户ID
-     * @param sessionId 会话ID
+     * 创建一个带用户信息的预处理上下文
      */
-    public PreprocessContext(Long dataSourceId, Long userId, String sessionId) {
-        this.dataSourceId = dataSourceId;
-        this.userId = userId;
-        this.sessionId = sessionId;
+    public static PreprocessContext withUser(Long dataSourceId, Long userId) {
+        return PreprocessContext.builder()
+                .dataSourceId(dataSourceId)
+                .userId(userId)
+                .build();
     }
     
     /**
-     * 获取数据源ID
-     *
-     * @return 数据源ID
+     * 创建一个带会话信息的预处理上下文
      */
-    public Long getDataSourceId() {
-        return dataSourceId;
+    public static PreprocessContext withSession(Long dataSourceId, String sessionId) {
+        return PreprocessContext.builder()
+                .dataSourceId(dataSourceId)
+                .sessionId(sessionId)
+                .build();
     }
     
     /**
-     * 设置数据源ID
-     *
-     * @param dataSourceId 数据源ID
+     * 添加参数
      */
-    public void setDataSourceId(Long dataSourceId) {
-        this.dataSourceId = dataSourceId;
+    public PreprocessContext addParameter(String key, Object value) {
+        parameters.put(key, value);
+        return this;
     }
     
     /**
-     * 获取用户ID
-     *
-     * @return 用户ID
+     * 添加标签
      */
-    public Long getUserId() {
-        return userId;
+    public PreprocessContext addTag(String tag) {
+        tags.add(tag);
+        return this;
     }
     
     /**
-     * 设置用户ID
-     *
-     * @param userId 用户ID
+     * 获取参数
      */
-    public void setUserId(Long userId) {
-        this.userId = userId;
+    public Object getParameter(String key) {
+        return parameters.get(key);
     }
     
     /**
-     * 获取会话ID
-     *
-     * @return 会话ID
+     * 获取参数，带默认值
      */
-    public String getSessionId() {
-        return sessionId;
+    public Object getParameter(String key, Object defaultValue) {
+        return parameters.getOrDefault(key, defaultValue);
     }
     
     /**
-     * 设置会话ID
-     *
-     * @param sessionId 会话ID
+     * 是否包含参数
      */
-    public void setSessionId(String sessionId) {
-        this.sessionId = sessionId;
+    public boolean hasParameter(String key) {
+        return parameters.containsKey(key);
     }
     
     /**
-     * 获取上一次查询
-     *
-     * @return 上一次查询
+     * 移除参数
      */
-    public String getPreviousQuery() {
-        return previousQuery;
+    public PreprocessContext removeParameter(String key) {
+        parameters.remove(key);
+        return this;
     }
     
     /**
-     * 设置上一次查询
-     *
-     * @param previousQuery 上一次查询
+     * 清空参数
      */
-    public void setPreviousQuery(String previousQuery) {
-        this.previousQuery = previousQuery;
+    public PreprocessContext clearParameters() {
+        parameters.clear();
+        return this;
     }
     
     /**
-     * 获取领域
-     *
-     * @return 领域
+     * 清空标签
      */
-    public String getDomain() {
-        return domain;
-    }
-    
-    /**
-     * 设置领域
-     *
-     * @param domain 领域
-     */
-    public void setDomain(String domain) {
-        this.domain = domain;
+    public PreprocessContext clearTags() {
+        tags.clear();
+        return this;
     }
 }

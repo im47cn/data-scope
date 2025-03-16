@@ -1,11 +1,9 @@
 package com.insightdata.nlquery.preprocess;
 
 /**
- * 实体类型
- * 表示识别出的实体的类型
+ * 实体类型枚举
  */
 public enum EntityType {
-    
     /**
      * 表名
      */
@@ -15,11 +13,6 @@ public enum EntityType {
      * 列名
      */
     COLUMN,
-    
-    /**
-     * 值
-     */
-    VALUE,
     
     /**
      * 函数
@@ -37,24 +30,9 @@ public enum EntityType {
     CONDITION,
     
     /**
-     * 排序
+     * 值
      */
-    ORDER,
-    
-    /**
-     * 限制
-     */
-    LIMIT,
-    
-    /**
-     * 分组
-     */
-    GROUP,
-    
-    /**
-     * 日期
-     */
-    DATE,
+    VALUE,
     
     /**
      * 数字
@@ -67,12 +45,52 @@ public enum EntityType {
     STRING,
     
     /**
+     * 日期
+     */
+    DATE,
+    
+    /**
      * 布尔值
      */
     BOOLEAN,
     
     /**
-     * 未知
+     * 排序
      */
-    UNKNOWN
+    ORDER,
+    
+    /**
+     * 分组
+     */
+    GROUP,
+    
+    /**
+     * 限制
+     */
+    LIMIT,
+    
+    /**
+     * 聚合
+     */
+    AGGREGATE,
+    
+    /**
+     * 连接
+     */
+    JOIN,
+    
+    /**
+     * 别名
+     */
+    ALIAS,
+    
+    /**
+     * 子查询
+     */
+    SUBQUERY,
+    
+    /**
+     * 其他
+     */
+    OTHER
 }

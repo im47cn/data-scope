@@ -25,27 +25,72 @@ public class LimitRequirement {
     private int limitValue;
     
     /**
-     * 偏移量
+     * 偏移量(用于分页)
      */
     private int offset;
     
     /**
-     * 限制类型
+     * 百分比值(用于百分比限制)
      */
-    public enum LimitType {
-        /**
-         * 前N条
-         */
-        TOP_N,
-        
-        /**
-         * 分页
-         */
-        PAGINATION,
-        
-        /**
-         * 无限制
-         */
-        NONE
+    private double percentage;
+    
+    /**
+     * 创建一个前N条限制
+     */
+    public static LimitRequirement topN(int n) {
+        return LimitRequirement.builder()
+                .limitType(LimitType.TOP_N)
+                .limitValue(n)
+                .build();
+    }
+    
+    /**
+     * 创建一个后N条限制
+     */
+    public static LimitRequirement bottomN(int n) {
+        return LimitRequirement.builder()
+                .limitType(LimitType.BOTTOM_N)
+                .limitValue(n)
+                .build();
+    }
+    
+    /**
+     * 创建一个分页限制
+     */
+    public static LimitRequirement pagination(int pageSize, int pageNum) {
+        return LimitRequirement.builder()
+                .limitType(LimitType.PAGINATION)
+                .limitValue(pageSize)
+                .offset((pageNum - 1) * pageSize)
+                .build();
+    }
+    
+    /**
+     * 创建一个随机N条限制
+     */
+    public static LimitRequirement randomN(int n) {
+        return LimitRequirement.builder()
+                .limitType(LimitType.RANDOM_N)
+                .limitValue(n)
+                .build();
+    }
+    
+    /**
+     * 创建一个百分比限制
+     */
+    public static LimitRequirement percentage(double percentage) {
+        return LimitRequirement.builder()
+                .limitType(LimitType.PERCENTAGE)
+                .percentage(percentage)
+                .build();
+    }
+    
+    /**
+     * 创建一个无限制
+     */
+    public static LimitRequirement none() {
+        return LimitRequirement.builder()
+                .limitType(LimitType.NONE)
+                .build();
     }
 }

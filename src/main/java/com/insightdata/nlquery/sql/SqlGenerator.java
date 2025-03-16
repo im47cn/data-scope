@@ -7,14 +7,20 @@ import com.insightdata.domain.model.metadata.SchemaInfo;
 import com.insightdata.nlquery.intent.QueryIntent;
 import com.insightdata.nlquery.preprocess.EntityTag;
 
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.experimental.FieldDefaults;
+
 /**
  * SQL生成器接口
- * 负责根据提取的实体和识别的意图生成SQL查询
  */
 public interface SqlGenerator {
-
+    
     /**
-     * 生成SQL查询
+     * 生成SQL
      *
      * @param entities 提取的实体
      * @param queryIntent 查询意图
@@ -26,54 +32,35 @@ public interface SqlGenerator {
     /**
      * SQL生成结果
      */
-    class SqlGenerationResult {
-        private String sql;
-        private Map<String, Object> parameters;
-        private double confidence;
-        private List<String> explanations;
-        private List<String> alternativeSqls;
+    @Data
+    @Builder(toBuilder = true)
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @FieldDefaults(level = AccessLevel.PRIVATE)
+    public static class SqlGenerationResult {
+        /**
+         * 生成的SQL
+         */
+        String sql = "";
 
-        public SqlGenerationResult() {
-        }
+        /**
+         * SQL参数
+         */
+        Map<String, Object> parameters;
 
-        public String getSql() {
-            return sql;
-        }
+        /**
+         * 置信度
+         */
+        double confidence;
 
-        public void setSql(String sql) {
-            this.sql = sql;
-        }
+        /**
+         * 解释说明
+         */
+        List<String> explanations;
 
-        public Map<String, Object> getParameters() {
-            return parameters;
-        }
-
-        public void setParameters(Map<String, Object> parameters) {
-            this.parameters = parameters;
-        }
-
-        public double getConfidence() {
-            return confidence;
-        }
-
-        public void setConfidence(double confidence) {
-            this.confidence = confidence;
-        }
-
-        public List<String> getExplanations() {
-            return explanations;
-        }
-
-        public void setExplanations(List<String> explanations) {
-            this.explanations = explanations;
-        }
-
-        public List<String> getAlternativeSqls() {
-            return alternativeSqls;
-        }
-
-        public void setAlternativeSqls(List<String> alternativeSqls) {
-            this.alternativeSqls = alternativeSqls;
-        }
+        /**
+         * 替代SQL语句
+         */
+        List<String> alternativeSqls;
     }
 }

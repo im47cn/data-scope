@@ -1,22 +1,23 @@
-package com.insightdata.domain.model.metadata;
-
-import com.insightdata.domain.model.base.BaseEntity;
+package com.insightdata.facade.rest.dto;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.experimental.SuperBuilder;
 
 /**
- * 索引列信息
+ * 索引列响应DTO
  */
 @Data
-@SuperBuilder
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(callSuper = true)
-public class IndexColumnInfo extends BaseEntity {
+public class IndexColumnResponse {
+    
+    /**
+     * ID
+     */
+    private Long id;
     
     /**
      * 索引ID

@@ -6,15 +6,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.insightdata.nlquery.intent.*;
 import org.springframework.stereotype.Component;
 
 import com.insightdata.domain.model.metadata.ColumnInfo;
 import com.insightdata.domain.model.metadata.SchemaInfo;
 import com.insightdata.domain.model.metadata.TableInfo;
-import com.insightdata.nlquery.intent.LimitRequirement;
-import com.insightdata.nlquery.intent.QueryIntent;
-import com.insightdata.nlquery.intent.QueryType;
-import com.insightdata.nlquery.intent.SortRequirement;
 import com.insightdata.nlquery.preprocess.EntityTag;
 import com.insightdata.nlquery.preprocess.EntityType;
 
@@ -125,7 +122,7 @@ public class DefaultSqlGenerator implements SqlGenerator {
             
             // 构建LIMIT子句
             if (queryIntent.getLimitRequirement() != null && 
-                queryIntent.getLimitRequirement().getLimitType() != LimitRequirement.LimitType.NONE) {
+                queryIntent.getLimitRequirement().getLimitType() != LimitType.NONE) {
                 buildLimitClause(sqlBuilder, queryIntent.getLimitRequirement());
             }
             
@@ -424,7 +421,7 @@ public class DefaultSqlGenerator implements SqlGenerator {
      * 构建LIMIT子句
      */
     private void buildLimitClause(StringBuilder sqlBuilder, LimitRequirement limitRequirement) {
-        if (limitRequirement.getLimitType() == LimitRequirement.LimitType.TOP_N) {
+        if (limitRequirement.getLimitType() == LimitType.TOP_N) {
             sqlBuilder.append(" LIMIT ").append(limitRequirement.getLimitValue());
         }
     }

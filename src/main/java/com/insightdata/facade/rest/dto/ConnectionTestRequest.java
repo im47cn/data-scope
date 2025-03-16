@@ -1,17 +1,23 @@
 package com.insightdata.facade.rest.dto;
 
-import com.insightdata.common.enums.DataSourceType;
+import java.util.Map;
+
+import com.insightdata.domain.model.DataSource.DataSourceType;
+
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
-
-import java.util.Map;
+import lombok.NoArgsConstructor;
 
 /**
  * 连接测试请求DTO
  */
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class ConnectionTestRequest {
     
     /**
@@ -24,7 +30,6 @@ public class ConnectionTestRequest {
      * 主机地址
      */
     @NotBlank(message = "主机地址不能为空")
-    @Size(max = 255, message = "主机地址长度不能超过255个字符")
     private String host;
     
     /**
@@ -37,14 +42,12 @@ public class ConnectionTestRequest {
      * 数据库名称
      */
     @NotBlank(message = "数据库名称不能为空")
-    @Size(max = 100, message = "数据库名称长度不能超过100个字符")
     private String databaseName;
     
     /**
      * 用户名
      */
     @NotBlank(message = "用户名不能为空")
-    @Size(max = 100, message = "用户名长度不能超过100个字符")
     private String username;
     
     /**
@@ -57,4 +60,44 @@ public class ConnectionTestRequest {
      * 连接属性
      */
     private Map<String, String> connectionProperties;
+    
+    /**
+     * 获取完整的JDBC URL
+     */
+    public String getJdbcUrl() {
+        switch (type) {
+            case MYSQL:
+                return String.format("jdbc:mysql://%s:%d/%s", host, port, databaseName);
+            case DB2:
+                return String.format("jdbc:db2://%s:%d/%s", host, port, databaseName);
+            case ORACLE:
+                return String.format("jdbc:oracle:thin:@%s:%d:%s", host, port, databaseName);
+            case POSTGRESQL:
+                return String.format("jdbc:postgresql://%s:%d/%s", host, port, databaseName);
+            case SQLSERVER:
+                return String.format("jdbc:sqlserver://%s:%d;databaseName=%s", host, port, databaseName);
+            default:
+                throw new IllegalStateException("Unsupported database type: " + type);
+        }
+    }
+    
+    /**
+     * 获取默认驱动类名
+     */
+    public String getDriverClassName() {
+        switch (type) {
+            case MYSQL:
+                return "com.mysql.cj.jdbc.Driver";
+            case DB2:
+                return "com.ibm.db2.jcc.DB2Driver";
+            case ORACLE:
+                return "oracle.jdbc.OracleDriver";
+            case POSTGRESQL:
+                return "org.postgresql.Driver";
+            case SQLSERVER:
+                return "com.microsoft.sqlserver.jdbc.SQLServerDriver";
+            default:
+                throw new IllegalStateException("Unsupported database type: " + type);
+        }
+    }
 }

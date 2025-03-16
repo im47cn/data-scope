@@ -1,66 +1,58 @@
 package com.insightdata.nlquery.preprocess;
 
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.experimental.FieldDefaults;
+
 /**
  * 词性标注
- * 表示单词的词性信息
  */
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class PosTag {
     
-    // 单词
-    private String word;
-    
-    // 词性
-    private String tag;
+    /**
+     * 词语
+     */
+    String word;
     
     /**
-     * 构造函数
-     *
-     * @param word 单词
-     * @param tag 词性
+     * 词性
+     */
+    String tag;
+    
+    /**
+     * 开始位置
+     */
+    int startIndex;
+    
+    /**
+     * 结束位置
+     */
+    int endIndex;
+    
+    /**
+     * 置信度分数(0-1)
+     */
+    double confidence;
+    
+    /**
+     * 词性说明
+     */
+    String description;
+    
+    /**
+     * 创建一个简单的词性标注
      */
     public PosTag(String word, String tag) {
         this.word = word;
         this.tag = tag;
-    }
-    
-    /**
-     * 获取单词
-     *
-     * @return 单词
-     */
-    public String getWord() {
-        return word;
-    }
-    
-    /**
-     * 设置单词
-     *
-     * @param word 单词
-     */
-    public void setWord(String word) {
-        this.word = word;
-    }
-    
-    /**
-     * 获取词性
-     *
-     * @return 词性
-     */
-    public String getTag() {
-        return tag;
-    }
-    
-    /**
-     * 设置词性
-     *
-     * @param tag 词性
-     */
-    public void setTag(String tag) {
-        this.tag = tag;
-    }
-    
-    @Override
-    public String toString() {
-        return word + "/" + tag;
+        this.confidence = 1.0;
     }
 }
