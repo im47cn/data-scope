@@ -11,7 +11,15 @@ import com.insightdata.domain.model.query.QueryHistory;
  * 负责表关系的学习、管理和查询
  */
 public interface TableRelationshipService {
-    
+
+    /**
+     * 获取获取指定ID的表关系
+     *
+     * @param id 表关系ID
+     * @return 表关系
+     */
+    TableRelationship findById(Long id);
+
     /**
      * 获取数据源的所有表关系
      *

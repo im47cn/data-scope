@@ -184,11 +184,11 @@ public class NLQueryServiceImpl implements NLQueryService {
             QueryHistory history = new QueryHistory();
             history.setDataSourceId(request.getDataSourceId());
             history.setNaturalLanguageQuery(request.getQuery());
-            history.setGeneratedSql(conversionResult.getSql());
+            history.setExecutedSql(conversionResult.getSql());
             // 设置状态
             history.setStatus(result.isSuccess() ? "SUCCESS" : "FAILED");
             history.setErrorMessage(result.getErrorMessage());
-            history.setExecutionTime(result.getExecutionTime());
+            history.setExecutionTimeMs(result.getExecutionTime());
             history.setCreatedAt(LocalDateTime.now());
             
             queryHistoryRepository.save(history);

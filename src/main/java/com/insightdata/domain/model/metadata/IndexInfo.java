@@ -72,7 +72,7 @@ public class IndexInfo {
     
     /**
      * 添加索引列信息
-     * 
+     *
      * @param column 索引列信息
      */
     public void addColumn(IndexColumnInfo column) {

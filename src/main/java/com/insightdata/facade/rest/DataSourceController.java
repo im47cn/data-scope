@@ -313,8 +313,6 @@ public class DataSourceController {
         response.setId(schema.getId());
         response.setName(schema.getName());
         response.setDescription(schema.getDescription());
-        response.setCreatedAt(schema.getCreatedAt());
-        response.setUpdatedAt(schema.getUpdatedAt());
         return response;
     }
     
@@ -331,8 +329,6 @@ public class DataSourceController {
         response.setDataSize(table.getDataSize());
         response.setIndexSize(table.getIndexSize());
         response.setLastAnalyzed(table.getLastAnalyzed());
-        response.setCreatedAt(table.getCreatedAt());
-        response.setUpdatedAt(table.getUpdatedAt());
         return response;
     }
 }

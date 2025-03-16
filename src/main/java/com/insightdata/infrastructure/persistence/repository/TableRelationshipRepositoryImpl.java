@@ -1,6 +1,7 @@
 package com.insightdata.infrastructure.persistence.repository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,10 +28,9 @@ public class TableRelationshipRepositoryImpl implements TableRelationshipReposit
     }
 
     @Override
-    public TableRelationship findById(Long id) {
+    public Optional<TableRelationship> findById(Long id) {
         return jpaRepository.findById(id)
-                .map(TableRelationshipEntity::toDomain)
-                .orElse(null);
+                .map(TableRelationshipEntity::toDomain);
     }
 
     @Override

@@ -118,9 +118,9 @@ public class TableRelationship {
         INFERENCE,
         
         /**
-         * 用户手动定义
+         * 用户反馈
          */
-        MANUAL,
+        USER_FEEDBACK,
         
         /**
          * 从查询历史学习

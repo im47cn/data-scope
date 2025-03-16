@@ -98,7 +98,7 @@ public class MySQLDataSourceAdapter implements DataSourceAdapter {
                     SchemaInfo schema = SchemaInfo.builder()
                             .dataSourceId(dataSource.getId())
                             .name(schemaName)
-                            .createdAt(LocalDateTime.now())
+                            .createTime(LocalDateTime.now())
                             .updatedAt(LocalDateTime.now())
                             .build();
                     

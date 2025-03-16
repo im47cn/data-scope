@@ -170,7 +170,7 @@ public class TableRelationshipController {
             @RequestParam Long dataSourceId) {
         try {
             // 获取数据源的查询历史
-            List<QueryHistory> queryHistories = queryHistoryRepository.findByDataSourceId(dataSourceId);
+            List<QueryHistory> queryHistories = queryHistoryRepository.findByDataSourceIdOrderByCreatedAtDesc(dataSourceId);
             
             // 从查询历史学习表关系
             List<TableRelationship> relationships = tableRelationshipService.learnFromQueryHistory(dataSourceId, queryHistories);
