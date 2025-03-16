@@ -14,6 +14,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class IndexColumnInfo {
+
+    private Long id;
     
     /**
      * 所属索引名称

@@ -230,7 +230,7 @@ public class DB2DataSourceAdapter implements DataSourceAdapter {
                             .dataSourceId(null) // 需要在保存时设置
                             .name(columnName)
                             .dataType(dataType)
-                            .dataType(columnType)
+                            .columnType(columnType)
                             .ordinalPosition(ordinalPosition)
                             .length(columnSize)
                             .precision(columnSize)
@@ -292,6 +292,7 @@ public class DB2DataSourceAdapter implements DataSourceAdapter {
                     
                     // 创建索引列
                     IndexColumnInfo indexColumn = IndexColumnInfo.builder()
+                            .id(null) // 需要在保存时设置
                             .dataSourceId(null) // 需要在保存时设置
                             .columnName(null) // 需要在保存时设置
                             .ordinalPosition(ordinalPosition)

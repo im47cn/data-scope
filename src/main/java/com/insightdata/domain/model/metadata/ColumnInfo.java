@@ -29,7 +29,9 @@ public class ColumnInfo {
      * 数据类型
      */
     private String dataType;
-    
+
+    private String columnType;
+
     /**
      * 字段长度
      */

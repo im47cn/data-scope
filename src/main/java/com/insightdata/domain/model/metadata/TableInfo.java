@@ -21,6 +21,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class TableInfo {
+
+    private Long id;
     
     /**
      * 表名
@@ -56,7 +58,11 @@ public class TableInfo {
      * 行数（估计值）
      */
     private Long rowCount;
-    
+
+    private Long dataSize;
+
+    private Long indexSize;
+
     /**
      * 列信息列表
      */

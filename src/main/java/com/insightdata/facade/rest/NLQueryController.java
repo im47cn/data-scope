@@ -1,25 +1,41 @@
 package com.insightdata.facade.rest;
 
+import java.util.List;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.insightdata.domain.model.query.NLQueryRequest;
 import com.insightdata.domain.model.query.QueryHistory;
 import com.insightdata.domain.model.query.QueryResult;
 import com.insightdata.domain.model.query.SavedQuery;
 import com.insightdata.domain.service.NLQueryService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import com.insightdata.facade.rest.dto.SaveQueryRequestDTO;
 
-import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 自然语言查询控制器
  */
 @RestController
 @RequestMapping("/nl-queries")
-@RequiredArgsConstructor
+@Slf4j
 public class NLQueryController {
     
     private final NLQueryService nlQueryService;
+    
+    // 手动添加构造函数
+    public NLQueryController(NLQueryService nlQueryService) {
+        this.nlQueryService = nlQueryService;
+    }
     
     /**
      * 执行自然语言查询
@@ -48,17 +64,12 @@ public class NLQueryController {
     /**
      * 保存查询
      *
-     * @param name 查询名称
-     * @param request 查询请求
-     * @param result 查询结果
+     * @param requestDTO 保存查询请求DTO
      * @return 保存的查询ID
      */
     @PostMapping("/save")
-    public ResponseEntity<Long> saveQuery(
-            @RequestParam String name,
-            @RequestBody NLQueryRequest request,
-            @RequestBody QueryResult result) {
-        Long id = nlQueryService.saveQuery(name, request, result);
+    public ResponseEntity<Long> saveQuery(@RequestBody SaveQueryRequestDTO requestDTO) {
+        Long id = nlQueryService.saveQuery(requestDTO.getName(), requestDTO.getRequest(), requestDTO.getResult());
         return ResponseEntity.ok(id);
     }
     

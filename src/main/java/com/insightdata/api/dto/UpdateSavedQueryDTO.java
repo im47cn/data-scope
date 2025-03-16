@@ -6,7 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * 更新保存的查询请求DTO
+ * 更新保存查询请求DTO
  */
 @Data
 @Builder

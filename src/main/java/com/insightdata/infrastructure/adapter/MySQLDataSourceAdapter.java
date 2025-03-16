@@ -98,8 +98,8 @@ public class MySQLDataSourceAdapter implements DataSourceAdapter {
                     SchemaInfo schema = SchemaInfo.builder()
                             .dataSourceId(dataSource.getId())
                             .name(schemaName)
-                            .createTime(LocalDateTime.now())
-                            .updatedAt(LocalDateTime.now())
+//                            .createTime(LocalDateTime.now())
+//                            .updatedAt(LocalDateTime.now())
                             .build();
                     
                     schemas.add(schema);
@@ -135,8 +135,8 @@ public class MySQLDataSourceAdapter implements DataSourceAdapter {
                     return SchemaInfo.builder()
                             .dataSourceId(dataSource.getId())
                             .name(schemaName0)
-                            .createdAt(LocalDateTime.now())
-                            .updatedAt(LocalDateTime.now())
+                            .createTime(LocalDateTime.now())
+//                            .updatedAt(LocalDateTime.now())
                             .build();
                 }
             }
@@ -162,12 +162,12 @@ public class MySQLDataSourceAdapter implements DataSourceAdapter {
                     String remarks = rs.getString("REMARKS");
                     
                     TableInfo table = TableInfo.builder()
-                            .schemaId(null) // 需要在保存时设置
+                            .dataSourceId(null) // 需要在保存时设置
                             .name(tableName)
                             .type(tableType)
                             .description(remarks)
-                            .createdAt(LocalDateTime.now())
-                            .updatedAt(LocalDateTime.now())
+//                            .createdAt(LocalDateTime.now())
+//                            .updatedAt(LocalDateTime.now())
                             .build();
                     
                     tables.add(table);
@@ -176,7 +176,7 @@ public class MySQLDataSourceAdapter implements DataSourceAdapter {
             
             // 获取表的行数和大小信息
             for (TableInfo table : tables) {
-                table.setEstimatedRowCount(getEstimatedRowCount(dataSource, schemaName, table.getName()));
+                table.setRowCount(getEstimatedRowCount(dataSource, schemaName, table.getName()));
                 table.setDataSize(getDataSize(dataSource, schemaName, table.getName()));
                 table.setIndexSize(getIndexSize(dataSource, schemaName, table.getName()));
             }
@@ -228,7 +228,7 @@ public class MySQLDataSourceAdapter implements DataSourceAdapter {
                     }
                     
                     ColumnInfo column = ColumnInfo.builder()
-                            .tableId(null) // 需要在保存时设置
+                            .dataSourceId(null) // 需要在保存时设置
                             .name(columnName)
                             .dataType(dataType)
                             .columnType(columnType)
@@ -239,11 +239,11 @@ public class MySQLDataSourceAdapter implements DataSourceAdapter {
                             .nullable(nullable)
                             .defaultValue(defaultValue)
                             .description(remarks)
-                            .isPrimaryKey(primaryKeys.containsKey(columnName))
-                            .isForeignKey(false) // 将在获取外键信息时更新
-                            .isAutoIncrement(isAutoIncrement)
-                            .createdAt(LocalDateTime.now())
-                            .updatedAt(LocalDateTime.now())
+                            .primaryKey(primaryKeys.containsKey(columnName))
+                            .foreignKey(false) // 将在获取外键信息时更新
+                            .autoIncrement(isAutoIncrement)
+//                            .createdAt(LocalDateTime.now())
+//                            .updatedAt(LocalDateTime.now())
                             .build();
                     
                     columns.add(column);
@@ -281,24 +281,25 @@ public class MySQLDataSourceAdapter implements DataSourceAdapter {
                     // 获取或创建索引
                     IndexInfo index = indexMap.computeIfAbsent(indexName, k -> 
                         IndexInfo.builder()
-                            .tableId(null) // 需要在保存时设置
+                            .dataSourceId(null) // 需要在保存时设置
                             .name(indexName)
                             .type("BTREE") // MySQL默认使用BTREE
-                            .isUnique(!nonUnique)
-                            .createdAt(LocalDateTime.now())
-                            .updatedAt(LocalDateTime.now())
+                            .unique(!nonUnique)
+//                            .createdAt(LocalDateTime.now())
+//                            .updatedAt(LocalDateTime.now())
                             .columns(new ArrayList<>())
                             .build()
                     );
                     
                     // 创建索引列
                     IndexColumnInfo indexColumn = IndexColumnInfo.builder()
-                            .indexId(null) // 需要在保存时设置
-                            .columnId(null) // 需要在保存时设置
+                            .id(null) // 需要在保存时设置
+                            .dataSourceId(null) // 需要在保存时设置
+                            .columnName(null) // 需要在保存时设置
                             .ordinalPosition(ordinalPosition)
                             .sortOrder(ascOrDesc)
-                            .createdAt(LocalDateTime.now())
-                            .updatedAt(LocalDateTime.now())
+//                            .createdAt(LocalDateTime.now())
+//                            .updatedAt(LocalDateTime.now())
                             .build();
                     
                     index.getColumns().add(indexColumn);
@@ -333,24 +334,26 @@ public class MySQLDataSourceAdapter implements DataSourceAdapter {
                     ForeignKeyInfo foreignKey = foreignKeyMap.computeIfAbsent(fkName, k -> 
                         ForeignKeyInfo.builder()
                             .name(fkName)
-                            .sourceTableId(null) // 需要在保存时设置
-                            .targetTableId(null) // 需要在保存时设置
+                            .sourceTableName(null) // 需要在保存时设置
+                            .targetTableName(null) // 需要在保存时设置
                             .updateRule(getForeignKeyRuleName(updateRule))
                             .deleteRule(getForeignKeyRuleName(deleteRule))
-                            .createdAt(LocalDateTime.now())
-                            .updatedAt(LocalDateTime.now())
+//                            .createdAt(LocalDateTime.now())
+//                            .updatedAt(LocalDateTime.now())
                             .columns(new ArrayList<>())
                             .build()
                     );
                     
                     // 创建外键列映射
                     ForeignKeyColumnInfo foreignKeyColumn = ForeignKeyColumnInfo.builder()
-                            .foreignKeyId(null) // 需要在保存时设置
-                            .sourceColumnId(null) // 需要在保存时设置
-                            .targetColumnId(null) // 需要在保存时设置
+                            .dataSourceId(null) // 需要在保存时设置
+                            .sourceTableName(null) // 需要在保存时设置
+                            .sourceColumnName(null) // 需要在保存时设置
+                            .targetTableName(null) // 需要在保存时设置
+                            .targetColumnName(null) // 需要在保存时设置
                             .ordinalPosition(keySeq)
-                            .createdAt(LocalDateTime.now())
-                            .updatedAt(LocalDateTime.now())
+//                            .createdAt(LocalDateTime.now())
+//                            .updatedAt(LocalDateTime.now())
                             .build();
                     
                     foreignKey.getColumns().add(foreignKeyColumn);

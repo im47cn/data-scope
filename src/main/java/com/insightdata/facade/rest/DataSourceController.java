@@ -325,10 +325,10 @@ public class DataSourceController {
         response.setName(table.getName());
         response.setType(table.getType());
         response.setDescription(table.getDescription());
-        response.setEstimatedRowCount(table.getEstimatedRowCount());
-        response.setDataSize(table.getDataSize());
-        response.setIndexSize(table.getIndexSize());
-        response.setLastAnalyzed(table.getLastAnalyzed());
+        response.setEstimatedRowCount(table.getRowCount());
+//        response.setDataSize(table.getDataSize());
+        response.setIndexSize((long)table.getIndexes().size());
+//        response.setLastAnalyzed(table.getLastAnalyzed());
         return response;
     }
 }
