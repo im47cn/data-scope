@@ -281,7 +281,7 @@ public class DefaultSqlGenerator implements SqlGenerator {
     /**
      * 构建FROM子句
      */
-    private void buildFromClause(StringBuilder sqlBuilder, List<String> tableNames) {
+    protected void buildFromClause(StringBuilder sqlBuilder, List<String> tableNames) {
         sqlBuilder.append(" FROM ");
         sqlBuilder.append(String.join(", ", tableNames));
     }

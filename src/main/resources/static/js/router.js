@@ -79,6 +79,19 @@ const router = new VueRouter({
             }
         },
         {
+            path: '/table-relationships',
+            component: {
+                template: '<table-relationship-page></table-relationship-page>'
+            }
+        },
+        {
+            path: '/datasource/:dataSourceId/table-relationships',
+            component: {
+                template: '<table-relationship-page :data-source-id="$route.params.dataSourceId"></table-relationship-page>'
+            },
+            props: true
+        },
+        {
             path: '*',
             redirect: '/dashboard'
         }
