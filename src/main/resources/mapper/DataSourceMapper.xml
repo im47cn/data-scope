@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.insightdata.infrastructure.persistence.mapper.DataSourceMapper">
+
+    <resultMap id="BaseResultMap" type="com.insightdata.domain.model.DataSource">
+        <id column="id" property="id" />
+        <result column="name" property="name" />
+        <result column="type" property="type" />
+        <result column="host" property="host" />
+        <result column="port" property="port" />
+        <result column="database_name" property="databaseName" />
+        <result column="username" property="username" />
+        <result column="encrypted_password" property="encryptedPassword" />
+        <result column="encryption_salt" property="encryptionSalt" />
+        <result column="last_sync_time" property="lastSyncTime" />
+        <result column="active" property="active" />
+        <result column="description" property="description" />
+        <result column="created_at" property="createdAt" />
+        <result column="updated_at" property="updatedAt" />
+        <result column="connection_properties" property="connectionProperties" typeHandler="com.insightdata.infrastructure.persistence.typehandler.JsonMapTypeHandler" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, name, type, host, port, database_name, username, encrypted_password, 
+        encryption_salt, connection_properties, last_sync_time, active, description, 
+        created_at, updated_at
+    </sql>
+
+    <insert id="insert" parameterType="com.insightdata.domain.model.DataSource" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO data_source (
+            name, type, host, port, database_name, username, encrypted_password, 
+            encryption_salt, connection_properties, last_sync_time, active, description, 
+            created_at, updated_at
+        ) VALUES (
+            #{name}, #{type}, #{host}, #{port}, #{databaseName}, #{username}, #{encryptedPassword}, 
+            #{encryptionSalt}, #{connectionProperties, typeHandler=com.insightdata.infrastructure.persistence.typehandler.JsonMapTypeHandler}, 
+            #{lastSyncTime}, #{active}, #{description}, #{createdAt}, #{updatedAt}
+        )
+    </insert>
+
+    <update id="update" parameterType="com.insightdata.domain.model.DataSource">
+        UPDATE data_source
+        SET 
+            name = #{name},
+            type = #{type},
+            host = #{host},
+            port = #{port},
+            database_name = #{databaseName},
+            username = #{username},
+            encrypted_password = #{encryptedPassword},
+            encryption_salt = #{encryptionSalt},
+            connection_properties = #{connectionProperties, typeHandler=com.insightdata.infrastructure.persistence.typehandler.JsonMapTypeHandler},
+            last_sync_time = #{lastSyncTime},
+            active = #{active},
+            description = #{description},
+            updated_at = #{updatedAt}
+        WHERE id = #{id}
+    </update>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT 
+        <include refid="Base_Column_List" />
+        FROM data_source
+        WHERE id = #{id}
+    </select>
+
+    <select id="selectByName" resultMap="BaseResultMap">
+        SELECT 
+        <include refid="Base_Column_List" />
+        FROM data_source
+        WHERE name = #{name}
+    </select>
+
+    <select id="selectAll" resultMap="BaseResultMap">
+        SELECT 
+        <include refid="Base_Column_List" />
+        FROM data_source
+    </select>
+
+    <select id="selectByType" resultMap="BaseResultMap">
+        SELECT 
+        <include refid="Base_Column_List" />
+        FROM data_source
+        WHERE type = #{type}
+    </select>
+
+    <select id="selectByActive" resultMap="BaseResultMap">
+        SELECT 
+        <include refid="Base_Column_List" />
+        FROM data_source
+        WHERE active = #{active}
+    </select>
+
+    <delete id="deleteById">
+        DELETE FROM data_source
+        WHERE id = #{id}
+    </delete>
+
+    <select id="countByName" resultType="int">
+        SELECT COUNT(*)
+        FROM data_source
+        WHERE name = #{name}
+    </select>
+    
+</mapper>

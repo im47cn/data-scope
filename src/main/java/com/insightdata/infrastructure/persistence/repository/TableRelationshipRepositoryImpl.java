@@ -1,93 +1,100 @@
 package com.insightdata.infrastructure.persistence.repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.insightdata.domain.model.metadata.TableRelationship;
 import com.insightdata.domain.repository.TableRelationshipRepository;
-import com.insightdata.infrastructure.persistence.entity.TableRelationshipEntity;
+import com.insightdata.infrastructure.persistence.converter.TableRelationshipConverter;
+import com.insightdata.infrastructure.persistence.mapper.TableRelationshipMapper;
 
-/**
- * 表关系仓库实现类
- */
 @Repository
 public class TableRelationshipRepositoryImpl implements TableRelationshipRepository {
-
-    @Autowired
-    private JpaTableRelationshipRepository jpaRepository;
-
+    
+    private final TableRelationshipMapper tableRelationshipMapper;
+    private final TableRelationshipConverter converter;
+    
+    public TableRelationshipRepositoryImpl(TableRelationshipMapper tableRelationshipMapper,
+                                         TableRelationshipConverter converter) {
+        this.tableRelationshipMapper = tableRelationshipMapper;
+        this.converter = converter;
+    }
+    
     @Override
     public TableRelationship save(TableRelationship relationship) {
-        TableRelationshipEntity entity = TableRelationshipEntity.fromDomain(relationship);
-        TableRelationshipEntity savedEntity = jpaRepository.save(entity);
-        return savedEntity.toDomain();
+        var entity = converter.toEntity(relationship);
+        LocalDateTime now = LocalDateTime.now();
+        
+        if (entity.getId() == null) {
+            entity.setCreatedAt(now);
+            entity.setUpdatedAt(now);
+            tableRelationshipMapper.insert(entity);
+        } else {
+            entity.setUpdatedAt(now);
+            tableRelationshipMapper.update(entity);
+        }
+        
+        return converter.toDomain(entity);
     }
-
+    
     @Override
     public List<TableRelationship> saveAll(List<TableRelationship> relationships) {
-        List<TableRelationshipEntity> entities = relationships.stream()
-                .map(TableRelationshipEntity::fromDomain)
-                .collect(Collectors.toList());
-        
-        List<TableRelationshipEntity> savedEntities = jpaRepository.saveAll(entities);
-        
-        return savedEntities.stream()
-                .map(TableRelationshipEntity::toDomain)
+        return relationships.stream()
+                .map(this::save)
                 .collect(Collectors.toList());
     }
-
+    
     @Override
     public Optional<TableRelationship> findById(Long id) {
-        return jpaRepository.findById(id)
-                .map(TableRelationshipEntity::toDomain);
+        return Optional.ofNullable(tableRelationshipMapper.selectById(id))
+                .map(converter::toDomain);
     }
-
+    
     @Override
     public List<TableRelationship> findByDataSourceId(Long dataSourceId) {
-        return jpaRepository.findByDataSourceId(dataSourceId).stream()
-                .map(TableRelationshipEntity::toDomain)
+        return tableRelationshipMapper.selectByDataSourceIdAndTableName(dataSourceId, null)
+                .stream()
+                .map(converter::toDomain)
                 .collect(Collectors.toList());
     }
-
+    
     @Override
     public List<TableRelationship> findByDataSourceIdAndTable(Long dataSourceId, String tableName) {
-        return jpaRepository.findByDataSourceIdAndTable(dataSourceId, tableName).stream()
-                .map(TableRelationshipEntity::toDomain)
+        return tableRelationshipMapper.selectByDataSourceIdAndTableName(dataSourceId, tableName)
+                .stream()
+                .map(converter::toDomain)
                 .collect(Collectors.toList());
     }
-
+    
     @Override
     public List<TableRelationship> findByDataSourceIdAndTables(Long dataSourceId, String sourceTable, String targetTable) {
-        return jpaRepository.findByDataSourceIdAndTables(dataSourceId, sourceTable, targetTable).stream()
-                .map(TableRelationshipEntity::toDomain)
+        return tableRelationshipMapper.selectByDataSourceIdAndTableName(dataSourceId, sourceTable)
+                .stream()
+                .map(converter::toDomain)
                 .collect(Collectors.toList());
     }
-
+    
     @Override
     public void deleteById(Long id) {
-        jpaRepository.deleteById(id);
+        tableRelationshipMapper.deleteById(id);
     }
-
+    
     @Override
     public void deleteByDataSourceId(Long dataSourceId) {
-        jpaRepository.deleteByDataSourceId(dataSourceId);
+        tableRelationshipMapper.deleteByDataSourceIdAndSource(dataSourceId, null);
     }
     
     @Override
-    @Transactional
     public void deleteByDataSourceIdAndSource(Long dataSourceId, TableRelationship.RelationshipSource source) {
-        jpaRepository.deleteByDataSourceIdAndSource(dataSourceId, source);
+        tableRelationshipMapper.deleteByDataSourceIdAndSource(dataSourceId, source.name());
     }
     
     @Override
-    @Transactional
     public void incrementFrequency(Long id) {
-        // 直接使用 JPQL 更新频率，避免手动获取和设置频率
-        jpaRepository.incrementFrequencyById(id);
+        tableRelationshipMapper.incrementFrequency(id);
     }
 }

@@ -3,6 +3,7 @@ package com.insightdata.infrastructure.persistence.repository;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,103 +13,100 @@ import com.insightdata.common.enums.SyncStatus;
 import com.insightdata.domain.model.metadata.MetadataSyncJob;
 import com.insightdata.domain.repository.MetadataSyncJobRepository;
 import com.insightdata.infrastructure.persistence.entity.MetadataSyncJobEntity;
+import com.insightdata.infrastructure.persistence.mapper.MetadataSyncJobMapper;
 
 /**
- * 元数据同步作业仓储实现类
+ * 元数据同步作业仓储实现
  */
 @Repository
 public class MetadataSyncJobRepositoryImpl implements MetadataSyncJobRepository {
-    
-    private final JpaMetadataSyncJobRepository jpaMetadataSyncJobRepository;
-    
+
     @Autowired
-    public MetadataSyncJobRepositoryImpl(JpaMetadataSyncJobRepository jpaMetadataSyncJobRepository) {
-        this.jpaMetadataSyncJobRepository = jpaMetadataSyncJobRepository;
-    }
+    private MetadataSyncJobMapper metadataSyncJobMapper;
     
     @Override
     public MetadataSyncJob save(MetadataSyncJob syncJob) {
         MetadataSyncJobEntity entity = toEntity(syncJob);
         
-        // 设置创建/更新时间
         LocalDateTime now = LocalDateTime.now();
-        if (entity.getCreatedAt() == null) {
+        
+        if (entity.getId() == null || entity.getId().isEmpty()) {
+            // 新增
+            entity.setId(UUID.randomUUID().toString());
             entity.setCreatedAt(now);
+            entity.setUpdatedAt(now);
+            metadataSyncJobMapper.insert(entity);
+        } else {
+            // 更新
+            entity.setUpdatedAt(now);
+            metadataSyncJobMapper.update(entity);
         }
-        entity.setUpdatedAt(now);
         
-        // 保存实体
-        MetadataSyncJobEntity savedEntity = jpaMetadataSyncJobRepository.save(entity);
-        
-        // 转换回领域模型
-        return toDomain(savedEntity);
+        return toModel(entity);
     }
-    
+
     @Override
     public Optional<MetadataSyncJob> findById(String id) {
-        return jpaMetadataSyncJobRepository.findById(id)
-                .map(this::toDomain);
+        MetadataSyncJobEntity entity = metadataSyncJobMapper.selectById(id);
+        return Optional.ofNullable(entity).map(this::toModel);
     }
-    
+
     @Override
     public List<MetadataSyncJob> findByDataSourceId(Long dataSourceId) {
-        return jpaMetadataSyncJobRepository.findByDataSourceId(dataSourceId).stream()
-                .map(this::toDomain)
-                .collect(Collectors.toList());
+        List<MetadataSyncJobEntity> entities = metadataSyncJobMapper.selectByDataSourceId(dataSourceId);
+        return entities.stream().map(this::toModel).collect(Collectors.toList());
     }
-    
+
     @Override
     public List<MetadataSyncJob> findByDataSourceIdAndStatus(Long dataSourceId, SyncStatus status) {
-        return jpaMetadataSyncJobRepository.findByDataSourceIdAndStatus(dataSourceId, status).stream()
-                .map(this::toDomain)
-                .collect(Collectors.toList());
+        List<MetadataSyncJobEntity> entities = metadataSyncJobMapper.selectByDataSourceIdAndStatus(dataSourceId, status);
+        return entities.stream().map(this::toModel).collect(Collectors.toList());
     }
-    
+
     @Override
     public List<MetadataSyncJob> findByStatus(SyncStatus status) {
-        return jpaMetadataSyncJobRepository.findByStatus(status).stream()
-                .map(this::toDomain)
-                .collect(Collectors.toList());
+        List<MetadataSyncJobEntity> entities = metadataSyncJobMapper.selectByStatus(status);
+        return entities.stream().map(this::toModel).collect(Collectors.toList());
     }
-    
+
     @Override
     public Optional<MetadataSyncJob> findLatestByDataSourceId(Long dataSourceId) {
-        List<MetadataSyncJobEntity> jobs = jpaMetadataSyncJobRepository.findByDataSourceIdOrderByCreatedAtDesc(dataSourceId);
-        if (jobs.isEmpty()) {
-            return Optional.empty();
-        }
-        return Optional.of(toDomain(jobs.get(0)));
+        MetadataSyncJobEntity entity = metadataSyncJobMapper.selectLatestByDataSourceId(dataSourceId);
+        return Optional.ofNullable(entity).map(this::toModel);
     }
-    
+
     @Override
     public void deleteById(String id) {
-        jpaMetadataSyncJobRepository.deleteById(id);
+        metadataSyncJobMapper.deleteById(id);
     }
-    
+
     @Override
     public void deleteByDataSourceId(Long dataSourceId) {
-        jpaMetadataSyncJobRepository.deleteByDataSourceId(dataSourceId);
+        metadataSyncJobMapper.deleteByDataSourceId(dataSourceId);
     }
     
     /**
      * 将领域模型转换为实体
      */
-    private MetadataSyncJobEntity toEntity(MetadataSyncJob syncJob) {
-        if (syncJob == null) {
+    private MetadataSyncJobEntity toEntity(MetadataSyncJob model) {
+        if (model == null) {
             return null;
         }
         
         MetadataSyncJobEntity entity = new MetadataSyncJobEntity();
-        entity.setId(syncJob.getId());
-        entity.setDataSourceId(syncJob.getDataSourceId());
-        entity.setType(syncJob.getType());
-        entity.setStatus(syncJob.getStatus());
-        entity.setProgress(syncJob.getProgress());
-        entity.setStartTime(syncJob.getStartTime());
-        entity.setEndTime(syncJob.getEndTime());
-        entity.setErrorMessage(syncJob.getErrorMessage());
-        entity.setCreatedAt(syncJob.getCreatedAt());
-        entity.setUpdatedAt(syncJob.getUpdatedAt());
+        entity.setId(model.getId());
+        entity.setDataSourceId(model.getDataSourceId());
+        entity.setType(model.getType());
+        entity.setStatus(model.getStatus());
+        entity.setStartTime(model.getStartTime());
+        entity.setEndTime(model.getEndTime());
+        entity.setProgress(model.getProgress());
+        entity.setTotalItems(model.getTotalItems());
+        entity.setProcessedItems(model.getProcessedItems());
+        entity.setParameters(model.getParameters());
+        entity.setErrorMessage(model.getErrorMessage());
+        entity.setCreatedAt(model.getCreatedAt());
+        entity.setUpdatedAt(model.getUpdatedAt());
         
         return entity;
     }
@@ -116,23 +114,26 @@ public class MetadataSyncJobRepositoryImpl implements MetadataSyncJobRepository 
     /**
      * 将实体转换为领域模型
      */
-    private MetadataSyncJob toDomain(MetadataSyncJobEntity entity) {
+    private MetadataSyncJob toModel(MetadataSyncJobEntity entity) {
         if (entity == null) {
             return null;
         }
         
-        MetadataSyncJob syncJob = new MetadataSyncJob();
-        syncJob.setId(entity.getId());
-        syncJob.setDataSourceId(entity.getDataSourceId());
-        syncJob.setType(entity.getType());
-        syncJob.setStatus(entity.getStatus());
-        syncJob.setProgress(entity.getProgress());
-        syncJob.setStartTime(entity.getStartTime());
-        syncJob.setEndTime(entity.getEndTime());
-        syncJob.setErrorMessage(entity.getErrorMessage());
-        syncJob.setCreatedAt(entity.getCreatedAt());
-        syncJob.setUpdatedAt(entity.getUpdatedAt());
+        MetadataSyncJob model = new MetadataSyncJob();
+        model.setId(entity.getId());
+        model.setDataSourceId(entity.getDataSourceId());
+        model.setType(entity.getType());
+        model.setStatus(entity.getStatus());
+        model.setStartTime(entity.getStartTime());
+        model.setEndTime(entity.getEndTime());
+        model.setProgress(entity.getProgress());
+        model.setTotalItems(entity.getTotalItems());
+        model.setProcessedItems(entity.getProcessedItems());
+        model.setParameters(entity.getParameters());
+        model.setErrorMessage(entity.getErrorMessage());
+        model.setCreatedAt(entity.getCreatedAt());
+        model.setUpdatedAt(entity.getUpdatedAt());
         
-        return syncJob;
+        return model;
     }
 }

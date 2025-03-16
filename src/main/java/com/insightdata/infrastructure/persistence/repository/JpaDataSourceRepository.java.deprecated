@@ -10,8 +10,10 @@ import java.util.Optional;
 
 /**
  * 数据源JPA仓储接口
+ * @deprecated 按照研发规范要求，已替换为MyBatis实现
  */
 @Repository
+@Deprecated
 public interface JpaDataSourceRepository extends JpaRepository<DataSourceEntity, Long> {
     
     /**

@@ -98,7 +98,7 @@ public class NLQueryServiceImpl implements NLQueryService {
             savedQuery.setParameters(request.getParameters());
             savedQuery.setCreatedAt(LocalDateTime.now());
             savedQuery.setUpdatedAt(LocalDateTime.now());
-            savedQuery.setPublic(false);
+            savedQuery.setIsPublic(false);
             
             SavedQuery saved = savedQueryRepository.save(savedQuery);
             return saved.getId();
@@ -136,7 +136,7 @@ public class NLQueryServiceImpl implements NLQueryService {
         
         savedQuery.setName(name);
         savedQuery.setDescription(description);
-        savedQuery.setPublic(isPublic);
+        savedQuery.setIsPublic(isPublic);
         savedQuery.setUpdatedAt(LocalDateTime.now());
         
         return savedQueryRepository.save(savedQuery);

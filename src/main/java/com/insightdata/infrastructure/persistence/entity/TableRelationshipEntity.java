@@ -1,17 +1,10 @@
 package com.insightdata.infrastructure.persistence.entity;
 
-import com.insightdata.domain.model.metadata.TableRelationship;
+import java.time.LocalDateTime;
+
 import com.insightdata.domain.model.metadata.TableRelationship.RelationshipSource;
 import com.insightdata.domain.model.metadata.TableRelationship.RelationshipType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import java.time.LocalDateTime;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -24,86 +17,66 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity
-@Table(name = "table_relationship")
 public class TableRelationshipEntity {
     
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    /**
+     * 关系ID
+     */
     private Long id;
     
-    @Column(name = "data_source_id", nullable = false)
+    /**
+     * 数据源ID
+     */
     private Long dataSourceId;
     
-    @Column(name = "source_table", nullable = false)
+    /**
+     * 源表名
+     */
     private String sourceTable;
     
-    @Column(name = "source_column", nullable = false)
+    /**
+     * 源列名
+     */
     private String sourceColumn;
     
-    @Column(name = "target_table", nullable = false)
+    /**
+     * 目标表名
+     */
     private String targetTable;
     
-    @Column(name = "target_column", nullable = false)
+    /**
+     * 目标列名
+     */
     private String targetColumn;
     
-    @Column(name = "relationship_type", nullable = false)
-    @Enumerated(EnumType.STRING)
-    private RelationshipType type;
+    /**
+     * 关系类型
+     */
+    private RelationshipType relationshipType;
     
-    @Column(name = "relationship_source", nullable = false)
-    @Enumerated(EnumType.STRING)
-    private RelationshipSource source;
+    /**
+     * 关系来源
+     */
+    private RelationshipSource relationshipSource;
     
-    @Column(name = "weight", nullable = false)
+    /**
+     * 关系权重（置信度）
+     * 范围：0.0-1.0
+     */
     private double weight;
     
-    @Column(name = "frequency", nullable = false)
+    /**
+     * 使用频率
+     */
     private int frequency;
     
-    @Column(name = "created_at", nullable = false)
+    /**
+     * 创建时间
+     */
     private LocalDateTime createdAt;
     
-    @Column(name = "updated_at", nullable = false)
+    /**
+     * 更新时间
+     */
     private LocalDateTime updatedAt;
-    
-    /**
-     * 转换为领域模型
-     */
-    public TableRelationship toDomain() {
-        return TableRelationship.builder()
-                .id(id)
-                .dataSourceId(dataSourceId)
-                .sourceTable(sourceTable)
-                .sourceColumn(sourceColumn)
-                .targetTable(targetTable)
-                .targetColumn(targetColumn)
-                .type(type)
-                .source(source)
-                .weight(weight)
-                .frequency(frequency)
-                .createdAt(createdAt)
-                .updatedAt(updatedAt)
-                .build();
-    }
-    
-    /**
-     * 从领域模型创建
-     */
-    public static TableRelationshipEntity fromDomain(TableRelationship relationship) {
-        return TableRelationshipEntity.builder()
-                .id(relationship.getId())
-                .dataSourceId(relationship.getDataSourceId())
-                .sourceTable(relationship.getSourceTable())
-                .sourceColumn(relationship.getSourceColumn())
-                .targetTable(relationship.getTargetTable())
-                .targetColumn(relationship.getTargetColumn())
-                .type(relationship.getType())
-                .source(relationship.getSource())
-                .weight(relationship.getWeight())
-                .frequency(relationship.getFrequency())
-                .createdAt(relationship.getCreatedAt())
-                .updatedAt(relationship.getUpdatedAt())
-                .build();
-    }
 }

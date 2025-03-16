@@ -16,6 +16,7 @@ import com.insightdata.infrastructure.persistence.entity.TableRelationshipEntity
  * 表关系JPA仓库接口
  */
 @Repository
+@Deprecated
 public interface JpaTableRelationshipRepository extends JpaRepository<TableRelationshipEntity, Long> {
     
     /**

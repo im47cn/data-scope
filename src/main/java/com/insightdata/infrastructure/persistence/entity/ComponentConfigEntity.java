@@ -1,15 +1,8 @@
 package com.insightdata.infrastructure.persistence.entity;
 
-import com.insightdata.infrastructure.persistence.converter.JsonMapConverter;
-import jakarta.persistence.Column;
-import jakarta.persistence.Convert;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 import java.util.Map;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -22,47 +15,65 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity
-@Table(name = "component_config")
 public class ComponentConfigEntity {
     
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    /**
+     * 配置ID
+     */
     private Long id;
     
-    @Column(name = "name", nullable = false, length = 100)
+    /**
+     * 组件名称
+     */
     private String name;
     
-    @Column(name = "type", nullable = false, length = 50)
+    /**
+     * 组件类型
+     */
     private String type;
     
-    @Column(name = "description", length = 500)
+    /**
+     * 组件描述
+     */
     private String description;
     
-    @Column(name = "query_id")
+    /**
+     * 关联的查询ID
+     */
     private Long queryId;
     
-    @Convert(converter = JsonMapConverter.class)
-    @Column(name = "properties", columnDefinition = "json")
-    private Map<String, Object> properties;
+    /**
+     * 组件属性配置
+     */
+    private Map<String, String> properties;
     
-    @Convert(converter = JsonMapConverter.class)
-    @Column(name = "style", columnDefinition = "json")
-    private Map<String, Object> style;
+    /**
+     * 组件样式配置
+     */
+    private Map<String, String> style;
     
-    @Convert(converter = JsonMapConverter.class)
-    @Column(name = "data_source_config", columnDefinition = "json")
-    private Map<String, Object> dataSourceConfig;
+    /**
+     * 数据源配置
+     */
+    private Map<String, String> dataSourceConfig;
     
-    @Column(name = "created_at")
+    /**
+     * 创建时间
+     */
     private LocalDateTime createdAt;
     
-    @Column(name = "updated_at")
+    /**
+     * 更新时间
+     */
     private LocalDateTime updatedAt;
     
-    @Column(name = "created_by", length = 100)
+    /**
+     * 创建人
+     */
     private String createdBy;
     
-    @Column(name = "updated_by", length = 100)
+    /**
+     * 更新人
+     */
     private String updatedBy;
 }

@@ -1,148 +1,139 @@
 package com.insightdata.infrastructure.persistence.repository;
 
-import com.insightdata.domain.model.lowcode.App;
-import com.insightdata.domain.repository.AppRepository;
-import com.insightdata.infrastructure.persistence.entity.AppEntity;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
 import org.springframework.stereotype.Repository;
 
+import com.insightdata.domain.model.lowcode.App;
+import com.insightdata.domain.repository.AppRepository;
+import com.insightdata.infrastructure.persistence.entity.AppEntity;
+import com.insightdata.infrastructure.persistence.mapper.AppMapper;
+
+import lombok.RequiredArgsConstructor;
+
 /**
- * 低代码应用仓库实现
+ * App仓储的MyBatis实现
  */
 @Repository
+@RequiredArgsConstructor
 public class AppRepositoryImpl implements AppRepository {
     
-    private final JpaAppRepository jpaAppRepository;
-    
-    public AppRepositoryImpl(JpaAppRepository jpaAppRepository) {
-        this.jpaAppRepository = jpaAppRepository;
-    }
+    private final AppMapper appMapper;
     
     @Override
     public App save(App app) {
         AppEntity entity = toEntity(app);
-        AppEntity savedEntity = jpaAppRepository.save(entity);
-        return toDomain(savedEntity);
+        
+        if (entity.getId() == null) {
+            appMapper.insert(entity);
+        } else {
+            appMapper.update(entity);
+        }
+        
+        // 重新设置ID，因为insert操作会生成新ID
+        app.setId(entity.getId());
+        return app;
     }
     
     @Override
     public Optional<App> findById(Long id) {
-        return jpaAppRepository.findById(id).map(this::toDomain);
+        AppEntity entity = appMapper.findById(id);
+        return Optional.ofNullable(entity).map(this::toDomain);
     }
     
     @Override
     public Optional<App> findByCode(String code) {
-        return jpaAppRepository.findByCode(code).map(this::toDomain);
+        AppEntity entity = appMapper.findByCode(code);
+        return Optional.ofNullable(entity).map(this::toDomain);
     }
     
     @Override
     public List<App> findAll() {
-        return jpaAppRepository.findAll().stream()
-                .map(this::toDomain)
-                .collect(Collectors.toList());
-    }
-    
-    @Override
-    public List<App> findPublished() {
-        return jpaAppRepository.findAllPublished().stream()
+        return appMapper.findAll().stream()
                 .map(this::toDomain)
                 .collect(Collectors.toList());
     }
     
     @Override
     public void deleteById(Long id) {
-        jpaAppRepository.deleteById(id);
+        appMapper.deleteById(id);
     }
     
     @Override
     public List<App> findByNameContaining(String name) {
-        return jpaAppRepository.findByNameContaining(name).stream()
+        return appMapper.findByNameContaining(name).stream()
                 .map(this::toDomain)
                 .collect(Collectors.toList());
     }
     
     @Override
     public boolean existsByCode(String code) {
-        return jpaAppRepository.existsByCode(code);
+        return appMapper.existsByCode(code);
     }
     
     /**
-     * 将应用实体转换为应用领域模型
-     * 
-     * @param entity 应用实体
-     * @return 应用领域模型
+     * 将领域模型转换为实体模型
+     */
+    private AppEntity toEntity(App app) {
+        return AppEntity.builder()
+                .id(app.getId())
+                .code(app.getCode())
+                .name(app.getName())
+                .description(app.getDescription())
+                .icon(app.getIcon())
+                .type(app.getType())
+                .version(app.getVersion())
+                .homePageId(app.getHomePageId())
+                .publishStatus(app.getPublishStatus())
+                .publishedAt(app.getPublishedAt())
+                .theme(app.getTheme())
+                .styleConfig(app.getStyleConfig())
+                .settings(app.getSettings())
+                .permissions(app.getPermissions())
+                .routes(app.getRoutes())
+                .menus(app.getMenus())
+                .globalState(app.getGlobalState())
+                .queryIds(app.getQueryIds())
+                .dataSourceIds(app.getDataSourceIds())
+                .customConfig(app.getCustomConfig())
+                .createdBy(app.getCreatedBy())
+                .createdAt(app.getCreatedAt())
+                .updatedBy(app.getUpdatedBy())
+                .updatedAt(app.getUpdatedAt())
+                .build();
+    }
+    
+    /**
+     * 将实体模型转换为领域模型
      */
     private App toDomain(AppEntity entity) {
-        if (entity == null) {
-            return null;
-        }
-        
-        return App.builder()
-                .id(entity.getId())
-                .code(entity.getCode())
-                .name(entity.getName())
-                .description(entity.getDescription())
-                .icon(entity.getIcon())
-                .type(entity.getType())
-                .version(entity.getVersion())
-                .homePageId(entity.getHomePageId())
-                .publishStatus(entity.getPublishStatus())
-                .publishedAt(entity.getPublishedAt())
-                .theme(entity.getTheme())
-                .styleConfig(entity.getStyleConfig())
-                .settings(entity.getSettings())
-                .permissions(entity.getPermissions())
-                .routes(entity.getRoutes())
-                .menus(entity.getMenus())
-                .globalState(entity.getGlobalState())
-                .queryIds(entity.getQueryIds())
-                .dataSourceIds(entity.getDataSourceIds())
-                .customConfig(entity.getCustomConfig())
-                .createdBy(entity.getCreatedBy())
-                .createdAt(entity.getCreatedAt())
-                .updatedBy(entity.getUpdatedBy())
-                .updatedAt(entity.getUpdatedAt())
-                .build();
-    }
-    
-    /**
-     * 将应用领域模型转换为应用实体
-     * 
-     * @param domain 应用领域模型
-     * @return 应用实体
-     */
-    private AppEntity toEntity(App domain) {
-        if (domain == null) {
-            return null;
-        }
-        
-        return AppEntity.builder()
-                .id(domain.getId())
-                .code(domain.getCode())
-                .name(domain.getName())
-                .description(domain.getDescription())
-                .icon(domain.getIcon())
-                .type(domain.getType())
-                .version(domain.getVersion())
-                .homePageId(domain.getHomePageId())
-                .publishStatus(domain.getPublishStatus())
-                .publishedAt(domain.getPublishedAt())
-                .theme(domain.getTheme())
-                .styleConfig(domain.getStyleConfig())
-                .settings(domain.getSettings())
-                .permissions(domain.getPermissions())
-                .routes(domain.getRoutes())
-                .menus(domain.getMenus())
-                .globalState(domain.getGlobalState())
-                .queryIds(domain.getQueryIds())
-                .dataSourceIds(domain.getDataSourceIds())
-                .customConfig(domain.getCustomConfig())
-                .createdBy(domain.getCreatedBy())
-                .createdAt(domain.getCreatedAt())
-                .updatedBy(domain.getUpdatedBy())
-                .updatedAt(domain.getUpdatedAt())
-                .build();
+        App app = new App();
+        app.setId(entity.getId());
+        app.setCode(entity.getCode());
+        app.setName(entity.getName());
+        app.setDescription(entity.getDescription());
+        app.setIcon(entity.getIcon());
+        app.setType(entity.getType());
+        app.setVersion(entity.getVersion());
+        app.setHomePageId(entity.getHomePageId());
+        app.setPublishStatus(entity.getPublishStatus());
+        app.setPublishedAt(entity.getPublishedAt());
+        app.setTheme(entity.getTheme());
+        app.setStyleConfig(entity.getStyleConfig());
+        app.setSettings(entity.getSettings());
+        app.setPermissions(entity.getPermissions());
+        app.setRoutes(entity.getRoutes());
+        app.setMenus(entity.getMenus());
+        app.setGlobalState(entity.getGlobalState());
+        app.setQueryIds(entity.getQueryIds());
+        app.setDataSourceIds(entity.getDataSourceIds());
+        app.setCustomConfig(entity.getCustomConfig());
+        app.setCreatedBy(entity.getCreatedBy());
+        app.setCreatedAt(entity.getCreatedAt());
+        app.setUpdatedBy(entity.getUpdatedBy());
+        app.setUpdatedAt(entity.getUpdatedAt());
+        return app;
     }
 }

@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.insightdata.infrastructure.persistence.mapper.MetadataSyncJobMapper">
+
+    <!-- 结果映射 -->
+    <resultMap id="BaseResultMap" type="com.insightdata.infrastructure.persistence.entity.MetadataSyncJobEntity">
+        <id column="id" property="id" />
+        <result column="data_source_id" property="dataSourceId" />
+        <result column="type" property="type" typeHandler="org.apache.ibatis.type.EnumTypeHandler" />
+        <result column="status" property="status" typeHandler="org.apache.ibatis.type.EnumTypeHandler" />
+        <result column="start_time" property="startTime" />
+        <result column="end_time" property="endTime" />
+        <result column="progress" property="progress" />
+        <result column="total_items" property="totalItems" />
+        <result column="processed_items" property="processedItems" />
+        <result column="parameters" property="parameters" typeHandler="com.insightdata.infrastructure.persistence.typehandler.JsonMapTypeHandler" />
+        <result column="error_message" property="errorMessage" />
+        <result column="created_at" property="createdAt" />
+        <result column="updated_at" property="updatedAt" />
+    </resultMap>
+
+    <!-- 所有列 -->
+    <sql id="Base_Column_List">
+        id, data_source_id, type, status, start_time, end_time, progress, total_items, 
+        processed_items, parameters, error_message, created_at, updated_at
+    </sql>
+
+    <!-- 插入 -->
+    <insert id="insert" parameterType="com.insightdata.infrastructure.persistence.entity.MetadataSyncJobEntity">
+        INSERT INTO metadata_sync_job (
+            id, data_source_id, type, status, start_time, end_time, progress, total_items, 
+            processed_items, parameters, error_message, created_at, updated_at
+        ) VALUES (
+            #{id}, 
+            #{dataSourceId}, 
+            #{type, typeHandler=org.apache.ibatis.type.EnumTypeHandler}, 
+            #{status, typeHandler=org.apache.ibatis.type.EnumTypeHandler}, 
+            #{startTime}, 
+            #{endTime}, 
+            #{progress}, 
+            #{totalItems}, 
+            #{processedItems}, 
+            #{parameters, typeHandler=com.insightdata.infrastructure.persistence.typehandler.JsonMapTypeHandler}, 
+            #{errorMessage}, 
+            #{createdAt}, 
+            #{updatedAt}
+        )
+    </insert>
+
+    <!-- 更新 -->
+    <update id="update" parameterType="com.insightdata.infrastructure.persistence.entity.MetadataSyncJobEntity">
+        UPDATE metadata_sync_job
+        <set>
+            <if test="dataSourceId != null">data_source_id = #{dataSourceId},</if>
+            <if test="type != null">type = #{type, typeHandler=org.apache.ibatis.type.EnumTypeHandler},</if>
+            <if test="status != null">status = #{status, typeHandler=org.apache.ibatis.type.EnumTypeHandler},</if>
+            <if test="startTime != null">start_time = #{startTime},</if>
+            <if test="endTime != null">end_time = #{endTime},</if>
+            <if test="progress != null">progress = #{progress},</if>
+            <if test="totalItems != null">total_items = #{totalItems},</if>
+            <if test="processedItems != null">processed_items = #{processedItems},</if>
+            <if test="parameters != null">parameters = #{parameters, typeHandler=com.insightdata.infrastructure.persistence.typehandler.JsonMapTypeHandler},</if>
+            <if test="errorMessage != null">error_message = #{errorMessage},</if>
+            <if test="updatedAt != null">updated_at = #{updatedAt}</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <!-- 根据ID查询 -->
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM metadata_sync_job
+        WHERE id = #{id}
+    </select>
+
+    <!-- 根据数据源ID查询 -->
+    <select id="selectByDataSourceId" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM metadata_sync_job
+        WHERE data_source_id = #{dataSourceId}
+        ORDER BY created_at DESC
+    </select>
+
+    <!-- 根据数据源ID和状态查询 -->
+    <select id="selectByDataSourceIdAndStatus" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM metadata_sync_job
+        WHERE data_source_id = #{dataSourceId}
+        AND status = #{status, typeHandler=org.apache.ibatis.type.EnumTypeHandler}
+        ORDER BY created_at DESC
+    </select>
+
+    <!-- 根据状态查询 -->
+    <select id="selectByStatus" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM metadata_sync_job
+        WHERE status = #{status, typeHandler=org.apache.ibatis.type.EnumTypeHandler}
+        ORDER BY created_at DESC
+    </select>
+
+    <!-- 查询数据源最新的同步作业 -->
+    <select id="selectLatestByDataSourceId" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM metadata_sync_job
+        WHERE data_source_id = #{dataSourceId}
+        ORDER BY created_at DESC
+        LIMIT 1
+    </select>
+
+    <!-- 根据ID删除 -->
+    <delete id="deleteById">
+        DELETE FROM metadata_sync_job WHERE id = #{id}
+    </delete>
+
+    <!-- 根据数据源ID删除 -->
+    <delete id="deleteByDataSourceId">
+        DELETE FROM metadata_sync_job WHERE data_source_id = #{dataSourceId}
+    </delete>
+</mapper>
