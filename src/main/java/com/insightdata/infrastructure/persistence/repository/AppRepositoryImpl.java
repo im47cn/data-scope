@@ -57,6 +57,13 @@ public class AppRepositoryImpl implements AppRepository {
     }
     
     @Override
+    public List<App> findPublished() {
+        return appMapper.findAllPublished().stream()
+                .map(this::toDomain)
+                .collect(Collectors.toList());
+    }
+    
+    @Override
     public void deleteById(Long id) {
         appMapper.deleteById(id);
     }
