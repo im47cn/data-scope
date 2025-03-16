@@ -1,8 +1,8 @@
 package com.insightdata.domain.model.metadata;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -19,22 +19,22 @@ import lombok.NoArgsConstructor;
 public class SchemaInfo {
 
     private Long id;
-    
+
     /**
      * 数据库名称/模式名称
      */
     private String name;
-    
+
     /**
      * 描述信息
      */
     private String description;
-    
+
     /**
      * 所属数据源ID
      */
     private Long dataSourceId;
-    
+
     /**
      * 表信息列表
      */
@@ -43,7 +43,15 @@ public class SchemaInfo {
     /**
      * 创建时间
      */
-    private LocalDateTime createTime;
+    /**
+     * 创建时间
+     */
+    private LocalDateTime createdAt;
+
+    /**
+     * 更新时间
+     */
+    private LocalDateTime updatedAt;
 
     /**
      * 获取特定表的信息
