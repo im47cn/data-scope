@@ -37,6 +37,12 @@ const app = new Vue({
                 path: '/low-code'
             },
             {
+                key: 'table-relationships',
+                icon: 'apartment',
+                title: '表关系管理',
+                path: '/table-relationships'
+            },
+            {
                 key: 'settings',
                 icon: 'setting',
                 title: '系统设置',
@@ -59,6 +65,8 @@ const app = new Vue({
                 return 'nl-query';
             } else if (path.startsWith('/low-code')) {
                 return 'low-code';
+            } else if (path.startsWith('/table-relationships')) {
+                return 'table-relationships';
             } else if (path.startsWith('/settings')) {
                 return 'settings';
             }

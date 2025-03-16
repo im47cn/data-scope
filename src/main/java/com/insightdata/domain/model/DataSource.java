@@ -51,7 +51,12 @@ public class DataSource {
      * 用户名
      */
     private String username;
-    
+
+    /**
+     * 加密前的密码
+     */
+    private String password;
+
     /**
      * 加密后的密码
      */

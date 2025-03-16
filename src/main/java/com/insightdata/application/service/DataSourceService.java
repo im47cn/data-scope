@@ -90,7 +90,16 @@ public interface DataSourceService {
      * @return 模式列表
      */
     List<SchemaInfo> getSchemas(Long dataSourceId);
-    
+
+    /**
+     * 获取数据源的指定模式
+     *
+     * @param dataSourceId 数据源ID
+     * @param schemaName 模式名称
+     * @return 模式列表
+     */
+    SchemaInfo getSchemaInfo(Long dataSourceId, String schemaName);
+
     /**
      * 获取指定模式下的所有表
      *

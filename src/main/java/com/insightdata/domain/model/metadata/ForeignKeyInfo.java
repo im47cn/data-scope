@@ -1,26 +1,21 @@
 package com.insightdata.domain.model.metadata;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * 外键信息
+ * 外键信息模型
+ * 用于表示数据库表中外键约束的结构信息
  */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class ForeignKeyInfo {
-    /**
-     * 外键ID
-     */
-    private Long id;
     
     /**
      * 外键名称
@@ -28,48 +23,121 @@ public class ForeignKeyInfo {
     private String name;
     
     /**
-     * 源表ID
+     * 外键所属的表（源表）
      */
-    private Long sourceTableId;
+    private String sourceTableName;
     
     /**
-     * 目标表ID
+     * 外键引用的表（目标表）
      */
-    private Long targetTableId;
+    private String targetTableName;
     
     /**
-     * 更新规则（CASCADE, RESTRICT, SET NULL等）
+     * 所属模式（Schema）名称
+     */
+    private String schemaName;
+    
+    /**
+     * 目标表的模式（Schema）名称
+     */
+    private String targetSchemaName;
+    
+    /**
+     * 所属数据源ID
+     */
+    private Long dataSourceId;
+    
+    /**
+     * 更新规则（CASCADE, SET NULL, RESTRICT等）
      */
     private String updateRule;
     
     /**
-     * 删除规则（CASCADE, RESTRICT, SET NULL等）
+     * 删除规则（CASCADE, SET NULL, RESTRICT等）
      */
     private String deleteRule;
     
     /**
-     * 创建时间
+     * 延迟规则（INITIALLY DEFERRED, INITIALLY IMMEDIATE等）
      */
-    private LocalDateTime createdAt;
+    private String deferrability;
     
     /**
-     * 更新时间
+     * 外键列信息列表
      */
-    private LocalDateTime updatedAt;
+    private List<ForeignKeyColumnInfo> columns;
     
     /**
-     * 源表信息（非持久化字段）
+     * 添加外键列映射
+     * 
+     * @param column 外键列信息
      */
-    private TableInfo sourceTable;
+    public void addColumn(ForeignKeyColumnInfo column) {
+        if (columns == null) {
+            columns = new ArrayList<>();
+        }
+        if (column != null) {
+            columns.add(column);
+        }
+    }
     
     /**
-     * 目标表信息（非持久化字段）
+     * 获取源表列名列表
+     * 
+     * @return 源表列名列表
      */
-    private TableInfo targetTable;
+    public List<String> getSourceColumnNames() {
+        if (columns == null) {
+            return new ArrayList<>();
+        }
+        
+        return columns.stream()
+                .map(ForeignKeyColumnInfo::getSourceColumnName)
+                .toList();
+    }
     
     /**
-     * 外键列映射列表
+     * 获取目标表列名列表
+     * 
+     * @return 目标表列名列表
      */
-    @Builder.Default
-    private List<ForeignKeyColumnInfo> columns = new ArrayList<>();
+    public List<String> getTargetColumnNames() {
+        if (columns == null) {
+            return new ArrayList<>();
+        }
+        
+        return columns.stream()
+                .map(ForeignKeyColumnInfo::getTargetColumnName)
+                .toList();
+    }
+    
+    /**
+     * 检查外键是否包含指定源列
+     * 
+     * @param columnName 列名
+     * @return 如果外键包含指定源列返回true，否则返回false
+     */
+    public boolean containsSourceColumn(String columnName) {
+        if (columns == null || columnName == null) {
+            return false;
+        }
+        
+        return columns.stream()
+                .anyMatch(column -> columnName.equalsIgnoreCase(column.getSourceColumnName()));
+    }
+    
+    /**
+     * 检查外键是否包含指定目标列
+     * 
+     * @param columnName 列名
+     * @return 如果外键包含指定目标列返回true，否则返回false
+     */
+    public boolean containsTargetColumn(String columnName) {
+        if (columns == null || columnName == null) {
+            return false;
+        }
+        
+        return columns.stream()
+                .anyMatch(column -> columnName.equalsIgnoreCase(column.getTargetColumnName()));
+    }
 }

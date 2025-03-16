@@ -12,6 +12,7 @@ import com.insightdata.domain.model.metadata.IndexInfo;
 import com.insightdata.domain.model.metadata.SchemaInfo;
 import com.insightdata.domain.model.metadata.TableInfo;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 import java.sql.Connection;
@@ -110,7 +111,40 @@ public class DB2DataSourceAdapter implements DataSourceAdapter {
         
         return schemas;
     }
-    
+
+    @Override
+    public SchemaInfo getSchemaInfo(DataSource dataSource, String schemaName) {
+        try (Connection connection = getConnection(dataSource)) {
+            // 获取所有模式
+            try (ResultSet rs = connection.getMetaData().getSchemas()) {
+                while (rs.next()) {
+                    String schemaName0 = rs.getString("TABLE_SCHEM");
+
+                    // 排除系统模式
+                    if (isSystemSchema(schemaName0)) {
+                        continue;
+                    }
+
+                    if (!StringUtils.equals(schemaName0, schemaName)) {
+                        continue;
+                    }
+
+                    return SchemaInfo.builder()
+                            .dataSourceId(dataSource.getId())
+                            .name(schemaName0)
+                            .createdAt(LocalDateTime.now())
+                            .updatedAt(LocalDateTime.now())
+                            .build();
+                }
+            }
+        } catch (SQLException e) {
+            log.error("Failed to get schemas from DB2 database: {}", dataSource.getName(), e);
+            throw DataSourceException.metadataExtractionError("Failed to get schemas: " + e.getMessage(), e);
+        }
+
+        return null;
+    }
+
     @Override
     public List<TableInfo> getTables(DataSource dataSource, String schemaName) {
         List<TableInfo> tables = new ArrayList<>();

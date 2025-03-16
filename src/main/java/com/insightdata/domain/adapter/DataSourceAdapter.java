@@ -46,7 +46,16 @@ public interface DataSourceAdapter {
      * @return 模式列表
      */
     List<SchemaInfo> getSchemas(DataSource dataSource);
-    
+
+    /**
+     * 获取指定模式
+     *
+     * @param dataSource 数据源
+     * @param schemaName 模式名称
+     * @return 模式列表
+     */
+    SchemaInfo getSchemaInfo(DataSource dataSource, String schemaName);
+
     /**
      * 获取指定模式下的所有表
      *

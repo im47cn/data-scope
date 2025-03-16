@@ -65,11 +65,6 @@ public class DataSourceServiceImpl implements DataSourceService {
         dataSource.setCreatedAt(now);
         dataSource.setUpdatedAt(now);
         
-        // 设置默认值
-        if (dataSource.isActive() == null) {
-            dataSource.setActive(true);
-        }
-        
         // 保存数据源
         return dataSourceRepository.save(dataSource);
     }
@@ -177,7 +172,20 @@ public class DataSourceServiceImpl implements DataSourceService {
         // 获取模式列表
         return adapter.getSchemas(dataSource);
     }
-    
+
+    @Override
+    public SchemaInfo getSchemaInfo(Long dataSourceId, String schemaName) {
+        // 获取数据源
+        DataSource dataSource = dataSourceRepository.findById(dataSourceId)
+                .orElseThrow(() -> DataSourceException.notFound("Data source with ID " + dataSourceId + " not found"));
+
+        // 获取适配器
+        DataSourceAdapter adapter = adapterFactory.getAdapter(dataSource.getType());
+
+        // 获取模式列表
+        return adapter.getSchemaInfo(dataSource, schemaName);
+    }
+
     @Override
     @Transactional(readOnly = true)
     public List<TableInfo> getTables(Long dataSourceId, String schemaName) {
