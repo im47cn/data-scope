@@ -39,6 +39,16 @@ public interface QueryExecutor {
      * @return 查询元数据
      */
     QueryMetadata getQueryMetadata(Long dataSourceId, String sql);
+    
+    /**
+     * 将查询结果导出为CSV格式
+     *
+     * @param dataSourceId 数据源ID
+     * @param sql SQL查询语句
+     * @param parameters 查询参数
+     * @return 包含CSV数据的字符串
+     */
+    String exportToCsv(Long dataSourceId, String sql, Map<String, Object> parameters);
 
     /**
      * 查询元数据
