@@ -32,9 +32,7 @@ public class AppRepositoryImpl implements AppRepository {
             appMapper.update(entity);
         }
         
-        // 重新设置ID，因为insert操作会生成新ID
-        app.setId(entity.getId());
-        return app;
+        return toDomain(entity);
     }
     
     @Override
@@ -64,11 +62,6 @@ public class AppRepositoryImpl implements AppRepository {
     }
     
     @Override
-    public void deleteById(Long id) {
-        appMapper.deleteById(id);
-    }
-    
-    @Override
     public List<App> findByNameContaining(String name) {
         return appMapper.findByNameContaining(name).stream()
                 .map(this::toDomain)
@@ -80,10 +73,18 @@ public class AppRepositoryImpl implements AppRepository {
         return appMapper.existsByCode(code);
     }
     
+    @Override
+    public void deleteById(Long id) {
+        appMapper.deleteById(id);
+    }
+    
     /**
      * 将领域模型转换为实体模型
      */
     private AppEntity toEntity(App app) {
+        if (app == null) {
+            return null;
+        }
         return AppEntity.builder()
                 .id(app.getId())
                 .code(app.getCode())
@@ -116,31 +117,34 @@ public class AppRepositoryImpl implements AppRepository {
      * 将实体模型转换为领域模型
      */
     private App toDomain(AppEntity entity) {
-        App app = new App();
-        app.setId(entity.getId());
-        app.setCode(entity.getCode());
-        app.setName(entity.getName());
-        app.setDescription(entity.getDescription());
-        app.setIcon(entity.getIcon());
-        app.setType(entity.getType());
-        app.setVersion(entity.getVersion());
-        app.setHomePageId(entity.getHomePageId());
-        app.setPublishStatus(entity.getPublishStatus());
-        app.setPublishedAt(entity.getPublishedAt());
-        app.setTheme(entity.getTheme());
-        app.setStyleConfig(entity.getStyleConfig());
-        app.setSettings(entity.getSettings());
-        app.setPermissions(entity.getPermissions());
-        app.setRoutes(entity.getRoutes());
-        app.setMenus(entity.getMenus());
-        app.setGlobalState(entity.getGlobalState());
-        app.setQueryIds(entity.getQueryIds());
-        app.setDataSourceIds(entity.getDataSourceIds());
-        app.setCustomConfig(entity.getCustomConfig());
-        app.setCreatedBy(entity.getCreatedBy());
-        app.setCreatedAt(entity.getCreatedAt());
-        app.setUpdatedBy(entity.getUpdatedBy());
-        app.setUpdatedAt(entity.getUpdatedAt());
-        return app;
+        if (entity == null) {
+            return null;
+        }
+        return App.builder()
+                .id(entity.getId())
+                .code(entity.getCode())
+                .name(entity.getName())
+                .description(entity.getDescription())
+                .icon(entity.getIcon())
+                .type(entity.getType())
+                .version(entity.getVersion())
+                .homePageId(entity.getHomePageId())
+                .publishStatus(entity.getPublishStatus())
+                .publishedAt(entity.getPublishedAt())
+                .theme(entity.getTheme())
+                .styleConfig(entity.getStyleConfig())
+                .settings(entity.getSettings())
+                .permissions(entity.getPermissions())
+                .routes(entity.getRoutes())
+                .menus(entity.getMenus())
+                .globalState(entity.getGlobalState())
+                .queryIds(entity.getQueryIds())
+                .dataSourceIds(entity.getDataSourceIds())
+                .customConfig(entity.getCustomConfig())
+                .createdBy(entity.getCreatedBy())
+                .createdAt(entity.getCreatedAt())
+                .updatedBy(entity.getUpdatedBy())
+                .updatedAt(entity.getUpdatedAt())
+                .build();
     }
 }

@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -76,7 +77,8 @@ public class App {
     /**
      * 应用主题
      */
-    private Map<String, String> theme;
+    @Builder.Default
+    private Map<String, String> theme = new HashMap<>();
     
     /**
      * 应用样式配置

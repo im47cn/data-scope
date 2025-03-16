@@ -2,59 +2,63 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.insightdata.infrastructure.persistence.mapper.AppMapper">
     
-    <resultMap id="BaseResultMap" type="com.insightdata.infrastructure.persistence.entity.AppEntity">
-        <id column="id" property="id" />
-        <result column="code" property="code" />
-        <result column="name" property="name" />
-        <result column="description" property="description" />
-        <result column="icon" property="icon" />
-        <result column="type" property="type" />
-        <result column="version" property="version" />
-        <result column="home_page_id" property="homePageId" />
-        <result column="publish_status" property="publishStatus" />
-        <result column="published_at" property="publishedAt" />
-        <result column="theme" property="theme" />
-        <result column="style_config" property="styleConfig" />
-        <result column="settings" property="settings" />
-        <result column="permissions" property="permissions" />
-        <result column="routes" property="routes" />
-        <result column="menus" property="menus" />
-        <result column="global_state" property="globalState" />
-        <result column="query_ids" property="queryIds" />
-        <result column="data_source_ids" property="dataSourceIds" />
-        <result column="custom_config" property="customConfig" />
-        <result column="created_by" property="createdBy" />
-        <result column="created_at" property="createdAt" />
-        <result column="updated_by" property="updatedBy" />
-        <result column="updated_at" property="updatedAt" />
+    <resultMap id="AppResultMap" type="com.insightdata.infrastructure.persistence.entity.AppEntity">
+        <id column="id" property="id"/>
+        <result column="code" property="code"/>
+        <result column="name" property="name"/>
+        <result column="description" property="description"/>
+        <result column="icon" property="icon"/>
+        <result column="type" property="type"/>
+        <result column="version" property="version"/>
+        <result column="home_page_id" property="homePageId"/>
+        <result column="publish_status" property="publishStatus"/>
+        <result column="published_at" property="publishedAt"/>
+        <result column="theme" property="theme" typeHandler="com.insightdata.infrastructure.persistence.typehandler.JsonMapTypeHandler"/>
+        <result column="style_config" property="styleConfig" typeHandler="com.insightdata.infrastructure.persistence.typehandler.JsonMapTypeHandler"/>
+        <result column="settings" property="settings" typeHandler="com.insightdata.infrastructure.persistence.typehandler.JsonMapTypeHandler"/>
+        <result column="permissions" property="permissions" typeHandler="com.insightdata.infrastructure.persistence.typehandler.JsonMapTypeHandler"/>
+        <result column="routes" property="routes" typeHandler="com.insightdata.infrastructure.persistence.typehandler.JsonMapTypeHandler"/>
+        <result column="menus" property="menus" typeHandler="com.insightdata.infrastructure.persistence.typehandler.JsonMapTypeHandler"/>
+        <result column="global_state" property="globalState" typeHandler="com.insightdata.infrastructure.persistence.typehandler.JsonMapTypeHandler"/>
+        <result column="query_ids" property="queryIds" typeHandler="com.insightdata.infrastructure.persistence.typehandler.JsonListTypeHandler"/>
+        <result column="data_source_ids" property="dataSourceIds" typeHandler="com.insightdata.infrastructure.persistence.typehandler.JsonListTypeHandler"/>
+        <result column="custom_config" property="customConfig" typeHandler="com.insightdata.infrastructure.persistence.typehandler.JsonMapTypeHandler"/>
+        <result column="created_by" property="createdBy"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="updated_by" property="updatedBy"/>
+        <result column="updated_at" property="updatedAt"/>
     </resultMap>
     
     <sql id="Base_Column_List">
-        id, code, name, description, icon, type, version, home_page_id, publish_status,
-        published_at, theme, style_config, settings, permissions, routes, menus,
-        global_state, query_ids, data_source_ids, custom_config, 
-        created_by, created_at, updated_by, updated_at
+        id, code, name, description, icon, type, version, home_page_id, publish_status, published_at,
+        theme, style_config, settings, permissions, routes, menus, global_state, query_ids, data_source_ids,
+        custom_config, created_by, created_at, updated_by, updated_at
     </sql>
     
-    <insert id="insert" parameterType="com.insightdata.infrastructure.persistence.entity.AppEntity"
-            useGeneratedKeys="true" keyProperty="id">
+    <insert id="insert" parameterType="com.insightdata.infrastructure.persistence.entity.AppEntity" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO app (
-            code, name, description, icon, type, version, home_page_id, publish_status,
-            published_at, theme, style_config, settings, permissions, routes, menus,
-            global_state, query_ids, data_source_ids, custom_config, 
-            created_by, created_at, updated_by, updated_at
+            code, name, description, icon, type, version, home_page_id, publish_status, published_at,
+            theme, style_config, settings, permissions, routes, menus, global_state, query_ids, data_source_ids,
+            custom_config, created_by, created_at, updated_by, updated_at
         ) VALUES (
-            #{code}, #{name}, #{description}, #{icon}, #{type}, #{version}, #{homePageId}, #{publishStatus},
-            #{publishedAt}, #{theme}, #{styleConfig}, #{settings}, #{permissions}, #{routes}, #{menus},
-            #{globalState}, #{queryIds}, #{dataSourceIds}, #{customConfig}, 
+            #{code}, #{name}, #{description}, #{icon}, #{type}, #{version}, #{homePageId}, #{publishStatus}, #{publishedAt},
+            #{theme,typeHandler=com.insightdata.infrastructure.persistence.typehandler.JsonMapTypeHandler},
+            #{styleConfig,typeHandler=com.insightdata.infrastructure.persistence.typehandler.JsonMapTypeHandler},
+            #{settings,typeHandler=com.insightdata.infrastructure.persistence.typehandler.JsonMapTypeHandler},
+            #{permissions,typeHandler=com.insightdata.infrastructure.persistence.typehandler.JsonMapTypeHandler},
+            #{routes,typeHandler=com.insightdata.infrastructure.persistence.typehandler.JsonMapTypeHandler},
+            #{menus,typeHandler=com.insightdata.infrastructure.persistence.typehandler.JsonMapTypeHandler},
+            #{globalState,typeHandler=com.insightdata.infrastructure.persistence.typehandler.JsonMapTypeHandler},
+            #{queryIds,typeHandler=com.insightdata.infrastructure.persistence.typehandler.JsonListTypeHandler},
+            #{dataSourceIds,typeHandler=com.insightdata.infrastructure.persistence.typehandler.JsonListTypeHandler},
+            #{customConfig,typeHandler=com.insightdata.infrastructure.persistence.typehandler.JsonMapTypeHandler},
             #{createdBy}, #{createdAt}, #{updatedBy}, #{updatedAt}
         )
     </insert>
     
     <update id="update" parameterType="com.insightdata.infrastructure.persistence.entity.AppEntity">
         UPDATE app
-        SET 
-            code = #{code},
+        SET code = #{code},
             name = #{name},
             description = #{description},
             icon = #{icon},
@@ -63,52 +67,48 @@
             home_page_id = #{homePageId},
             publish_status = #{publishStatus},
             published_at = #{publishedAt},
-            theme = #{theme},
-            style_config = #{styleConfig},
-            settings = #{settings},
-            permissions = #{permissions},
-            routes = #{routes},
-            menus = #{menus},
-            global_state = #{globalState},
-            query_ids = #{queryIds},
-            data_source_ids = #{dataSourceIds},
-            custom_config = #{customConfig},
+            theme = #{theme,typeHandler=com.insightdata.infrastructure.persistence.typehandler.JsonMapTypeHandler},
+            style_config = #{styleConfig,typeHandler=com.insightdata.infrastructure.persistence.typehandler.JsonMapTypeHandler},
+            settings = #{settings,typeHandler=com.insightdata.infrastructure.persistence.typehandler.JsonMapTypeHandler},
+            permissions = #{permissions,typeHandler=com.insightdata.infrastructure.persistence.typehandler.JsonMapTypeHandler},
+            routes = #{routes,typeHandler=com.insightdata.infrastructure.persistence.typehandler.JsonMapTypeHandler},
+            menus = #{menus,typeHandler=com.insightdata.infrastructure.persistence.typehandler.JsonMapTypeHandler},
+            global_state = #{globalState,typeHandler=com.insightdata.infrastructure.persistence.typehandler.JsonMapTypeHandler},
+            query_ids = #{queryIds,typeHandler=com.insightdata.infrastructure.persistence.typehandler.JsonListTypeHandler},
+            data_source_ids = #{dataSourceIds,typeHandler=com.insightdata.infrastructure.persistence.typehandler.JsonListTypeHandler},
+            custom_config = #{customConfig,typeHandler=com.insightdata.infrastructure.persistence.typehandler.JsonMapTypeHandler},
             updated_by = #{updatedBy},
             updated_at = #{updatedAt}
         WHERE id = #{id}
     </update>
     
-    <select id="findById" resultMap="BaseResultMap">
-        SELECT <include refid="Base_Column_List" />
+    <select id="findById" resultMap="AppResultMap">
+        SELECT <include refid="Base_Column_List"/>
         FROM app
         WHERE id = #{id}
     </select>
     
-    <select id="findByCode" resultMap="BaseResultMap">
-        SELECT <include refid="Base_Column_List" />
+    <select id="findByCode" resultMap="AppResultMap">
+        SELECT <include refid="Base_Column_List"/>
         FROM app
         WHERE code = #{code}
     </select>
     
-    <select id="findAll" resultMap="BaseResultMap">
-        SELECT <include refid="Base_Column_List" />
+    <select id="findAll" resultMap="AppResultMap">
+        SELECT <include refid="Base_Column_List"/>
         FROM app
         ORDER BY created_at DESC
     </select>
     
-    <select id="findAllPublished" resultMap="BaseResultMap">
-        SELECT <include refid="Base_Column_List" />
+    <select id="findAllPublished" resultMap="AppResultMap">
+        SELECT <include refid="Base_Column_List"/>
         FROM app
         WHERE publish_status = 1
         ORDER BY published_at DESC
     </select>
     
-    <delete id="deleteById">
-        DELETE FROM app WHERE id = #{id}
-    </delete>
-    
-    <select id="findByNameContaining" resultMap="BaseResultMap">
-        SELECT <include refid="Base_Column_List" />
+    <select id="findByNameContaining" resultMap="AppResultMap">
+        SELECT <include refid="Base_Column_List"/>
         FROM app
         WHERE name LIKE CONCAT('%', #{name}, '%')
         ORDER BY created_at DESC
@@ -120,4 +120,8 @@
         WHERE code = #{code}
     </select>
     
+    <delete id="deleteById">
+        DELETE FROM app
+        WHERE id = #{id}
+    </delete>
 </mapper>

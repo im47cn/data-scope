@@ -1,6 +1,8 @@
 package com.insightdata.infrastructure.persistence.entity;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -10,7 +12,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * 应用实体类
+ * App实体模型
  */
 @Data
 @Builder
@@ -59,7 +61,8 @@ public class AppEntity {
     private Long homePageId;
     
     /**
-     * 发布状态：0-未发布，1-已发布
+     * 发布状态
+     * 0-未发布 1-已发布
      */
     private Integer publishStatus;
     
@@ -69,57 +72,67 @@ public class AppEntity {
     private LocalDateTime publishedAt;
     
     /**
-     * 主题
+     * 应用主题
      */
-    private Map<String, String> theme;
+    @Builder.Default
+    private Map<String, String> theme = new HashMap<>();
     
     /**
-     * 样式配置
+     * 应用样式配置
      */
-    private Map<String, String> styleConfig;
+    @Builder.Default
+    private Map<String, String> styleConfig = new HashMap<>();
     
     /**
-     * 设置
+     * 全局设置
      */
-    private Map<String, String> settings;
+    @Builder.Default
+    private Map<String, String> settings = new HashMap<>();
     
     /**
-     * 权限设置
+     * 权限配置
      */
-    private Map<String, String> permissions;
+    @Builder.Default
+    private Map<String, String> permissions = new HashMap<>();
     
     /**
      * 路由配置
      */
-    private Map<String, String> routes;
+    @Builder.Default
+    private Map<String, String> routes = new HashMap<>();
     
     /**
      * 菜单配置
      */
-    private Map<String, String> menus;
+    @Builder.Default
+    private Map<String, String> menus = new HashMap<>();
     
     /**
      * 全局状态
      */
-    private Map<String, String> globalState;
+    @Builder.Default
+    private Map<String, String> globalState = new HashMap<>();
     
     /**
-     * 关联的查询ID列表
+     * 应用关联的查询ID列表
      */
-    private List<Long> queryIds;
+    @Builder.Default
+    private List<Long> queryIds = new ArrayList<>();
     
     /**
-     * 关联的数据源ID列表
+     * 应用关联的数据源ID列表
      */
-    private List<Long> dataSourceIds;
+    @Builder.Default
+    private List<Long> dataSourceIds = new ArrayList<>();
     
     /**
-     * 自定义配置
+     * 自定义配置项
      */
-    private Map<String, String> customConfig;
+    @Builder.Default
+    private Map<String, String> customConfig = new HashMap<>();
     
     /**
-     * 创建人
+     * 创建人ID
      */
     private Long createdBy;
     
@@ -129,7 +142,7 @@ public class AppEntity {
     private LocalDateTime createdAt;
     
     /**
-     * 更新人
+     * 更新人ID
      */
     private Long updatedBy;
     
