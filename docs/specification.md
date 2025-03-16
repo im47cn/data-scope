@@ -103,43 +103,6 @@ com.example.datainsight/
 
 ### 3.1 数据源管理模块
 
-#### 3.1.1 数据源适配器接口
-
-```java
-public interface DataSourceAdapter {
-    /**
-     * 建立数据源连接
-     * @return 连接状态
-     */
-    ConnectionStatus connect();
-    
-    /**
-     * 关闭数据源连接
-     */
-    void disconnect();
-    
-    /**
-     * 提取数据源元数据
-     * @return 元数据对象
-     */
-    DataSourceMetadata extractMetadata();
-    
-    /**
-     * 执行查询
-     * @param query 查询对象
-     * @param params 查询参数
-     * @return 查询结果
-     */
-    QueryResult executeQuery(String query, Map<String, Object> params);
-    
-    /**
-     * 测试连接
-     * @return 测试结果
-     */
-    TestConnectionResult testConnection();
-}
-```
-
 #### 3.1.2 MySQL适配器实现规范
 
 MySQL适配器应实现以下功能：

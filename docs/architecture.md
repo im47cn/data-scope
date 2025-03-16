@@ -8,8 +8,6 @@
 
 系统采用**前后端分离的模块化架构**，该架构结合了单体应用的部署简便性和微服务的模块化优势。
 
-![系统架构图](https://via.placeholder.com/800x600.png?text=系统架构图)
-
 ```mermaid
 graph TD
     A[前端应用] -- REST API --> B[API网关/控制器层]
