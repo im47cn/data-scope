@@ -76,43 +76,43 @@ public class App {
     /**
      * 应用主题
      */
-    private String theme;
+    private Map<String, String> theme;
     
     /**
      * 应用样式配置
      */
     @Builder.Default
-    private Map<String, Object> styleConfig = new HashMap<>();
+    private Map<String, String> styleConfig = new HashMap<>();
     
     /**
      * 全局设置
      */
     @Builder.Default
-    private Map<String, Object> settings = new HashMap<>();
+    private Map<String, String> settings = new HashMap<>();
     
     /**
      * 权限配置
      */
     @Builder.Default
-    private Map<String, Object> permissions = new HashMap<>();
+    private Map<String, String> permissions = new HashMap<>();
     
     /**
      * 路由配置
      */
     @Builder.Default
-    private Map<String, Object> routes = new HashMap<>();
+    private Map<String, String> routes = new HashMap<>();
     
     /**
      * 菜单配置
      */
     @Builder.Default
-    private Map<String, Object> menus = new HashMap<>();
+    private Map<String, String> menus = new HashMap<>();
     
     /**
      * 全局状态
      */
     @Builder.Default
-    private Map<String, Object> globalState = new HashMap<>();
+    private Map<String, String> globalState = new HashMap<>();
     
     /**
      * 应用的页面列表
@@ -136,7 +136,7 @@ public class App {
      * 自定义配置项
      */
     @Builder.Default
-    private Map<String, Object> customConfig = new HashMap<>();
+    private Map<String, String> customConfig = new HashMap<>();
     
     /**
      * 创建人ID

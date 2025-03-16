@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS app (
     home_page_id BIGINT COMMENT '首页ID',
     publish_status TINYINT DEFAULT 0 COMMENT '发布状态: 0-未发布, 1-已发布',
     published_at TIMESTAMP NULL COMMENT '发布时间',
-    theme VARCHAR(50) COMMENT '应用主题',
+    theme JSON COMMENT '应用主题',
     style_config JSON COMMENT '应用样式配置',
     settings JSON COMMENT '全局设置',
     permissions JSON COMMENT '权限配置',
@@ -21,9 +21,9 @@ CREATE TABLE IF NOT EXISTS app (
     data_source_ids JSON COMMENT '关联数据源ID列表',
     custom_config JSON COMMENT '自定义配置项',
     created_by BIGINT NOT NULL COMMENT '创建人ID',
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     updated_by BIGINT COMMENT '更新人ID',
-    updated_at TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     UNIQUE KEY uk_app_code (code)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='低代码应用';
 
@@ -114,7 +114,7 @@ CREATE TABLE IF NOT EXISTS app_data (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='应用数据表';
 
 -- 创建低代码与查询关联表
-CREATE TABLE IF NOT EXISTS lowcode_query_mapping (
+CREATE TABLE IF NOT EXISTS app_query (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     app_id BIGINT NOT NULL COMMENT '应用ID',
     page_id BIGINT COMMENT '页面ID',
@@ -139,17 +139,42 @@ ADD CONSTRAINT fk_page_app
 FOREIGN KEY (app_id) REFERENCES app (id)
 ON DELETE CASCADE;
 
+-- 创建应用-数据源关联表
+CREATE TABLE app_data_source (
+    app_id BIGINT NOT NULL,
+    data_source_id BIGINT NOT NULL,
+    PRIMARY KEY (app_id, data_source_id),
+    
+    -- 外键约束
+    CONSTRAINT fk_app_data_source_app_id
+        FOREIGN KEY (app_id)
+        REFERENCES app (id)
+        ON DELETE CASCADE,
+    CONSTRAINT fk_app_data_source_data_source_id
+        FOREIGN KEY (data_source_id)
+        REFERENCES data_source (id)
+        ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 创建索引
+CREATE INDEX idx_app_type ON app(type);
+CREATE INDEX idx_app_published_at ON app(published_at);
+CREATE INDEX idx_app_created_at ON app(created_at);
+CREATE INDEX idx_app_updated_at ON app(updated_at);
+CREATE INDEX idx_app_query_query_id ON app_query(query_id);
+CREATE INDEX idx_app_data_source_data_source_id ON app_data_source(data_source_id);
+
 ALTER TABLE app_data
 ADD CONSTRAINT fk_app_data_app
 FOREIGN KEY (app_id) REFERENCES app (id)
 ON DELETE CASCADE;
 
-ALTER TABLE lowcode_query_mapping
+ALTER TABLE app_query
 ADD CONSTRAINT fk_mapping_app
 FOREIGN KEY (app_id) REFERENCES app (id)
 ON DELETE CASCADE;
 
-ALTER TABLE lowcode_query_mapping
+ALTER TABLE app_query
 ADD CONSTRAINT fk_mapping_page
 FOREIGN KEY (page_id) REFERENCES page (id)
 ON DELETE CASCADE;

@@ -1,6 +1,6 @@
 package com.insightdata.infrastructure.persistence.repository;
 
-import com.insightdata.domain.model.app.App;
+import com.insightdata.domain.model.lowcode.App;
 import com.insightdata.domain.repository.AppRepository;
 import com.insightdata.infrastructure.persistence.entity.AppEntity;
 import java.util.List;

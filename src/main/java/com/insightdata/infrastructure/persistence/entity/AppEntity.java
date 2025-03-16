@@ -127,7 +127,8 @@ public class AppEntity {
      * 菜单配置 - 使用 JSON 列类型
      */
     @Column(columnDefinition = "json")
-    private String menus;
+    @Convert(converter = JsonMapConverter.class)
+    private Map<String, String> menus;
     
     /**
      * 全局状态
@@ -160,11 +161,10 @@ public class AppEntity {
     private Map<String, String> customConfig;
     
     /**
-     * 创建人
+     * 创建人ID
      */
     @CreatedBy
-    @Column(length = 50)
-    private String createdBy;
+    private Long createdBy;
     
     /**
      * 创建时间
@@ -174,11 +174,10 @@ public class AppEntity {
     private LocalDateTime createdAt;
     
     /**
-     * 更新人
+     * 更新人ID
      */
     @LastModifiedBy
-    @Column(length = 50)
-    private String updatedBy;
+    private Long updatedBy;
     
     /**
      * 更新时间

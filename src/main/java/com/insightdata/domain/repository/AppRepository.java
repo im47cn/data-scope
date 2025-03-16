@@ -1,6 +1,6 @@
 package com.insightdata.domain.repository;
 
-import com.insightdata.domain.model.app.App;
+import com.insightdata.domain.model.lowcode.App;
 import java.util.List;
 import java.util.Optional;
 

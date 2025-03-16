@@ -1,4 +1,4 @@
-package com.insightdata.api.dto;
+package com.insightdata.facade.rest.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
