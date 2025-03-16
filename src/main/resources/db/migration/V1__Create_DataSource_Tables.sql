@@ -1,5 +1,5 @@
 -- 数据源表
-CREATE TABLE data_source (
+CREATE TABLE IF NOT EXISTS data_source (
   id BIGINT AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR(100) NOT NULL,
   type VARCHAR(20) NOT NULL,
@@ -19,7 +19,7 @@ CREATE TABLE data_source (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- 模式表
-CREATE TABLE schema_info (
+CREATE TABLE IF NOT EXISTS schema_info (
   id BIGINT AUTO_INCREMENT PRIMARY KEY,
   data_source_id BIGINT NOT NULL,
   name VARCHAR(100) NOT NULL,
@@ -31,7 +31,7 @@ CREATE TABLE schema_info (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- 表信息表
-CREATE TABLE table_info (
+CREATE TABLE IF NOT EXISTS table_info (
   id BIGINT AUTO_INCREMENT PRIMARY KEY,
   schema_id BIGINT NOT NULL,
   name VARCHAR(100) NOT NULL,
@@ -48,7 +48,7 @@ CREATE TABLE table_info (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- 列信息表
-CREATE TABLE column_info (
+CREATE TABLE IF NOT EXISTS column_info (
   id BIGINT AUTO_INCREMENT PRIMARY KEY,
   table_id BIGINT NOT NULL,
   name VARCHAR(100) NOT NULL,
@@ -56,7 +56,7 @@ CREATE TABLE column_info (
   column_type VARCHAR(100),
   ordinal_position INT NOT NULL,
   length INT,
-  precision INT,
+  `precision` INT,
   scale INT,
   nullable BOOLEAN DEFAULT TRUE,
   default_value VARCHAR(255),
@@ -71,7 +71,7 @@ CREATE TABLE column_info (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- 索引信息表
-CREATE TABLE index_info (
+CREATE TABLE IF NOT EXISTS index_info (
   id BIGINT AUTO_INCREMENT PRIMARY KEY,
   table_id BIGINT NOT NULL,
   name VARCHAR(100) NOT NULL,
@@ -84,7 +84,7 @@ CREATE TABLE index_info (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- 索引列关联表
-CREATE TABLE index_column (
+CREATE TABLE IF NOT EXISTS index_column (
   id BIGINT AUTO_INCREMENT PRIMARY KEY,
   index_id BIGINT NOT NULL,
   column_id BIGINT NOT NULL,
@@ -98,7 +98,7 @@ CREATE TABLE index_column (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- 外键信息表
-CREATE TABLE foreign_key (
+CREATE TABLE IF NOT EXISTS foreign_key (
   id BIGINT AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR(100) NOT NULL,
   source_table_id BIGINT NOT NULL,
@@ -112,7 +112,7 @@ CREATE TABLE foreign_key (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- 外键列关联表
-CREATE TABLE foreign_key_column (
+CREATE TABLE IF NOT EXISTS foreign_key_column (
   id BIGINT AUTO_INCREMENT PRIMARY KEY,
   foreign_key_id BIGINT NOT NULL,
   source_column_id BIGINT NOT NULL,
@@ -127,7 +127,7 @@ CREATE TABLE foreign_key_column (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- 表关系表（用于存储推断的关系）
-CREATE TABLE table_relation (
+CREATE TABLE IF NOT EXISTS table_relation (
   id BIGINT AUTO_INCREMENT PRIMARY KEY,
   source_table_id BIGINT NOT NULL,
   target_table_id BIGINT NOT NULL,
@@ -143,7 +143,7 @@ CREATE TABLE table_relation (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- 元数据版本表
-CREATE TABLE metadata_version (
+CREATE TABLE IF NOT EXISTS metadata_version (
   id BIGINT AUTO_INCREMENT PRIMARY KEY,
   data_source_id BIGINT NOT NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -154,7 +154,7 @@ CREATE TABLE metadata_version (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- 元数据变更记录表
-CREATE TABLE metadata_change (
+CREATE TABLE IF NOT EXISTS metadata_change (
   id BIGINT AUTO_INCREMENT PRIMARY KEY,
   version_id BIGINT NOT NULL,
   object_type VARCHAR(20) NOT NULL,
@@ -167,7 +167,7 @@ CREATE TABLE metadata_change (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- 同步作业表
-CREATE TABLE sync_job (
+CREATE TABLE IF NOT EXISTS sync_job (
   id VARCHAR(36) PRIMARY KEY,
   data_source_id BIGINT NOT NULL,
   start_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

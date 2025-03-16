@@ -1,4 +1,4 @@
-package com.insightdata.api.dto;
+package com.insightdata.facade.rest.dto;
 
 import java.util.Map;
 
@@ -8,18 +8,13 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * 保存查询请求DTO
+ * 自然语言查询请求DTO
  */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class SavedQueryDTO {
-    
-    /**
-     * 查询名称
-     */
-    private String name;
+public class NLQueryRequestDTO {
     
     /**
      * 数据源ID
@@ -32,22 +27,7 @@ public class SavedQueryDTO {
     private String query;
     
     /**
-     * 生成的SQL
-     */
-    private String sql;
-    
-    /**
      * 查询参数
      */
     private Map<String, Object> parameters;
-    
-    /**
-     * 描述
-     */
-    private String description;
-    
-    /**
-     * 是否公开
-     */
-    private boolean isPublic;
 }

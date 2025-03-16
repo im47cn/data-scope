@@ -1,11 +1,12 @@
 package com.insightdata.domain.service;
 
+import java.util.List;
+import java.util.Map;
+
 import com.insightdata.domain.model.query.NLQueryRequest;
 import com.insightdata.domain.model.query.QueryHistory;
 import com.insightdata.domain.model.query.QueryResult;
 import com.insightdata.domain.model.query.SavedQuery;
-
-import java.util.List;
 
 /**
  * 自然语言查询服务接口
@@ -71,4 +72,13 @@ public interface NLQueryService {
      * @return 更新后的保存的查询
      */
     SavedQuery updateSavedQuery(Long id, String name, String description, boolean isPublic);
+    
+    /**
+     * 通过ID执行已保存的查询
+     *
+     * @param id 保存的查询ID
+     * @param parameters 查询参数
+     * @return 查询结果
+     */
+    QueryResult executeQueryById(Long id, Map<String, Object> parameters);
 }

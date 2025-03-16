@@ -1,4 +1,4 @@
-package com.insightdata.api.dto;
+package com.insightdata.facade.rest.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -6,7 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * 更新保存的查询请求DTO
+ * 更新保存查询请求DTO
  */
 @Data
 @Builder

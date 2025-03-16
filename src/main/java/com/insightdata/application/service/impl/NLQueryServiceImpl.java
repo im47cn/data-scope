@@ -6,7 +6,6 @@ import java.util.Map;
 
 import org.springframework.stereotype.Service;
 
-import com.insightdata.domain.model.DataSource;
 import com.insightdata.domain.model.metadata.SchemaInfo;
 import com.insightdata.domain.model.query.NLQueryRequest;
 import com.insightdata.domain.model.query.QueryHistory;
@@ -99,7 +98,7 @@ public class NLQueryServiceImpl implements NLQueryService {
             savedQuery.setParameters(request.getParameters());
             savedQuery.setCreatedAt(LocalDateTime.now());
             savedQuery.setUpdatedAt(LocalDateTime.now());
-            savedQuery.setPublic(false);
+            savedQuery.setIsPublic(false);
             
             SavedQuery saved = savedQueryRepository.save(savedQuery);
             return saved.getId();
@@ -137,7 +136,7 @@ public class NLQueryServiceImpl implements NLQueryService {
         
         savedQuery.setName(name);
         savedQuery.setDescription(description);
-        savedQuery.setPublic(isPublic);
+        savedQuery.setIsPublic(isPublic);
         savedQuery.setUpdatedAt(LocalDateTime.now());
         
         return savedQueryRepository.save(savedQuery);
@@ -146,6 +145,7 @@ public class NLQueryServiceImpl implements NLQueryService {
     /**
      * 执行保存的查询
      */
+    @Override
     public QueryResult executeQueryById(Long queryId, Map<String, Object> parameters) {
         log.info("执行保存的查询: {}", queryId);
         
@@ -183,12 +183,12 @@ public class NLQueryServiceImpl implements NLQueryService {
         try {
             QueryHistory history = new QueryHistory();
             history.setDataSourceId(request.getDataSourceId());
-            history.setNaturalLanguageQuery(request.getQuery());
-            history.setGeneratedSql(conversionResult.getSql());
+            history.setOriginalSql(request.getQuery());
+            history.setExecutedSql(conversionResult.getSql());
             // 设置状态
             history.setStatus(result.isSuccess() ? "SUCCESS" : "FAILED");
             history.setErrorMessage(result.getErrorMessage());
-            history.setExecutionTime(result.getExecutionTime());
+            history.setExecutionTimeMs(result.getExecutionTime());
             history.setCreatedAt(LocalDateTime.now());
             
             queryHistoryRepository.save(history);

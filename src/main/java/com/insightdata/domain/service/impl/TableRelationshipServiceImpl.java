@@ -35,6 +35,11 @@ public class TableRelationshipServiceImpl implements TableRelationshipService {
     private TableRelationshipRepository tableRelationshipRepository;
 
     @Override
+    public TableRelationship findById(Long id) {
+        return tableRelationshipRepository.findById(id).get();
+    }
+
+    @Override
     public List<TableRelationship> getAllTableRelationships(Long dataSourceId) {
         return tableRelationshipRepository.findByDataSourceId(dataSourceId);
     }
@@ -65,9 +70,9 @@ public class TableRelationshipServiceImpl implements TableRelationshipService {
                 TableRelationship relationship = TableRelationship.builder()
                         .dataSourceId(dataSourceId)
                         .sourceTable(tableInfo.getName())
-                        .sourceColumn(fkInfo.getColumns().get(0).getColumnName()) // 简化处理，只取第一列
-                        .targetTable(fkInfo.getReferencedTableName())
-                        .targetColumn(fkInfo.getColumns().get(0).getReferencedColumnName()) // 简化处理，只取第一列
+                        .sourceColumn(fkInfo.getColumns().get(0).getSourceColumnName()) // 简化处理，只取第一列
+                        .targetTable(fkInfo.getTargetTableName())
+                        .targetColumn(fkInfo.getColumns().get(0).getTargetColumnName()) // 简化处理，只取第一列
                         .type(RelationshipType.MANY_TO_ONE) // 默认为多对一
                         .source(RelationshipSource.METADATA)
                         .weight(1.0) // 元数据来源的权重最高
@@ -94,8 +99,8 @@ public class TableRelationshipServiceImpl implements TableRelationshipService {
                             // 检查是否已经存在外键关系
                             boolean existsForeignKey = false;
                             for (ForeignKeyInfo fkInfo : tableInfo.getForeignKeys()) {
-                                if (fkInfo.getReferencedTableName().equals(otherTable.getName()) && 
-                                    fkInfo.getColumns().stream().anyMatch(c -> c.getColumnName().equals(column.getName()))) {
+                                if (fkInfo.getTargetTableName().equals(otherTable.getName()) &&
+                                    fkInfo.getColumns().stream().anyMatch(c -> c.getSourceColumnName().equals(column.getName()))) {
                                     existsForeignKey = true;
                                     break;
                                 }
@@ -139,7 +144,7 @@ public class TableRelationshipServiceImpl implements TableRelationshipService {
         Map<String, TableRelationship> relationshipMap = new HashMap<>();
         
         for (QueryHistory history : queryHistories) {
-            String sql = history.getSql().toLowerCase();
+            String sql = history.getExecutedSql().toLowerCase();
             
             // 分析JOIN语句
             analyzeJoins(dataSourceId, sql, relationshipMap);
@@ -197,7 +202,7 @@ public class TableRelationshipServiceImpl implements TableRelationshipService {
                                             .targetTable(rightTable)
                                             .targetColumn(rightColumn)
                                             .type(RelationshipType.MANY_TO_ONE) // 默认为多对一
-                                            .source(RelationshipSource.QUERY_HISTORY)
+                                            .source(RelationshipSource.LEARNING)
                                             .weight(0.8) // 查询历史的权重较高
                                             .frequency(1)
                                             .createdAt(LocalDateTime.now())
@@ -260,7 +265,7 @@ public class TableRelationshipServiceImpl implements TableRelationshipService {
                                         .targetTable(rightTable)
                                         .targetColumn(rightColumn)
                                         .type(RelationshipType.MANY_TO_ONE) // 默认为多对一
-                                        .source(RelationshipSource.QUERY_HISTORY)
+                                        .source(RelationshipSource.LEARNING)
                                         .weight(0.7) // WHERE条件的权重略低于JOIN
                                         .frequency(1)
                                         .createdAt(LocalDateTime.now())
@@ -337,7 +342,7 @@ public class TableRelationshipServiceImpl implements TableRelationshipService {
     @Override
     @Transactional
     public TableRelationship updateRelationshipWeight(Long relationshipId, double weightDelta) {
-        TableRelationship relationship = tableRelationshipRepository.findById(relationshipId);
+        TableRelationship relationship = tableRelationshipRepository.findById(relationshipId).get();
         if (relationship != null) {
             double newWeight = relationship.getWeight() + weightDelta;
             // 确保权重在0-1之间

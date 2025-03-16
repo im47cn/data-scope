@@ -1,13 +1,14 @@
 package com.insightdata.domain.model;
 
+import java.time.LocalDateTime;
+import java.util.Map;
+
 import com.insightdata.common.enums.DataSourceType;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDateTime;
-import java.util.Map;
 
 /**
  * 数据源领域模型

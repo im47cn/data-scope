@@ -32,10 +32,12 @@
         <mapstruct-lombok.version>0.2.0</mapstruct-lombok.version>
         <commons-lang3.version>3.12.0</commons-lang3.version>
         <commons-io.version>2.14.0</commons-io.version>
+        <commons-csv.version>1.10.0</commons-csv.version>
         <guava.version>32.1.2-jre</guava.version>
         <jackson.version>2.15.2</jackson.version>
         <springdoc-openapi.version>2.2.0</springdoc-openapi.version>
         <flyway.version>9.22.1</flyway.version>
+        <hanlp.version>portable-1.8.4</hanlp.version>
     </properties>
     
     <dependencies>
@@ -44,9 +46,12 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
+
+        <!-- 使用MyBatis -->
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-jpa</artifactId>
+            <groupId>org.mybatis.spring.boot</groupId>
+            <artifactId>mybatis-spring-boot-starter</artifactId>
+            <version>3.0.2</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -97,12 +102,6 @@
             <artifactId>HikariCP</artifactId>
             <version>${hikaricp.version}</version>
         </dependency>
-
-        <dependency>
-            <groupId>javax.persistence</groupId>
-            <artifactId>javax.persistence-api</artifactId>
-            <version>2.2</version>
-        </dependency>
         
         <!-- MyBatis -->
         <dependency>
@@ -135,6 +134,11 @@
             <version>${commons-io.version}</version>
         </dependency>
         <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-csv</artifactId>
+            <version>${commons-csv.version}</version>
+        </dependency>
+        <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
             <version>${guava.version}</version>
@@ -163,6 +167,8 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
+            <version>${lombok.version}</version>
+            <scope>provided</scope>
             <optional>true</optional>
         </dependency>
 
@@ -177,7 +183,13 @@
             <artifactId>lombok-mapstruct-binding</artifactId>
             <version>${mapstruct-lombok.version}</version>
         </dependency>
-        
+
+        <!-- Spring Data JPA -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+
         <!-- Test -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -215,9 +227,9 @@
                 <artifactId>flyway-maven-plugin</artifactId>
                 <version>${flyway.version}</version>
                 <configuration>
-                    <url>jdbc:mysql://localhost:3306/insight_data</url>
-                    <user>root</user>
-                    <password>root</password>
+                    <url>jdbc:mysql://localhost:3306/datainsight</url>
+                    <user>test</user>
+                    <password>test</password>
                     <locations>
                         <location>classpath:db/migration</location>
                     </locations>
@@ -226,17 +238,16 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.8.1</version>
+                <version>3.11.0</version>
                 <configuration>
-                    <failOnError>true</failOnError>
-                    <verbose>true</verbose>
-                    <fork>true</fork>
-                    <compilerArgument>-nowarn</compilerArgument>
-                    <compilerArgument>-XDignore.symbol.file</compilerArgument>
-<!--                    <source>${maven.compiler.source}</source>-->
-<!--                    <target>${maven.compiler.target}</target>-->
-                    <encoding>UTF-8</encoding>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
                     <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>${lombok.version}</version>
+                        </path>
                         <path>
                             <groupId>org.mapstruct</groupId>
                             <artifactId>mapstruct-processor</artifactId>
@@ -244,18 +255,8 @@
                         </path>
                         <path>
                             <groupId>org.projectlombok</groupId>
-                            <artifactId>lombok</artifactId>
-                            <version>${lombok.version}</version>
-                        </path>
-                        <path>
-                            <groupId>org.projectlombok</groupId>
                             <artifactId>lombok-mapstruct-binding</artifactId>
                             <version>${mapstruct-lombok.version}</version>
-                        </path>
-                        <path>
-                            <groupId>org.openjdk.jmh</groupId>
-                            <artifactId>jmh-generator-annprocess</artifactId>
-                            <version>${jmh.version}</version>
                         </path>
                         <path>
                             <groupId>com.tngtech.archunit</groupId>
@@ -263,6 +264,9 @@
                             <version>0.23.1</version>
                         </path>
                     </annotationProcessorPaths>
+                    <compilerArgs>
+                        <arg>-parameters</arg>
+                    </compilerArgs>
                 </configuration>
             </plugin>
         </plugins>

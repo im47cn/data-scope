@@ -4,9 +4,9 @@ spring:
   
   # 数据库配置
   datasource:
-    url: jdbc:mysql://localhost:3306/insight_data?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai
-    username: root
-    password: root
+    url: jdbc:mysql://localhost:3306/datainsight?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai
+    username: test
+    password: test
     driver-class-name: com.mysql.cj.jdbc.Driver
     hikari:
       minimum-idle: 5
@@ -16,15 +16,15 @@ spring:
       connection-timeout: 30000
       pool-name: InsightDataHikariCP
   
-  # JPA配置
-  jpa:
-    database-platform: org.hibernate.dialect.MySQLDialect
-    hibernate:
-      ddl-auto: validate
-    show-sql: false
-    properties:
-      hibernate:
-        format_sql: true
+  # MyBatis配置
+  mybatis:
+    mapper-locations: classpath:mapper/**/*.xml
+    type-aliases-package: com.insightdata.domain.model
+    configuration:
+      map-underscore-to-camel-case: true
+      default-fetch-size: 100
+      default-statement-timeout: 30
+      cache-enabled: true
   
   # Redis配置
   data:
@@ -73,7 +73,6 @@ logging:
     root: INFO
     com.insightdata: INFO
     org.springframework: WARN
-    org.hibernate: WARN
   file:
     name: logs/insight-data.log
   pattern:

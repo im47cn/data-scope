@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.insightdata.infrastructure.persistence.mapper.TableRelationshipMapper">
+    
+    <!-- 结果映射 -->
+    <resultMap id="BaseResultMap" type="com.insightdata.infrastructure.persistence.entity.TableRelationshipEntity">
+        <id column="id" property="id"/>
+        <result column="data_source_id" property="dataSourceId"/>
+        <result column="source_table" property="sourceTable"/>
+        <result column="source_column" property="sourceColumn"/>
+        <result column="target_table" property="targetTable"/>
+        <result column="target_column" property="targetColumn"/>
+        <result column="relationship_type" property="relationshipType"/>
+        <result column="relationship_source" property="relationshipSource"/>
+        <result column="weight" property="weight"/>
+        <result column="frequency" property="frequency"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="updated_at" property="updatedAt"/>
+    </resultMap>
+
+    <!-- 插入表关系 -->
+    <insert id="insert" parameterType="com.insightdata.infrastructure.persistence.entity.TableRelationshipEntity"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO table_relationship (
+            data_source_id, source_table, source_column, target_table, target_column,
+            relationship_type, relationship_source, weight, frequency, created_at, updated_at
+        ) VALUES (
+            #{dataSourceId}, #{sourceTable}, #{sourceColumn}, #{targetTable}, #{targetColumn},
+            #{relationshipType}, #{relationshipSource}, #{weight}, #{frequency}, #{createdAt}, #{updatedAt}
+        )
+    </insert>
+
+    <!-- 根据ID查询表关系 -->
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT * FROM table_relationship WHERE id = #{id}
+    </select>
+
+    <!-- 根据数据源ID和表名查询关系 -->
+    <select id="selectByDataSourceIdAndTableName" resultMap="BaseResultMap">
+        SELECT * FROM table_relationship 
+        WHERE data_source_id = #{dataSourceId}
+        AND (source_table = #{tableName} OR target_table = #{tableName})
+    </select>
+
+    <!-- 根据数据源ID和关系类型查询 -->
+    <select id="selectByDataSourceIdAndType" resultMap="BaseResultMap">
+        SELECT * FROM table_relationship 
+        WHERE data_source_id = #{dataSourceId}
+        AND relationship_type = #{type}
+    </select>
+
+    <!-- 删除指定数据源和来源的关系 -->
+    <delete id="deleteByDataSourceIdAndSource">
+        DELETE FROM table_relationship 
+        WHERE data_source_id = #{dataSourceId}
+        AND relationship_source = #{source}
+    </delete>
+
+    <!-- 更新关系使用频率 -->
+    <update id="incrementFrequency">
+        UPDATE table_relationship 
+        SET frequency = frequency + 1,
+            updated_at = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <!-- 更新表关系 -->
+    <update id="update" parameterType="com.insightdata.infrastructure.persistence.entity.TableRelationshipEntity">
+        UPDATE table_relationship
+        SET data_source_id = #{dataSourceId},
+            source_table = #{sourceTable},
+            source_column = #{sourceColumn},
+            target_table = #{targetTable},
+            target_column = #{targetColumn},
+            relationship_type = #{relationshipType},
+            relationship_source = #{relationshipSource},
+            weight = #{weight},
+            frequency = #{frequency},
+            updated_at = #{updatedAt}
+        WHERE id = #{id}
+    </update>
+
+    <!-- 删除表关系 -->
+    <delete id="deleteById">
+        DELETE FROM table_relationship WHERE id = #{id}
+    </delete>
+
+</mapper>
