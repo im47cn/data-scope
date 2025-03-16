@@ -1,15 +1,11 @@
 package com.insightdata.infrastructure.adapter;
 
+import com.insightdata.domain.model.DataSource;
+import com.insightdata.domain.model.metadata.*;
+import com.insightdata.nlquery.executor.QueryResult;
+
 import java.sql.Connection;
 import java.util.List;
-
-import com.insightdata.domain.model.DataSource;
-import com.insightdata.domain.model.metadata.ColumnInfo;
-import com.insightdata.domain.model.metadata.ForeignKeyInfo;
-import com.insightdata.domain.model.metadata.IndexInfo;
-import com.insightdata.domain.model.metadata.SchemaInfo;
-import com.insightdata.domain.model.metadata.TableInfo;
-import com.insightdata.nlquery.executor.QueryResult;
 
 /**
  * 数据源适配器接口

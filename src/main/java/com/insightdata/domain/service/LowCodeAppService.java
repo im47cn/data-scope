@@ -4,6 +4,7 @@ import com.insightdata.domain.model.lowcode.AppConfig;
 import com.insightdata.domain.model.lowcode.ComponentConfig;
 import com.insightdata.domain.model.lowcode.DataBinding;
 import com.insightdata.domain.model.lowcode.PageLayout;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;

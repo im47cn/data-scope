@@ -1,13 +1,5 @@
 package com.insightdata.nlquery.entity;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import com.insightdata.application.service.DataSourceService;
 import com.insightdata.domain.model.metadata.ColumnInfo;
 import com.insightdata.domain.model.metadata.SchemaInfo;
@@ -15,6 +7,13 @@ import com.insightdata.domain.model.metadata.TableInfo;
 import com.insightdata.nlquery.preprocess.EntityTag;
 import com.insightdata.nlquery.preprocess.EntityType;
 import com.insightdata.nlquery.preprocess.PreprocessedText;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 基于元数据的实体提取器

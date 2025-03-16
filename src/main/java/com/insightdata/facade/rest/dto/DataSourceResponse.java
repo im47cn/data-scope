@@ -1,14 +1,13 @@
 package com.insightdata.facade.rest.dto;
 
-import java.time.LocalDateTime;
-import java.util.Map;
-
-import com.insightdata.domain.model.DataSource.DataSourceType;
-
+import com.insightdata.common.enums.DataSourceType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
+import java.util.Map;
 
 /**
  * 数据源响应DTO

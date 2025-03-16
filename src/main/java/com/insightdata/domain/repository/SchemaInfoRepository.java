@@ -1,8 +1,8 @@
 package com.insightdata.domain.repository;
 
-import java.util.Optional;
-
 import com.insightdata.domain.model.metadata.SchemaInfo;
+
+import java.util.Optional;
 
 /**
  * Schema信息仓储接口

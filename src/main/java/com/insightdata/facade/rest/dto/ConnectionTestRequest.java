@@ -1,15 +1,14 @@
 package com.insightdata.facade.rest.dto;
 
-import java.util.Map;
-
-import com.insightdata.domain.model.DataSource.DataSourceType;
-
+import com.insightdata.common.enums.DataSourceType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.Map;
 
 /**
  * 连接测试请求DTO

@@ -1,14 +1,13 @@
 package com.insightdata.infrastructure.persistence.entity;
 
-import java.time.LocalDateTime;
-
 import com.insightdata.domain.model.metadata.TableRelationship.RelationshipSource;
 import com.insightdata.domain.model.metadata.TableRelationship.RelationshipType;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
 
 /**
  * 表关系实体

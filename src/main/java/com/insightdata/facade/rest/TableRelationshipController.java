@@ -1,21 +1,5 @@
 package com.insightdata.facade.rest;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.insightdata.domain.model.metadata.SchemaInfo;
 import com.insightdata.domain.model.metadata.TableRelationship;
 import com.insightdata.domain.model.query.QueryHistory;
@@ -23,8 +7,14 @@ import com.insightdata.domain.repository.QueryHistoryRepository;
 import com.insightdata.domain.service.DataSourceService;
 import com.insightdata.domain.service.TableRelationshipService;
 import com.insightdata.facade.rest.dto.TableRelationshipDTO;
-
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 表关系REST控制器

@@ -1,17 +1,15 @@
 package com.insightdata.infrastructure.persistence.repository;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import org.springframework.stereotype.Repository;
-
 import com.insightdata.domain.model.lowcode.App;
 import com.insightdata.domain.repository.AppRepository;
 import com.insightdata.infrastructure.persistence.entity.AppEntity;
 import com.insightdata.infrastructure.persistence.mapper.AppMapper;
-
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * App仓储的MyBatis实现

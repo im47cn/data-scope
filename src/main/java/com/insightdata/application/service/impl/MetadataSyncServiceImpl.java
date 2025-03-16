@@ -1,26 +1,24 @@
 package com.insightdata.application.service.impl;
 
-import java.sql.SQLException;
-import java.time.LocalDateTime;
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.insightdata.application.service.MetadataSyncJobService;
 import com.insightdata.application.service.MetadataSyncService;
 import com.insightdata.common.enums.SyncType;
-import com.insightdata.domain.adapter.DataSourceAdapter;
 import com.insightdata.domain.model.metadata.MetadataSyncJob;
 import com.insightdata.domain.model.metadata.SchemaInfo;
 import com.insightdata.domain.model.metadata.TableInfo;
 import com.insightdata.domain.repository.DataSourceRepository;
 import com.insightdata.domain.repository.SchemaInfoRepository;
 import com.insightdata.domain.repository.TableInfoRepository;
+import com.insightdata.infrastructure.adapter.DataSourceAdapter;
 import com.insightdata.infrastructure.adapter.DataSourceAdapterFactory;
-
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.sql.SQLException;
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @Slf4j

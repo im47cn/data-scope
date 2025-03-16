@@ -1,11 +1,10 @@
  package com.insightdata.config;
 
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
-
-import com.insightdata.nlquery.sql.EnhancedSqlGenerator;
-import com.insightdata.nlquery.sql.SqlGenerator;
+ import com.insightdata.nlquery.sql.EnhancedSqlGenerator;
+ import com.insightdata.nlquery.sql.SqlGenerator;
+ import org.springframework.context.annotation.Bean;
+ import org.springframework.context.annotation.Configuration;
+ import org.springframework.context.annotation.Primary;
 
 /**
  * SQL生成器配置类

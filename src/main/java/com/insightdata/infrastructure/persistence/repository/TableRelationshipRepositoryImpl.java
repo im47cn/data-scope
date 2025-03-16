@@ -1,16 +1,15 @@
 package com.insightdata.infrastructure.persistence.repository;
 
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import org.springframework.stereotype.Repository;
-
 import com.insightdata.domain.model.metadata.TableRelationship;
 import com.insightdata.domain.repository.TableRelationshipRepository;
 import com.insightdata.infrastructure.persistence.converter.TableRelationshipConverter;
 import com.insightdata.infrastructure.persistence.mapper.TableRelationshipMapper;
+import org.springframework.stereotype.Repository;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Repository
 public class TableRelationshipRepositoryImpl implements TableRelationshipRepository {

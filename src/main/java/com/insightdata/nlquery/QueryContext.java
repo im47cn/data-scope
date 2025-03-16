@@ -1,20 +1,19 @@
 package com.insightdata.nlquery;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import com.insightdata.domain.model.DataSource;
 import com.insightdata.domain.model.metadata.SchemaInfo;
 import com.insightdata.nlquery.entity.EntityTag;
 import com.insightdata.nlquery.intent.QueryIntent;
 import com.insightdata.nlquery.preprocess.PreprocessedText;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 查询上下文

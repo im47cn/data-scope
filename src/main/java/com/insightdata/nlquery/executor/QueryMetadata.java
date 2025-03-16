@@ -1,16 +1,12 @@
 package com.insightdata.nlquery.executor;
 
+import lombok.*;
+import lombok.experimental.FieldDefaults;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.experimental.FieldDefaults;
 
 /**
  * 查询元数据

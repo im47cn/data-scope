@@ -1,9 +1,9 @@
 package com.insightdata.domain.repository;
 
+import com.insightdata.domain.model.query.QueryHistory;
+
 import java.util.List;
 import java.util.Optional;
-
-import com.insightdata.domain.model.query.QueryHistory;
 
 /**
  * 查询历史仓库

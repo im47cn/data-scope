@@ -1,18 +1,13 @@
 package com.insightdata.nlquery.sql;
 
-import java.util.List;
-import java.util.Map;
-
 import com.insightdata.domain.model.metadata.SchemaInfo;
 import com.insightdata.nlquery.intent.QueryIntent;
 import com.insightdata.nlquery.preprocess.EntityTag;
-
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import lombok.experimental.FieldDefaults;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * SQL生成器接口

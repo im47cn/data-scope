@@ -1,20 +1,13 @@
 package com.insightdata.infrastructure.adapter;
 
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.*;
-
+import com.insightdata.domain.model.DataSource;
 import com.insightdata.domain.model.metadata.*;
+import com.insightdata.nlquery.executor.QueryResult;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import com.insightdata.domain.model.DataSource;
-import com.insightdata.nlquery.executor.QueryResult;
-
-import lombok.extern.slf4j.Slf4j;
+import java.sql.*;
+import java.util.*;
 
 /**
  * DB2数据源适配器

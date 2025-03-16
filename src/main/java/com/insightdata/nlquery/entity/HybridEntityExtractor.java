@@ -1,15 +1,14 @@
 package com.insightdata.nlquery.entity;
 
+import com.insightdata.nlquery.preprocess.EntityTag;
+import com.insightdata.nlquery.preprocess.PreprocessedText;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
-import com.insightdata.nlquery.preprocess.EntityTag;
-import com.insightdata.nlquery.preprocess.PreprocessedText;
 
 /**
  * 混合实体提取器

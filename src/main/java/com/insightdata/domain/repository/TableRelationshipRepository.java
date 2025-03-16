@@ -1,9 +1,9 @@
 package com.insightdata.domain.repository;
 
+import com.insightdata.domain.model.metadata.TableRelationship;
+
 import java.util.List;
 import java.util.Optional;
-
-import com.insightdata.domain.model.metadata.TableRelationship;
 
 /**
  * 表关系存储库接口

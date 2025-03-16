@@ -1,10 +1,10 @@
 package com.insightdata.domain.service;
 
-import java.util.List;
-
 import com.insightdata.domain.model.metadata.SchemaInfo;
 import com.insightdata.domain.model.metadata.TableRelationship;
 import com.insightdata.domain.model.query.QueryHistory;
+
+import java.util.List;
 
 /**
  * 表关系服务接口

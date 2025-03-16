@@ -1,18 +1,10 @@
 package com.insightdata.application.service.impl;
 
-import java.time.LocalDateTime;
-import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import com.insightdata.application.service.DataSourceService;
 import com.insightdata.domain.model.DataSource;
-import com.insightdata.domain.model.QueryHistory;
 import com.insightdata.domain.model.SavedQuery;
 import com.insightdata.domain.model.metadata.SchemaInfo;
+import com.insightdata.domain.model.query.QueryHistory;
 import com.insightdata.domain.repository.QueryHistoryRepository;
 import com.insightdata.domain.repository.SavedQueryRepository;
 import com.insightdata.nlquery.NLQueryRequest;
@@ -22,6 +14,13 @@ import com.insightdata.nlquery.executor.QueryExecutor;
 import com.insightdata.nlquery.executor.QueryResult;
 import com.insightdata.nlquery.preprocess.PreprocessedText;
 import com.insightdata.nlquery.preprocess.TextPreprocessor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * 自然语言查询服务实现

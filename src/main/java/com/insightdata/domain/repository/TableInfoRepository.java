@@ -1,9 +1,9 @@
 package com.insightdata.domain.repository;
 
+import com.insightdata.domain.model.metadata.TableInfo;
+
 import java.util.List;
 import java.util.Optional;
-
-import com.insightdata.domain.model.metadata.TableInfo;
 
 /**
  * 表信息仓储接口

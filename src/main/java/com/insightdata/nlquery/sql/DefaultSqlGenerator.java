@@ -1,19 +1,18 @@
 package com.insightdata.nlquery.sql;
 
+import com.insightdata.domain.model.metadata.ColumnInfo;
+import com.insightdata.domain.model.metadata.SchemaInfo;
+import com.insightdata.domain.model.metadata.TableInfo;
+import com.insightdata.nlquery.intent.*;
+import com.insightdata.nlquery.preprocess.EntityTag;
+import com.insightdata.nlquery.preprocess.EntityType;
+import org.springframework.stereotype.Component;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
-import com.insightdata.nlquery.intent.*;
-import org.springframework.stereotype.Component;
-
-import com.insightdata.domain.model.metadata.ColumnInfo;
-import com.insightdata.domain.model.metadata.SchemaInfo;
-import com.insightdata.domain.model.metadata.TableInfo;
-import com.insightdata.nlquery.preprocess.EntityTag;
-import com.insightdata.nlquery.preprocess.EntityType;
 
 /**
  * SQL生成器的默认实现

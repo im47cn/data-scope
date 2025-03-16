@@ -1,11 +1,10 @@
 package com.insightdata.infrastructure.persistence.mapper;
 
-import java.util.List;
-
+import com.insightdata.infrastructure.persistence.entity.TableRelationshipEntity;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
-import com.insightdata.infrastructure.persistence.entity.TableRelationshipEntity;
+import java.util.List;
 
 @Mapper
 public interface TableRelationshipMapper {

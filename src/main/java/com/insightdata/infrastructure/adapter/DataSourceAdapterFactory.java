@@ -1,12 +1,10 @@
 package com.insightdata.infrastructure.adapter;
 
-import org.springframework.stereotype.Component;
-
+import com.insightdata.common.enums.DataSourceType;
 import com.insightdata.domain.model.DataSource;
-import com.insightdata.domain.model.DataSource.DataSourceType;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 
 /**
  * 数据源适配器工厂

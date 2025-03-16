@@ -1,12 +1,12 @@
 package com.insightdata.nlquery.entity;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 实体属性

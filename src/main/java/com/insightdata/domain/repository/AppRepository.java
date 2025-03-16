@@ -1,11 +1,10 @@
 package com.insightdata.domain.repository;
 
-import java.util.List;
-import java.util.Optional;
-
+import com.insightdata.domain.model.lowcode.App;
 import org.springframework.stereotype.Repository;
 
-import com.insightdata.domain.model.lowcode.App;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * 低代码应用仓储接口

@@ -1,9 +1,8 @@
 package com.insightdata.infrastructure.persistence.converter;
 
-import org.springframework.stereotype.Component;
-
 import com.insightdata.domain.model.metadata.TableRelationship;
 import com.insightdata.infrastructure.persistence.entity.TableRelationshipEntity;
+import org.springframework.stereotype.Component;
 
 /**
  * 表关系实体与领域模型转换器

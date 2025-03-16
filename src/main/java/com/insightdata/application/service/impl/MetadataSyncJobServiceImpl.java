@@ -1,22 +1,21 @@
 package com.insightdata.application.service.impl;
 
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.insightdata.application.service.MetadataSyncJobService;
 import com.insightdata.common.enums.SyncStatus;
 import com.insightdata.common.enums.SyncType;
 import com.insightdata.common.exception.InsightDataException;
 import com.insightdata.domain.model.metadata.MetadataSyncJob;
 import com.insightdata.domain.repository.MetadataSyncJobRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 /**
  * 元数据同步作业服务实现

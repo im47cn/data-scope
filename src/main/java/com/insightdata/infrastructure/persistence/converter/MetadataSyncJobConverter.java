@@ -1,9 +1,8 @@
 package com.insightdata.infrastructure.persistence.converter;
 
-import org.springframework.stereotype.Component;
-
 import com.insightdata.domain.model.metadata.MetadataSyncJob;
 import com.insightdata.infrastructure.persistence.entity.MetadataSyncJobEntity;
+import org.springframework.stereotype.Component;
 
 /**
  * 元数据同步作业实体和领域模型之间的转换器

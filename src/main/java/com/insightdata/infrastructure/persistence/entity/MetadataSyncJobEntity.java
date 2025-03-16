@@ -1,15 +1,14 @@
 package com.insightdata.infrastructure.persistence.entity;
 
-import java.time.LocalDateTime;
-import java.util.Map;
-
 import com.insightdata.common.enums.SyncStatus;
 import com.insightdata.common.enums.SyncType;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
+import java.util.Map;
 
 /**
  * 元数据同步作业实体

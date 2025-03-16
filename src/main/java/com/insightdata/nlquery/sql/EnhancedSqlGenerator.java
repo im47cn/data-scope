@@ -1,19 +1,18 @@
 package com.insightdata.nlquery.sql;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
+import com.insightdata.domain.model.metadata.SchemaInfo;
+import com.insightdata.domain.service.TableRelationshipService;
+import com.insightdata.nlquery.intent.QueryIntent;
+import com.insightdata.nlquery.preprocess.EntityTag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.insightdata.domain.model.metadata.SchemaInfo;
-import com.insightdata.domain.service.TableRelationshipService;
-import com.insightdata.nlquery.intent.QueryIntent;
-import com.insightdata.nlquery.preprocess.EntityTag;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 增强的SQL生成器实现

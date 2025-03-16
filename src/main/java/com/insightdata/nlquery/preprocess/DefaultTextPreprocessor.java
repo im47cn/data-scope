@@ -1,12 +1,11 @@
 package com.insightdata.nlquery.preprocess;
 
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import org.springframework.stereotype.Component;
-
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * 默认文本预处理器实现

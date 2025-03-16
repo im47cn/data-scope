@@ -1,15 +1,13 @@
 package com.insightdata.domain.model;
 
-import java.time.LocalDateTime;
-import java.util.Map;
-
-import com.insightdata.domain.model.base.BaseEntity;
-
+import com.insightdata.common.enums.DataSourceType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+
+import java.time.LocalDateTime;
+import java.util.Map;
 
 /**
  * 数据源
@@ -18,49 +16,10 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(callSuper = true)
-public class DataSource extends BaseEntity {
-    
-    /**
-     * 数据源类型
-     */
-    public enum DataSourceType {
-        /**
-         * MySQL数据库
-         */
-        MYSQL("MySQL"),
-        
-        /**
-         * DB2数据库
-         */
-        DB2("DB2"),
-        
-        /**
-         * Oracle数据库
-         */
-        ORACLE("Oracle"),
-        
-        /**
-         * PostgreSQL数据库
-         */
-        POSTGRESQL("PostgreSQL"),
-        
-        /**
-         * SQL Server数据库
-         */
-        SQLSERVER("SQL Server");
-        
-        private final String displayName;
-        
-        DataSourceType(String displayName) {
-            this.displayName = displayName;
-        }
-        
-        public String getDisplayName() {
-            return displayName;
-        }
-    }
-    
+public class DataSource {
+
+    private Long id;
+
     /**
      * 数据源名称
      */
@@ -90,7 +49,12 @@ public class DataSource extends BaseEntity {
      * 用户名
      */
     private String username;
-    
+
+    /**
+     * 加密前的密码
+     */
+    private String password;
+
     /**
      * 加密后的密码
      */

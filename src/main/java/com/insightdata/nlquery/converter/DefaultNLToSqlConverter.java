@@ -1,11 +1,5 @@
 package com.insightdata.nlquery.converter;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import com.insightdata.domain.model.metadata.SchemaInfo;
 import com.insightdata.nlquery.QueryContext;
 import com.insightdata.nlquery.entity.EntityExtractionContext;
@@ -18,8 +12,12 @@ import com.insightdata.nlquery.preprocess.PreprocessedText;
 import com.insightdata.nlquery.preprocess.TextPreprocessor;
 import com.insightdata.nlquery.sql.SqlGenerator;
 import com.insightdata.nlquery.sql.SqlGenerator.SqlGenerationResult;
-
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 默认的自然语言到SQL转换器实现

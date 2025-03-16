@@ -1,9 +1,9 @@
 package com.insightdata.domain.service;
 
-import java.util.List;
-
 import com.insightdata.domain.model.metadata.SchemaInfo;
 import com.insightdata.domain.model.metadata.TableRelationship;
+
+import java.util.List;
 
 /**
  * 表关系推断服务接口

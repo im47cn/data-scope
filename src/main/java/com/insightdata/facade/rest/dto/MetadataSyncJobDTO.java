@@ -1,10 +1,10 @@
 package com.insightdata.facade.rest.dto;
 
-import java.time.LocalDateTime;
-
 import com.insightdata.common.enums.SyncStatus;
 import com.insightdata.common.enums.SyncType;
 import com.insightdata.domain.model.metadata.MetadataSyncJob;
+
+import java.time.LocalDateTime;
 
 /**
  * 元数据同步作业DTO

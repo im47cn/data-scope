@@ -1,12 +1,11 @@
 package com.insightdata.infrastructure.persistence.mapper;
 
-import java.util.List;
-
+import com.insightdata.common.enums.DataSourceType;
+import com.insightdata.domain.model.DataSource;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
-import com.insightdata.common.enums.DataSourceType;
-import com.insightdata.domain.model.DataSource;
+import java.util.List;
 
 /**
  * 数据源Mapper接口

@@ -1,7 +1,6 @@
 package com.insightdata.facade.rest.dto;
 
 import com.insightdata.common.enums.SyncType;
-
 import jakarta.validation.constraints.NotNull;
 
 /**

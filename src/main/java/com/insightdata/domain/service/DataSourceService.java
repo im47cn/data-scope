@@ -1,8 +1,8 @@
 package com.insightdata.domain.service;
 
-import javax.sql.DataSource;
-
 import com.insightdata.domain.model.metadata.SchemaInfo;
+
+import javax.sql.DataSource;
 
 /**
  * 数据源服务接口

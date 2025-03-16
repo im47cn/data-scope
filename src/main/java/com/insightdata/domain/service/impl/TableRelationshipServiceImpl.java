@@ -1,28 +1,22 @@
 package com.insightdata.domain.service.impl;
 
+import com.insightdata.domain.model.metadata.*;
+import com.insightdata.domain.model.metadata.TableRelationship.RelationshipSource;
+import com.insightdata.domain.model.metadata.TableRelationship.RelationshipType;
+import com.insightdata.domain.model.query.QueryHistory;
+import com.insightdata.domain.repository.TableRelationshipRepository;
+import com.insightdata.domain.service.TableRelationshipService;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import com.insightdata.domain.model.metadata.ColumnInfo;
-import com.insightdata.domain.model.metadata.ForeignKeyInfo;
-import com.insightdata.domain.model.metadata.SchemaInfo;
-import com.insightdata.domain.model.metadata.TableInfo;
-import com.insightdata.domain.model.metadata.TableRelationship;
-import com.insightdata.domain.model.metadata.TableRelationship.RelationshipSource;
-import com.insightdata.domain.model.metadata.TableRelationship.RelationshipType;
-import com.insightdata.domain.model.query.QueryHistory;
-import com.insightdata.domain.repository.TableRelationshipRepository;
-import com.insightdata.domain.service.TableRelationshipService;
-
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * 表关系服务实现类

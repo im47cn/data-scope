@@ -1,9 +1,9 @@
 package com.insightdata.nlquery.intent;
 
+import lombok.Data;
+
 import java.util.HashMap;
 import java.util.Map;
-
-import lombok.Data;
 
 /**
  * 意图识别上下文

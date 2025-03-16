@@ -1,11 +1,10 @@
 package com.insightdata.infrastructure.persistence.mapper;
 
-import java.util.List;
-
+import com.insightdata.domain.model.query.SavedQuery;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
-import com.insightdata.domain.model.query.SavedQuery;
+import java.util.List;
 
 /**
  * 保存的查询MyBatis映射器接口

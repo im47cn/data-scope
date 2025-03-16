@@ -1,11 +1,10 @@
 package com.insightdata.infrastructure.persistence.mapper;
 
-import java.util.List;
-
+import com.insightdata.domain.model.query.QueryHistory;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
-import com.insightdata.domain.model.query.QueryHistory;
+import java.util.List;
 
 /**
  * 查询历史Mapper接口

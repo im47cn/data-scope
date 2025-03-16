@@ -1,33 +1,14 @@
 package com.insightdata.infrastructure.adapter;
 
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-
-import org.springframework.stereotype.Component;
-
 import com.insightdata.common.enums.DataSourceType;
 import com.insightdata.common.exception.DataSourceException;
-import com.insightdata.domain.adapter.DataSourceAdapter;
 import com.insightdata.domain.model.DataSource;
-import com.insightdata.domain.model.metadata.ColumnInfo;
-import com.insightdata.domain.model.metadata.ForeignKeyColumnInfo;
-import com.insightdata.domain.model.metadata.ForeignKeyInfo;
-import com.insightdata.domain.model.metadata.IndexColumnInfo;
-import com.insightdata.domain.model.metadata.IndexInfo;
-import com.insightdata.domain.model.metadata.SchemaInfo;
-import com.insightdata.domain.model.metadata.TableInfo;
-
+import com.insightdata.domain.model.metadata.*;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
+
+import java.sql.*;
+import java.util.*;
 
 @Slf4j
 @Component

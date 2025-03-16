@@ -1,9 +1,9 @@
 package com.insightdata.nlquery.entity;
 
-import java.util.List;
-
 import com.insightdata.nlquery.preprocess.EntityTag;
 import com.insightdata.nlquery.preprocess.PreprocessedText;
+
+import java.util.List;
 
 /**
  * 实体提取器接口

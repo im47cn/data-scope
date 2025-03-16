@@ -1,15 +1,14 @@
 package com.insightdata.nlquery.entity;
 
+import com.insightdata.nlquery.preprocess.EntityTag;
+import com.insightdata.nlquery.preprocess.EntityType;
+import com.insightdata.nlquery.preprocess.PreprocessedText;
+import org.springframework.stereotype.Component;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import org.springframework.stereotype.Component;
-
-import com.insightdata.nlquery.preprocess.EntityTag;
-import com.insightdata.nlquery.preprocess.EntityType;
-import com.insightdata.nlquery.preprocess.PreprocessedText;
 
 /**
  * 基于规则的实体提取器

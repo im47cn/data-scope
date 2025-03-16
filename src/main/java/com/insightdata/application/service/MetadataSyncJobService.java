@@ -1,11 +1,11 @@
 package com.insightdata.application.service;
 
-import java.util.List;
-import java.util.Optional;
-
 import com.insightdata.common.enums.SyncStatus;
 import com.insightdata.common.enums.SyncType;
 import com.insightdata.domain.model.metadata.MetadataSyncJob;
+
+import java.util.List;
+import java.util.Optional;
 
 /**
  * 元数据同步作业服务接口

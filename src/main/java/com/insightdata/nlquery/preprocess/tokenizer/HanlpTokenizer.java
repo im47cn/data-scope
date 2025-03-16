@@ -1,6 +1,5 @@
 package com.insightdata.nlquery.preprocess.tokenizer;
 
-import com.google.common.collect.Lists;
 import com.hankcs.hanlp.HanLP;
 import com.hankcs.hanlp.corpus.tag.Nature;
 import com.hankcs.hanlp.dictionary.CustomDictionary;
@@ -8,9 +7,7 @@ import com.hankcs.hanlp.seg.common.Term;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @Slf4j
 public class HanlpTokenizer implements Tokenizer {

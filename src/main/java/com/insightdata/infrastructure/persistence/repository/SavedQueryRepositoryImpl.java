@@ -1,16 +1,14 @@
 package com.insightdata.infrastructure.persistence.repository;
 
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
-
-import org.springframework.stereotype.Repository;
-
 import com.insightdata.domain.model.query.SavedQuery;
 import com.insightdata.domain.repository.SavedQueryRepository;
 import com.insightdata.infrastructure.persistence.mapper.SavedQueryMapper;
-
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Repository;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * 保存的查询仓库的MyBatis实现

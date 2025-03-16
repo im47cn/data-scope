@@ -2,15 +2,13 @@ package com.insightdata.application.service.impl;
 
 import com.insightdata.application.service.DataSourceService;
 import com.insightdata.common.enums.DataSourceType;
-import com.insightdata.common.enums.SyncStatus;
-import com.insightdata.common.enums.SyncType;
 import com.insightdata.common.exception.DataSourceException;
-import com.insightdata.domain.adapter.DataSourceAdapter;
 import com.insightdata.domain.model.DataSource;
 import com.insightdata.domain.model.metadata.SchemaInfo;
 import com.insightdata.domain.model.metadata.TableInfo;
 import com.insightdata.domain.repository.DataSourceRepository;
 import com.insightdata.domain.service.CredentialEncryptionService;
+import com.insightdata.infrastructure.adapter.DataSourceAdapter;
 import com.insightdata.infrastructure.adapter.DataSourceAdapterFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

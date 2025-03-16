@@ -1,12 +1,11 @@
 package com.insightdata.infrastructure.persistence.mapper;
 
-import java.util.List;
-
+import com.insightdata.common.enums.SyncStatus;
+import com.insightdata.infrastructure.persistence.entity.MetadataSyncJobEntity;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
-import com.insightdata.common.enums.SyncStatus;
-import com.insightdata.infrastructure.persistence.entity.MetadataSyncJobEntity;
+import java.util.List;
 
 /**
  * 元数据同步作业Mapper接口

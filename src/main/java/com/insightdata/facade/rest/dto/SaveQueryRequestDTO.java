@@ -2,7 +2,6 @@ package com.insightdata.facade.rest.dto;
 
 import com.insightdata.domain.model.query.NLQueryRequest;
 import com.insightdata.domain.model.query.QueryResult;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

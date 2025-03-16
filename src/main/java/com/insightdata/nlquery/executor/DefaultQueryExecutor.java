@@ -1,24 +1,19 @@
 package com.insightdata.nlquery.executor;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
+import com.insightdata.domain.model.DataSource;
+import com.insightdata.infrastructure.adapter.DataSourceAdapter;
+import com.insightdata.infrastructure.adapter.DataSourceAdapterFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.insightdata.domain.adapter.DataSourceAdapter;
-import com.insightdata.domain.model.DataSource;
-import com.insightdata.infrastructure.adapter.DataSourceAdapterFactory;
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 默认查询执行器

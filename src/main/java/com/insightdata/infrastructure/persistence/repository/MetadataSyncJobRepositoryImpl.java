@@ -1,19 +1,18 @@
 package com.insightdata.infrastructure.persistence.repository;
 
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.stream.Collectors;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Repository;
-
 import com.insightdata.common.enums.SyncStatus;
 import com.insightdata.domain.model.metadata.MetadataSyncJob;
 import com.insightdata.domain.repository.MetadataSyncJobRepository;
 import com.insightdata.infrastructure.persistence.entity.MetadataSyncJobEntity;
 import com.insightdata.infrastructure.persistence.mapper.MetadataSyncJobMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * 元数据同步作业仓储实现

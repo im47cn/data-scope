@@ -1,11 +1,10 @@
 package com.insightdata.infrastructure.persistence.mapper;
 
-import java.util.List;
-
+import com.insightdata.infrastructure.persistence.entity.AppEntity;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
-import com.insightdata.infrastructure.persistence.entity.AppEntity;
+import java.util.List;
 
 /**
  * App数据访问接口

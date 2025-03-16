@@ -1,12 +1,13 @@
 package com.insightdata.domain.model.lowcode;
 
-import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 数据绑定模型

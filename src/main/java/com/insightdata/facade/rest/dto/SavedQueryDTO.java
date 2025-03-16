@@ -1,12 +1,12 @@
 package com.insightdata.facade.rest.dto;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 保存查询请求DTO

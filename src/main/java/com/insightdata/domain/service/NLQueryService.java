@@ -1,11 +1,11 @@
 package com.insightdata.domain.service;
 
-import java.util.List;
-
-import com.insightdata.domain.model.QueryHistory;
 import com.insightdata.domain.model.SavedQuery;
+import com.insightdata.domain.model.query.QueryHistory;
 import com.insightdata.nlquery.NLQueryRequest;
 import com.insightdata.nlquery.converter.SqlConversionResult;
+
+import java.util.List;
 
 /**
  * 自然语言查询服务接口

@@ -1,16 +1,5 @@
 package com.insightdata.domain.service.impl;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import com.insightdata.domain.model.metadata.ColumnInfo;
 import com.insightdata.domain.model.metadata.SchemaInfo;
 import com.insightdata.domain.model.metadata.TableInfo;
@@ -19,8 +8,13 @@ import com.insightdata.domain.model.metadata.TableRelationship.RelationshipSourc
 import com.insightdata.domain.model.metadata.TableRelationship.RelationshipType;
 import com.insightdata.domain.repository.TableRelationshipRepository;
 import com.insightdata.domain.service.TableRelationshipInferenceService;
-
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 基于机器学习的表关系推断服务实现

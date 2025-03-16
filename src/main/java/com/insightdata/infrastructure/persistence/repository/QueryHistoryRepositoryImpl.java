@@ -1,15 +1,13 @@
 package com.insightdata.infrastructure.persistence.repository;
 
-import java.util.List;
-import java.util.Optional;
-
-import org.springframework.stereotype.Repository;
-
 import com.insightdata.domain.model.query.QueryHistory;
 import com.insightdata.domain.repository.QueryHistoryRepository;
 import com.insightdata.infrastructure.persistence.mapper.QueryHistoryMapper;
-
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+import java.util.Optional;
 
 /**
  * 查询历史仓库的MyBatis实现
