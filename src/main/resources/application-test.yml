@@ -6,16 +6,6 @@ spring:
     password: 
     driver-class-name: org.h2.Driver
   
-  # JPA配置
-  jpa:
-    database-platform: org.hibernate.dialect.H2Dialect
-    hibernate:
-      ddl-auto: create-drop
-    show-sql: true
-    properties:
-      hibernate:
-        format_sql: true
-  
   # 禁用Redis
   data:
     redis:
@@ -33,7 +23,7 @@ server:
 logging:
   level:
     root: INFO
-    com.insightdata: DEBUG
+    com: DEBUG
     org.springframework: INFO
     org.hibernate: INFO
 

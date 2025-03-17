@@ -5,10 +5,6 @@ spring:
     username: test
     password: test
   
-  # JPA配置
-  jpa:
-    show-sql: true
-  
   # Redis配置
   data:
     redis:
@@ -27,7 +23,7 @@ server:
 logging:
   level:
     root: INFO
-    com.insightdata: DEBUG
+    com: DEBUG
     org.springframework: INFO
     org.hibernate: INFO
     org.hibernate.SQL: DEBUG
