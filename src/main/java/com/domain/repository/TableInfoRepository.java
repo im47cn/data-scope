@@ -1,6 +1,7 @@
 package com.domain.repository;
 
 import com.domain.model.metadata.TableInfo;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
@@ -8,6 +9,7 @@ import java.util.Optional;
 /**
  * 表信息仓储接口
  */
+@Repository
 public interface TableInfoRepository {
     
     /**

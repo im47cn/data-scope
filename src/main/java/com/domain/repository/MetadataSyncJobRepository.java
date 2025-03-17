@@ -2,6 +2,7 @@ package com.domain.repository;
 
 import com.common.enums.SyncStatus;
 import com.domain.model.metadata.MetadataSyncJob;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
@@ -9,6 +10,7 @@ import java.util.Optional;
 /**
  * 元数据同步作业仓储接口
  */
+@Repository
 public interface MetadataSyncJobRepository {
     
     /**

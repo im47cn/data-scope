@@ -2,6 +2,7 @@ package com.domain.repository;
 
 import com.common.enums.DataSourceType;
 import com.domain.model.DataSource;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
@@ -9,6 +10,7 @@ import java.util.Optional;
 /**
  * 数据源仓储接口
  */
+@Repository
 public interface DataSourceRepository {
     
     /**

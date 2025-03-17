@@ -1,6 +1,7 @@
 package com.domain.repository;
 
 import com.domain.model.query.QueryHistory;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
@@ -9,6 +10,7 @@ import java.util.Optional;
  * 查询历史仓库
  * 使用MyBatis实现，不再使用JPA
  */
+@Repository
 public interface QueryHistoryRepository {
     
     /**

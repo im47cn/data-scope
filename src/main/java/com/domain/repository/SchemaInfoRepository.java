@@ -1,12 +1,14 @@
 package com.domain.repository;
 
 import com.domain.model.metadata.SchemaInfo;
+import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
 /**
  * Schema信息仓储接口
  */
+@Repository
 public interface SchemaInfoRepository {
     
     /**

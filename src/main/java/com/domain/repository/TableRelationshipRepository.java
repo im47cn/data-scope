@@ -1,6 +1,7 @@
 package com.domain.repository;
 
 import com.domain.model.metadata.TableRelationship;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
@@ -8,6 +9,7 @@ import java.util.Optional;
 /**
  * 表关系存储库接口
  */
+@Repository
 public interface TableRelationshipRepository {
     
     /**

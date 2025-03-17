@@ -1,6 +1,7 @@
 package com.domain.repository;
 
 import com.domain.model.query.SavedQuery;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
@@ -9,6 +10,7 @@ import java.util.Optional;
  * 保存的查询仓库
  * 使用MyBatis实现，不再使用JPA
  */
+@Repository
 public interface SavedQueryRepository {
     
     /**
