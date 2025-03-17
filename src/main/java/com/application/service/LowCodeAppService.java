@@ -1,4 +1,4 @@
-package com.domain.service;
+package com.application.service;
 
 import com.domain.model.lowcode.AppConfig;
 import com.domain.model.lowcode.ComponentConfig;

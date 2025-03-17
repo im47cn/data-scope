@@ -132,10 +132,11 @@ public class TableRelationshipController {
      */
     @PostMapping("/learn-from-metadata")
     public ResponseEntity<List<TableRelationshipDTO>> learnFromMetadata(
-            @RequestParam String dataSourceId) {
+            @RequestParam String dataSourceId,
+            @RequestParam String schemaName) {
         try {
             // 获取数据源的模式信息
-            SchemaInfo schemaInfo = dataSourceService.getSchemaInfo(dataSourceId);
+            SchemaInfo schemaInfo = dataSourceService.getSchemaInfo(dataSourceId, schemaName);
             
             // 从元数据学习表关系
             List<TableRelationship> relationships = tableRelationshipService.learnFromMetadata(dataSourceId, schemaInfo);

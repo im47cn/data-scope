@@ -1,18 +1,16 @@
 package com.infrastructure.persistence.repository;
 
-import com.domain.model.query.SavedQuery;
-import com.domain.repository.SavedQueryRepository;
-import com.infrastructure.persistence.mapper.SavedQueryMapper;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Repository;
-
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * 保存的查询仓库的MyBatis实现
- */
+import org.springframework.stereotype.Repository;
+
+import com.domain.model.query.SavedQuery;
+import com.domain.repository.SavedQueryRepository;
+import com.infrastructure.persistence.mapper.SavedQueryMapper;
+
+import lombok.RequiredArgsConstructor;
+
 @Repository
 @RequiredArgsConstructor
 public class SavedQueryRepositoryImpl implements SavedQueryRepository {
@@ -22,17 +20,8 @@ public class SavedQueryRepositoryImpl implements SavedQueryRepository {
     @Override
     public SavedQuery save(SavedQuery savedQuery) {
         if (savedQuery.getId() == null) {
-            // 新增记录，设置创建时间和更新时间
-            if (savedQuery.getCreatedAt() == null) {
-                savedQuery.setCreatedAt(LocalDateTime.now());
-            }
-            if (savedQuery.getUpdatedAt() == null) {
-                savedQuery.setUpdatedAt(LocalDateTime.now());
-            }
             savedQueryMapper.insert(savedQuery);
         } else {
-            // 更新记录，更新更新时间
-            savedQuery.setUpdatedAt(LocalDateTime.now());
             savedQueryMapper.update(savedQuery);
         }
         return savedQuery;
@@ -44,8 +33,8 @@ public class SavedQueryRepositoryImpl implements SavedQueryRepository {
     }
 
     @Override
-    public List<SavedQuery> findAll() {
-        return savedQueryMapper.selectAll();
+    public List<SavedQuery> findByDataSourceId(String dataSourceId) {
+        return savedQueryMapper.selectByDataSourceId(dataSourceId);
     }
 
     @Override
@@ -54,13 +43,27 @@ public class SavedQueryRepositoryImpl implements SavedQueryRepository {
     }
 
     @Override
-    public List<SavedQuery> findByDataSourceId(String dataSourceId) {
-        return savedQueryMapper.selectByDataSourceIdOrderByUpdatedAtDesc(dataSourceId);
+    public void deleteByDataSourceId(String dataSourceId) {
+        savedQueryMapper.deleteByDataSourceId(dataSourceId);
     }
 
     @Override
-    public Optional<SavedQuery> findByName(String name) {
-        return Optional.ofNullable(savedQueryMapper.selectByName(name));
+    public List<SavedQuery> findByNameLike(String name) {
+        return savedQueryMapper.selectByNameLike(name);
     }
 
+    @Override
+    public List<SavedQuery> findByTags(List<String> tags) {
+        return savedQueryMapper.selectByTags(tags);
+    }
+
+    @Override
+    public List<SavedQuery> findByIsPublic(Boolean isPublic) {
+        return savedQueryMapper.selectByIsPublic(isPublic);
+    }
+
+    @Override
+    public List<SavedQuery> findByDataSourceIdAndIsPublic(String dataSourceId, Boolean isPublic) {
+        return savedQueryMapper.selectByDataSourceIdAndIsPublic(dataSourceId, isPublic);
+    }
 }

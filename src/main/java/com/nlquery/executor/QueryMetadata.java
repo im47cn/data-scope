@@ -1,114 +1,75 @@
 package com.nlquery.executor;
 
-import lombok.*;
-import lombok.experimental.FieldDefaults;
-
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-/**
- * 查询元数据
- */
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@FieldDefaults(level = AccessLevel.PRIVATE)
 public class QueryMetadata {
     
     /**
-     * 查询ID
+     * 列名列表
      */
-    String queryId;
+    private List<String> columnLabels;
     
     /**
-     * 查询类型
+     * 列类型列表
      */
-    QueryType queryType;
+    private List<String> columnTypes;
     
     /**
-     * 查询参数
+     * 表名列表
      */
-    @Builder.Default
-    Map<String, Object> parameters = new HashMap<>();
+    private List<String> tableNames;
     
     /**
-     * 是否缓存结果
+     * 是否是只读查询
      */
-    @Builder.Default
-    boolean cacheResult = false;
+    private boolean readOnly;
     
     /**
-     * 缓存过期时间(秒)
+     * 是否包含聚合函数
      */
-    @Builder.Default
-    int cacheExpireSeconds = 300;
+    private boolean hasAggregation;
     
     /**
-     * 是否异步执行
+     * 是否包含分组
      */
-    @Builder.Default
-    boolean async = false;
+    private boolean hasGrouping;
     
     /**
-     * 超时时间(毫秒)
+     * 是否包含排序
      */
-    @Builder.Default
-    int timeout = 30000;
+    private boolean hasOrdering;
     
     /**
-     * 最大返回行数
+     * 是否包含子查询
      */
-    @Builder.Default
-    int maxRows = 1000;
+    private boolean hasSubquery;
     
     /**
-     * 是否返回总行数
+     * 是否包含连接
      */
-    @Builder.Default
-    boolean returnTotalRows = false;
+    private boolean hasJoin;
     
     /**
-     * 是否返回元数据
+     * 查询类型(SELECT/INSERT/UPDATE/DELETE等)
      */
-    @Builder.Default
-    boolean returnMetadata = false;
+    private String queryType;
     
     /**
-     * 查询标签
+     * 预计影响行数
      */
-    @Builder.Default
-    List<String> tags = new ArrayList<>();
+    private Long estimatedRows;
     
     /**
-     * 查询类型枚举
+     * 执行计划
      */
-    public enum QueryType {
-        /**
-         * 查询
-         */
-        QUERY,
-        
-        /**
-         * 更新
-         */
-        UPDATE,
-        
-        /**
-         * 批量更新
-         */
-        BATCH_UPDATE,
-        
-        /**
-         * 存储过程
-         */
-        PROCEDURE,
-        
-        /**
-         * 函数
-         */
-        FUNCTION
-    }
+    private String executionPlan;
 }

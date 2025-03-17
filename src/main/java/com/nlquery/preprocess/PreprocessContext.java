@@ -1,17 +1,17 @@
 package com.nlquery.preprocess;
 
+import java.util.List;
+import java.util.Map;
+
+import com.domain.model.metadata.SchemaInfo;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 /**
- * 预处理上下文
+ * 预处理上下文类
  */
 @Data
 @Builder
@@ -42,138 +42,134 @@ public class PreprocessContext {
     /**
      * 语言
      */
-    @Builder.Default
-    private String language = "zh-CN";
+    private String language;
     
     /**
-     * 是否使用模糊匹配
+     * 元数据
      */
-    @Builder.Default
-    private boolean useFuzzyMatching = true;
+    private SchemaInfo metadata;
     
     /**
-     * 最小置信度
+     * 参数
      */
-    @Builder.Default
-    private double minConfidence = 0.6;
+    private Map<String, Object> parameters;
+    
+    /**
+     * 标签
+     */
+    private List<String> tags;
     
     /**
      * 是否使用元数据
      */
-    @Builder.Default
-    private boolean useMetadata = true;
+    private Boolean useMetadata;
     
     /**
-     * 是否使用缓存
+     * 是否使用模糊匹配
      */
-    @Builder.Default
-    private boolean useCache = true;
+    private Boolean useFuzzyMatching;
     
     /**
-     * 缓存过期时间(秒)
+     * 最小置信度
      */
-    @Builder.Default
-    private int cacheExpireSeconds = 300;
+    private Double minConfidence;
     
     /**
-     * 上下文参数
+     * 是否需要纠错
      */
-    @Builder.Default
-    private Map<String, Object> parameters = new HashMap<>();
+    private Boolean needsCorrection;
     
     /**
-     * 上下文标签
+     * 是否已纠错
      */
-    @Builder.Default
-    private List<String> tags = new ArrayList<>();
+    private Boolean isCorrected;
     
     /**
-     * 创建一个简单的预处理上下文
+     * 纠错消息
      */
-    public static PreprocessContext simple(Long dataSourceId) {
-        return PreprocessContext.builder()
-                .dataSourceId(dataSourceId)
-                .build();
+    private String correctionMessage;
+    
+    /**
+     * 获取数据源ID
+     */
+    public Long getDataSourceId() {
+        return dataSourceId;
     }
     
     /**
-     * 创建一个带用户信息的预处理上下文
+     * 获取用户ID
      */
-    public static PreprocessContext withUser(Long dataSourceId, Long userId) {
-        return PreprocessContext.builder()
-                .dataSourceId(dataSourceId)
-                .userId(userId)
-                .build();
+    public Long getUserId() {
+        return userId;
     }
     
     /**
-     * 创建一个带会话信息的预处理上下文
+     * 获取会话ID
      */
-    public static PreprocessContext withSession(Long dataSourceId, String sessionId) {
-        return PreprocessContext.builder()
-                .dataSourceId(dataSourceId)
-                .sessionId(sessionId)
-                .build();
+    public String getSessionId() {
+        return sessionId;
     }
     
     /**
-     * 添加参数
+     * 获取领域
      */
-    public PreprocessContext addParameter(String key, Object value) {
-        parameters.put(key, value);
-        return this;
+    public String getDomain() {
+        return domain;
     }
     
     /**
-     * 添加标签
+     * 获取语言
      */
-    public PreprocessContext addTag(String tag) {
-        tags.add(tag);
-        return this;
+    public String getLanguage() {
+        return language;
+    }
+    
+    /**
+     * 获取元数据
+     */
+    public SchemaInfo getMetadata() {
+        return metadata;
+    }
+    
+    /**
+     * 设置元数据
+     */
+    public void setMetadata(SchemaInfo metadata) {
+        this.metadata = metadata;
     }
     
     /**
      * 获取参数
      */
-    public Object getParameter(String key) {
-        return parameters.get(key);
+    public Map<String, Object> getParameters() {
+        return parameters;
     }
     
     /**
-     * 获取参数，带默认值
+     * 获取标签
      */
-    public Object getParameter(String key, Object defaultValue) {
-        return parameters.getOrDefault(key, defaultValue);
+    public List<String> getTags() {
+        return tags;
     }
     
     /**
-     * 是否包含参数
+     * 是否使用元数据
      */
-    public boolean hasParameter(String key) {
-        return parameters.containsKey(key);
+    public boolean isUseMetadata() {
+        return Boolean.TRUE.equals(useMetadata);
     }
     
     /**
-     * 移除参数
+     * 是否使用模糊匹配
      */
-    public PreprocessContext removeParameter(String key) {
-        parameters.remove(key);
-        return this;
+    public boolean isUseFuzzyMatching() {
+        return Boolean.TRUE.equals(useFuzzyMatching);
     }
     
     /**
-     * 清空参数
+     * 获取最小置信度
      */
-    public PreprocessContext clearParameters() {
-        parameters.clear();
-        return this;
-    }
-    
-    /**
-     * 清空标签
-     */
-    public PreprocessContext clearTags() {
-        tags.clear();
-        return this;
+    public double getMinConfidence() {
+        return minConfidence != null ? minConfidence : 0.5;
     }
 }

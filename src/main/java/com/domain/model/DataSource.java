@@ -1,55 +1,51 @@
 package com.domain.model;
 
+import java.time.LocalDateTime;
+import java.util.Map;
+
 import com.common.enums.DataSourceType;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.experimental.Accessors;
 
-import java.time.LocalDateTime;
-import java.util.Map;
-
-/**
- * 数据源实体类
- */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Accessors(chain = true)
 public class DataSource {
-
+    
     /**
      * 数据源ID
      */
     private String id;
-
+    
     /**
      * 数据源名称
      */
     private String name;
-
+    
     /**
      * 数据源类型
      */
     private DataSourceType type;
-
+    
     /**
      * 主机地址
      */
     private String host;
-
+    
     /**
      * 端口号
      */
     private Integer port;
-
+    
     /**
      * 数据库名称
      */
     private String databaseName;
-
+    
     /**
      * 用户名
      */
@@ -81,9 +77,9 @@ public class DataSource {
     private LocalDateTime lastSyncTime;
 
     /**
-     * 是否激活
+     * 是否启用
      */
-    private Boolean active;
+    private Boolean enabled;
 
     /**
      * 描述
@@ -94,11 +90,26 @@ public class DataSource {
      * 创建时间
      */
     private LocalDateTime createdAt;
-
+    
     /**
      * 更新时间
      */
     private LocalDateTime updatedAt;
+    
+    /**
+     * 最后连接时间
+     */
+    private LocalDateTime lastConnectedAt;
+    
+    /**
+     * 最后同步时间
+     */
+    private LocalDateTime lastSyncedAt;
+    
+    /**
+     * 标签
+     */
+    private String[] tags;
 
     /**
      * 获取JDBC URL

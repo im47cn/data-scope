@@ -1,5 +1,6 @@
 package com.nlquery.entity;
 
+import com.nlquery.QueryContext;
 import com.nlquery.preprocess.PreprocessedText;
 import org.springframework.stereotype.Component;
 
@@ -55,12 +56,12 @@ public class RuleBasedEntityExtractor implements EntityExtractor {
     private static final Pattern BOOLEAN_PATTERN = Pattern.compile("true|false|是|否|yes|no", Pattern.CASE_INSENSITIVE);
 
     @Override
-    public List<EntityTag> extractEntities(PreprocessedText preprocessedText) {
-        return extractEntities(preprocessedText, new EntityExtractionContext());
+    public List<EntityTag> extract(PreprocessedText preprocessedText) {
+        return extract(preprocessedText, new EntityExtractionContext());
     }
 
     @Override
-    public List<EntityTag> extractEntities(PreprocessedText preprocessedText, EntityExtractionContext context) {
+    public List<EntityTag> extract(PreprocessedText preprocessedText, EntityExtractionContext context) {
         List<EntityTag> entities = new ArrayList<>();
 
         String normalizedText = preprocessedText.getNormalizedText();
@@ -108,6 +109,16 @@ public class RuleBasedEntityExtractor implements EntityExtractor {
         return entities;
     }
 
+    @Override
+    public List<EntityTag> validate(List<EntityTag> entities, QueryContext context) {
+        return List.of();
+    }
+
+    @Override
+    public List<EntityTag> merge(List<EntityTag> entities) {
+        return List.of();
+    }
+
     /**
      * 提取表名实体
      */
@@ -117,7 +128,7 @@ public class RuleBasedEntityExtractor implements EntityExtractor {
                 int startPosition = normalizedText.indexOf(token);
                 if (startPosition >= 0) {
                     entities.add(EntityTag.builder()
-                            .text(token)
+                            .value(token)
                             .type(EntityType.TABLE)
                             .startOffset(startPosition)
                             .endOffset(startPosition + token.length())
@@ -137,7 +148,7 @@ public class RuleBasedEntityExtractor implements EntityExtractor {
                 int startOffset = normalizedText.indexOf(token);
                 if (startOffset >= 0) {
                     entities.add(EntityTag.builder()
-                            .text(token)
+                            .value(token)
                             .type(EntityType.COLUMN)
                             .startOffset(startOffset)
                             .endOffset(startOffset + token.length())
@@ -157,7 +168,7 @@ public class RuleBasedEntityExtractor implements EntityExtractor {
                 int startOffset = normalizedText.indexOf(token);
                 if (startOffset >= 0) {
                     entities.add(EntityTag.builder()
-                            .text(token)
+                            .value(token)
                             .type(EntityType.VALUE)
                             .startOffset(startOffset)
                             .endOffset(startOffset + token.length())
@@ -177,7 +188,7 @@ public class RuleBasedEntityExtractor implements EntityExtractor {
                 int startPosition = normalizedText.indexOf(token);
                 if (startPosition >= 0) {
                     entities.add(EntityTag.builder()
-                            .text(token)
+                            .value(token)
                             .type(EntityType.FUNCTION)
                             .startOffset(startPosition)
                             .endOffset(startPosition + token.length())
@@ -197,7 +208,7 @@ public class RuleBasedEntityExtractor implements EntityExtractor {
                 int startOffset = normalizedText.indexOf(token);
                 if (startOffset >= 0) {
                     entities.add(EntityTag.builder()
-                            .text(token)
+                            .value(token)
                             .type(EntityType.OPERATOR)
                             .startOffset(startOffset)
                             .endOffset(startOffset + token.length())
@@ -217,7 +228,7 @@ public class RuleBasedEntityExtractor implements EntityExtractor {
                 int startPosition = normalizedText.indexOf(token);
                 if (startPosition >= 0) {
                     entities.add(EntityTag.builder()
-                            .text(token)
+                            .value(token)
                             .type(EntityType.CONDITION)
                             .startOffset(startPosition)
                             .endOffset(startPosition + token.length())
@@ -237,7 +248,7 @@ public class RuleBasedEntityExtractor implements EntityExtractor {
                 int startOffset = normalizedText.indexOf(token);
                 if (startOffset >= 0) {
                     entities.add(EntityTag.builder()
-                            .text(token)
+                            .value(token)
                             .type(EntityType.ORDER)
                             .startOffset(startOffset)
                             .endOffset(startOffset + token.length())
@@ -257,7 +268,7 @@ public class RuleBasedEntityExtractor implements EntityExtractor {
                 int startPosition = normalizedText.indexOf(token);
                 if (startPosition >= 0) {
                     entities.add(EntityTag.builder()
-                            .text(token)
+                            .value(token)
                             .type(EntityType.LIMIT)
                             .startOffset(startPosition)
                             .endOffset(startPosition + token.length())
@@ -277,7 +288,7 @@ public class RuleBasedEntityExtractor implements EntityExtractor {
                 int startPosition = normalizedText.indexOf(token);
                 if (startPosition >= 0) {
                     entities.add(EntityTag.builder()
-                            .text(token)
+                            .value(token)
                             .type(EntityType.GROUP)
                             .startOffset(startPosition)
                             .endOffset(startPosition + token.length())
@@ -297,7 +308,7 @@ public class RuleBasedEntityExtractor implements EntityExtractor {
         while (matcher.find()) {
             String dateStr = matcher.group();
             entities.add(EntityTag.builder()
-                    .text(dateStr)
+                    .value(dateStr)
                     .type(EntityType.DATETIME)
                     .startOffset(matcher.start())
                     .endOffset(matcher.end())
@@ -317,7 +328,7 @@ public class RuleBasedEntityExtractor implements EntityExtractor {
                 if (startPosition >= 0) {
                     int endOffset = normalizedText.indexOf(tokens.get(i + 4), startPosition) + tokens.get(i + 4).length();
                     entities.add(EntityTag.builder()
-                            .text(dateStr)
+                            .value(dateStr)
                             .type(EntityType.DATETIME)
                             .startOffset(startPosition)
                             .endOffset(endOffset)
@@ -336,7 +347,7 @@ public class RuleBasedEntityExtractor implements EntityExtractor {
         while (matcher.find()) {
             String numberStr = matcher.group();
             entities.add(EntityTag.builder()
-                    .text(numberStr)
+                    .value(numberStr)
                     .type(EntityType.NUMBER)
                     .startOffset(matcher.start())
                     .endOffset(matcher.end())
@@ -354,7 +365,7 @@ public class RuleBasedEntityExtractor implements EntityExtractor {
         while (matcher.find()) {
             String stringStr = matcher.group();
             entities.add(EntityTag.builder()
-                    .text(stringStr)
+                    .value(stringStr)
                     .type(EntityType.STRING)
                     .startOffset(matcher.start())
                     .endOffset(matcher.end())
@@ -374,7 +385,7 @@ public class RuleBasedEntityExtractor implements EntityExtractor {
                 if (startOffset >= 0) {
                     int endOffset = normalizedText.indexOf(tokens.get(i + 2), startOffset) + tokens.get(i + 2).length();
                     entities.add(EntityTag.builder()
-                            .text(stringStr)
+                            .value(stringStr)
                             .type(EntityType.STRING)
                             .startOffset(startOffset)
                             .endOffset(endOffset)
@@ -393,7 +404,7 @@ public class RuleBasedEntityExtractor implements EntityExtractor {
         while (matcher.find()) {
             String booleanStr = matcher.group();
             entities.add(EntityTag.builder()
-                    .text(booleanStr)
+                    .value(booleanStr)
                     .type(EntityType.BOOLEAN)
                     .startOffset(matcher.start())
                     .endOffset(matcher.end())

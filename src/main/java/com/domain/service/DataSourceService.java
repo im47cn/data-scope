@@ -1,44 +1,58 @@
 package com.domain.service;
 
-import com.domain.model.metadata.SchemaInfo;
+import java.util.List;
+import java.util.Optional;
 
-import javax.sql.DataSource;
+import com.domain.model.DataSource;
+import com.domain.model.metadata.SchemaInfo;
 
 /**
  * 数据源服务接口
- * 负责管理数据源连接和元数据
  */
 public interface DataSourceService {
-
+    
     /**
-     * 获取数据源连接
-     *
-     * @param dataSourceId 数据源ID
-     * @return 数据源连接
+     * 根据ID获取数据源
      */
-    DataSource getDataSource(String dataSourceId);
-
+    Optional<DataSource> getDataSourceById(String id);
+    
     /**
-     * 获取数据库模式信息
-     *
-     * @param dataSourceId 数据源ID
-     * @return 数据库模式信息
+     * 获取所有数据源
      */
-    SchemaInfo getSchemaInfo(String dataSourceId);
-
+    List<DataSource> getAllDataSources();
+    
     /**
-     * 同步数据源元数据
-     *
-     * @param dataSourceId 数据源ID
-     * @return 是否同步成功
+     * 创建数据源
      */
-    boolean syncMetadata(String dataSourceId);
-
+    DataSource createDataSource(DataSource dataSource);
+    
+    /**
+     * 更新数据源
+     */
+    DataSource updateDataSource(DataSource dataSource);
+    
+    /**
+     * 删除数据源
+     */
+    void deleteDataSource(String id);
+    
     /**
      * 测试数据源连接
-     *
-     * @param dataSourceId 数据源ID
-     * @return 是否连接成功
      */
-    boolean testConnection(String dataSourceId);
+    boolean testConnection(DataSource dataSource);
+    
+    /**
+     * 获取数据源的schema信息
+     */
+    SchemaInfo getSchemaInfo(String dataSourceId, String schemaName);
+    
+    /**
+     * 获取数据源的所有schema信息
+     */
+    List<SchemaInfo> getAllSchemaInfo(String dataSourceId);
+    
+    /**
+     * 同步数据源元数据
+     */
+    void syncMetadata(String dataSourceId);
 }

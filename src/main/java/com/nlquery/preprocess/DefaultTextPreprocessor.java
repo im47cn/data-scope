@@ -34,7 +34,7 @@ public class DefaultTextPreprocessor implements TextPreprocessor {
             List<String> tokens = tokenize(normalizedText);
             
             // 词性标注
-            List<String> posTags = posTag(tokens);
+            List<PosTag> posTags = posTag(tokens);
             
             // 命名实体识别
             List<EntityTag> entities = extractEntities(tokens, posTags);
@@ -47,11 +47,8 @@ public class DefaultTextPreprocessor implements TextPreprocessor {
                     .normalizedText(normalizedText)
                     .tokens(tokens)
                     .posTags(posTags)
-                    .entities(entities)
-                    .dependencies(dependencies)
                     .language(detectLanguage(text))
                     .success(true)
-                    .confidence(1.0)
                     .build();
                     
         } catch (Exception e) {
@@ -128,7 +125,7 @@ public class DefaultTextPreprocessor implements TextPreprocessor {
     /**
      * 词性标注
      */
-    protected List<String> posTag(List<String> tokens) {
+    protected List<PosTag> posTag(List<String> tokens) {
         // 简单实现：返回空标注
         return new ArrayList<>(tokens.size());
     }
@@ -136,7 +133,7 @@ public class DefaultTextPreprocessor implements TextPreprocessor {
     /**
      * 命名实体识别
      */
-    protected List<EntityTag> extractEntities(List<String> tokens, List<String> posTags) {
+    protected List<EntityTag> extractEntities(List<String> tokens, List<PosTag> posTags) {
         // 简单实现：返回空实体列表
         return new ArrayList<>();
     }
@@ -144,7 +141,7 @@ public class DefaultTextPreprocessor implements TextPreprocessor {
     /**
      * 依存句法分析
      */
-    protected List<String> parseDependencies(List<String> tokens, List<String> posTags) {
+    protected List<String> parseDependencies(List<String> tokens, List<PosTag> posTags) {
         // 简单实现：返回空依存关系
         return new ArrayList<>();
     }

@@ -59,12 +59,12 @@ public class DefaultSqlGenerator implements SqlGenerator {
             // 验证和解析表名
             List<String> tableNames = new ArrayList<>();
             for (EntityTag tableEntity : tableEntities) {
-                String tableName = resolveTableName(tableEntity.getText(), schemaInfo);
+                String tableName = resolveTableName(tableEntity.getValue(), schemaInfo);
                 if (tableName != null) {
                     tableNames.add(tableName);
                     explanations.add("识别到表: " + tableName);
                 } else {
-                    explanations.add("无法解析表名: " + tableEntity.getText());
+                    explanations.add("无法解析表名: " + tableEntity.getValue());
                 }
             }
             
@@ -78,12 +78,12 @@ public class DefaultSqlGenerator implements SqlGenerator {
             // 验证和解析列名
             List<String> columnNames = new ArrayList<>();
             for (EntityTag columnEntity : columnEntities) {
-                String columnName = resolveColumnName(columnEntity.getText(), tableNames, schemaInfo);
+                String columnName = resolveColumnName(columnEntity.getValue(), tableNames, schemaInfo);
                 if (columnName != null) {
                     columnNames.add(columnName);
                     explanations.add("识别到列: " + columnName);
                 } else {
-                    explanations.add("无法解析列名: " + columnEntity.getText());
+                    explanations.add("无法解析列名: " + columnEntity.getValue());
                 }
             }
             
@@ -293,14 +293,14 @@ public class DefaultSqlGenerator implements SqlGenerator {
             EntityTag entity = conditionEntities.get(i);
             
             if (entity.getType() == EntityType.COLUMN) {
-                String columnName = resolveColumnName(entity.getText(), tableNames, schemaInfo);
+                String columnName = resolveColumnName(entity.getValue(), tableNames, schemaInfo);
                 if (columnName != null) {
                     sqlBuilder.append(columnName);
                 } else {
-                    sqlBuilder.append(entity.getText());
+                    sqlBuilder.append(entity.getValue());
                 }
             } else if (entity.getType() == EntityType.OPERATOR) {
-                String operator = mapOperator(entity.getText());
+                String operator = mapOperator(entity.getValue());
                 sqlBuilder.append(" ").append(operator).append(" ");
             } else if (entity.getType() == EntityType.VALUE ||
                       entity.getType() == EntityType.NUMBER ||
@@ -312,9 +312,9 @@ public class DefaultSqlGenerator implements SqlGenerator {
                 parameters.put(paramName, parseValue(entity));
                 paramIndex++;
             } else if (entity.getType() == EntityType.CONDITION) {
-                if (entity.getText().equalsIgnoreCase("AND") || 
-                    entity.getText().equalsIgnoreCase("OR")) {
-                    sqlBuilder.append(" ").append(entity.getText().toUpperCase()).append(" ");
+                if (entity.getValue().equalsIgnoreCase("AND") || 
+                    entity.getValue().equalsIgnoreCase("OR")) {
+                    sqlBuilder.append(" ").append(entity.getValue().toUpperCase()).append(" ");
                 }
             }
         }
@@ -370,17 +370,17 @@ public class DefaultSqlGenerator implements SqlGenerator {
     private Object parseValue(EntityTag entity) {
         if (entity.getType() == EntityType.NUMBER) {
             try {
-                return Double.parseDouble(entity.getText());
+                return Double.parseDouble(entity.getValue());
             } catch (NumberFormatException e) {
-                return entity.getText();
+                return entity.getValue();
             }
         } else if (entity.getType() == EntityType.BOOLEAN) {
-            return Boolean.parseBoolean(entity.getText());
+            return Boolean.parseBoolean(entity.getValue());
         } else if (entity.getType() == EntityType.DATETIME) {
             // 简单实现，实际应用中需要更复杂的日期解析逻辑
-            return entity.getText();
+            return entity.getValue();
         } else {
-            return entity.getText();
+            return entity.getValue();
         }
     }
     

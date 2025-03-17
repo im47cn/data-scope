@@ -1,20 +1,16 @@
 package com.nlquery.converter;
 
+import java.util.List;
+import java.util.Map;
+
 import com.nlquery.entity.EntityTag;
 import com.nlquery.intent.QueryIntent;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-/**
- * SQL转换结果
- */
 @Data
 @Builder
 @NoArgsConstructor
@@ -22,9 +18,19 @@ import java.util.Map;
 public class SqlConversionResult {
     
     /**
-     * 生成的SQL
+     * 生成的SQL语句
      */
     private String sql;
+    
+    /**
+     * SQL参数
+     */
+    private Map<String, Object> parameters;
+    
+    /**
+     * 提取的实体
+     */
+    private List<EntityTag> extractedEntities;
     
     /**
      * 查询意图
@@ -32,22 +38,14 @@ public class SqlConversionResult {
     private QueryIntent queryIntent;
     
     /**
-     * 提取的实体
+     * 转换是否成功
      */
-    @Builder.Default
-    private List<EntityTag> extractedEntities = new ArrayList<>();
+    private boolean success;
     
     /**
-     * 参数映射
+     * 置信度
      */
-    @Builder.Default
-    private Map<String, Object> parameters = new HashMap<>();
-    
-    /**
-     * 警告信息
-     */
-    @Builder.Default
-    private List<String> warnings = new ArrayList<>();
+    private double confidence;
     
     /**
      * 错误信息
@@ -55,29 +53,12 @@ public class SqlConversionResult {
     private String errorMessage;
     
     /**
-     * 是否成功
+     * SQL解释
      */
-    private boolean success;
+    private List<String> explanations;
     
     /**
-     * 置信度分数(0-1)
+     * 备选SQL语句
      */
-    private double confidence;
-    
-    /**
-     * 执行时间(毫秒)
-     */
-    private long executionTime;
-    
-    /**
-     * 解释说明
-     */
-    @Builder.Default
-    private List<String> explanations = new ArrayList<>();
-    
-    /**
-     * 备选SQL
-     */
-    @Builder.Default
-    private List<String> alternativeSqls = new ArrayList<>();
+    private List<String> alternativeSqls;
 }

@@ -1,54 +1,156 @@
 package com.nlquery.preprocess;
 
-import lombok.*;
-import lombok.experimental.FieldDefaults;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
- * 词性标注
+ * 词性标注类
  */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@FieldDefaults(level = AccessLevel.PRIVATE)
 public class PosTag {
     
     /**
      * 词语
      */
-    String word;
+    private String word;
     
     /**
      * 词性
      */
-    String tag;
+    private String tag;
     
     /**
      * 开始位置
      */
-    int startIndex;
+    private Integer startPosition;
     
     /**
      * 结束位置
      */
-    int endIndex;
+    private Integer endPosition;
     
     /**
-     * 置信度分数(0-1)
+     * 置信度
      */
-    double confidence;
+    private Double confidence;
     
     /**
      * 词性说明
      */
-    String description;
+    private String description;
     
     /**
-     * 创建一个简单的词性标注
+     * 是否是自定义词性
      */
-    public PosTag(String word, String tag) {
-        this.word = word;
-        this.tag = tag;
-        this.confidence = 1.0;
+    private Boolean isCustom;
+    
+    /**
+     * 词性类型枚举
+     */
+    public enum TagType {
+        /**
+         * 名词
+         */
+        NOUN("n", "名词"),
+        
+        /**
+         * 动词
+         */
+        VERB("v", "动词"),
+        
+        /**
+         * 形容词
+         */
+        ADJECTIVE("adj", "形容词"),
+        
+        /**
+         * 副词
+         */
+        ADVERB("adv", "副词"),
+        
+        /**
+         * 数词
+         */
+        NUMERAL("num", "数词"),
+        
+        /**
+         * 量词
+         */
+        MEASURE("m", "量词"),
+        
+        /**
+         * 代词
+         */
+        PRONOUN("pron", "代词"),
+        
+        /**
+         * 介词
+         */
+        PREPOSITION("prep", "介词"),
+        
+        /**
+         * 连词
+         */
+        CONJUNCTION("conj", "连词"),
+        
+        /**
+         * 助词
+         */
+        PARTICLE("part", "助词"),
+        
+        /**
+         * 叹词
+         */
+        INTERJECTION("interj", "叹词"),
+        
+        /**
+         * 标点符号
+         */
+        PUNCTUATION("punc", "标点符号"),
+        
+        /**
+         * 其他
+         */
+        OTHER("other", "其他");
+        
+        /**
+         * 标签代码
+         */
+        private final String code;
+        
+        /**
+         * 标签名称
+         */
+        private final String name;
+        
+        TagType(String code, String name) {
+            this.code = code;
+            this.name = name;
+        }
+        
+        public String getCode() {
+            return code;
+        }
+        
+        public String getName() {
+            return name;
+        }
+        
+        /**
+         * 根据代码获取标签类型
+         */
+        public static TagType fromCode(String code) {
+            for (TagType type : values()) {
+                if (type.getCode().equals(code)) {
+                    return type;
+                }
+            }
+            return OTHER;
+        }
     }
 }

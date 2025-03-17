@@ -1,18 +1,13 @@
 package com.nlquery.preprocess;
 
-import com.nlquery.entity.EntityTag;
-import com.nlquery.entity.EntityType;
+import java.util.List;
+import java.util.Map;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.ArrayList;
-import java.util.List;
-
-/**
- * 预处理后的文本
- */
 @Data
 @Builder
 @NoArgsConstructor
@@ -25,33 +20,19 @@ public class PreprocessedText {
     private String originalText;
     
     /**
-     * 标准化后的文本
+     * 标准化文本
      */
     private String normalizedText;
     
     /**
      * 分词结果
      */
-    @Builder.Default
-    private List<String> tokens = new ArrayList<>();
+    private List<String> tokens;
     
     /**
-     * 词性标注结果
+     * 词性标注
      */
-    @Builder.Default
-    private List<String> posTags = new ArrayList<>();
-    
-    /**
-     * 命名实体识别结果
-     */
-    @Builder.Default
-    private List<EntityTag> entities = new ArrayList<>();
-    
-    /**
-     * 依存句法分析结果
-     */
-    @Builder.Default
-    private List<String> dependencies = new ArrayList<>();
+    private List<PosTag> posTags;
     
     /**
      * 语言
@@ -59,14 +40,44 @@ public class PreprocessedText {
     private String language;
     
     /**
-     * 置信度分数(0-1)
+     * 纠错建议
      */
-    private double confidence;
+    private List<CorrectionSuggestion> corrections;
+    
+    /**
+     * 分词置信度
+     */
+    private Map<String, Double> tokenConfidences;
+    
+    /**
+     * 词性标注置信度
+     */
+    private Map<String, Double> posTagConfidences;
+    
+    /**
+     * 预处理上下文
+     */
+    private PreprocessContext context;
+    
+    /**
+     * 是否需要纠错
+     */
+    private Boolean needsCorrection;
+    
+    /**
+     * 是否已纠错
+     */
+    private Boolean isCorrected;
+    
+    /**
+     * 纠错消息
+     */
+    private String correctionMessage;
     
     /**
      * 是否成功
      */
-    private boolean success;
+    private Boolean success;
     
     /**
      * 错误信息
@@ -74,74 +85,51 @@ public class PreprocessedText {
     private String errorMessage;
     
     /**
-     * 警告信息
+     * 获取原始文本
      */
-    @Builder.Default
-    private List<String> warnings = new ArrayList<>();
-    
-    /**
-     * 创建一个简单的预处理结果
-     */
-    public static PreprocessedText simple(String text) {
-        return PreprocessedText.builder()
-                .originalText(text)
-                .normalizedText(text)
-                .success(true)
-                .confidence(1.0)
-                .build();
+    public String getOriginalText() {
+        return originalText;
     }
     
     /**
-     * 创建一个失败的预处理结果
+     * 获取标准化文本
      */
-    public static PreprocessedText failed(String text, String error) {
-        return PreprocessedText.builder()
-                .originalText(text)
-                .success(false)
-                .errorMessage(error)
-                .confidence(0.0)
-                .build();
+    public String getNormalizedText() {
+        return normalizedText;
     }
     
     /**
-     * 创建一个带警告的预处理结果
+     * 获取分词结果
      */
-    public static PreprocessedText withWarnings(String text, List<String> warnings) {
-        return PreprocessedText.builder()
-                .originalText(text)
-                .normalizedText(text)
-                .success(true)
-                .confidence(0.8)
-                .warnings(warnings)
-                .build();
+    public List<String> getTokens() {
+        return tokens;
     }
     
     /**
-     * 添加实体
+     * 获取语言
      */
-    public PreprocessedText addEntity(EntityTag entity) {
-        entities.add(entity);
-        return this;
+    public String getLanguage() {
+        return language;
     }
     
     /**
-     * 添加警告
+     * 设置语言
      */
-    public PreprocessedText addWarning(String warning) {
-        warnings.add(warning);
-        return this;
+    public void setLanguage(String language) {
+        this.language = language;
     }
     
     /**
-     * 获取指定类型的实体
+     * 是否成功
      */
-    public List<EntityTag> getEntitiesByType(EntityType type) {
-        List<EntityTag> result = new ArrayList<>();
-        for (EntityTag entity : entities) {
-            if (entity.getType() == type) {
-                result.add(entity);
-            }
-        }
-        return result;
+    public boolean isSuccess() {
+        return Boolean.TRUE.equals(success);
+    }
+    
+    /**
+     * 获取错误信息
+     */
+    public String getErrorMessage() {
+        return errorMessage != null ? errorMessage : "";
     }
 }

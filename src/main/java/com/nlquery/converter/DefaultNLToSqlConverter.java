@@ -1,100 +1,81 @@
 package com.nlquery.converter;
 
-import com.domain.model.metadata.SchemaInfo;
-import com.nlquery.QueryContext;
-import com.nlquery.entity.EntityExtractionContext;
-import com.nlquery.entity.EntityExtractor;
-import com.nlquery.entity.EntityTag;
-import com.nlquery.intent.IntentRecognitionContext;
-import com.nlquery.intent.IntentRecognizer;
-import com.nlquery.intent.QueryIntent;
-import com.nlquery.preprocess.PreprocessedText;
-import com.nlquery.preprocess.TextPreprocessor;
-import com.nlquery.sql.SqlGenerator;
-import com.nlquery.sql.SqlGenerator.SqlGenerationResult;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Component;
-
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * 默认的自然语言到SQL转换器实现
- */
+import com.domain.model.metadata.SchemaInfo;
+import com.nlquery.entity.EntityExtractionContext;
+import com.nlquery.intent.IntentRecognitionContext;
+import com.nlquery.preprocess.PreprocessedText;
+import org.springframework.stereotype.Component;
+
+import com.domain.model.DataSource;
+import com.domain.service.DataSourceService;
+import com.nlquery.NLQueryRequest;
+import com.nlquery.QueryContext;
+import com.nlquery.entity.EntityExtractor;
+import com.nlquery.entity.EntityTag;
+import com.nlquery.intent.IntentRecognizer;
+import com.nlquery.intent.QueryIntent;
+import com.nlquery.preprocess.TextPreprocessor;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class DefaultNLToSqlConverter implements NLToSqlConverter {
 
-    @Qualifier("metadataBasedEntityExtractor")
-    @Autowired
-    private EntityExtractor entityExtractor;
-    
-    @Autowired
-    private IntentRecognizer intentRecognizer;
-    
-    @Autowired
-    private SqlGenerator sqlGenerator;
-    
-    @Autowired
-    private TextPreprocessor textPreprocessor;
+    private final EntityExtractor entityExtractor;
+    private final IntentRecognizer intentRecognizer;
+    private final TextPreprocessor textPreprocessor;
+    private final SqlGenerator sqlGenerator;
+    private final DataSourceService dataSourceService;
 
     @Override
-    public String convert(String naturalLanguageQuery, Long dataSourceId) {
-        return convert(naturalLanguageQuery, dataSourceId, null);
-    }
-
-    @Override
-    public String convert(String naturalLanguageQuery, Long dataSourceId, QueryContext context) {
+    public SqlConversionResult convert(NLQueryRequest request) {
         try {
-            log.info("开始转换自然语言查询: {}", naturalLanguageQuery);
+            log.info("开始转换自然语言查询: {}", request.getQuery());
             
-            // 1. 预处理文本
-            PreprocessedText preprocessedText = textPreprocessor.preprocess(naturalLanguageQuery);
+            // 1. 获取数据源
+            DataSource dataSource = dataSourceService.getDataSourceById(request.getDataSourceId())
+                    .orElseThrow(() -> new IllegalArgumentException("Data source not found: " + request.getDataSourceId()));
             
-            // 2. 提取实体
-            List<EntityTag> entities = entityExtractor.extractEntities(preprocessedText, new EntityExtractionContext());
-            
-            // 3. 识别意图
-            QueryIntent queryIntent = intentRecognizer.recognizeIntent(preprocessedText, new IntentRecognitionContext());
-            
-            // 4. 生成SQL
-            SqlGenerationResult sqlGenerationResult = sqlGenerator.generateSql(entities, queryIntent, null);
-            
-            log.info("自然语言查询转换完成, 生成的SQL: {}", sqlGenerationResult.getSql());
-            return sqlGenerationResult.getSql();
-            
+            // 2. 创建查询上下文
+            QueryContext context = QueryContext.builder()
+                    .dataSource(dataSource)
+                    .request(request)
+                    .build();
+
+            PreprocessedText preprocessedText = textPreprocessor.preprocess(request.getQuery());
+            return convert(preprocessedText, request.getDataSourceId(), context);
         } catch (Exception e) {
             log.error("自然语言查询转换失败", e);
-            throw new RuntimeException("自然语言查询转换失败: " + e.getMessage());
+            throw new RuntimeException("Failed to convert natural language query", e);
         }
     }
 
-    public SqlConversionResult convertToSql(PreprocessedText preprocessedText, SchemaInfo schemaInfo) {
-        return convertToSql(preprocessedText, schemaInfo, new EntityExtractionContext(), new IntentRecognitionContext());
+    public SqlConversionResult convert(PreprocessedText preprocessedText, String dataSourceId) {
+        return convert(preprocessedText, dataSourceId, new QueryContext());
     }
 
-    public SqlConversionResult convertToSql(
-            PreprocessedText preprocessedText,
-            SchemaInfo schemaInfo,
-            EntityExtractionContext entityContext,
-            IntentRecognitionContext intentContext) {
-
+    @Override
+    public SqlConversionResult convert(PreprocessedText preprocessedText, String dataSourceId, QueryContext context) {
         SqlConversionResult result = SqlConversionResult.builder().build();
-
+        
         try {
-            // 1. 提取实体
-            List<EntityTag> entities = entityExtractor.extractEntities(preprocessedText, entityContext);
+            // 1. 实体提取
+            List<EntityTag> entities = entityExtractor.extract(preprocessedText, new EntityExtractionContext());
             result.setExtractedEntities(entities);
-
-            // 2. 识别意图
-            QueryIntent queryIntent = intentRecognizer.recognizeIntent(preprocessedText, intentContext);
+            
+            // 2. 意图识别
+            QueryIntent queryIntent = intentRecognizer.recognizeIntent(preprocessedText, new IntentRecognitionContext());
             result.setQueryIntent(queryIntent);
-
-            // 3. 生成SQL
-            SqlGenerationResult sqlGenerationResult = sqlGenerator.generateSql(entities, queryIntent, schemaInfo);
-
+            
+            // 3. SQL生成
+            SqlGenerator.SqlGenerationResult sqlGenerationResult = sqlGenerator.generate(preprocessedText.getOriginalText(), entities, queryIntent, context);
+            
             // 4. 设置结果
             result.setSql(sqlGenerationResult.getSql());
             result.setParameters(sqlGenerationResult.getParameters());
@@ -102,19 +83,22 @@ public class DefaultNLToSqlConverter implements NLToSqlConverter {
             result.setExplanations(sqlGenerationResult.getExplanations());
             result.setAlternativeSqls(sqlGenerationResult.getAlternativeSqls());
             result.setSuccess(true);
-
+            
             log.info("SQL转换成功: {}", result.getSql());
-
+            return result;
+            
         } catch (Exception e) {
             log.error("SQL转换失败", e);
+            
             List<String> explanations = new ArrayList<>();
-            explanations.add("转换失败: " + e.getMessage());
+            explanations.add("转换失败原因: " + e.getMessage());
+            
             result.setSuccess(false);
             result.setErrorMessage(e.getMessage());
             result.setExplanations(explanations);
             result.setConfidence(0.0);
+            
+            return result;
         }
-
-        return result;
     }
 }

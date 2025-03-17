@@ -1,29 +1,46 @@
 package com.nlquery.entity;
 
-import com.nlquery.preprocess.PreprocessedText;
-
 import java.util.List;
+
+import com.nlquery.QueryContext;
+import com.nlquery.preprocess.PreprocessedText;
 
 /**
  * 实体提取器接口
- * 负责从预处理后的文本中提取实体
  */
 public interface EntityExtractor {
-    
+
     /**
-     * 提取实体
+     * 从查询文本中提取实体
      *
-     * @param preprocessedText 预处理后的文本
+     * @param preprocessedText 查询文本
      * @return 提取的实体列表
      */
-    List<EntityTag> extractEntities(PreprocessedText preprocessedText);
-    
+    List<EntityTag> extract(PreprocessedText preprocessedText);
+
     /**
-     * 提取实体
+     * 从查询文本中提取实体
      *
-     * @param preprocessedText 预处理后的文本
-     * @param context 实体提取上下文
+     * @param preprocessedText 查询文本
+     * @param preprocessedText 实体提取上下文
      * @return 提取的实体列表
      */
-    List<EntityTag> extractEntities(PreprocessedText preprocessedText, EntityExtractionContext context);
+    List<EntityTag> extract(PreprocessedText preprocessedText, EntityExtractionContext context);
+
+    /**
+     * 验证提取的实体
+     *
+     * @param entities 提取的实体列表
+     * @param context  查询上下文
+     * @return 验证后的实体列表
+     */
+    List<EntityTag> validate(List<EntityTag> entities, QueryContext context);
+
+    /**
+     * 合并重复的实体
+     *
+     * @param entities 实体列表
+     * @return 合并后的实体列表
+     */
+    List<EntityTag> merge(List<EntityTag> entities);
 }

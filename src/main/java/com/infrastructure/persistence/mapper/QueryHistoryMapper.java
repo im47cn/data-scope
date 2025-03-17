@@ -1,62 +1,69 @@
 package com.infrastructure.persistence.mapper;
 
-import com.domain.model.query.QueryHistory;
+import java.util.List;
+
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
-import java.util.List;
+import com.domain.model.query.QueryHistory;
 
-/**
- * 查询历史Mapper接口
- * 使用MyBatis进行查询历史的CRUD操作
- */
 @Mapper
 public interface QueryHistoryMapper {
-
+    
     /**
-     * 插入一条查询历史记录
-     * 
-     * @param queryHistory 查询历史对象
-     * @return 影响的行数
+     * 插入查询历史
      */
-    int insert(QueryHistory queryHistory);
-
+    void insert(QueryHistory queryHistory);
+    
     /**
-     * 更新查询历史记录
-     * 
-     * @param queryHistory 查询历史对象
-     * @return 影响的行数
+     * 更新查询历史
      */
-    int update(QueryHistory queryHistory);
-
+    void update(QueryHistory queryHistory);
+    
     /**
-     * 根据ID查询历史记录
-     * 
-     * @param id 查询历史ID
-     * @return 查询历史对象
+     * 根据ID查询
      */
     QueryHistory selectById(@Param("id") String id);
-
+    
     /**
-     * 查询所有查询历史记录
-     * 
-     * @return 查询历史列表
+     * 根据数据源ID查询
      */
-    List<QueryHistory> selectAll();
-
+    List<QueryHistory> selectByDataSourceId(@Param("dataSourceId") String dataSourceId);
+    
     /**
-     * 根据数据源ID查询历史记录并按创建时间降序排列
-     *
-     * @param dataSourceId 数据源ID
-     * @return 查询历史列表
+     * 根据数据源ID查询并按创建时间倒序排序
      */
     List<QueryHistory> selectByDataSourceIdOrderByCreatedAtDesc(@Param("dataSourceId") String dataSourceId);
-
+    
     /**
-     * 根据ID删除查询历史
-     * 
-     * @param id 查询历史ID
-     * @return 影响的行数
+     * 根据ID删除
      */
-    int deleteById(@Param("id") String id);
+    void deleteById(@Param("id") String id);
+    
+    /**
+     * 根据数据源ID删除
+     */
+    void deleteByDataSourceId(@Param("dataSourceId") String dataSourceId);
+    
+    /**
+     * 根据数据源ID和时间范围查询
+     */
+    List<QueryHistory> selectByDataSourceIdAndTimeRange(
+            @Param("dataSourceId") String dataSourceId,
+            @Param("startTime") String startTime,
+            @Param("endTime") String endTime);
+    
+    /**
+     * 根据数据源ID和SQL模式查询
+     */
+    List<QueryHistory> selectByDataSourceIdAndSqlPattern(
+            @Param("dataSourceId") String dataSourceId,
+            @Param("sqlPattern") String sqlPattern);
+    
+    /**
+     * 根据数据源ID和成功状态查询
+     */
+    List<QueryHistory> selectByDataSourceIdAndSuccess(
+            @Param("dataSourceId") String dataSourceId,
+            @Param("success") Boolean success);
 }

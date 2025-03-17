@@ -4,6 +4,7 @@ import com.application.service.DataSourceService;
 import com.domain.model.metadata.ColumnInfo;
 import com.domain.model.metadata.SchemaInfo;
 import com.domain.model.metadata.TableInfo;
+import com.nlquery.QueryContext;
 import com.nlquery.preprocess.PreprocessedText;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -24,12 +25,12 @@ public class MetadataBasedEntityExtractor implements EntityExtractor {
     private DataSourceService dataSourceService;
 
     @Override
-    public List<EntityTag> extractEntities(PreprocessedText preprocessedText) {
-        return extractEntities(preprocessedText, new EntityExtractionContext());
+    public List<EntityTag> extract(PreprocessedText preprocessedText) {
+        return extract(preprocessedText, new EntityExtractionContext());
     }
 
     @Override
-    public List<EntityTag> extractEntities(PreprocessedText preprocessedText, EntityExtractionContext context) {
+    public List<EntityTag> extract(PreprocessedText preprocessedText, EntityExtractionContext context) {
         List<EntityTag> entities = new ArrayList<>();
 
         // 如果不使用元数据，则直接返回空列表
@@ -64,6 +65,16 @@ public class MetadataBasedEntityExtractor implements EntityExtractor {
         return entities;
     }
 
+    @Override
+    public List<EntityTag> validate(List<EntityTag> entities, QueryContext context) {
+        return List.of();
+    }
+
+    @Override
+    public List<EntityTag> merge(List<EntityTag> entities) {
+        return List.of();
+    }
+
     /**
      * 提取表名实体
      */
@@ -90,7 +101,7 @@ public class MetadataBasedEntityExtractor implements EntityExtractor {
                 int startOffset = normalizedText.toLowerCase().indexOf(lowerToken);
                 if (startOffset >= 0) {
                     entities.add(EntityTag.builder()
-                            .text(token)
+                            .value(token)
                             .type(EntityType.TABLE)
                             .startOffset(startOffset)
                             .endOffset(startOffset + token.length())
@@ -112,7 +123,7 @@ public class MetadataBasedEntityExtractor implements EntityExtractor {
                             int startOffset = normalizedText.toLowerCase().indexOf(lowerToken);
                             if (startOffset >= 0) {
                                 entities.add(EntityTag.builder()
-                                        .text(token)
+                                        .value(token)
                                         .type(EntityType.TABLE)
                                         .startOffset(startOffset)
                                         .endOffset(startOffset + token.length())
@@ -155,7 +166,7 @@ public class MetadataBasedEntityExtractor implements EntityExtractor {
                 int startOffset = normalizedText.toLowerCase().indexOf(lowerToken);
                 if (startOffset >= 0) {
                     entities.add(EntityTag.builder()
-                            .text(token)
+                            .value(token)
                             .type(EntityType.COLUMN)
                             .startOffset(startOffset)
                             .endOffset(startOffset + token.length())
@@ -177,7 +188,7 @@ public class MetadataBasedEntityExtractor implements EntityExtractor {
                             int startOffset = normalizedText.toLowerCase().indexOf(lowerToken);
                             if (startOffset >= 0) {
                                 entities.add(EntityTag.builder()
-                                        .text(token)
+                                        .value(token)
                                         .type(EntityType.COLUMN)
                                         .startOffset(startOffset)
                                         .endOffset(startOffset + token.length())

@@ -49,14 +49,14 @@ public class NLQueryController {
     @GetMapping("/history/{dataSourceId}")
     @Operation(summary = "查询历史", description = "获取查询历史")
     public ResponseEntity<List<QueryHistory>> getQueryHistory(
-            @Parameter(description = "数据源ID") @PathVariable Long dataSourceId) {
+            @Parameter(description = "数据源ID") @PathVariable String dataSourceId) {
         log.info("获取查询历史: {}", dataSourceId);
         return ResponseEntity.ok(nlQueryService.getQueryHistory(dataSourceId));
     }
     
     @PostMapping("/save")
     @Operation(summary = "保存查询", description = "保存自然语言查询")
-    public ResponseEntity<Long> saveQuery(@Valid @RequestBody SavedQueryDTO requestDTO) {
+    public ResponseEntity<String> saveQuery(@Valid @RequestBody SavedQueryDTO requestDTO) {
         log.info("保存查询: {}", requestDTO.getName());
         
         // 转换请求
@@ -70,7 +70,7 @@ public class NLQueryController {
         result.setSql(requestDTO.getSql());
         
         // 保存查询
-        Long savedQueryId = nlQueryService.saveQuery(requestDTO.getName(), request, result);
+        String savedQueryId = nlQueryService.saveQuery(requestDTO.getName(), request, result);
         
         return ResponseEntity.ok(savedQueryId);
     }
@@ -78,7 +78,7 @@ public class NLQueryController {
     @GetMapping("/saved/{dataSourceId}")
     @Operation(summary = "保存的查询", description = "获取保存的查询列表")
     public ResponseEntity<List<SavedQuery>> getSavedQueries(
-            @Parameter(description = "数据源ID") @PathVariable Long dataSourceId) {
+            @Parameter(description = "数据源ID") @PathVariable String dataSourceId) {
         log.info("获取保存的查询: {}", dataSourceId);
         return ResponseEntity.ok(nlQueryService.getSavedQueries(dataSourceId));
     }

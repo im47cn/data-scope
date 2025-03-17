@@ -1,16 +1,13 @@
 package com.nlquery.entity;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.HashMap;
-import java.util.Map;
-
-/**
- * 实体属性
- */
 @Data
 @Builder
 @NoArgsConstructor
@@ -18,24 +15,26 @@ import java.util.Map;
 public class EntityAttributes {
     
     /**
-     * 数据类型
+     * 实体文本
      */
-    private String dataType;
+    private String text;
     
     /**
-     * 是否可空
+     * 在原文中的起始位置
      */
-    private Boolean nullable;
+    private int startOffset;
     
     /**
-     * 默认值
+     * 在原文中的结束位置
      */
-    private String defaultValue;
+    private int endOffset;
     
     /**
-     * 是否主键
+     * 词性标注
      */
-    private Boolean primaryKey;
+    private String posTag;
+    
+    /**
     
     /**
      * 是否唯一键

@@ -1,5 +1,6 @@
 package com.nlquery.entity;
 
+import com.nlquery.QueryContext;
 import com.nlquery.preprocess.PreprocessedText;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -23,22 +24,32 @@ public class HybridEntityExtractor implements EntityExtractor {
     private MetadataBasedEntityExtractor metadataBasedExtractor;
     
     @Override
-    public List<EntityTag> extractEntities(PreprocessedText preprocessedText) {
-        return extractEntities(preprocessedText, new EntityExtractionContext());
+    public List<EntityTag> extract(PreprocessedText preprocessedText) {
+        return this.extract(preprocessedText, new EntityExtractionContext());
     }
     
     @Override
-    public List<EntityTag> extractEntities(PreprocessedText preprocessedText, EntityExtractionContext context) {
+    public List<EntityTag> extract(PreprocessedText preprocessedText, EntityExtractionContext context) {
         // 获取规则提取的实体
-        List<EntityTag> ruleEntities = ruleBasedExtractor.extractEntities(preprocessedText, context);
+        List<EntityTag> ruleEntities = ruleBasedExtractor.extract(preprocessedText, context);
         
         // 获取元数据提取的实体
-        List<EntityTag> metadataEntities = metadataBasedExtractor.extractEntities(preprocessedText, context);
+        List<EntityTag> metadataEntities = metadataBasedExtractor.extract(preprocessedText, context);
         
         // 合并实体
         return mergeEntities(ruleEntities, metadataEntities);
     }
-    
+
+    @Override
+    public List<EntityTag> validate(List<EntityTag> entities, QueryContext context) {
+        return List.of();
+    }
+
+    @Override
+    public List<EntityTag> merge(List<EntityTag> entities) {
+        return List.of();
+    }
+
     /**
      * 合并实体
      * 

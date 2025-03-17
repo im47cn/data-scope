@@ -1,18 +1,13 @@
 package com.nlquery;
 
+import java.util.List;
+import java.util.Map;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-/**
- * 自然语言查询请求
- */
 @Data
 @Builder
 @NoArgsConstructor
@@ -32,77 +27,10 @@ public class NLQueryRequest {
     /**
      * 查询参数
      */
-    @Builder.Default
-    private Map<String, Object> parameters = new HashMap<>();
+    private Map<String, Object> parameters;
     
     /**
      * 查询标签
      */
-    @Builder.Default
-    private List<String> tags = new ArrayList<>();
-    
-    /**
-     * 是否使用缓存
-     */
-    @Builder.Default
-    private boolean useCache = true;
-    
-    /**
-     * 缓存过期时间(秒)
-     */
-    @Builder.Default
-    private int cacheExpireSeconds = 300;
-    
-    /**
-     * 是否返回总行数
-     */
-    @Builder.Default
-    private boolean fetchTotalRows = false;
-    
-    /**
-     * 最大返回行数
-     */
-    private Integer maxRows;
-    
-    /**
-     * 查询超时时间(秒)
-     */
-    private Integer queryTimeout;
-    
-    /**
-     * 创建一个简单的查询请求
-     */
-    public static NLQueryRequest simple(String dataSourceId, String query) {
-        return NLQueryRequest.builder()
-                .dataSourceId(dataSourceId)
-                .query(query)
-                .build();
-    }
-    
-    /**
-     * 创建一个带参数的查询请求
-     */
-    public static NLQueryRequest withParameters(String dataSourceId, String query, Map<String, Object> parameters) {
-        return NLQueryRequest.builder()
-                .dataSourceId(dataSourceId)
-                .query(query)
-                .parameters(parameters)
-                .build();
-    }
-    
-    /**
-     * 添加参数
-     */
-    public NLQueryRequest addParameter(String key, Object value) {
-        parameters.put(key, value);
-        return this;
-    }
-    
-    /**
-     * 添加标签
-     */
-    public NLQueryRequest addTag(String tag) {
-        tags.add(tag);
-        return this;
-    }
+    private List<String> tags;
 }

@@ -250,7 +250,7 @@ public class DataSourceController {
                 .username(request.getUsername())
                 .password(request.getPassword())
                 .connectionProperties(request.getConnectionProperties())
-                .active(request.isActive())
+                .enabled(request.isActive())
                 .description(request.getDescription())
                 .build();
     }
@@ -283,8 +283,8 @@ public class DataSourceController {
         response.setDatabaseName(dataSource.getDatabaseName());
         response.setUsername(dataSource.getUsername());
         response.setConnectionProperties(dataSource.getConnectionProperties());
-        response.setLastSyncTime(dataSource.getLastSyncTime());
-        response.setActive(dataSource.getActive());
+        response.setLastSyncTime(dataSource.getLastSyncedAt());
+        response.setActive(dataSource.getEnabled());
         response.setDescription(dataSource.getDescription());
         response.setCreatedAt(dataSource.getCreatedAt());
         response.setUpdatedAt(dataSource.getUpdatedAt());
