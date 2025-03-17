@@ -317,3 +317,48 @@
 ### 相关决策
 - ADR-006: 查询构建与执行策略
 - ADR-010: 前端实现策略
+
+## ADR-013: 统一实体ID类型为String
+
+### 状态
+已接受
+
+### 背景
+系统中存在ID类型不一致的问题：
+- SavedQuery模型类使用Long类型的ID
+- QueryHistory模型类使用Long类型的ID
+- SavedQueryRepository接口和实现使用String类型ID参数
+- NLQueryService接口中saveQuery方法返回Long类型，但其他方法接受String类型ID
+
+这种不一致性导致了潜在的类型转换错误和混淆，影响了代码的可维护性和健壮性。
+
+### 决策
+将所有实体模型ID统一使用String类型，具体包括：
+1. 修改SavedQuery模型类中id字段的类型为String
+2. 修改QueryHistory模型类中id字段的类型为String
+3. 修改NLQueryService接口的saveQuery方法返回类型为String
+4. 确保所有Repository接口和实现类使用String类型的ID参数
+
+### 原因
+1. **一致性**：统一使用String类型ID，消除代码中的类型不一致性
+2. **灵活性**：String类型ID可以支持多种ID生成策略（UUID、有意义的业务ID等），而不仅限于数字序列
+3. **安全性**：避免Long类型ID可能带来的数值范围限制
+4. **符合规范**：符合项目技术规范中的"实体ID统一使用String类型"要求
+
+### 后果
+#### 优势
+1. 提高代码一致性，降低维护成本
+2. 避免因类型转换引起的错误
+3. 支持更灵活的ID生成策略
+4. 便于未来集成分布式ID生成机制
+
+#### 不足
+1. 需要修改现有代码，包括模型类、服务接口和实现类
+2. 可能需要数据库迁移脚本以支持字符串类型ID
+3. 在比较和排序操作上，字符串类型可能不如数值类型高效
+
+### 实施注意事项
+1. 修改SavedQuery和QueryHistory模型类
+2. 更新NLQueryService接口和实现
+3. 确保Repository和Mapper接口与新类型匹配
+4. 检查数据库表结构，确保支持String类型ID
