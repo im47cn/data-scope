@@ -24,12 +24,20 @@ import java.util.List;
 @Slf4j
 public class MetadataSyncServiceImpl implements MetadataSyncService {
 
-    private final MetadataSyncJobService metadataSyncJobService;
-    private final DataSourceAdapterFactory dataSourceAdapterFactory;
+    @Autowired
+    private MetadataSyncJobService metadataSyncJobService;
 
-    private final DataSourceRepository dataSourceRepository;
-    private final SchemaInfoRepository schemaInfoRepository;
-    private final TableInfoRepository tableInfoRepository;
+    @Autowired
+    private DataSourceAdapterFactory dataSourceAdapterFactory;
+
+    @Autowired
+    private DataSourceRepository dataSourceRepository;
+
+    @Autowired
+    private SchemaInfoRepository schemaInfoRepository;
+
+    @Autowired
+    private TableInfoRepository tableInfoRepository;
 
     @Autowired
     public MetadataSyncServiceImpl(
@@ -61,7 +69,7 @@ public class MetadataSyncServiceImpl implements MetadataSyncService {
 
             // 获取数据源适配器
             DataSourceAdapter dataSourceAdapter = dataSourceAdapterFactory.getAdapter(dataSourceEntity.getType());
-            
+
             // 测试连接
             dataSourceAdapter.testConnection(dataSourceEntity);
 
@@ -101,11 +109,11 @@ public class MetadataSyncServiceImpl implements MetadataSyncService {
         // 获取表信息（通过适配器实现）
         List<TableInfo> tableInfos = dataSourceAdapter.getTables(dataSource, schemaInfo.getName());
         for (TableInfo tableInfo : tableInfos) {
-             tableInfo.setSchemaName(schemaInfo.getName());
-             tableInfo.setDataSourceId(dataSource.getId());
-             tableInfo.setCreatedAt(LocalDateTime.now());
-             tableInfo.setUpdatedAt(LocalDateTime.now());
-             tableInfoRepository.save(tableInfo);
+            tableInfo.setSchemaName(schemaInfo.getName());
+            tableInfo.setDataSourceId(dataSource.getId());
+            tableInfo.setCreatedAt(LocalDateTime.now());
+            tableInfo.setUpdatedAt(LocalDateTime.now());
+            tableInfoRepository.save(tableInfo);
         }
     }
 }

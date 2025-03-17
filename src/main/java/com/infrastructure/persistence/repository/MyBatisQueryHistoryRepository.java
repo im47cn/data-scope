@@ -3,19 +3,18 @@ package com.infrastructure.persistence.repository;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.domain.model.query.QueryHistory;
 import com.domain.repository.QueryHistoryRepository;
 import com.infrastructure.persistence.mapper.QueryHistoryMapper;
 
-import lombok.RequiredArgsConstructor;
-
 @Repository
-@RequiredArgsConstructor
-public class QueryHistoryRepositoryImpl implements QueryHistoryRepository {
+public class MyBatisQueryHistoryRepository implements QueryHistoryRepository {
 
-    private final QueryHistoryMapper queryHistoryMapper;
+    @Autowired
+    private QueryHistoryMapper queryHistoryMapper;
 
     @Override
     public QueryHistory save(QueryHistory queryHistory) {

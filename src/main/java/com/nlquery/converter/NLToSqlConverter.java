@@ -1,5 +1,6 @@
 package com.nlquery.converter;
 
+import com.domain.model.metadata.SchemaInfo;
 import com.nlquery.NLQueryRequest;
 import com.nlquery.QueryContext;
 import com.nlquery.preprocess.PreprocessedText;
@@ -21,18 +22,9 @@ public interface NLToSqlConverter {
      * 将自然语言查询转换为SQL
      *
      * @param preprocessedText 自然语言查询
-     * @param dataSourceId     数据源ID
+     * @param schemaInfo
      * @return SQL转换结果
      */
-    SqlConversionResult convert(PreprocessedText preprocessedText, String dataSourceId);
+    SqlConversionResult convert(PreprocessedText preprocessedText, SchemaInfo schemaInfo);
 
-    /**
-     * 将自然语言查询转换为SQL
-     *
-     * @param preprocessedText 自然语言查询
-     * @param dataSourceId     数据源ID
-     * @param context          查询上下文
-     * @return SQL转换结果
-     */
-    SqlConversionResult convert(PreprocessedText preprocessedText, String dataSourceId, QueryContext context);
 }

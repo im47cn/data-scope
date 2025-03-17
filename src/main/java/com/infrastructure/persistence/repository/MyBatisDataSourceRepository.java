@@ -5,6 +5,7 @@ import com.domain.model.DataSource;
 import com.domain.repository.DataSourceRepository;
 import com.infrastructure.persistence.mapper.DataSourceMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
@@ -17,8 +18,9 @@ import java.util.Optional;
 @Slf4j
 @Repository
 public class MyBatisDataSourceRepository implements DataSourceRepository {
-    
-    private final DataSourceMapper dataSourceMapper;
+
+    @Autowired
+    private DataSourceMapper dataSourceMapper;
     
     public MyBatisDataSourceRepository(DataSourceMapper dataSourceMapper) {
         this.dataSourceMapper = dataSourceMapper;

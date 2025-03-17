@@ -1,61 +1,58 @@
 package com.nlquery.sql;
 
-import com.domain.model.metadata.SchemaInfo;
-import com.nlquery.entity.EntityTag;
-import com.nlquery.intent.QueryIntent;
-import lombok.*;
-import lombok.experimental.FieldDefaults;
-
 import java.util.List;
 import java.util.Map;
 
-/**
- * SQL生成器接口
- */
+import com.domain.model.metadata.SchemaInfo;
+import com.nlquery.QueryContext;
+import com.nlquery.entity.EntityTag;
+import com.nlquery.intent.QueryIntent;
+
+import lombok.Builder;
+import lombok.Data;
+
 public interface SqlGenerator {
-    
-    /**
-     * 生成SQL
-     *
-     * @param entities 提取的实体
-     * @param queryIntent 查询意图
-     * @param schemaInfo 数据库模式信息
-     * @return SQL生成结果
-     */
-    SqlGenerationResult generateSql(List<EntityTag> entities, QueryIntent queryIntent, SchemaInfo schemaInfo);
 
     /**
      * SQL生成结果
      */
     @Data
-    @Builder(toBuilder = true)
-    @NoArgsConstructor
-    @AllArgsConstructor
-    @FieldDefaults(level = AccessLevel.PRIVATE)
-    public static class SqlGenerationResult {
+    @Builder
+    class SqlGenerationResult {
         /**
-         * 生成的SQL
+         * 生成的SQL语句
          */
-        String sql = "";
+        private String sql;
 
         /**
          * SQL参数
          */
-        Map<String, Object> parameters;
+        private Map<String, Object> parameters;
 
         /**
          * 置信度
          */
-        double confidence;
+        private double confidence;
 
         /**
-         * 解释说明
+         * SQL解释
          */
-        List<String> explanations;
+        private List<String> explanations;
 
         /**
-         * 替代SQL语句
+         * 备选SQL语句
          */
-        List<String> alternativeSqls;
+        private List<String> alternativeSqls;
     }
+
+    /**
+     * 生成SQL
+     *
+     * @param entities    提取的实体
+     * @param queryIntent 查询意图
+     * @param schemaInfo
+     * @return SQL生成结果
+     */
+    SqlGenerationResult generate(List<EntityTag> entities, QueryIntent queryIntent, SchemaInfo schemaInfo);
+
 }

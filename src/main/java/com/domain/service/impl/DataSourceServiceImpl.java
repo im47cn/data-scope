@@ -1,6 +1,5 @@
-package com.application.service.impl;
+package com.domain.service.impl;
 
-import com.application.service.DataSourceService;
 import com.common.enums.DataSourceType;
 import com.common.exception.DataSourceException;
 import com.domain.model.DataSource;
@@ -8,6 +7,7 @@ import com.domain.model.metadata.SchemaInfo;
 import com.domain.model.metadata.TableInfo;
 import com.domain.repository.DataSourceRepository;
 import com.domain.service.CredentialEncryptionService;
+import com.domain.service.DataSourceService;
 import com.infrastructure.adapter.DataSourceAdapter;
 import com.infrastructure.adapter.DataSourceAdapterFactory;
 import lombok.extern.slf4j.Slf4j;
@@ -107,8 +107,8 @@ public class DataSourceServiceImpl implements DataSourceService {
         return dataSourceRepository.findById(id);
     }
     
-    @Override
     @Transactional(readOnly = true)
+    @Override
     public Optional<DataSource> getDataSourceByName(String name) {
         return dataSourceRepository.findByName(name);
     }
@@ -184,8 +184,8 @@ public class DataSourceServiceImpl implements DataSourceService {
         return adapter.getSchema(dataSource, schemaName);
     }
 
-    @Override
     @Transactional(readOnly = true)
+    @Override
     public List<TableInfo> getTables(String dataSourceId, String schemaName) {
         // 获取数据源
         DataSource dataSource = dataSourceRepository.findById(dataSourceId)
@@ -217,8 +217,8 @@ public class DataSourceServiceImpl implements DataSourceService {
         return syncJobId;
     }
     
-    @Override
     @Transactional(readOnly = true)
+    @Override
     public List<DataSourceType> getSupportedTypes() {
         return Arrays.stream(DataSourceType.values())
                 .collect(Collectors.toList());

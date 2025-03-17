@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
  * 元数据同步作业仓储实现
  */
 @Repository
-public class MetadataSyncJobRepositoryImpl implements MetadataSyncJobRepository {
+public class MyBatisMetadataSyncJobRepository implements MetadataSyncJobRepository {
 
     @Autowired
     private MetadataSyncJobMapper metadataSyncJobMapper;

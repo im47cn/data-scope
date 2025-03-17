@@ -1,6 +1,6 @@
 spring:
   application:
-    name: insight-data
+    name: data-scope
   
   # 数据库配置
   datasource:
@@ -50,7 +50,7 @@ spring:
 # MyBatis配置
 mybatis:
   mapper-locations: classpath:mapper/**/*.xml
-  type-aliases-package: com.domain.modal
+  type-aliases-package: com.infrastructure.persistence.entity
   configuration:
     map-underscore-to-camel-case: true
     default-fetch-size: 100
@@ -61,7 +61,7 @@ mybatis:
 server:
   port: 8080
   servlet:
-    context-path: /api
+    context-path: /
   compression:
     enabled: true
     mime-types: application/json,application/xml,text/html,text/xml,text/plain

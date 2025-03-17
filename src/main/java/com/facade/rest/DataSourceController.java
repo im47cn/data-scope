@@ -1,10 +1,10 @@
 package com.facade.rest;
 
-import com.application.service.DataSourceService;
 import com.common.enums.DataSourceType;
 import com.domain.model.DataSource;
 import com.domain.model.metadata.SchemaInfo;
 import com.domain.model.metadata.TableInfo;
+import com.domain.service.DataSourceService;
 import com.facade.rest.dto.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
  * 数据源控制器
  */
 @RestController
-@RequestMapping("/datasources")
+@RequestMapping("/api/datasources")
 @Tag(name = "数据源管理", description = "数据源管理相关接口")
 public class DataSourceController {
     

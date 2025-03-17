@@ -21,8 +21,8 @@ import java.util.stream.Collectors;
 public class DefaultSqlGenerator implements SqlGenerator {
 
     @Override
-    public SqlGenerationResult generateSql(List<EntityTag> entities, QueryIntent queryIntent, SchemaInfo schemaInfo) {
-        SqlGenerationResult result = new SqlGenerationResult();
+    public SqlGenerationResult generate(List<EntityTag> entities, QueryIntent queryIntent, SchemaInfo schemaInfo) {
+        SqlGenerationResult result = SqlGenerationResult.builder().build();
         List<String> explanations = new ArrayList<>();
         Map<String, Object> parameters = new HashMap<>();
         
@@ -450,13 +450,12 @@ public class DefaultSqlGenerator implements SqlGenerator {
         
         // 如果主SQL使用了COUNT，可以提供一个不使用COUNT的备选SQL
         if (queryIntent.getQueryType() == QueryType.COUNT) {
-            StringBuilder sqlBuilder = new StringBuilder();
-            sqlBuilder.append("SELECT ");
-            sqlBuilder.append(String.join(", ", columnNames));
-            sqlBuilder.append(" FROM ");
-            sqlBuilder.append(String.join(", ", tableNames));
+            String sqlBuilder = "SELECT " +
+                    String.join(", ", columnNames) +
+                    " FROM " +
+                    String.join(", ", tableNames);
             
-            alternativeSqls.add(sqlBuilder.toString());
+            alternativeSqls.add(sqlBuilder);
         }
         
         return alternativeSqls;

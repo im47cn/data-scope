@@ -4,7 +4,7 @@ import com.domain.model.lowcode.App;
 import com.domain.repository.AppRepository;
 import com.infrastructure.persistence.entity.AppEntity;
 import com.infrastructure.persistence.mapper.AppMapper;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -15,10 +15,10 @@ import java.util.stream.Collectors;
  * App仓储的MyBatis实现
  */
 @Repository
-@RequiredArgsConstructor
-public class AppRepositoryImpl implements AppRepository {
-    
-    private final AppMapper appMapper;
+public class MyBatisAppRepository implements AppRepository {
+
+    @Autowired
+    private AppMapper appMapper;
     
     @Override
     public App save(App app) {

@@ -1,9 +1,9 @@
 package com.nlquery.entity;
 
-import com.application.service.DataSourceService;
 import com.domain.model.metadata.ColumnInfo;
 import com.domain.model.metadata.SchemaInfo;
 import com.domain.model.metadata.TableInfo;
+import com.domain.service.DataSourceService;
 import com.nlquery.QueryContext;
 import com.nlquery.preprocess.PreprocessedText;
 import org.springframework.beans.factory.annotation.Autowired;

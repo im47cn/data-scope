@@ -14,7 +14,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableCaching
 @EnableAsync
 @EnableScheduling
-@MapperScan("com.domain.repository")
+@MapperScan("com.infrastructure.persistence.mapper")
 public class InsightDataApplication {
 
     public static void main(String[] args) {

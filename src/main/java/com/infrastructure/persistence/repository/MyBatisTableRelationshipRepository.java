@@ -4,6 +4,7 @@ import com.domain.model.metadata.TableRelationship;
 import com.domain.repository.TableRelationshipRepository;
 import com.infrastructure.persistence.converter.TableRelationshipConverter;
 import com.infrastructure.persistence.mapper.TableRelationshipMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
@@ -12,13 +13,16 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Repository
-public class TableRelationshipRepositoryImpl implements TableRelationshipRepository {
+public class MyBatisTableRelationshipRepository implements TableRelationshipRepository {
+
+    @Autowired
+    private TableRelationshipMapper tableRelationshipMapper;
+
+    @Autowired
+    private TableRelationshipConverter converter;
     
-    private final TableRelationshipMapper tableRelationshipMapper;
-    private final TableRelationshipConverter converter;
-    
-    public TableRelationshipRepositoryImpl(TableRelationshipMapper tableRelationshipMapper,
-                                         TableRelationshipConverter converter) {
+    public MyBatisTableRelationshipRepository(TableRelationshipMapper tableRelationshipMapper,
+                                              TableRelationshipConverter converter) {
         this.tableRelationshipMapper = tableRelationshipMapper;
         this.converter = converter;
     }

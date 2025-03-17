@@ -1,9 +1,9 @@
 package com.domain.repository;
 
+import com.domain.model.query.SavedQuery;
+
 import java.util.List;
 import java.util.Optional;
-
-import com.domain.model.query.SavedQuery;
 
 /**
  * 保存的查询仓储接口

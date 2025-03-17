@@ -1,23 +1,23 @@
- package com.config;
+package com.config;
 
- import com.nlquery.sql.EnhancedSqlGenerator;
- import com.nlquery.sql.SqlGenerator;
- import org.springframework.context.annotation.Bean;
- import org.springframework.context.annotation.Configuration;
- import org.springframework.context.annotation.Primary;
+import com.nlquery.sql.DefaultSqlGenerator;
+import com.nlquery.sql.SqlGenerator;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 
 /**
  * SQL生成器配置类
  */
 @Configuration
 public class SqlGeneratorConfig {
-    
+
     /**
      * 注册增强的SQL生成器作为主要实现
      */
     @Bean
     @Primary
-    public SqlGenerator sqlGenerator(EnhancedSqlGenerator enhancedSqlGenerator) {
-        return enhancedSqlGenerator;
+    public SqlGenerator sqlGenerator(DefaultSqlGenerator defaultSqlGenerator) {
+        return defaultSqlGenerator;
     }
 }

@@ -1,7 +1,6 @@
 package com.domain.repository;
 
 import com.domain.model.lowcode.Component;
-import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
@@ -9,7 +8,6 @@ import java.util.Optional;
 /**
  * 组件仓储接口
  */
-@Repository
 public interface ComponentRepository {
     
     /**

@@ -1,9 +1,9 @@
 package com.domain.repository;
 
+import com.domain.model.query.QueryHistory;
+
 import java.util.List;
 import java.util.Optional;
-
-import com.domain.model.query.QueryHistory;
 
 /**
  * 查询历史仓储接口

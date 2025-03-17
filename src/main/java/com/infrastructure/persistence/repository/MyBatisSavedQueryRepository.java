@@ -3,19 +3,18 @@ package com.infrastructure.persistence.repository;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.domain.model.query.SavedQuery;
 import com.domain.repository.SavedQueryRepository;
 import com.infrastructure.persistence.mapper.SavedQueryMapper;
 
-import lombok.RequiredArgsConstructor;
-
 @Repository
-@RequiredArgsConstructor
-public class SavedQueryRepositoryImpl implements SavedQueryRepository {
+public class MyBatisSavedQueryRepository implements SavedQueryRepository {
 
-    private final SavedQueryMapper savedQueryMapper;
+    @Autowired
+    private SavedQueryMapper savedQueryMapper;
 
     @Override
     public SavedQuery save(SavedQuery savedQuery) {
