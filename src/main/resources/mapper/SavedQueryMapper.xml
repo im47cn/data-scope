@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.insightdata.infrastructure.persistence.mapper.SavedQueryMapper">
+<mapper namespace="com.infrastructure.persistence.mapper.SavedQueryMapper">
 
-    <resultMap id="savedQueryMap" type="com.insightdata.domain.model.query.SavedQuery">
+    <resultMap id="savedQueryMap" type="com.domain.model.query.SavedQuery">
         <id property="id" column="id"/>
         <result property="name" column="name"/>
         <result property="description" column="description"/>
@@ -10,33 +10,33 @@
         <result property="naturalLanguageQuery" column="natural_language_query"/>
         <result property="generatedSql" column="generated_sql"/>
         <result property="parameters" column="parameters" 
-                typeHandler="com.insightdata.infrastructure.persistence.typehandler.JsonMapTypeHandler"/>
+                typeHandler="com.infrastructure.persistence.typehandler.JsonMapTypeHandler"/>
         <result property="isPublic" column="is_public"/>
         <result property="createdBy" column="created_by"/>
         <result property="createdAt" column="created_at"/>
         <result property="updatedAt" column="updated_at"/>
     </resultMap>
 
-    <insert id="insert" parameterType="com.insightdata.domain.model.query.SavedQuery"
+    <insert id="insert" parameterType="com.domain.model.query.SavedQuery"
             useGeneratedKeys="true" keyProperty="id">
         INSERT INTO saved_query (
             name, description, data_source_id, natural_language_query, 
             generated_sql, parameters, is_public, created_by, created_at, updated_at
         ) VALUES (
             #{name}, #{description}, #{dataSourceId}, #{naturalLanguageQuery},
-            #{generatedSql}, #{parameters, typeHandler=com.insightdata.infrastructure.persistence.typehandler.JsonMapTypeHandler},
+            #{generatedSql}, #{parameters, typeHandler=com.infrastructure.persistence.typehandler.JsonMapTypeHandler},
             #{isPublic}, #{createdBy}, #{createdAt}, #{updatedAt}
         )
     </insert>
 
-    <update id="update" parameterType="com.insightdata.domain.model.query.SavedQuery">
+    <update id="update" parameterType="com.domain.model.query.SavedQuery">
         UPDATE saved_query
         SET name = #{name},
             description = #{description},
             data_source_id = #{dataSourceId},
             natural_language_query = #{naturalLanguageQuery},
             generated_sql = #{generatedSql},
-            parameters = #{parameters, typeHandler=com.insightdata.infrastructure.persistence.typehandler.JsonMapTypeHandler},
+            parameters = #{parameters, typeHandler=com.infrastructure.persistence.typehandler.JsonMapTypeHandler},
             is_public = #{isPublic},
             updated_at = #{updatedAt}
         WHERE id = #{id}

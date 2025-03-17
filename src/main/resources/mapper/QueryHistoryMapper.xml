@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.insightdata.infrastructure.persistence.mapper.QueryHistoryMapper">
+<mapper namespace="com.infrastructure.persistence.mapper.QueryHistoryMapper">
     
     <!-- 通用结果映射 -->
-    <resultMap id="BaseResultMap" type="com.insightdata.domain.model.query.QueryHistory">
+    <resultMap id="BaseResultMap" type="com.domain.model.query.QueryHistory">
         <id column="id" property="id" />
         <result column="user_id" property="userId" />
         <result column="user_name" property="userName" />
@@ -38,8 +38,8 @@
         <result column="similar_query_id" property="similarQueryId" />
         <result column="similarity_score" property="similarityScore" />
         <result column="created_at" property="createdAt" />
-        <result column="query_params" property="queryParams" typeHandler="com.insightdata.infrastructure.persistence.typehandler.JsonMapTypeHandler" />
-        <result column="performance_stats" property="performanceStats" typeHandler="com.insightdata.infrastructure.persistence.typehandler.JsonMapTypeHandler" />
+        <result column="query_params" property="queryParams" typeHandler="com.infrastructure.persistence.typehandler.JsonMapTypeHandler" />
+        <result column="performance_stats" property="performanceStats" typeHandler="com.infrastructure.persistence.typehandler.JsonMapTypeHandler" />
     </resultMap>
     
     <!-- 基本字段列表 -->
@@ -53,7 +53,7 @@
     </sql>
     
     <!-- 插入查询历史记录 -->
-    <insert id="insert" parameterType="com.insightdata.domain.model.query.QueryHistory" useGeneratedKeys="true" keyProperty="id">
+    <insert id="insert" parameterType="com.domain.model.query.QueryHistory" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO query_history (
             user_id, user_name, interface_config_id, interface_name, interface_version, 
             data_source_id, data_source_name, query_params, original_sql, executed_sql, 
@@ -66,19 +66,19 @@
         VALUES (
             #{userId}, #{userName}, #{interfaceConfigId}, #{interfaceName}, #{interfaceVersion}, 
             #{dataSourceId}, #{dataSourceName}, 
-            #{queryParams, typeHandler=com.insightdata.infrastructure.persistence.typehandler.JsonMapTypeHandler}, 
+            #{queryParams, typeHandler=com.infrastructure.persistence.typehandler.JsonMapTypeHandler},
             #{originalSql}, #{executedSql}, #{startTime}, #{endTime}, #{executionTimeMs}, 
             #{resultRowCount}, #{status}, #{errorMessage}, #{errorCode}, #{exported}, 
             #{exportFormat}, #{exportedRowCount}, #{clientIp}, #{userAgent}, #{sessionId}, 
             #{favorite}, #{title}, #{description}, #{tags}, #{querySource}, #{cacheHit}, 
             #{cacheKey}, #{apiRequestId}, #{similarQueryId}, #{similarityScore}, 
             #{createdAt}, 
-            #{performanceStats, typeHandler=com.insightdata.infrastructure.persistence.typehandler.JsonMapTypeHandler}
+            #{performanceStats, typeHandler=com.infrastructure.persistence.typehandler.JsonMapTypeHandler}
         )
     </insert>
     
     <!-- 更新查询历史记录 -->
-    <update id="update" parameterType="com.insightdata.domain.model.query.QueryHistory">
+    <update id="update" parameterType="com.domain.model.query.QueryHistory">
         UPDATE query_history
         <set>
             <if test="userId != null">user_id = #{userId},</if>
@@ -88,7 +88,7 @@
             <if test="interfaceVersion != null">interface_version = #{interfaceVersion},</if>
             <if test="dataSourceId != null">data_source_id = #{dataSourceId},</if>
             <if test="dataSourceName != null">data_source_name = #{dataSourceName},</if>
-            <if test="queryParams != null">query_params = #{queryParams, typeHandler=com.insightdata.infrastructure.persistence.typehandler.JsonMapTypeHandler},</if>
+            <if test="queryParams != null">query_params = #{queryParams, typeHandler=com.infrastructure.persistence.typehandler.JsonMapTypeHandler},</if>
             <if test="originalSql != null">original_sql = #{originalSql},</if>
             <if test="executedSql != null">executed_sql = #{executedSql},</if>
             <if test="startTime != null">start_time = #{startTime},</if>
@@ -114,7 +114,7 @@
             <if test="apiRequestId != null">api_request_id = #{apiRequestId},</if>
             <if test="similarQueryId != null">similar_query_id = #{similarQueryId},</if>
             <if test="similarityScore != null">similarity_score = #{similarityScore},</if>
-            <if test="performanceStats != null">performance_stats = #{performanceStats, typeHandler=com.insightdata.infrastructure.persistence.typehandler.JsonMapTypeHandler}</if>
+            <if test="performanceStats != null">performance_stats = #{performanceStats, typeHandler=com.infrastructure.persistence.typehandler.JsonMapTypeHandler}</if>
         </set>
         WHERE id = #{id}
     </update>

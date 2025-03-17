@@ -33,7 +33,7 @@ server:
 logging:
   level:
     root: INFO
-    com.insightdata: DEBUG
+    com: DEBUG
     org.springframework: INFO
     org.hibernate: INFO
 

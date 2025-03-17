@@ -10,7 +10,7 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     
-    <groupId>com.insightdata</groupId>
+    <groupId>com</groupId>
     <artifactId>insight-data</artifactId>
     <version>0.1.0-SNAPSHOT</version>
     <name>Insight Data</name>
