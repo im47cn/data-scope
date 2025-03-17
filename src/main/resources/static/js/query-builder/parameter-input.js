@@ -1,15 +1,15 @@
 /**
- * 查询参数输入面板组件
- * 支持参数定义、验证和值输入
+ * 查询参数输入组件
+ * 支持不同类型参数的输入和验证
  */
 const ParameterInput = {
     props: {
-        // 原始SQL语句
+        // SQL语句
         sql: {
             type: String,
             required: true
         },
-        // 已保存的参数值
+        // 参数值
         value: {
             type: Object,
             default: () => ({})
@@ -18,373 +18,319 @@ const ParameterInput = {
         disabled: {
             type: Boolean,
             default: false
-        },
-        // 参数定义（可选，用于覆盖自动检测）
-        parameterDefinitions: {
-            type: Array,
-            default: () => []
         }
     },
 
     data() {
         return {
-            parameters: [],
-            paramValues: {},
-            validationErrors: {},
-            isValid: false
+            parameters: [],         // 参数列表
+            validation: {},         // 验证状态
+            inferredTypes: {},      // 推断的参数类型
+            suggestions: {},        // 参数值建议
+            showTypeInference: true // 是否显示类型推断
         };
     },
 
     computed: {
-        hasParameters() {
-            return this.parameters.length > 0;
-        },
-
-        // 所有参数是否都已填写且有效
+        // 是否所有必填参数都已填写
         isComplete() {
-            return this.hasParameters &&
-                this.parameters.every(param => 
-                    this.paramValues[param.name] !== undefined &&
-                    this.paramValues[param.name] !== '' &&
-                    !this.validationErrors[param.name]
-                );
+            return this.parameters.every(param => {
+                const value = this.value[param.name];
+                return value !== undefined && value !== '' && this.validation[param.name] !== false;
+            });
         }
     },
 
     watch: {
         sql: {
             immediate: true,
-            handler: 'detectParameters'
+            handler(newSql) {
+                this.extractParameters(newSql);
+            }
         },
-
-        parameterDefinitions: {
-            handler: 'updateParameterDefinitions',
-            deep: true
-        },
-
+        
         value: {
-            handler(newValue) {
-                this.paramValues = { ...newValue };
+            deep: true,
+            handler() {
                 this.validateAll();
-            },
-            deep: true
-        },
-
-        paramValues: {
-            handler(newValues) {
-                if (this.hasParameters) {
-                    this.validateAll();
-                    this.$emit('input', newValues);
-                    this.$emit('validation', {
-                        isValid: this.isValid,
-                        errors: this.validationErrors
-                    });
-                }
-            },
-            deep: true
+            }
         }
     },
 
     methods: {
-        // 从SQL中检测参数
-        detectParameters() {
-            if (!this.sql) {
-                this.parameters = [];
-                return;
+        /**
+         * 从SQL中提取参数
+         * @param {string} sql SQL语句
+         */
+        extractParameters(sql) {
+            const params = [];
+            const paramRegex = /:(\w+)/g;
+            let match;
+
+            while ((match = paramRegex.exec(sql)) !== null) {
+                const paramName = match[1];
+                if (!params.find(p => p.name === paramName)) {
+                    params.push({
+                        name: paramName,
+                        type: this.inferParameterType(sql, paramName),
+                        required: true
+                    });
+                }
             }
 
-            // 查找命名参数 :param_name
-            const namedParams = Array.from(this.sql.matchAll(/:(\w+)/g))
-                .map(match => ({
-                    name: match[1],
-                    type: 'string',
-                    required: true
-                }));
-
-            // 查找占位符参数 ?
-            const placeholderParams = Array.from(this.sql.matchAll(/\?/g))
-                .map((_, index) => ({
-                    name: `param${index + 1}`,
-                    type: 'string',
-                    required: true
-                }));
-
-            this.parameters = [...namedParams, ...placeholderParams];
-            this.inferParameterTypes();
-            this.initializeValues();
+            this.parameters = params;
+            this.initValidation();
+            this.inferTypes();
+            this.loadSuggestions();
         },
 
-        // 推断参数类型
-        inferParameterTypes() {
-            const sql = this.sql.toLowerCase();
+        /**
+         * 推断参数类型
+         * @param {string} sql SQL语句
+         * @param {string} paramName 参数名
+         * @returns {string} 参数类型
+         */
+        inferParameterType(sql, paramName) {
+            // 基于上下文推断参数类型
+            const context = this.getParameterContext(sql, paramName);
             
-            this.parameters.forEach(param => {
-                // 查找参数在SQL中的上下文
-                const context = this.findParameterContext(sql, param.name);
-                
-                if (context.includes('like')) {
-                    param.type = 'string';
-                } else if (context.includes('= true') || context.includes('= false')) {
-                    param.type = 'boolean';
-                } else if (context.includes('in (')) {
-                    param.type = 'array';
-                } else if (
-                    context.includes('date') ||
-                    context.includes('timestamp') ||
-                    context.includes('time')
-                ) {
-                    param.type = 'datetime';
-                } else if (
-                    context.includes('number') ||
-                    context.includes('int') ||
-                    context.includes('decimal') ||
-                    context.includes('numeric')
-                ) {
-                    param.type = 'number';
-                }
-            });
+            // 日期类型
+            if (/date|time|timestamp/i.test(context)) {
+                return 'date';
+            }
+            
+            // 数字类型
+            if (/number|int|decimal|float|double/i.test(context) ||
+                /[<>]=?/.test(context)) {
+                return 'number';
+            }
+            
+            // 布尔类型
+            if (/boolean|bit/i.test(context) ||
+                /is\s+(:?\w+)/i.test(context)) {
+                return 'boolean';
+            }
+            
+            // 数组类型
+            if (/in\s*\(.*:(\w+).*\)/i.test(context)) {
+                return 'array';
+            }
+            
+            // 默认为字符串类型
+            return 'string';
         },
 
-        // 查找参数在SQL中的上下文
-        findParameterContext(sql, paramName) {
-            const paramIndex = sql.indexOf(`:${paramName}`);
-            if (paramIndex === -1) return '';
-            
-            // 提取参数前后的SQL片段
-            const start = Math.max(0, paramIndex - 50);
-            const end = Math.min(sql.length, paramIndex + 50);
+        /**
+         * 获取参数上下文
+         * @param {string} sql SQL语句
+         * @param {string} paramName 参数名
+         * @returns {string} 上下文
+         */
+        getParameterContext(sql, paramName) {
+            const paramPosition = sql.indexOf(':' + paramName);
+            if (paramPosition === -1) {
+                return '';
+            }
+
+            // 获取参数前后的SQL片段
+            const start = Math.max(0, paramPosition - 50);
+            const end = Math.min(sql.length, paramPosition + 50);
             return sql.substring(start, end);
         },
 
-        // 使用自定义参数定义
-        updateParameterDefinitions() {
-            if (!this.parameterDefinitions.length) return;
-
-            this.parameters = this.parameterDefinitions.map(def => ({
-                name: def.name,
-                type: def.type || 'string',
-                required: def.required !== false,
-                defaultValue: def.defaultValue,
-                validation: def.validation,
-                options: def.options
-            }));
-
-            this.initializeValues();
-        },
-
-        // 初始化参数值
-        initializeValues() {
-            const values = { ...this.paramValues };
-            
+        /**
+         * 初始化验证状态
+         */
+        initValidation() {
+            this.validation = {};
             this.parameters.forEach(param => {
-                if (values[param.name] === undefined) {
-                    values[param.name] = param.defaultValue !== undefined ? 
-                        param.defaultValue : this.getDefaultValueForType(param.type);
-                }
+                this.validation[param.name] = true;
             });
-
-            this.paramValues = values;
         },
 
-        // 获取类型的默认值
-        getDefaultValueForType(type) {
-            switch (type) {
-                case 'number': return null;
-                case 'boolean': return false;
-                case 'array': return [];
-                case 'datetime': return null;
-                default: return '';
+        /**
+         * 推断所有参数类型
+         */
+        async inferTypes() {
+            if (!this.showTypeInference) return;
+
+            try {
+                const response = await QueryService.inferParameterTypes(
+                    this.sql,
+                    this.parameters.map(p => p.name)
+                );
+                this.inferredTypes = response.data;
+                
+                // 更新参数类型
+                this.parameters.forEach(param => {
+                    if (this.inferredTypes[param.name]) {
+                        param.type = this.inferredTypes[param.name];
+                    }
+                });
+            } catch (error) {
+                console.error('参数类型推断失败:', error);
             }
         },
 
-        // 验证所有参数
+        /**
+         * 加载参数值建议
+         */
+        async loadSuggestions() {
+            for (const param of this.parameters) {
+                try {
+                    const response = await QueryService.getParameterSuggestions(
+                        this.sql,
+                        param.name
+                    );
+                    this.$set(this.suggestions, param.name, response.data);
+                } catch (error) {
+                    console.error(`加载参数 ${param.name} 的建议值失败:`, error);
+                }
+            }
+        },
+
+        /**
+         * 验证所有参数
+         */
         validateAll() {
             let isValid = true;
-            const errors = {};
-
             this.parameters.forEach(param => {
-                const error = this.validateParameter(param, this.paramValues[param.name]);
-                if (error) {
-                    errors[param.name] = error;
+                const value = this.value[param.name];
+                const validationResult = this.validateParameter(param, value);
+                this.$set(this.validation, param.name, validationResult);
+                if (!validationResult) {
                     isValid = false;
                 }
             });
-
-            this.validationErrors = errors;
-            this.isValid = isValid;
+            this.$emit('validation', isValid);
         },
 
-        // 验证单个参数
+        /**
+         * 验证单个参数
+         * @param {Object} param 参数定义
+         * @param {*} value 参数值
+         * @returns {boolean} 验证结果
+         */
         validateParameter(param, value) {
             if (param.required && (value === undefined || value === '')) {
-                return '此参数是必填的';
+                return false;
             }
 
-            if (value !== null && value !== undefined && value !== '') {
-                switch (param.type) {
-                    case 'number':
-                        if (isNaN(value)) {
-                            return '请输入有效的数字';
-                        }
-                        break;
-                    case 'datetime':
-                        if (!this.isValidDate(value)) {
-                            return '请输入有效的日期时间';
-                        }
-                        break;
-                    case 'array':
-                        if (!Array.isArray(value)) {
-                            return '请输入有效的数组';
-                        }
-                        break;
-                }
+            switch (param.type) {
+                case 'number':
+                    return !isNaN(value);
+                case 'date':
+                    return !value || value instanceof Date || !isNaN(Date.parse(value));
+                case 'boolean':
+                    return typeof value === 'boolean' || value === undefined;
+                case 'array':
+                    return Array.isArray(value) || value === undefined;
+                default:
+                    return true;
             }
-
-            if (param.validation) {
-                try {
-                    const result = param.validation(value);
-                    if (result !== true) {
-                        return result;
-                    }
-                } catch (error) {
-                    return error.message;
-                }
-            }
-
-            return null;
         },
 
-        // 检查日期有效性
-        isValidDate(value) {
-            const date = new Date(value);
-            return date instanceof Date && !isNaN(date);
-        },
-
-        // 处理参数值变化
+        /**
+         * 处理参数值变化
+         * @param {string} paramName 参数名
+         * @param {*} value 参数值
+         */
         handleValueChange(paramName, value) {
-            this.paramValues = {
-                ...this.paramValues,
-                [paramName]: value
-            };
-        },
-
-        // 重置所有参数值
-        resetValues() {
-            this.initializeValues();
-        },
-
-        // 清空所有参数值
-        clearValues() {
-            const values = {};
-            this.parameters.forEach(param => {
-                values[param.name] = this.getDefaultValueForType(param.type);
-            });
-            this.paramValues = values;
+            const newValue = { ...this.value, [paramName]: value };
+            this.$emit('input', newValue);
+            this.$emit('change', newValue);
         }
     },
 
     template: `
-        <div class="parameter-input" :class="{ disabled }">
-            <template v-if="hasParameters">
-                <div class="parameter-list">
-                    <div 
-                        v-for="param in parameters" 
-                        :key="param.name"
-                        class="parameter-item"
+        <div class="parameter-input">
+            <a-form layout="vertical">
+                <a-form-item
+                    v-for="param in parameters"
+                    :key="param.name"
+                    :label="param.name"
+                    :validateStatus="validation[param.name] ? '' : 'error'"
+                    :help="validation[param.name] ? '' : '请输入有效的' + param.type + '类型值'"
+                >
+                    <!-- 字符串类型 -->
+                    <a-input
+                        v-if="param.type === 'string'"
+                        v-model="value[param.name]"
+                        :placeholder="'请输入' + param.name"
+                        :disabled="disabled"
+                        @change="e => handleValueChange(param.name, e.target.value)"
+                        :allowClear="true"
                     >
-                        <div class="param-label">
-                            {{ param.name }}
-                            <span v-if="param.required" class="required">*</span>
-                        </div>
-
-                        <!-- 字符串输入 -->
-                        <a-input
-                            v-if="param.type === 'string'"
-                            v-model="paramValues[param.name]"
-                            :placeholder="'请输入' + param.name"
-                            :disabled="disabled"
-                            @change="e => handleValueChange(param.name, e.target.value)"
-                        />
-
-                        <!-- 数字输入 -->
-                        <a-input-number
-                            v-else-if="param.type === 'number'"
-                            v-model="paramValues[param.name]"
-                            :placeholder="'请输入' + param.name"
-                            :disabled="disabled"
-                            style="width: 100%"
-                            @change="value => handleValueChange(param.name, value)"
-                        />
-
-                        <!-- 布尔输入 -->
-                        <a-switch
-                            v-else-if="param.type === 'boolean'"
-                            v-model="paramValues[param.name]"
-                            :disabled="disabled"
-                            @change="value => handleValueChange(param.name, value)"
-                        />
-
-                        <!-- 日期时间输入 -->
-                        <a-date-picker
-                            v-else-if="param.type === 'datetime'"
-                            v-model="paramValues[param.name]"
-                            :show-time="true"
-                            :disabled="disabled"
-                            style="width: 100%"
-                            @change="value => handleValueChange(param.name, value)"
-                        />
-
-                        <!-- 数组输入 -->
                         <a-select
-                            v-else-if="param.type === 'array'"
-                            v-model="paramValues[param.name]"
-                            mode="tags"
-                            :disabled="disabled"
-                            style="width: 100%"
-                            :options="param.options"
-                            @change="value => handleValueChange(param.name, value)"
-                        />
-
-                        <!-- 验证错误提示 -->
-                        <div 
-                            v-if="validationErrors[param.name]"
-                            class="validation-error"
+                            v-if="suggestions[param.name]?.length"
+                            slot="addonAfter"
+                            style="width: 150px"
+                            :value="value[param.name]"
+                            @change="val => handleValueChange(param.name, val)"
                         >
-                            {{ validationErrors[param.name] }}
-                        </div>
-                    </div>
-                </div>
+                            <a-select-option
+                                v-for="item in suggestions[param.name]"
+                                :key="item.value"
+                                :value="item.value"
+                            >
+                                {{ item.label }}
+                            </a-select-option>
+                        </a-select>
+                    </a-input>
 
-                <div class="parameter-actions">
-                    <a-space>
-                        <a-button
-                            type="default"
-                            :disabled="disabled"
-                            @click="resetValues"
-                        >
-                            重置
-                        </a-button>
-                        <a-button
-                            type="default"
-                            :disabled="disabled"
-                            @click="clearValues"
-                        >
-                            清空
-                        </a-button>
-                    </a-space>
-                </div>
-            </template>
+                    <!-- 数字类型 -->
+                    <a-input-number
+                        v-else-if="param.type === 'number'"
+                        v-model="value[param.name]"
+                        style="width: 100%"
+                        :disabled="disabled"
+                        @change="val => handleValueChange(param.name, val)"
+                    />
 
-            <a-empty 
-                v-else 
-                description="当前查询无需参数"
-            />
+                    <!-- 日期类型 -->
+                    <a-date-picker
+                        v-else-if="param.type === 'date'"
+                        v-model="value[param.name]"
+                        style="width: 100%"
+                        :disabled="disabled"
+                        :showTime="true"
+                        format="YYYY-MM-DD HH:mm:ss"
+                        @change="val => handleValueChange(param.name, val)"
+                    />
+
+                    <!-- 布尔类型 -->
+                    <a-switch
+                        v-else-if="param.type === 'boolean'"
+                        v-model="value[param.name]"
+                        :disabled="disabled"
+                        @change="val => handleValueChange(param.name, val)"
+                    />
+
+                    <!-- 数组类型 -->
+                    <a-select
+                        v-else-if="param.type === 'array'"
+                        v-model="value[param.name]"
+                        mode="tags"
+                        style="width: 100%"
+                        :disabled="disabled"
+                        @change="val => handleValueChange(param.name, val)"
+                    >
+                        <a-select-option
+                            v-for="item in suggestions[param.name] || []"
+                            :key="item.value"
+                            :value="item.value"
+                        >
+                            {{ item.label }}
+                        </a-select-option>
+                    </a-select>
+                </a-form-item>
+            </a-form>
         </div>
     `
 };
 
 // 导入依赖
-import UtilService from '../services/util-service.js';
+import QueryService from '../services/query-service.js';
 
 // 注册组件
 Vue.component('parameter-input', ParameterInput);

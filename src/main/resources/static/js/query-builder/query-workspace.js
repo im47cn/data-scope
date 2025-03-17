@@ -1,6 +1,6 @@
 /**
- * 查询构建器工作区组件
- * 提供可视化查询构建界面
+ * SQL工作区组件
+ * 集成SQL编辑器、格式化、模板等功能
  */
 const QueryWorkspace = {
     props: {
@@ -9,614 +9,315 @@ const QueryWorkspace = {
             type: String,
             required: true
         },
-        // 初始查询配置（用于加载已保存的查询）
-        initialQuery: {
-            type: Object,
-            default: () => null
+        // SQL内容
+        value: {
+            type: String,
+            default: ''
+        },
+        // 是否禁用
+        disabled: {
+            type: Boolean,
+            default: false
         }
     },
 
     data() {
         return {
-            loading: false,
-            schemas: [],
-            selectedSchema: null,
-            tables: [],
-            // 查询配置
-            queryConfig: {
-                tables: [],
-                joins: [],
-                conditions: {
-                    logic: 'AND',
-                    conditions: []
+            editor: null,           // CodeMirror实例
+            editorConfig: {
+                mode: 'text/x-sql',
+                theme: 'idea',
+                lineNumbers: true,
+                smartIndent: true,
+                indentWithTabs: false,
+                lineWrapping: true,
+                matchBrackets: true,
+                autoCloseBrackets: true,
+                autoCloseTags: true,
+                foldGutter: true,
+                gutters: ['CodeMirror-linenumbers', 'CodeMirror-foldgutter'],
+                extraKeys: {
+                    'Ctrl-Space': 'autocomplete',
+                    'Ctrl-F': 'findPersistent',
+                    'Ctrl-Alt-F': this.formatSql,
+                    'Ctrl-S': this.saveAsTemplate,
+                    'Alt-/': this.showSuggestions
                 },
-                groupBy: [],
-                orderBy: [],
-                limit: 100
+                hintOptions: {
+                    tables: {},
+                    completeSingle: false
+                }
             },
-            // 工作区状态
-            workspace: {
-                scale: 1,
-                position: { x: 0, y: 0 },
-                selectedNode: null,
-                draggingNode: null,
-                creatingJoin: null,
-                nodes: new Map(), // 存储节点位置信息
-                edges: new Map()  // 存储连接线信息
+            suggestions: [],        // 自动完成建议
+            showSuggestionList: false,
+            currentWord: '',
+            templates: [],          // 可用的查询模板
+            showTemplateDialog: false,
+            selectedTemplate: null,
+            toolbarConfig: {
+                format: true,
+                template: true,
+                history: true,
+                fullscreen: true
             },
-            // 预览状态
-            preview: {
-                loading: false,
-                sql: '',
-                valid: true,
-                errors: [],
-                warnings: []
-            },
-            // 自动布局配置
-            layout: {
-                type: 'dagre',
-                rankdir: 'LR',
-                align: 'UL',
-                ranksep: 50,
-                nodesep: 50,
-                edgesep: 10
-            }
+            isFullscreen: false
         };
     },
 
     computed: {
-        hasQuery() {
-            return this.queryConfig.tables.length > 0;
-        },
-
-        canExecute() {
-            return this.hasQuery && this.preview.valid && !this.preview.loading;
-        },
-
-        workspaceStyle() {
-            return {
-                transform: `scale(${this.workspace.scale}) 
-                           translate(${this.workspace.position.x}px, ${this.workspace.position.y}px)`
-            };
-        }
-    },
-
-    watch: {
-        dataSourceId: {
-            immediate: true,
-            handler: 'loadSchemas'
-        },
-
-        selectedSchema(newSchema) {
-            if (newSchema) {
-                this.loadTables(newSchema);
-            }
-        },
-
-        'queryConfig.tables': {
-            deep: true,
-            handler: 'handleQueryConfigChange'
-        },
-
-        'queryConfig.joins': {
-            deep: true,
-            handler: 'handleQueryConfigChange'
-        },
-
-        'queryConfig.conditions': {
-            deep: true,
-            handler: 'handleQueryConfigChange'
-        }
-    },
-
-    created() {
-        this.debouncedUpdatePreview = UtilService.debounce(this.updatePreview, 500);
-        if (this.initialQuery) {
-            this.loadSavedQuery(this.initialQuery);
+        formattedSql() {
+            return SqlFormatter.format(this.value);
         }
     },
 
     mounted() {
-        this.initWorkspace();
-        window.addEventListener('resize', this.handleResize);
-    },
-
-    beforeDestroy() {
-        window.removeEventListener('resize', this.handleResize);
+        this.initEditor();
+        this.loadTemplates();
+        this.initMetadata();
     },
 
     methods: {
-        // 加载模式列表
-        async loadSchemas() {
-            if (!this.dataSourceId) return;
-            
-            this.loading = true;
-            try {
-                const response = await DataSourceService.getSchemas(this.dataSourceId);
-                this.schemas = response.data;
-                if (this.schemas.length > 0) {
-                    this.selectedSchema = this.schemas[0].name;
+        /**
+         * 初始化编辑器
+         */
+        initEditor() {
+            // 初始化CodeMirror编辑器
+            this.editor = CodeMirror(this.$refs.editor, {
+                ...this.editorConfig,
+                value: this.value
+            });
+
+            // 监听变更事件
+            this.editor.on('change', (cm) => {
+                const value = cm.getValue();
+                this.$emit('input', value);
+                this.$emit('change', value);
+            });
+
+            // 监听光标位置变化
+            this.editor.on('cursorActivity', this.handleCursorActivity);
+
+            // 设置快捷键
+            this.setupShortcuts();
+        },
+
+        /**
+         * 设置编辑器快捷键
+         */
+        setupShortcuts() {
+            this.editor.setOption('extraKeys', {
+                ...this.editorConfig.extraKeys,
+                'Tab': (cm) => {
+                    if (cm.somethingSelected()) {
+                        cm.indentSelection('add');
+                    } else {
+                        cm.replaceSelection('    ');
+                    }
                 }
+            });
+        },
+
+        /**
+         * 初始化数据库元数据
+         */
+        async initMetadata() {
+            try {
+                const response = await DataSourceService.getSchemaInfo(this.dataSourceId);
+                const metadata = response.data;
+                
+                // 更新自动完成提示的表和字段信息
+                this.editorConfig.hintOptions.tables = this.transformMetadataForHint(metadata);
+                
+                // 重新设置编辑器配置
+                this.editor.setOption('hintOptions', this.editorConfig.hintOptions);
             } catch (error) {
-                console.error('加载模式列表失败:', error);
-                this.$message.error('加载模式列表失败');
-            } finally {
-                this.loading = false;
+                console.error('加载数据库元数据失败:', error);
+                this.$message.error('加载数据库元数据失败');
             }
         },
 
-        // 加载表列表
-        async loadTables(schema) {
-            this.loading = true;
-            try {
-                const response = await DataSourceService.getTables(
-                    this.dataSourceId,
-                    schema
-                );
-                this.tables = response.data;
-            } catch (error) {
-                console.error('加载表列表失败:', error);
-                this.$message.error('加载表列表失败');
-            } finally {
-                this.loading = false;
-            }
-        },
-
-        // 加载已保存的查询
-        loadSavedQuery(query) {
-            this.queryConfig = UtilService.deepClone(query);
-            this.$nextTick(() => {
-                this.updateWorkspaceLayout();
-            });
-        },
-
-        // 初始化工作区
-        initWorkspace() {
-            // 初始化画布大小和缩放
-            this.handleResize();
-            // 初始化事件监听
-            this.initEventListeners();
-        },
-
-        // 初始化事件监听
-        initEventListeners() {
-            const workspace = this.$refs.workspace;
-            if (!workspace) return;
-
-            // 平移
-            let isDragging = false;
-            let startX = 0;
-            let startY = 0;
-
-            workspace.addEventListener('mousedown', (e) => {
-                if (e.target === workspace) {
-                    isDragging = true;
-                    startX = e.clientX - this.workspace.position.x;
-                    startY = e.clientY - this.workspace.position.y;
-                }
-            });
-
-            workspace.addEventListener('mousemove', (e) => {
-                if (isDragging) {
-                    this.workspace.position.x = e.clientX - startX;
-                    this.workspace.position.y = e.clientY - startY;
-                }
-            });
-
-            workspace.addEventListener('mouseup', () => {
-                isDragging = false;
-            });
-
-            // 缩放
-            workspace.addEventListener('wheel', (e) => {
-                if (e.ctrlKey) {
-                    e.preventDefault();
-                    const delta = e.deltaY > 0 ? -0.1 : 0.1;
-                    this.workspace.scale = Math.max(0.5, Math.min(2, this.workspace.scale + delta));
-                }
-            });
-        },
-
-        // 处理窗口大小变化
-        handleResize() {
-            const workspace = this.$refs.workspace;
-            if (!workspace) return;
-
-            // 更新画布大小
-            workspace.style.width = `${window.innerWidth}px`;
-            workspace.style.height = `${window.innerHeight - 200}px`;
-
-            // 更新布局
-            this.updateWorkspaceLayout();
-        },
-
-        // 更新工作区布局
-        updateWorkspaceLayout() {
-            if (this.queryConfig.tables.length === 0) return;
-
-            // 使用 dagre 布局算法计算节点位置
-            const g = new dagre.graphlib.Graph();
-            g.setGraph(this.layout);
-            g.setDefaultEdgeLabel(() => ({}));
-
-            // 添加节点
-            this.queryConfig.tables.forEach(table => {
-                g.setNode(table.id, { width: 200, height: 300 });
-            });
-
-            // 添加边
-            this.queryConfig.joins.forEach(join => {
-                g.setEdge(join.leftTableId, join.rightTableId);
-            });
-
-            // 计算布局
-            dagre.layout(g);
-
-            // 更新节点位置
-            g.nodes().forEach(v => {
-                const node = g.node(v);
-                this.workspace.nodes.set(v, {
-                    x: node.x,
-                    y: node.y
-                });
-            });
-
-            // 更新边位置
-            this.workspace.edges.clear();
-            g.edges().forEach(e => {
-                const edge = g.edge(e);
-                this.workspace.edges.set(`${e.v}-${e.w}`, {
-                    points: edge.points
-                });
-            });
-        },
-
-        // 添加表到查询
-        async addTable(table) {
-            // 检查表是否已添加
-            if (this.queryConfig.tables.some(t => t.name === table.name)) {
-                this.$message.warning(`表 ${table.name} 已添加到查询中`);
-                return;
-            }
-
-            try {
-                // 获取表详情
-                const response = await DataSourceService.getTableDetails(
-                    this.dataSourceId,
-                    this.selectedSchema,
-                    table.name
-                );
-
-                // 创建表配置
-                const tableId = UtilService.generateUniqueId();
-                const tableConfig = {
-                    id: tableId,
-                    name: table.name,
-                    alias: '',
-                    columns: response.data.columns.map(column => ({
-                        name: column.name,
-                        alias: '',
-                        selected: true,
-                        aggregateFunction: ''
+        /**
+         * 转换元数据为提示格式
+         */
+        transformMetadataForHint(metadata) {
+            const result = {};
+            metadata.tables.forEach(table => {
+                result[table.name] = {
+                    columns: table.columns.map(col => ({
+                        name: col.name,
+                        type: col.type,
+                        description: col.description
                     }))
                 };
+            });
+            return result;
+        },
 
-                // 添加到查询配置
-                this.queryConfig.tables.push(tableConfig);
-
-                // 如果已有表，尝试推断关系
-                if (this.queryConfig.tables.length > 1) {
-                    await this.inferTableRelationships(tableId);
-                }
-
-                // 更新布局
-                this.$nextTick(() => {
-                    this.updateWorkspaceLayout();
-                });
+        /**
+         * 加载查询模板
+         */
+        async loadTemplates() {
+            try {
+                const response = await QueryService.getQueryTemplates(this.dataSourceId);
+                this.templates = response.data;
             } catch (error) {
-                console.error('添加表失败:', error);
-                this.$message.error(`添加表 ${table.name} 失败`);
+                console.error('加载查询模板失败:', error);
+                this.$message.error('加载查询模板失败');
             }
         },
 
-        // 推断表关系
-        async inferTableRelationships(newTableId) {
-            const newTable = this.queryConfig.tables.find(t => t.id === newTableId);
-            if (!newTable) return;
+        /**
+         * 格式化SQL
+         */
+        formatSql() {
+            const formatted = SqlFormatter.format(this.editor.getValue());
+            this.editor.setValue(formatted);
+        },
 
-            for (const existingTable of this.queryConfig.tables) {
-                if (existingTable.id === newTableId) continue;
+        /**
+         * 保存为模板
+         */
+        saveAsTemplate() {
+            this.showTemplateDialog = true;
+        },
 
-                try {
-                    const response = await QueryService.inferTableRelationship(
-                        this.dataSourceId,
-                        existingTable.name,
-                        newTable.name
-                    );
+        /**
+         * 应用模板
+         */
+        applyTemplate(template) {
+            const sql = template.sql;
+            const currentPosition = this.editor.getCursor();
+            this.editor.replaceRange(sql, currentPosition);
+            this.showTemplateDialog = false;
+        },
 
-                    if (response.data.relationships?.length > 0) {
-                        // 使用置信度最高的关系
-                        const bestRelationship = response.data.relationships[0];
-
-                        // 创建连接配置
-                        const joinConfig = {
-                            id: UtilService.generateUniqueId(),
-                            leftTableId: existingTable.id,
-                            leftColumn: bestRelationship.leftColumn,
-                            rightTableId: newTableId,
-                            rightColumn: bestRelationship.rightColumn,
-                            type: 'INNER'
-                        };
-
-                        // 添加到查询配置
-                        this.queryConfig.joins.push(joinConfig);
-
-                        this.$notification.info({
-                            message: '表关系推荐',
-                            description: `已自动添加表 ${existingTable.name} 和 ${newTable.name} 之间的关系`
-                        });
-                    }
-                } catch (error) {
-                    console.error('推断表关系失败:', error);
+        /**
+         * 处理光标位置变化
+         */
+        handleCursorActivity(cm) {
+            const pos = cm.getCursor();
+            const token = cm.getTokenAt(pos);
+            
+            if (token.string !== this.currentWord) {
+                this.currentWord = token.string;
+                if (token.string.length >= 2) {
+                    this.showSuggestions();
                 }
             }
         },
 
-        // 移除表
-        removeTable(tableId) {
-            // 找到表
-            const tableIndex = this.queryConfig.tables.findIndex(t => t.id === tableId);
-            if (tableIndex === -1) return;
-
-            const table = this.queryConfig.tables[tableIndex];
-
-            // 移除相关的连接
-            this.queryConfig.joins = this.queryConfig.joins.filter(
-                join => join.leftTableId !== tableId && join.rightTableId !== tableId
-            );
-
-            // 移除相关的条件
-            this.removeConditionsForTable(tableId);
-
-            // 移除相关的分组和排序
-            this.queryConfig.groupBy = this.queryConfig.groupBy.filter(
-                group => group.tableId !== tableId
-            );
-            this.queryConfig.orderBy = this.queryConfig.orderBy.filter(
-                order => order.tableId !== tableId
-            );
-
-            // 从查询配置中移除表
-            this.queryConfig.tables.splice(tableIndex, 1);
-
-            // 移除节点和边的位置信息
-            this.workspace.nodes.delete(tableId);
-            this.workspace.edges.forEach((_, key) => {
-                if (key.includes(tableId)) {
-                    this.workspace.edges.delete(key);
-                }
-            });
-
-            // 更新布局
-            this.$nextTick(() => {
-                this.updateWorkspaceLayout();
-            });
-        },
-
-        // 移除表相关的条件
-        removeConditionsForTable(tableId) {
-            const removeConditionsRecursive = (conditionGroup) => {
-                if (!conditionGroup || !conditionGroup.conditions) return conditionGroup;
-
-                const filteredConditions = conditionGroup.conditions.filter(condition => {
-                    if (condition.conditions) {
-                        return removeConditionsRecursive(condition);
-                    } else {
-                        return condition.tableId !== tableId;
-                    }
-                });
-
-                conditionGroup.conditions = filteredConditions;
-                return conditionGroup;
-            };
-
-            this.queryConfig.conditions = removeConditionsRecursive(this.queryConfig.conditions);
-        },
-
-        // 处理查询配置变化
-        handleQueryConfigChange() {
-            this.debouncedUpdatePreview();
-        },
-
-        // 更新SQL预览
-        async updatePreview() {
-            if (this.queryConfig.tables.length === 0) {
-                this.preview.sql = '';
-                this.preview.valid = false;
+        /**
+         * 显示建议
+         */
+        async showSuggestions() {
+            if (!this.currentWord || this.currentWord.length < 2) {
                 return;
             }
 
-            this.preview.loading = true;
             try {
-                const response = await QueryService.generateSql({
-                    dataSourceId: this.dataSourceId,
-                    schema: this.selectedSchema,
-                    ...this.queryConfig
-                });
-
-                this.preview.sql = response.data.sql;
-                this.preview.valid = response.data.valid;
-                this.preview.errors = response.data.errors;
-                this.preview.warnings = response.data.warnings;
-
-                // 发出更新事件
-                this.$emit('preview-updated', {
-                    sql: this.preview.sql,
-                    valid: this.preview.valid
-                });
+                const response = await QueryService.getQuerySuggestions(
+                    this.dataSourceId,
+                    this.currentWord
+                );
+                
+                this.suggestions = response.data;
+                if (this.suggestions.length > 0) {
+                    this.showSuggestionList = true;
+                }
             } catch (error) {
-                console.error('生成SQL预览失败:', error);
-                this.preview.valid = false;
-                this.preview.errors = [error.message || '生成SQL失败'];
-            } finally {
-                this.preview.loading = false;
+                console.error('获取建议失败:', error);
             }
         },
 
-        // 获取当前查询配置
-        getQueryConfig() {
-            return {
-                dataSourceId: this.dataSourceId,
-                schema: this.selectedSchema,
-                ...UtilService.deepClone(this.queryConfig)
-            };
+        /**
+         * 插入建议
+         */
+        insertSuggestion(suggestion) {
+            const cursor = this.editor.getCursor();
+            const token = this.editor.getTokenAt(cursor);
+            const start = { line: cursor.line, ch: token.start };
+            const end = { line: cursor.line, ch: token.end };
+            
+            this.editor.replaceRange(suggestion.text, start, end);
+            this.showSuggestionList = false;
+        },
+
+        /**
+         * 切换全屏
+         */
+        toggleFullscreen() {
+            this.isFullscreen = !this.isFullscreen;
+            if (this.isFullscreen) {
+                this.$el.classList.add('fullscreen');
+            } else {
+                this.$el.classList.remove('fullscreen');
+            }
+            this.editor.refresh();
+        }
+    },
+
+    beforeDestroy() {
+        // 清理编辑器实例
+        if (this.editor) {
+            this.editor.toTextArea();
         }
     },
 
     template: `
-        <div class="query-workspace-container">
+        <div class="query-workspace" :class="{ 'fullscreen': isFullscreen }">
             <!-- 工具栏 -->
             <div class="workspace-toolbar">
-                <a-select
-                    v-model="selectedSchema"
-                    placeholder="选择模式"
-                    style="width: 200px"
-                    :loading="loading"
-                >
-                    <a-select-option 
-                        v-for="schema in schemas"
-                        :key="schema.name"
-                        :value="schema.name"
-                    >
-                        {{ schema.name }}
-                    </a-select-option>
-                </a-select>
+                <a-space>
+                    <a-tooltip title="格式化 (Ctrl+Alt+F)" v-if="toolbarConfig.format">
+                        <a-button @click="formatSql">
+                            <a-icon type="align-left" />
+                        </a-button>
+                    </a-tooltip>
+                    
+                    <a-tooltip title="模板 (Ctrl+S)" v-if="toolbarConfig.template">
+                        <a-button @click="saveAsTemplate">
+                            <a-icon type="save" />
+                        </a-button>
+                    </a-tooltip>
+                    
+                    <a-tooltip title="全屏" v-if="toolbarConfig.fullscreen">
+                        <a-button @click="toggleFullscreen">
+                            <a-icon :type="isFullscreen ? 'fullscreen-exit' : 'fullscreen'" />
+                        </a-button>
+                    </a-tooltip>
+                </a-space>
             </div>
 
-            <!-- 主工作区 -->
-            <div class="workspace-main">
-                <!-- 表列表侧边栏 -->
-                <div class="workspace-sidebar">
-                    <div class="sidebar-header">
-                        <h3>可用表</h3>
-                        <a-input-search
-                            v-model="tableFilter"
-                            placeholder="搜索表"
-                            style="margin-bottom: 16px"
-                        />
-                    </div>
-                    <div class="table-list">
-                        <a-spin :spinning="loading">
-                            <a-list
-                                :dataSource="tables"
-                                :locale="{ emptyText: '无可用表' }"
-                            >
-                                <a-list-item
-                                    slot="renderItem"
-                                    slot-scope="table"
-                                    :key="table.name"
-                                    class="table-list-item"
-                                    draggable="true"
-                                    @dragstart="handleTableDragStart(table)"
-                                    @click="addTable(table)"
-                                >
-                                    <a-icon type="table" />
-                                    <span>{{ table.name }}</span>
-                                </a-list-item>
-                            </a-list>
-                        </a-spin>
-                    </div>
-                </div>
+            <!-- 编辑器容器 -->
+            <div ref="editor" class="sql-editor"></div>
 
-                <!-- 工作区画布 -->
-                <div 
-                    ref="workspace"
-                    class="workspace-canvas"
-                    @drop="handleTableDrop"
-                    @dragover.prevent
-                >
-                    <div 
-                        class="workspace-content"
-                        :style="workspaceStyle"
-                    >
-                        <!-- 表节点 -->
-                        <div
-                            v-for="table in queryConfig.tables"
-                            :key="table.id"
-                            class="table-node"
-                            :style="getNodeStyle(table.id)"
-                            @mousedown="handleNodeMouseDown(table, $event)"
-                        >
-                            <div class="table-header">
-                                <span class="table-name">{{ table.name }}</span>
-                                <a-input
-                                    v-model="table.alias"
-                                    placeholder="别名"
-                                    class="table-alias"
-                                    @click.stop
-                                />
-                                <a-button
-                                    type="link"
-                                    size="small"
-                                    @click.stop="removeTable(table.id)"
-                                >
-                                    <a-icon type="close" />
-                                </a-button>
-                            </div>
-                            <div class="table-columns">
-                                <div
-                                    v-for="column in table.columns"
-                                    :key="column.name"
-                                    class="column-item"
-                                    :class="{ selected: column.selected }"
-                                    @click.stop="toggleColumn(table, column)"
-                                >
-                                    <a-checkbox
-                                        v-model="column.selected"
-                                        @click.stop
-                                    />
-                                    <span class="column-name">{{ column.name }}</span>
-                                    <a-select
-                                        v-if="column.selected"
-                                        v-model="column.aggregateFunction"
-                                        style="width: 90px"
-                                        size="small"
-                                        @click.stop
-                                    >
-                                        <a-select-option value="">无聚合</a-select-option>
-                                        <a-select-option value="COUNT">COUNT</a-select-option>
-                                        <a-select-option value="SUM">SUM</a-select-option>
-                                        <a-select-option value="AVG">AVG</a-select-option>
-                                        <a-select-option value="MAX">MAX</a-select-option>
-                                        <a-select-option value="MIN">MIN</a-select-option>
-                                    </a-select>
-                                </div>
-                            </div>
-                        </div>
+            <!-- 建议列表 -->
+            <a-card v-if="showSuggestionList" class="suggestion-list">
+                <a-list size="small" :dataSource="suggestions">
+                    <a-list-item slot="renderItem" slot-scope="item">
+                        <a @click="insertSuggestion(item)">
+                            {{ item.text }}
+                            <span class="suggestion-type">{{ item.type }}</span>
+                        </a>
+                    </a-list-item>
+                </a-list>
+            </a-card>
 
-                        <!-- 连接线 -->
-                        <svg class="joins-svg">
-                            <g>
-                                <path
-                                    v-for="join in queryConfig.joins"
-                                    :key="join.id"
-                                    :d="getJoinPath(join)"
-                                    class="join-path"
-                                    @click="editJoin(join)"
-                                />
-                            </g>
-                        </svg>
-                    </div>
-                </div>
-            </div>
+            <!-- 模板对话框 -->
+            <query-template
+                v-model="showTemplateDialog"
+                :dataSourceId="dataSourceId"
+                :templates="templates"
+                @select="applyTemplate"
+            />
         </div>
     `
 };
 
 // 导入依赖
-import DataSourceService from '../services/datasource-service.js';
 import QueryService from '../services/query-service.js';
-import UtilService from '../services/util-service.js';
+import DataSourceService from '../services/datasource-service.js';
+import SqlFormatter from '../services/sql-formatter.js';
 
 // 注册组件
 Vue.component('query-workspace', QueryWorkspace);

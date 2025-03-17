@@ -1,0 +1,242 @@
+/**
+ * SQL高亮样式
+ */
+
+/* SQL编辑器容器 */
+.sql-editor {
+    font-family: 'JetBrains Mono', 'Fira Code', 'Source Code Pro', Monaco, Menlo, Consolas, monospace;
+    font-size: 14px;
+    line-height: 1.5;
+    padding: 12px;
+    border-radius: 4px;
+    background-color: #f8f9fa;
+    border: 1px solid #e9ecef;
+}
+
+.dark-theme .sql-editor {
+    background-color: #282c34;
+    border-color: #3e4451;
+    color: #abb2bf;
+}
+
+/* SQL关键字 */
+.sql-statement {
+    color: #d73a49;
+    font-weight: bold;
+}
+
+.dark-theme .sql-statement {
+    color: #c678dd;
+}
+
+.sql-clause {
+    color: #6f42c1;
+    font-weight: bold;
+}
+
+.dark-theme .sql-clause {
+    color: #c678dd;
+}
+
+.sql-join {
+    color: #e36209;
+    font-weight: bold;
+}
+
+.dark-theme .sql-join {
+    color: #c678dd;
+}
+
+.sql-operator {
+    color: #005cc5;
+    font-weight: bold;
+}
+
+.dark-theme .sql-operator {
+    color: #56b6c2;
+}
+
+/* SQL函数 */
+.sql-function {
+    color: #6f42c1;
+}
+
+.dark-theme .sql-function {
+    color: #61afef;
+}
+
+/* 字符串 */
+.sql-string {
+    color: #032f62;
+}
+
+.dark-theme .sql-string {
+    color: #98c379;
+}
+
+/* 数字 */
+.sql-number {
+    color: #005cc5;
+}
+
+.dark-theme .sql-number {
+    color: #d19a66;
+}
+
+/* 参数 */
+.sql-parameter {
+    color: #e36209;
+    font-style: italic;
+}
+
+.dark-theme .sql-parameter {
+    color: #d19a66;
+    font-style: italic;
+}
+
+/* 注释 */
+.sql-comment {
+    color: #6a737d;
+    font-style: italic;
+}
+
+.dark-theme .sql-comment {
+    color: #5c6370;
+}
+
+/* 编辑器行号 */
+.sql-editor-line-numbers {
+    color: #6a737d;
+    border-right: 1px solid #e1e4e8;
+    padding-right: 10px;
+    margin-right: 10px;
+    user-select: none;
+}
+
+.dark-theme .sql-editor-line-numbers {
+    color: #5c6370;
+    border-right-color: #3e4451;
+}
+
+/* 选中文本 */
+.sql-editor ::selection {
+    background-color: #0366d6;
+    color: #ffffff;
+}
+
+.dark-theme .sql-editor ::selection {
+    background-color: #3e4451;
+}
+
+/* 错误提示 */
+.sql-error {
+    background-color: #ffeef0;
+    border-bottom: 2px dotted #f97583;
+}
+
+.dark-theme .sql-error {
+    background-color: rgba(224, 108, 117, 0.2);
+    border-bottom-color: #e06c75;
+}
+
+/* 自动完成提示框 */
+.sql-autocomplete {
+    background-color: #ffffff;
+    border: 1px solid #e1e4e8;
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.dark-theme .sql-autocomplete {
+    background-color: #282c34;
+    border-color: #3e4451;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.sql-autocomplete-item {
+    padding: 4px 8px;
+    cursor: pointer;
+}
+
+.sql-autocomplete-item:hover {
+    background-color: #f1f8ff;
+}
+
+.dark-theme .sql-autocomplete-item:hover {
+    background-color: #3e4451;
+}
+
+.sql-autocomplete-item.active {
+    background-color: #0366d6;
+    color: #ffffff;
+}
+
+.dark-theme .sql-autocomplete-item.active {
+    background-color: #3e4451;
+}
+
+/* 语法提示 */
+.sql-hint {
+    position: absolute;
+    background-color: #fffbdd;
+    border: 1px solid #e1e4e8;
+    border-radius: 4px;
+    padding: 4px 8px;
+    font-size: 12px;
+    color: #24292e;
+    z-index: 1000;
+    max-width: 300px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+}
+
+.dark-theme .sql-hint {
+    background-color: #3e4451;
+    border-color: #181a1f;
+    color: #abb2bf;
+}
+
+/* 折叠/展开按钮 */
+.sql-fold-marker {
+    color: #6a737d;
+    cursor: pointer;
+    user-select: none;
+}
+
+.dark-theme .sql-fold-marker {
+    color: #5c6370;
+}
+
+/* 格式化按钮 */
+.sql-format-button {
+    background-color: #fafbfc;
+    border: 1px solid #e1e4e8;
+    border-radius: 4px;
+    padding: 4px 8px;
+    cursor: pointer;
+}
+
+.dark-theme .sql-format-button {
+    background-color: #3e4451;
+    border-color: #181a1f;
+    color: #abb2bf;
+}
+
+.sql-format-button:hover {
+    background-color: #f3f4f6;
+}
+
+.dark-theme .sql-format-button:hover {
+    background-color: #4b5263;
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+    .sql-editor {
+        font-size: 13px;
+        padding: 8px;
+    }
+
+    .sql-editor-line-numbers {
+        display: none;
+    }
+}

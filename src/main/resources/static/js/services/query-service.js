@@ -1,42 +1,15 @@
 /**
- * 查询构建器服务
- * 提供SQL生成和查询执行相关的功能
+ * 查询服务
+ * 处理查询执行、模板管理等相关操作
  */
 const QueryService = {
     /**
-     * 根据查询配置生成SQL
-     * @param {Object} queryConfig 查询配置
-     * @returns {Promise} 返回生成的SQL
-     */
-    generateSql(queryConfig) {
-        return axios.post('/api/v1/query/generate-sql', { queryConfig });
-    },
-
-    /**
-     * 验证SQL语句
-     * @param {Object} params 验证参数
-     * @returns {Promise} 返回验证结果
-     */
-    validateSql(params) {
-        return axios.post('/api/v1/query/validate-sql', params);
-    },
-
-    /**
      * 执行查询
      * @param {Object} params 查询参数
-     * @returns {Promise} 返回查询ID
+     * @returns {Promise} 查询结果
      */
-    executeQuery(params) {
-        return axios.post('/api/v1/query/execute', params);
-    },
-
-    /**
-     * 获取查询状态
-     * @param {string} queryId 查询ID
-     * @returns {Promise} 返回查询状态
-     */
-    getQueryStatus(queryId) {
-        return axios.get(`/api/v1/query/${queryId}/status`);
+    async executeQuery(params) {
+        return axios.post('/api/query/execute', params);
     },
 
     /**
@@ -44,125 +17,143 @@ const QueryService = {
      * @param {string} queryId 查询ID
      * @returns {Promise}
      */
-    cancelQuery(queryId) {
-        return axios.post(`/api/v1/query/${queryId}/cancel`);
+    async cancelQuery(queryId) {
+        return axios.post(`/api/query/${queryId}/cancel`);
+    },
+
+    /**
+     * 获取查询状态
+     * @param {string} queryId 查询ID
+     * @returns {Promise}
+     */
+    async getQueryStatus(queryId) {
+        return axios.get(`/api/query/${queryId}/status`);
     },
 
     /**
      * 获取查询结果
      * @param {string} queryId 查询ID
-     * @param {Object} params 分页和排序参数
-     * @returns {Promise} 返回查询结果
+     * @param {Object} params 分页参数
+     * @returns {Promise}
      */
-    getQueryResults(queryId, params) {
-        return axios.get(`/api/v1/query/${queryId}/results`, { params });
+    async getQueryResults(queryId, params) {
+        return axios.get(`/api/query/${queryId}/results`, { params });
     },
 
     /**
-     * 导出查询结果
-     * @param {string} queryId 查询ID
-     * @param {string} format 导出格式
-     * @returns {string} 导出文件的URL
-     */
-    getExportUrl(queryId, format) {
-        return `/api/v1/query/${queryId}/export?format=${format}`;
-    },
-
-    /**
-     * 保存查询
-     * @param {Object} query 查询配置
-     * @returns {Promise} 返回保存的查询
-     */
-    saveQuery(query) {
-        return axios.post('/api/v1/saved-queries', query);
-    },
-
-    /**
-     * 获取已保存的查询
-     * @param {Object} params 查询参数
-     * @returns {Promise} 返回查询列表
-     */
-    getSavedQueries(params) {
-        return axios.get('/api/v1/saved-queries', { params });
-    },
-
-    /**
-     * 获取查询详情
-     * @param {string} queryId 查询ID
-     * @returns {Promise} 返回查询详情
-     */
-    getSavedQuery(queryId) {
-        return axios.get(`/api/v1/saved-queries/${queryId}`);
-    },
-
-    /**
-     * 更新已保存的查询
-     * @param {string} queryId 查询ID
-     * @param {Object} query 查询配置
-     * @returns {Promise} 返回更新后的查询
-     */
-    updateSavedQuery(queryId, query) {
-        return axios.put(`/api/v1/saved-queries/${queryId}`, query);
-    },
-
-    /**
-     * 删除已保存的查询
+     * 获取查询执行计划
      * @param {string} queryId 查询ID
      * @returns {Promise}
      */
-    deleteSavedQuery(queryId) {
-        return axios.delete(`/api/v1/saved-queries/${queryId}`);
-    },
-
-    /**
-     * 共享查询
-     * @param {string} queryId 查询ID
-     * @param {Object} params 共享参数
-     * @returns {Promise} 返回共享结果
-     */
-    shareQuery(queryId, params) {
-        return axios.post(`/api/v1/saved-queries/${queryId}/share`, params);
+    async getQueryPlan(queryId) {
+        return axios.get(`/api/query/${queryId}/plan`);
     },
 
     /**
      * 获取查询历史
+     * @param {string} dataSourceId 数据源ID
      * @param {Object} params 查询参数
-     * @returns {Promise} 返回历史记录
+     * @returns {Promise}
      */
-    getQueryHistory(params) {
-        return axios.get('/api/v1/query-history', { params });
+    async getQueryHistory(dataSourceId, params) {
+        return axios.get(`/api/query/history/${dataSourceId}`, { params });
     },
 
     /**
-     * 推断表关系
-     * @param {string} dataSourceId 数据源ID
-     * @param {string} leftTable 左表名
-     * @param {string} rightTable 右表名
-     * @returns {Promise} 返回推断的关系
+     * 保存查询模板
+     * @param {Object} template 查询模板
+     * @returns {Promise}
      */
-    inferTableRelationship(dataSourceId, leftTable, rightTable) {
-        return axios.get(`/api/v1/data-sources/${dataSourceId}/relationships/infer`, {
-            params: { leftTable, rightTable }
+    async createQueryTemplate(template) {
+        return axios.post('/api/query/templates', template);
+    },
+
+    /**
+     * 更新查询模板
+     * @param {string} templateId 模板ID
+     * @param {Object} template 查询模板
+     * @returns {Promise}
+     */
+    async updateQueryTemplate(templateId, template) {
+        return axios.put(`/api/query/templates/${templateId}`, template);
+    },
+
+    /**
+     * 获取查询模板列表
+     * @param {string} dataSourceId 数据源ID
+     * @param {Object} params 查询参数
+     * @returns {Promise}
+     */
+    async getQueryTemplates(dataSourceId, params) {
+        return axios.get(`/api/query/templates/${dataSourceId}`, { params });
+    },
+
+    /**
+     * 删除查询模板
+     * @param {string} templateId 模板ID
+     * @returns {Promise}
+     */
+    async deleteQueryTemplate(templateId) {
+        return axios.delete(`/api/query/templates/${templateId}`);
+    },
+
+    /**
+     * 获取导出URL
+     * @param {string} queryId 查询ID
+     * @param {string} format 导出格式
+     * @returns {string} 导出URL
+     */
+    getExportUrl(queryId, format) {
+        return `/api/query/${queryId}/export?format=${format}`;
+    },
+
+    /**
+     * 检查SQL语法
+     * @param {Object} params SQL检查参数
+     * @returns {Promise}
+     */
+    async checkSqlSyntax(params) {
+        return axios.post('/api/query/check-syntax', params);
+    },
+
+    /**
+     * 获取查询建议
+     * @param {string} dataSourceId 数据源ID
+     * @param {string} sql SQL语句
+     * @returns {Promise}
+     */
+    async getQuerySuggestions(dataSourceId, sql) {
+        return axios.get(`/api/query/suggestions/${dataSourceId}`, {
+            params: { sql }
         });
     },
 
     /**
-     * 获取表关系
-     * @param {string} dataSourceId 数据源ID
-     * @param {string} schema 模式名
-     * @returns {Promise} 返回表关系列表
+     * 预估查询资源消耗
+     * @param {Object} params 查询参数
+     * @returns {Promise}
      */
-    getTableRelationships(dataSourceId, schema) {
-        return axios.get(`/api/v1/data-sources/${dataSourceId}/schemas/${schema}/relationships`);
+    async estimateQueryResources(params) {
+        return axios.post('/api/query/estimate-resources', params);
     },
 
     /**
-     * 分析查询性能
-     * @param {Object} params 查询参数
-     * @returns {Promise} 返回性能分析结果
+     * 获取查询模板参数建议值
+     * @param {string} templateId 模板ID
+     * @param {string} paramName 参数名
+     * @returns {Promise}
      */
-    analyzeQuery(params) {
-        return axios.post('/api/v1/query/analyze', params);
+    async getTemplateParamSuggestions(templateId, paramName) {
+        return axios.get(`/api/query/templates/${templateId}/params/${paramName}/suggestions`);
+    },
+
+    /**
+     * 获取查询统计信息
+     * @param {string} dataSourceId 数据源ID
+     * @returns {Promise}
+     */
+    async getQueryStatistics(dataSourceId) {
+        return axios.get(`/api/query/statistics/${dataSourceId}`);
     }
 };
 

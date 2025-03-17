@@ -3,320 +3,186 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>InsightData - 数据管理与查询系统</title>
+    <title>InsightData - 智能数据查询平台</title>
     
-    <!-- 引入样式 -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ant-design-vue@1.7.8/dist/antd.min.css">
-    <link rel="stylesheet" href="/static/css/style.css">
+    <!-- 图标 -->
+    <link rel="icon" href="img/logo.png">
     
-    <!-- 引入脚本 -->
-    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/vue-router@3.5.3/dist/vue-router.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/axios@0.24.0/dist/axios.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/moment@2.29.1/moment.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/ant-design-vue@1.7.8/dist/antd.min.js"></script>
+    <!-- Ant Design Vue CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/ant-design-vue@1.7.8/dist/antd.min.css">
+    
+    <!-- CodeMirror CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/idea.min.css">
+    
+    <!-- 自定义样式 -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/query-builder.css">
+    <link rel="stylesheet" href="css/query-workspace.css">
+    <link rel="stylesheet" href="css/query-template.css">
+    <link rel="stylesheet" href="css/parameter-input.css">
+    <link rel="stylesheet" href="css/sql-highlight.css">
+    
+    <!-- 字体 -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap">
 </head>
 <body>
-    <div id="app"></div>
+    <div id="app">
+        <a-config-provider :locale="locale">
+            <!-- 应用布局 -->
+            <a-layout class="app-layout">
+                <!-- 侧边栏 -->
+                <a-layout-sider
+                    v-model="collapsed"
+                    :trigger="null"
+                    collapsible
+                    class="app-sider"
+                >
+                    <div class="logo">
+                        <img src="img/logo.png" alt="Logo">
+                        <h1 v-show="!collapsed">InsightData</h1>
+                    </div>
+                    <a-menu
+                        theme="dark"
+                        mode="inline"
+                        v-model="selectedKeys"
+                    >
+                        <a-menu-item key="datasource">
+                            <router-link to="/datasource">
+                                <a-icon type="database" />
+                                <span>数据源管理</span>
+                            </router-link>
+                        </a-menu-item>
+                        <a-menu-item key="query">
+                            <router-link to="/query">
+                                <a-icon type="code" />
+                                <span>查询构建器</span>
+                            </router-link>
+                        </a-menu-item>
+                        <a-menu-item key="nlquery">
+                            <router-link to="/nlquery">
+                                <a-icon type="message" />
+                                <span>自然语言查询</span>
+                            </router-link>
+                        </a-menu-item>
+                        <a-menu-item key="dashboard">
+                            <router-link to="/dashboard">
+                                <a-icon type="dashboard" />
+                                <span>数据仪表盘</span>
+                            </router-link>
+                        </a-menu-item>
+                    </a-menu>
+                </a-layout-sider>
+
+                <!-- 主体内容 -->
+                <a-layout>
+                    <!-- 头部 -->
+                    <a-layout-header class="app-header">
+                        <a-icon
+                            class="trigger"
+                            :type="collapsed ? 'menu-unfold' : 'menu-fold'"
+                            @click="() => (collapsed = !collapsed)"
+                        />
+                        <div class="header-right">
+                            <a-dropdown>
+                                <a class="ant-dropdown-link">
+                                    主题 <a-icon type="down" />
+                                </a>
+                                <a-menu slot="overlay">
+                                    <a-menu-item key="light" @click="setTheme('light')">
+                                        <a-icon type="sun" />浅色
+                                    </a-menu-item>
+                                    <a-menu-item key="dark" @click="setTheme('dark')">
+                                        <a-icon type="moon" />深色
+                                    </a-menu-item>
+                                </a-menu>
+                            </a-dropdown>
+                            <a-divider type="vertical" />
+                            <a-dropdown>
+                                <a class="ant-dropdown-link">
+                                    用户名 <a-icon type="down" />
+                                </a>
+                                <a-menu slot="overlay">
+                                    <a-menu-item key="profile">
+                                        <a-icon type="user" />个人信息
+                                    </a-menu-item>
+                                    <a-menu-item key="settings">
+                                        <a-icon type="setting" />设置
+                                    </a-menu-item>
+                                    <a-menu-divider />
+                                    <a-menu-item key="logout">
+                                        <a-icon type="logout" />退出登录
+                                    </a-menu-item>
+                                </a-menu>
+                            </a-dropdown>
+                        </div>
+                    </a-layout-header>
+
+                    <!-- 内容区域 -->
+                    <a-layout-content class="app-content">
+                        <router-view></router-view>
+                    </a-layout-content>
+                </a-layout>
+            </a-layout>
+        </a-config-provider>
+    </div>
+
+    <!-- Vue -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.7.14/dist/vue.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue-router@3.6.5/dist/vue-router.min.js"></script>
     
-    <!-- 数据源管理组件 -->
-    <script src="/static/js/datasource/datasource-list.js"></script>
-    <script src="/static/js/datasource/datasource-form.js"></script>
-    <script src="/static/js/datasource/datasource-detail.js"></script>
+    <!-- Ant Design Vue -->
+    <script src="https://unpkg.com/ant-design-vue@1.7.8/dist/antd.min.js"></script>
+    <script src="https://unpkg.com/moment@2.29.4/min/moment-with-locales.min.js"></script>
     
-    <!-- 表关系管理组件 -->
-    <script src="/static/js/table-relationship/table-relationship-list.js"></script>
-    <script src="/static/js/table-relationship/table-relationship-graph.js"></script>
-    <script src="/static/js/table-relationship/table-relationship-page.js"></script>
-    <script src="/static/js/table-relationship/index.js"></script>
+    <!-- CodeMirror -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/sql/sql.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/hint/show-hint.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/hint/sql-hint.min.js"></script>
     
-    <!-- 仪表盘组件 -->
-    <script>
-        // 仪表盘组件
-        Vue.component('dashboard', {
-            data() {
-                return {
-                    loading: false,
-                    stats: {
-                        totalDataSources: 0,
-                        activeDataSources: 0,
-                        totalTables: 0,
-                        totalQueries: 0
-                    },
-                    recentDataSources: [],
-                    recentQueries: []
-                };
+    <!-- 应用脚本 -->
+    <script type="module">
+        import router from './js/router.js';
+        import zhCN from 'https://unpkg.com/ant-design-vue@1.7.8/lib/locale-provider/zh_CN';
+        
+        // 初始化应用
+        new Vue({
+            el: '#app',
+            router,
+            data: {
+                collapsed: false,
+                selectedKeys: [],
+                locale: zhCN,
+                theme: localStorage.getItem('theme') || 'light'
             },
-            mounted() {
-                this.fetchStats();
-                this.fetchRecentDataSources();
-                this.fetchRecentQueries();
+            
+            created() {
+                // 设置初始主题
+                this.applyTheme(this.theme);
+                
+                // 根据路由设置选中菜单
+                this.selectedKeys = [this.$route.path.split('/')[1] || 'datasource'];
             },
+            
             methods: {
-                fetchStats() {
-                    // 这里应该从后端获取统计数据
-                    // 目前使用模拟数据
-                    this.stats = {
-                        totalDataSources: 5,
-                        activeDataSources: 3,
-                        totalTables: 120,
-                        totalQueries: 45
-                    };
+                setTheme(theme) {
+                    this.theme = theme;
+                    localStorage.setItem('theme', theme);
+                    this.applyTheme(theme);
                 },
-                fetchRecentDataSources() {
-                    // 这里应该从后端获取最近的数据源
-                    // 目前使用模拟数据
-                    this.recentDataSources = [
-                        { id: 1, name: '生产数据库', type: 'MYSQL', host: 'prod-db.example.com', active: true },
-                        { id: 2, name: '测试数据库', type: 'POSTGRESQL', host: 'test-db.example.com', active: true },
-                        { id: 3, name: '开发数据库', type: 'MYSQL', host: 'dev-db.example.com', active: false }
-                    ];
-                },
-                fetchRecentQueries() {
-                    // 这里应该从后端获取最近的查询
-                    // 目前使用模拟数据
-                    this.recentQueries = [
-                        { id: 1, name: '月度销售报表', dataSource: '生产数据库', createdAt: '2025-03-14 10:30:00' },
-                        { id: 2, name: '用户活跃度分析', dataSource: '生产数据库', createdAt: '2025-03-13 15:45:00' },
-                        { id: 3, name: '产品库存统计', dataSource: '测试数据库', createdAt: '2025-03-12 09:15:00' }
-                    ];
-                },
-                viewDataSource(id) {
-                    this.$router.push(`/datasource/${id}`);
-                },
-                viewQuery(id) {
-                    this.$router.push(`/query-builder?id=${id}`);
-                },
-                formatDate(date) {
-                    return moment(date).format('YYYY-MM-DD HH:mm:ss');
+                
+                applyTheme(theme) {
+                    document.body.className = theme === 'dark' ? 'dark-theme' : '';
                 }
             },
-            template: `
-                <div class="dashboard-container">
-                    <div class="page-header">
-                        <h1>仪表盘</h1>
-                    </div>
-                    
-                    <a-row :gutter="16">
-                        <a-col :span="6">
-                            <a-card>
-                                <a-statistic
-                                    title="数据源总数"
-                                    :value="stats.totalDataSources"
-                                    :valueStyle="{ color: '#3f8600' }"
-                                >
-                                    <template #prefix>
-                                        <a-icon type="database" />
-                                    </template>
-                                </a-statistic>
-                            </a-card>
-                        </a-col>
-                        <a-col :span="6">
-                            <a-card>
-                                <a-statistic
-                                    title="活跃数据源"
-                                    :value="stats.activeDataSources"
-                                    :valueStyle="{ color: '#1890ff' }"
-                                >
-                                    <template #prefix>
-                                        <a-icon type="check-circle" />
-                                    </template>
-                                </a-statistic>
-                            </a-card>
-                        </a-col>
-                        <a-col :span="6">
-                            <a-card>
-                                <a-statistic
-                                    title="表总数"
-                                    :value="stats.totalTables"
-                                    :valueStyle="{ color: '#722ed1' }"
-                                >
-                                    <template #prefix>
-                                        <a-icon type="table" />
-                                    </template>
-                                </a-statistic>
-                            </a-card>
-                        </a-col>
-                        <a-col :span="6">
-                            <a-card>
-                                <a-statistic
-                                    title="查询总数"
-                                    :value="stats.totalQueries"
-                                    :valueStyle="{ color: '#fa8c16' }"
-                                >
-                                    <template #prefix>
-                                        <a-icon type="search" />
-                                    </template>
-                                </a-statistic>
-                            </a-card>
-                        </a-col>
-                    </a-row>
-                    
-                    <a-row :gutter="16" style="margin-top: 16px">
-                        <a-col :span="12">
-                            <a-card title="最近数据源" :bordered="false">
-                                <a-list
-                                    size="small"
-                                    :dataSource="recentDataSources"
-                                    :rowKey="item => item.id"
-                                >
-                                    <a-list-item slot="renderItem" slot-scope="item">
-                                        <a-list-item-meta
-                                            :title="item.name"
-                                            :description="\`\${item.type} | \${item.host}\`"
-                                        >
-                                            <a-avatar
-                                                slot="avatar"
-                                                :style="{ backgroundColor: item.active ? '#52c41a' : '#f5222d' }"
-                                                icon="database"
-                                            />
-                                        </a-list-item-meta>
-                                        <a-button
-                                            type="link"
-                                            @click="viewDataSource(item.id)"
-                                        >
-                                            查看
-                                        </a-button>
-                                    </a-list-item>
-                                    <div slot="footer" class="list-footer">
-                                        <a-button
-                                            type="primary"
-                                            size="small"
-                                            @click="$router.push('/datasource/list')"
-                                        >
-                                            查看全部
-                                        </a-button>
-                                    </div>
-                                </a-list>
-                            </a-card>
-                        </a-col>
-                        <a-col :span="12">
-                            <a-card title="最近查询" :bordered="false">
-                                <a-list
-                                    size="small"
-                                    :dataSource="recentQueries"
-                                    :rowKey="item => item.id"
-                                >
-                                    <a-list-item slot="renderItem" slot-scope="item">
-                                        <a-list-item-meta
-                                            :title="item.name"
-                                            :description="\`\${item.dataSource} | \${formatDate(item.createdAt)}\`"
-                                        >
-                                            <a-avatar
-                                                slot="avatar"
-                                                style="backgroundColor: #1890ff"
-                                                icon="search"
-                                            />
-                                        </a-list-item-meta>
-                                        <a-button
-                                            type="link"
-                                            @click="viewQuery(item.id)"
-                                        >
-                                            查看
-                                        </a-button>
-                                    </a-list-item>
-                                    <div slot="footer" class="list-footer">
-                                        <a-button
-                                            type="primary"
-                                            size="small"
-                                            @click="$router.push('/query-builder')"
-                                        >
-                                            查看全部
-                                        </a-button>
-                                    </div>
-                                </a-list>
-                            </a-card>
-                        </a-col>
-                    </a-row>
-                </div>
-            `
-        });
-        
-        // 查询构建器组件
-        Vue.component('query-builder', {
-            props: {
-                dataSourceId: {
-                    type: [Number, String],
-                    default: null
-                },
-                schema: {
-                    type: String,
-                    default: null
-                },
-                table: {
-                    type: String,
-                    default: null
+            
+            watch: {
+                $route(to) {
+                    this.selectedKeys = [to.path.split('/')[1] || 'datasource'];
                 }
-            },
-            template: `
-                <div class="query-builder-container">
-                    <div class="page-header">
-                        <h1>查询构建器</h1>
-                    </div>
-                    <a-alert
-                        message="功能开发中"
-                        description="查询构建器功能正在开发中，敬请期待！"
-                        type="info"
-                        showIcon
-                    />
-                </div>
-            `
-        });
-        
-        // 自然语言查询组件
-        Vue.component('nl-query', {
-            template: `
-                <div class="nl-query-container">
-                    <div class="page-header">
-                        <h1>自然语言查询</h1>
-                    </div>
-                    <a-alert
-                        message="功能开发中"
-                        description="自然语言查询功能正在开发中，敬请期待！"
-                        type="info"
-                        showIcon
-                    />
-                </div>
-            `
-        });
-        
-        // 低代码集成组件
-        Vue.component('low-code', {
-            template: `
-                <div class="low-code-container">
-                    <div class="page-header">
-                        <h1>低代码集成</h1>
-                    </div>
-                    <a-alert
-                        message="功能开发中"
-                        description="低代码集成功能正在开发中，敬请期待！"
-                        type="info"
-                        showIcon
-                    />
-                </div>
-            `
-        });
-        
-        // 系统设置组件
-        Vue.component('settings', {
-            template: `
-                <div class="settings-container">
-                    <div class="page-header">
-                        <h1>系统设置</h1>
-                    </div>
-                    <a-alert
-                        message="功能开发中"
-                        description="系统设置功能正在开发中，敬请期待！"
-                        type="info"
-                        showIcon
-                    />
-                </div>
-            `
+            }
         });
     </script>
-    
-    <!-- 路由和应用程序 -->
-    <script src="/static/js/router.js"></script>
-    <script src="/static/js/app.js"></script>
 </body>
 </html>

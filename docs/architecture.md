@@ -1,344 +1,439 @@
-# 数据管理与查询系统 - 架构设计
+# DataScope系统 - 架构设计
 
-本文档描述了数据管理与查询系统的架构设计，包括系统整体架构、组件设计、数据模型以及关键技术选择。
+本文档描述了DataScope全面数据管理和查询系统的架构设计，包括系统架构、组件设计、数据模型设计以及关键技术决策。
 
 ## 1. 系统架构概述
 
 ### 1.1 架构风格
 
-系统采用**前后端分离的模块化架构**，该架构结合了单体应用的部署简便性和微服务的模块化优势。
+DataScope系统采用**模块化单体架构**，在现有DDD四层架构的基础上扩展和优化，以实现高内聚低耦合的设计。
 
 ```mermaid
 graph TD
-    A[前端应用] -- REST API --> B[API网关/控制器层]
-    B --> C[元数据管理模块]
-    B --> D[查询构建与执行模块]
-    B --> E[低代码集成模块]
-    B --> F[NL2SQL模块]
-    C --> G[数据访问层]
-    D --> G
-    E --> G
-    G --> H[(MySQL元数据存储)]
-    G --> I[(Redis缓存)]
-    F --> J[OpenRouter API]
-    D --> K[数据源连接池]
-    K --> L[MySQL数据源]
-    K --> M[DB2数据源]
+    A[前端层] --- B[API网关层]
+    B --- C[应用层-模块协调]
+    C --- D1[数据源管理模块]
+    C --- D2[查询构建模块]
+    C --- D3[NL2SQL模块]
+    C --- D4[低代码集成模块]
+    C --- D5[版本控制模块]
+    D1 --- E[共享基础设施层]
+    D2 --- E
+    D3 --- E
+    D4 --- E
+    D5 --- E
+    E --- F1[数据访问]
+    E --- F2[缓存管理]
+    E --- F3[安全管理]
+    E --- F4[外部集成]
+    F4 --- G1[OpenRouter API]
+    F4 --- G2[数据源连接]
 ```
 
 ### 1.2 系统边界与集成点
 
 - **系统边界**:
-  - 管理数据源元数据（不同步实际数据）
-  - 执行数据查询（在源数据库执行）
+  - 管理多数据源的元数据（不复制实际数据）
+  - 执行数据查询并返回结果
   - 提供低代码平台集成接口
+  - 提供自然语言到SQL的转换
+  - 提供查询版本控制和协作功能
 
 - **集成点**:
   - MySQL和DB2数据库连接
   - OpenRouter LLM API
-  - 低代码平台JSON交互协议
-  - 组织认证系统
+  - Redis缓存服务
+  - 低代码平台（通过JSON协议和Webhook）
+  - 外部认证系统（用户身份验证）
 
-## 2. 核心组件设计
+## 2. 核心模块设计
 
-### 2.1 元数据管理模块
+### 2.1 数据源管理模块
 
-**职责**：管理所有数据源的元数据信息
+**职责**：管理数据源连接、元数据提取与同步，数据源健康监控，表关系管理。
 
 **主要组件**:
 - `DataSourceManager`: 数据源连接管理
 - `MetadataExtractor`: 元数据抽取引擎
-- `MetadataVersionManager`: 元数据版本控制
 - `ConnectionMonitor`: 数据源健康监控
+- `RelationshipManager`: 表关系管理
 
 ```mermaid
 classDiagram
     class DataSourceManager {
-        +registerDataSource(DataSourceDTO)
-        +updateDataSource(DataSourceDTO)
-        +removeDataSource(id)
+        +createDataSource(DataSourceDTO)
+        +updateDataSource(String, DataSourceDTO)
+        +deleteDataSource(String)
+        +testConnection(String)
         +listDataSources()
-        +testConnection(id)
     }
     
     class MetadataExtractor {
-        +extractMetadata(dataSourceId)
-        +syncMetadata(dataSourceId)
-        +getExtractionProgress(jobId)
-    }
-    
-    class MetadataVersionManager {
-        +createVersion(dataSourceId)
-        +compareVersions(v1, v2)
-        +rollbackToVersion(version)
+        +extractMetadata(String)
+        +synchronizeMetadata(String)
+        +getExtractionProgress(String)
+        +incrementalSync(String)
     }
     
     class ConnectionMonitor {
-        +checkDataSourceHealth(id)
-        +getConnectionStats()
-        +setAlertThresholds()
+        +monitorConnection(String)
+        +getConnectionStatus(String)
+        +registerAlert(String, AlertConfig)
+        +getHealthMetrics(String)
+    }
+    
+    class RelationshipManager {
+        +detectRelationships(String)
+        +saveRelationship(RelationshipDTO)
+        +validateRelationship(String)
+        +exportRelationships(String)
+        +importRelationships(String, File)
     }
 
     DataSourceManager --> MetadataExtractor
-    MetadataExtractor --> MetadataVersionManager
-    ConnectionMonitor --> DataSourceManager
+    DataSourceManager --> ConnectionMonitor
+    MetadataExtractor --> RelationshipManager
 ```
 
-### 2.2 查询构建与执行模块
+### 2.2 查询构建模块
 
-**职责**：构建、优化和执行数据库查询
+**职责**：SQL查询构建、查询执行、结果管理、查询优化和分析。
 
 **主要组件**:
-- `QueryBuilder`: SQL查询构建器
-- `QueryExecutor`: 查询执行引擎
-- `QueryCache`: 查询结果缓存
-- `RelationManager`: 表关系管理
-- `PerformanceMonitor`: 查询性能监控
+- `QueryBuilder`: SQL查询构建
+- `QueryExecutor`: 查询执行
+- `QueryOptimizer`: 查询优化
+- `ResultManager`: 结果管理
 
 ```mermaid
 classDiagram
     class QueryBuilder {
-        +buildSelectQuery(QueryDTO)
-        +validateQuery(query)
-        +suggestJoins(tableIds)
+        +createQuery(QueryDTO)
+        +updateQuery(String, QueryDTO)
+        +validateQuery(String)
+        +generateSQL(QueryDTO)
+        +suggestJoins(List~String~)
     }
     
     class QueryExecutor {
-        +executeQuery(queryId, params)
-        +cancelQuery(executionId)
-        +getQueryStatus(executionId)
+        +executeQuery(String, Map)
+        +cancelQuery(String)
+        +getExecutionStatus(String)
+        +getQueryHistory(String)
     }
     
-    class QueryCache {
-        +getCachedResult(queryId, paramHash)
-        +cacheResult(queryId, paramHash, result)
-        +invalidateCache(queryId)
+    class QueryOptimizer {
+        +analyzeQuery(String)
+        +suggestOptimizations(String)
+        +getExecutionPlan(String)
+        +identifyBottlenecks(String)
     }
     
-    class RelationManager {
-        +inferRelations(dataSourceId)
-        +saveRelation(relation)
-        +getTableRelations(tableId)
-        +exportRelations(dataSourceId)
-    }
-    
-    class PerformanceMonitor {
-        +recordMetrics(executionId, metrics)
-        +getQueryPerformance(queryId)
-        +identifySlowQueries()
+    class ResultManager {
+        +formatResults(QueryResult, FormatOptions)
+        +paginateResults(QueryResult, int, int)
+        +exportResults(String, ExportFormat)
+        +cacheResults(String, QueryResult)
     }
 
-    QueryBuilder --> RelationManager
+    QueryBuilder --> QueryOptimizer
     QueryExecutor --> QueryBuilder
-    QueryExecutor --> QueryCache
-    QueryExecutor --> PerformanceMonitor
+    QueryExecutor --> ResultManager
 ```
 
 ### 2.3 NL2SQL模块
 
-**职责**：将自然语言转换为SQL查询
+**职责**：自然语言处理、SQL生成与优化、学习与改进。
 
 **主要组件**:
 - `NLProcessor`: 自然语言处理
-- `LLMConnector`: OpenRouter API连接器
-- `QueryTransformer`: 将LLM响应转换为结构化查询
-- `QueryEnhancer`: 通过元数据增强查询上下文
-- `HistoryManager`: 管理历史查询和优化提示
+- `SQLGenerator`: SQL生成
+- `ContextManager`: 上下文管理
+- `FeedbackLearner`: 反馈学习
 
 ```mermaid
 classDiagram
     class NLProcessor {
-        +processNaturalLanguage(text, context)
-        +identifyQueryIntent(text)
-        +extractParameters(text)
+        +processQuery(String, String)
+        +extractEntities(String)
+        +identifyIntent(String)
+        +preprocessText(String)
     }
     
-    class LLMConnector {
-        +connectToLLM()
-        +sendPrompt(prompt)
-        +parseResponse(response)
+    class SQLGenerator {
+        +generateSQL(NLProcessResult)
+        +optimizeSQL(String)
+        +validateSQL(String)
+        +explainSQL(String)
     }
     
-    class QueryTransformer {
-        +transformToSQL(llmResponse)
-        +validateGeneratedSQL(sql)
-        +optimizeSQLQuery(sql)
+    class ContextManager {
+        +createContext(String)
+        +updateContext(String, ContextData)
+        +getRelevantTables(String)
+        +getHistoricalContext(String)
     }
     
-    class QueryEnhancer {
-        +enhanceWithMetadata(query, dataSourceId)
-        +addTableContext(query, tableIds)
-        +suggestQueryRefinements(query, results)
-    }
-    
-    class HistoryManager {
-        +saveQueryMapping(naturalText, sql)
-        +findSimilarQueries(text)
-        +learnFromQueryHistory()
+    class FeedbackLearner {
+        +recordFeedback(String, boolean)
+        +trainFromFeedback()
+        +adjustConfidence(String, double)
+        +getSuggestions(String)
     }
 
-    NLProcessor --> LLMConnector
-    LLMConnector --> QueryTransformer
-    QueryEnhancer --> QueryTransformer
-    NLProcessor --> HistoryManager
+    NLProcessor --> ContextManager
+    NLProcessor --> SQLGenerator
+    SQLGenerator --> FeedbackLearner
 ```
 
 ### 2.4 低代码集成模块
 
-**职责**：与低代码平台交互，提供数据服务
+**职责**：查询结果配置、表单生成、JSON协议处理、Webhook管理。
 
 **主要组件**:
-- `ConfigurationBuilder`: 配置生成器
-- `JsonProtocolHandler`: JSON协议处理器
-- `FormGenerator`: 表单生成器
-- `DisplayTemplateManager`: 显示模板管理
-- `AIConfigAssistant`: AI辅助配置生成
+- `ConfigurationManager`: 配置管理
+- `FormGenerator`: 表单生成
+- `WebhookManager`: Webhook管理
+- `ProtocolHandler`: 协议处理
 
 ```mermaid
 classDiagram
-    class ConfigurationBuilder {
-        +buildQueryConfig(queryId)
-        +buildFormConfig(queryId)
-        +buildDisplayConfig(queryId)
-        +validateConfiguration(config)
-    }
-    
-    class JsonProtocolHandler {
-        +handleRequest(request)
-        +formatResponse(data, template)
-        +validateProtocol(message)
+    class ConfigurationManager {
+        +createConfig(String, ConfigDTO)
+        +updateConfig(String, ConfigDTO)
+        +getConfig(String)
+        +validateConfig(ConfigDTO)
     }
     
     class FormGenerator {
-        +generateForm(queryParams)
-        +setValidationRules(paramId, rules)
-        +optimizeFormLayout(formConfig)
+        +generateForm(String)
+        +customizeForm(String, FormDTO)
+        +validateFormConfig(FormDTO)
+        +suggestFormLayout(QueryDTO)
     }
     
-    class DisplayTemplateManager {
-        +createTemplate(name, config)
-        +applyTemplate(templateId, data)
-        +exportTemplate(templateId)
+    class WebhookManager {
+        +registerWebhook(String, WebhookDTO)
+        +triggerWebhook(String, WebhookEvent)
+        +logWebhookActivity(String)
+        +testWebhook(String)
     }
     
-    class AIConfigAssistant {
-        +suggestConfig(queryMetadata)
-        +learnFromUserPreferences(userId)
-        +optimizeConfigForDataTypes(config)
+    class ProtocolHandler {
+        +formatMessage(Object, String)
+        +parseMessage(String, Class)
+        +validateMessage(String, String)
+        +getProtocolSchema(String)
     }
 
-    ConfigurationBuilder --> FormGenerator
-    ConfigurationBuilder --> DisplayTemplateManager
-    JsonProtocolHandler --> ConfigurationBuilder
-    AIConfigAssistant --> ConfigurationBuilder
+    ConfigurationManager --> FormGenerator
+    WebhookManager --> ProtocolHandler
+    ConfigurationManager --> ProtocolHandler
 ```
 
-### 2.5 数据访问层
+### 2.5 版本控制模块
 
-**职责**：统一管理系统数据访问
+**职责**：SQL查询版本管理、API版本控制、变更历史管理。
 
 **主要组件**:
-- `MetadataRepository`: 元数据存储访问
-- `CacheManager`: Redis缓存管理
-- `ConnectionPoolManager`: 数据源连接池管理
-- `TransactionManager`: 事务管理
-- `DataTypeMapper`: 数据类型映射
+- `VersionManager`: 版本管理
+- `DiffGenerator`: 差异比较
+- `HistoryTracker`: 历史追踪
+- `CollaborationManager`: 协作管理
 
 ```mermaid
 classDiagram
-    class MetadataRepository {
-        +saveMetadata(metadata)
-        +getMetadata(id)
-        +searchMetadata(criteria)
-        +deleteMetadata(id)
+    class VersionManager {
+        +createVersion(String, VersionDTO)
+        +getVersion(String)
+        +listVersions(String)
+        +rollbackToVersion(String, String)
     }
     
-    class CacheManager {
-        +get(key)
-        +set(key, value, expiration)
-        +delete(key)
-        +clear(pattern)
+    class DiffGenerator {
+        +compareSQLVersions(String, String)
+        +visualizeDiff(String, String)
+        +getChangeSummary(String, String)
+        +exportDiff(String, String)
     }
     
-    class ConnectionPoolManager {
-        +getConnection(dataSourceId)
-        +releaseConnection(connection)
-        +reconfigurePool(dataSourceId, config)
+    class HistoryTracker {
+        +trackChange(String, ChangeDTO)
+        +getChangeHistory(String)
+        +annotateChange(String, String)
+        +filterChanges(String, FilterCriteria)
     }
     
-    class TransactionManager {
-        +beginTransaction()
-        +commitTransaction()
-        +rollbackTransaction()
-        +setIsolationLevel(level)
-    }
-    
-    class DataTypeMapper {
-        +mapDbToJavaType(dbType)
-        +mapDbToUiComponent(dbType)
-        +registerCustomMapping(dbType, javaType, uiComponent)
+    class CollaborationManager {
+        +lockResource(String, String)
+        +unlockResource(String)
+        +getEditStatus(String)
+        +mergeChanges(String, String)
     }
 
-    MetadataRepository --> TransactionManager
-    ConnectionPoolManager --> TransactionManager
-    CacheManager --> MetadataRepository
-    DataTypeMapper --> MetadataRepository
+    VersionManager --> DiffGenerator
+    VersionManager --> HistoryTracker
+    CollaborationManager --> VersionManager
 ```
 
-### 2.6 前端应用
+### 2.6 共享基础设施层
 
-**职责**：提供用户界面和交互
+**职责**：为所有模块提供共享服务，包括数据访问、缓存、安全和外部集成。
 
 **主要组件**:
-- `DataSourceExplorer`: 数据源浏览组件
-- `QueryBuilder`: 可视化查询构建器
-- `NLQueryInterface`: 自然语言查询界面
-- `ResultVisualizer`: 查询结果可视化
-- `LowCodeConfigurator`: 低代码配置界面
+- `DataAccessService`: 数据访问服务
+- `CacheService`: 缓存服务
+- `SecurityService`: 安全服务
+- `IntegrationService`: 外部集成服务
 
 ```mermaid
 classDiagram
-    class DataSourceExplorer {
-        +loadDataSources()
-        +browseSchemas(dataSourceId)
-        +browseTables(schemaId)
-        +browseColumns(tableId)
+    class DataAccessService {
+        +executeQuery(String, Object[])
+        +executeUpdate(String, Object[])
+        +batchExecute(List~String~, List~Object[]~)
+        +getTransaction()
     }
     
-    class QueryBuilder {
-        +addTable(tableId)
-        +addCondition(condition)
-        +addJoin(sourceTable, targetTable)
-        +generateSQL()
+    class CacheService {
+        +get(String, Class)
+        +put(String, Object, Duration)
+        +remove(String)
+        +clear(String)
     }
     
-    class NLQueryInterface {
-        +submitQuery(text)
-        +showGeneratedSQL(sql)
-        +refineQuery(text)
+    class SecurityService {
+        +encryptData(String)
+        +decryptData(String)
+        +hashPassword(String)
+        +verifyPassword(String, String)
     }
     
-    class ResultVisualizer {
-        +displayResults(data)
-        +switchView(viewType)
-        +exportData(format)
-    }
-    
-    class LowCodeConfigurator {
-        +configureForm(queryId)
-        +configureDisplay(queryId)
-        +previewConfiguration()
+    class IntegrationService {
+        +callExternalAPI(String, String, Object)
+        +registerCallback(String, CallbackHandler)
+        +connectToDataSource(DataSourceDTO)
+        +authenticateWithService(String, Credentials)
     }
 
-    DataSourceExplorer --> QueryBuilder
-    QueryBuilder --> ResultVisualizer
-    NLQueryInterface --> ResultVisualizer
-    LowCodeConfigurator --> ResultVisualizer
+    DataAccessService --> SecurityService
+    CacheService --> DataAccessService
+    IntegrationService --> SecurityService
 ```
 
 ## 3. 数据模型设计
 
-见 `/docs/domain_model.md`
+### 3.1 核心实体关系
+
+DataScope系统将与现有领域模型集成，并新增以下实体：
+
+1. **QueryVersion**: 查询版本
+2. **ApiVersion**: API版本
+3. **WebhookConfig**: Webhook配置
+4. **CollaborationLock**: 协作锁
+5. **ChangeHistory**: 变更历史
+
+```mermaid
+erDiagram
+    DataSource ||--o{ SchemaInfo : contains
+    SchemaInfo ||--o{ TableInfo : contains
+    TableInfo ||--o{ ColumnInfo : contains
+    TableInfo ||--o{ TableRelationship : participates
+    SavedQuery ||--o{ QueryVersion : has
+    SavedQuery ||--o{ ApiVersion : exposes
+    LowCodeConfig ||--o{ WebhookConfig : registers
+    QueryVersion ||--o{ ChangeHistory : tracks
+    SavedQuery ||--o{ CollaborationLock : locks
+```
+
+### 3.2 数据库表设计
+
+#### 查询版本表 (tbl_query_version)
+
+| 字段名 | 类型 | 说明 | 约束 |
+|--------|------|------|------|
+| id | VARCHAR(36) | 版本ID | PK |
+| query_id | VARCHAR(36) | 查询ID | FK -> tbl_saved_query.id |
+| version_name | VARCHAR(100) | 版本名称 | NOT NULL |
+| version_number | INT | 版本号 | NOT NULL |
+| sql_text | TEXT | SQL文本 | NOT NULL |
+| parameters | JSON | 参数定义 | |
+| description | TEXT | 版本描述 | |
+| created_at | TIMESTAMP | 创建时间 | NOT NULL |
+| created_by | VARCHAR(50) | 创建人 | NOT NULL |
+| nonce | VARCHAR(50) | 乐观锁版本号 | NOT NULL |
+
+索引:
+- u_idx_query_version_query_id_version_number (query_id, version_number) UNIQUE
+- idx_query_version_query_id (query_id)
+
+#### API版本表 (tbl_api_version)
+
+| 字段名 | 类型 | 说明 | 约束 |
+|--------|------|------|------|
+| id | VARCHAR(36) | API版本ID | PK |
+| query_id | VARCHAR(36) | 查询ID | FK -> tbl_saved_query.id |
+| version | VARCHAR(20) | 版本号 | NOT NULL |
+| is_active | BOOLEAN | 是否激活 | DEFAULT true |
+| api_path | VARCHAR(200) | API路径 | NOT NULL |
+| created_at | TIMESTAMP | 创建时间 | NOT NULL |
+| created_by | VARCHAR(50) | 创建人 | NOT NULL |
+| nonce | VARCHAR(50) | 乐观锁版本号 | NOT NULL |
+
+索引:
+- u_idx_api_version_query_id_version (query_id, version) UNIQUE
+- idx_api_version_query_id (query_id)
+
+#### Webhook配置表 (tbl_webhook_config)
+
+| 字段名 | 类型 | 说明 | 约束 |
+|--------|------|------|------|
+| id | VARCHAR(36) | 配置ID | PK |
+| config_id | VARCHAR(36) | 低代码配置ID | FK -> tbl_lowcode_config.id |
+| endpoint_url | VARCHAR(500) | 端点URL | NOT NULL |
+| secret_key | VARCHAR(100) | 密钥 | NOT NULL |
+| event_types | JSON | 事件类型 | NOT NULL |
+| active | BOOLEAN | 是否激活 | DEFAULT true |
+| created_at | TIMESTAMP | 创建时间 | NOT NULL |
+| created_by | VARCHAR(50) | 创建人 | NOT NULL |
+| nonce | VARCHAR(50) | 乐观锁版本号 | NOT NULL |
+
+索引:
+- idx_webhook_config_config_id (config_id)
+
+#### 协作锁表 (tbl_collaboration_lock)
+
+| 字段名 | 类型 | 说明 | 约束 |
+|--------|------|------|------|
+| id | VARCHAR(36) | 锁ID | PK |
+| resource_id | VARCHAR(36) | 资源ID | NOT NULL |
+| resource_type | VARCHAR(50) | 资源类型 | NOT NULL |
+| locked_by | VARCHAR(50) | 锁定用户 | NOT NULL |
+| locked_at | TIMESTAMP | 锁定时间 | NOT NULL |
+| expires_at | TIMESTAMP | 过期时间 | NOT NULL |
+| nonce | VARCHAR(50) | 乐观锁版本号 | NOT NULL |
+
+索引:
+- u_idx_collaboration_lock_resource (resource_id, resource_type) UNIQUE
+- idx_collaboration_lock_expires_at (expires_at)
+
+#### 变更历史表 (tbl_change_history)
+
+| 字段名 | 类型 | 说明 | 约束 |
+|--------|------|------|------|
+| id | VARCHAR(36) | 历史ID | PK |
+| resource_id | VARCHAR(36) | 资源ID | NOT NULL |
+| resource_type | VARCHAR(50) | 资源类型 | NOT NULL |
+| change_type | VARCHAR(20) | 变更类型 | NOT NULL |
+| before_value | TEXT | 变更前值 | |
+| after_value | TEXT | 变更后值 | |
+| comment | TEXT | 变更说明 | |
+| created_at | TIMESTAMP | 创建时间 | NOT NULL |
+| created_by | VARCHAR(50) | 创建人 | NOT NULL |
+
+索引:
+- idx_change_history_resource (resource_id, resource_type)
+- idx_change_history_created_at (created_at)
 
 ## 4. 接口设计
 
@@ -347,130 +442,185 @@ classDiagram
 #### 数据源管理API
 
 ```
-POST /api/datasources         # 创建新数据源
-GET /api/datasources          # 获取所有数据源
-GET /api/datasources/{id}     # 获取特定数据源
-PUT /api/datasources/{id}     # 更新数据源
-DELETE /api/datasources/{id}  # 删除数据源
-GET /api/datasources/{id}/metadata  # 获取数据源元数据
-POST /api/datasources/{id}/test     # 测试数据源连接
+GET /api/datasources                      # 获取所有数据源
+POST /api/datasources                     # 创建数据源
+GET /api/datasources/{id}                 # 获取单个数据源
+PUT /api/datasources/{id}                 # 更新数据源
+DELETE /api/datasources/{id}              # 删除数据源
+POST /api/datasources/{id}/test           # 测试数据源连接
+POST /api/datasources/{id}/sync           # 同步数据源元数据
+GET /api/datasources/{id}/sync/{jobId}    # 获取同步任务状态
+GET /api/datasources/{id}/health          # 获取数据源健康状态
+```
+
+#### 元数据API
+
+```
+GET /api/metadata/datasources/{id}/schemas        # 获取数据源的所有模式
+GET /api/metadata/schemas/{id}/tables             # 获取模式的所有表
+GET /api/metadata/tables/{id}/columns             # 获取表的所有列
+GET /api/metadata/tables/{id}/indexes             # 获取表的所有索引
+GET /api/metadata/tables/{id}/sample              # 获取表的样本数据
+POST /api/metadata/tables/relationship            # 创建表关系
+GET /api/metadata/tables/relationship/{id}        # 获取表关系
+PUT /api/metadata/tables/relationship/{id}        # 更新表关系
+DELETE /api/metadata/tables/relationship/{id}     # 删除表关系
+POST /api/metadata/tables/relationship/detect     # 自动检测表关系
 ```
 
 #### 查询API
 
 ```
-POST /api/queries                 # 创建SQL查询
-POST /api/queries/natural-language # 创建自然语言查询
-GET /api/queries/{id}             # 获取查询
-PUT /api/queries/{id}             # 更新查询
-DELETE /api/queries/{id}          # 删除查询
-POST /api/queries/{id}/execute    # 执行查询
-GET /api/queries/history          # 获取查询历史
-POST /api/queries/{id}/favorite   # 收藏查询
-GET /api/queries/favorites        # 获取收藏查询
+POST /api/queries                         # 创建查询
+GET /api/queries                          # 获取所有查询
+GET /api/queries/{id}                     # 获取单个查询
+PUT /api/queries/{id}                     # 更新查询
+DELETE /api/queries/{id}                  # 删除查询
+POST /api/queries/{id}/execute            # 执行查询
+GET /api/queries/{id}/history             # 获取查询历史
+GET /api/queries/{id}/analyze             # 分析查询
 ```
 
-#### 表关系API
+#### 自然语言查询API
 
 ```
-GET /api/relations                # 获取所有表关系
-POST /api/relations               # 创建表关系
-GET /api/relations/{id}           # 获取特定表关系
-PUT /api/relations/{id}           # 更新表关系
-DELETE /api/relations/{id}        # 删除表关系
-GET /api/relations/infer          # 自动推断表关系
-POST /api/relations/export        # 导出表关系
-POST /api/relations/import        # 导入表关系
+POST /api/nl/query                        # 执行自然语言查询
+POST /api/nl/suggest                      # 获取查询建议
+POST /api/nl/feedback                     # 提交查询反馈
+GET /api/nl/history                       # 获取查询历史
 ```
 
 #### 低代码集成API
 
 ```
-POST /api/lowcode/config          # 创建低代码配置
-GET /api/lowcode/config/{id}      # 获取配置
-PUT /api/lowcode/config/{id}      # 更新配置
-DELETE /api/lowcode/config/{id}   # 删除配置
-POST /api/lowcode/render          # 根据配置渲染数据
-GET /api/lowcode/templates        # 获取可用模板
-POST /api/lowcode/ai-suggestion   # 获取AI建议的配置
+POST /api/lowcode/configs                 # 创建低代码配置
+GET /api/lowcode/configs                  # 获取所有配置
+GET /api/lowcode/configs/{id}             # 获取单个配置
+PUT /api/lowcode/configs/{id}             # 更新配置
+DELETE /api/lowcode/configs/{id}          # 删除配置
+POST /api/lowcode/webhooks                # 注册Webhook
+GET /api/lowcode/webhooks                 # 获取Webhook列表
+DELETE /api/lowcode/webhooks/{id}         # 删除Webhook
+POST /api/lowcode/webhooks/{id}/test      # 测试Webhook
 ```
 
-#### 数据查询API
+#### 版本控制API
 
 ```
-POST /api/data/{queryId}          # 查询数据(v1)
-POST /api/v{version}/data/{queryId} # 带版本的查询
-GET /api/data/export/{queryId}    # 导出数据
+POST /api/versions/queries/{queryId}               # 创建查询版本
+GET /api/versions/queries/{queryId}                # 获取查询所有版本
+GET /api/versions/queries/{queryId}/{versionId}    # 获取特定版本
+POST /api/versions/queries/{queryId}/rollback      # 回滚到特定版本
+GET /api/versions/queries/{queryId}/diff           # 比较版本差异
+POST /api/versions/apis/{queryId}                  # 创建API版本
+GET /api/versions/apis/{queryId}                   # 获取API所有版本
+PUT /api/versions/apis/{queryId}/{versionId}       # 更新API版本
 ```
 
-### 4.2 JSON交互协议
+#### 协作API
 
-低代码平台交互协议示例：
+```
+POST /api/collaboration/lock/{resourceType}/{resourceId}    # 锁定资源
+DELETE /api/collaboration/lock/{resourceType}/{resourceId}  # 释放锁
+GET /api/collaboration/status/{resourceType}/{resourceId}   # 获取编辑状态
+GET /api/collaboration/history/{resourceType}/{resourceId}  # 获取变更历史
+```
 
-```json
-{
-  "version": "1.0",
-  "queryId": "query123",
-  "config": {
-    "form": {
-      "layout": "standard",
-      "fields": [
-        {
-          "id": "param1",
-          "type": "text",
-          "label": "客户名称",
-          "required": true,
-          "validation": {
-            "maxLength": 50
-          }
-        },
-        {
-          "id": "param2",
-          "type": "date",
-          "label": "订单日期",
-          "required": false
-        }
-      ]
-    },
-    "display": {
-      "type": "table",
-      "columns": [
-        {
-          "field": "customer_name",
-          "header": "客户名称",
-          "width": 200,
-          "sortable": true
-        },
-        {
-          "field": "order_date",
-          "header": "订单日期",
-          "width": 150,
-          "format": "yyyy-MM-dd"
-        },
-        {
-          "field": "order_amount",
-          "header": "订单金额",
-          "width": 150,
-          "format": "¥{value}",
-          "align": "right"
-        }
-      ],
-      "operations": [
-        {
-          "type": "button",
-          "label": "查看详情",
-          "action": "view",
-          "icon": "eye"
-        },
-        {
-          "type": "button",
-          "label": "编辑",
-          "action": "edit",
-          "icon": "pencil"
-        }
-      ]
-    }
-  }
+### 4.2 组件接口设计
+
+各模块通过定义明确的接口与其他模块交互，确保模块间低耦合高内聚：
+
+#### 数据源管理接口
+
+```java
+public interface DataSourceService {
+    DataSource createDataSource(DataSourceDTO dto);
+    DataSource getDataSource(String id);
+    List<DataSource> getAllDataSources();
+    DataSource updateDataSource(String id, DataSourceDTO dto);
+    void deleteDataSource(String id);
+    ConnectionTestResult testConnection(String id);
+    MetadataSyncJob synchronizeMetadata(String id);
+    MetadataSyncJob getSyncJob(String jobId);
+    HealthStatus getHealthStatus(String id);
+}
+
+public interface MetadataService {
+    List<SchemaInfo> getSchemas(String dataSourceId);
+    List<TableInfo> getTables(String schemaId);
+    List<ColumnInfo> getColumns(String tableId);
+    List<IndexInfo> getIndexes(String tableId);
+    List<Object[]> getSampleData(String tableId, int limit);
+    TableRelationship createRelationship(RelationshipDTO dto);
+    List<TableRelationship> detectRelationships(String dataSourceId, double confidenceThreshold);
+}
+```
+
+#### 查询构建接口
+
+```java
+public interface QueryService {
+    SavedQuery createQuery(QueryDTO dto);
+    SavedQuery getQuery(String id);
+    List<SavedQuery> getAllQueries(QueryFilter filter);
+    SavedQuery updateQuery(String id, QueryDTO dto);
+    void deleteQuery(String id);
+    QueryResult executeQuery(String id, Map<String, Object> parameters);
+    List<QueryExecution> getQueryHistory(String id);
+    QueryAnalysis analyzeQuery(String id);
+}
+```
+
+#### 自然语言查询接口
+
+```java
+public interface NLQueryService {
+    NLQueryResult processNaturalLanguageQuery(String dataSourceId, String naturalLanguage);
+    List<String> suggestRefinements(String dataSourceId, String naturalLanguage);
+    void submitFeedback(String queryId, boolean isAccepted, String feedback);
+    List<NLQueryHistory> getQueryHistory(String userId);
+}
+```
+
+#### 低代码集成接口
+
+```java
+public interface LowCodeService {
+    LowCodeConfig createConfig(String queryId, LowCodeConfigDTO dto);
+    LowCodeConfig getConfig(String id);
+    List<LowCodeConfig> getAllConfigs(ConfigFilter filter);
+    LowCodeConfig updateConfig(String id, LowCodeConfigDTO dto);
+    void deleteConfig(String id);
+    WebhookConfig registerWebhook(WebhookDTO dto);
+    List<WebhookConfig> getWebhooks(String configId);
+    void deleteWebhook(String id);
+    WebhookTestResult testWebhook(String id);
+}
+```
+
+#### 版本控制接口
+
+```java
+public interface VersionControlService {
+    QueryVersion createQueryVersion(String queryId, VersionDTO dto);
+    List<QueryVersion> getQueryVersions(String queryId);
+    QueryVersion getQueryVersion(String queryId, String versionId);
+    SavedQuery rollbackToVersion(String queryId, String versionId);
+    DiffResult compareVersions(String versionId1, String versionId2);
+    ApiVersion createApiVersion(String queryId, ApiVersionDTO dto);
+    List<ApiVersion> getApiVersions(String queryId);
+    ApiVersion updateApiVersion(String queryId, String versionId, ApiVersionDTO dto);
+}
+```
+
+#### 协作接口
+
+```java
+public interface CollaborationService {
+    CollaborationLock lockResource(String resourceType, String resourceId, String userId);
+    void unlockResource(String resourceType, String resourceId, String userId);
+    CollaborationStatus getEditStatus(String resourceType, String resourceId);
+    List<ChangeHistory> getChangeHistory(String resourceType, String resourceId);
 }
 ```
 
@@ -480,219 +630,170 @@ GET /api/data/export/{queryId}    # 导出数据
 
 系统采用多层缓存策略：
 
-1. **前端缓存**:
-   - LocalStorage/SessionStorage 缓存用户偏好和常用数据
-   - 组件内存缓存减少重复渲染
+1. **应用层缓存**:
+   - 元数据缓存：缓存数据库结构信息
+   - 查询结果缓存：缓存频繁执行的查询结果
+   - 查询分析缓存：缓存查询分析和执行计划
+   - 配置缓存：缓存低代码配置信息
 
-2. **应用层缓存**:
-   - Redis缓存查询结果
-   - Redis缓存元数据信息
-   - 本地内存缓存常用配置
+2. **Redis缓存**:
+   - 分布式缓存支持水平扩展
+   - 用于集群环境下的数据共享
+   - 支持缓存过期和淘汰策略
 
-3. **数据库层缓存**:
-   - 利用数据库自身查询缓存
-   - 执行计划缓存
+### 5.2 缓存策略表
 
-### 5.2 缓存策略
-
-| 缓存内容 | 缓存位置 | 过期策略 | 刷新机制 |
-|---------|---------|---------|---------|
-| 元数据结构 | Redis | 24小时 | 元数据更新时主动刷新 |
-| 查询结果 | Redis | 可配置(默认10分钟) | 查询参数变化或主动刷新 |
-| 表关系 | Redis | 24小时 | 关系变更时刷新 |
-| 用户偏好 | Redis | 7天 | 用户修改时刷新 |
-| 查询历史 | MySQL | 不过期 | - |
-| 配置模板 | Redis | 1小时 | 模板变更时刷新 |
+| 缓存类型 | 缓存键模式 | 过期时间 | 刷新策略 | 实现方式 |
+|---------|-----------|---------|----------|---------|
+| 元数据缓存 | metadata:{dataSourceId}:{objectType} | 24小时 | 元数据同步时刷新 | Redis |
+| 表关系缓存 | relation:{dataSourceId} | 24小时 | 关系更新时刷新 | Redis |
+| 查询结果缓存 | query:result:{queryId}:{paramHash} | 可配置(默认10分钟) | 按需刷新，数据变更时失效 | Redis |
+| 查询分析缓存 | query:analysis:{queryId} | 1小时 | 查询更新时刷新 | Redis |
+| 低代码配置缓存 | lowcode:config:{configId} | 1小时 | 配置更新时刷新 | Redis |
+| 常用查询缓存 | query:frequent:{userId} | 7天 | 查询频率变化时更新 | Redis |
+| 用户偏好缓存 | user:preference:{userId} | 30天 | 用户修改时更新 | Redis |
 
 ## 6. 安全设计
 
 ### 6.1 数据源凭证加密
 
-- 使用AES-256加密算法
-- 每个密码单独加盐
-- 加密密钥安全存储（不在配置文件中明文存储）
+- 使用AES-256加密算法保护数据源密码
+- 每个密码使用单独的随机盐值
+- 加密密钥安全存储，不在配置文件中明文保存
 - 定期轮换加密密钥
+- 敏感信息在传输过程中使用TLS加密
 
 ### 6.2 查询安全
 
-- 查询参数绑定防止SQL注入
-- 查询超时机制（默认30秒）
-- 查询频率限制
-- 敏感数据列掩码处理
+- 使用参数化查询防止SQL注入
+- 设置查询超时限制（默认30秒）
+- 实施按用户的查询频率限制（每分钟10次）
+- 为包含敏感数据的列实施数据掩码机制
+- 对敏感操作记录审计日志
 
 ### 6.3 API安全
 
-- 请求验证和消息签名
-- 频率限制和流量控制
-- 版本管理确保兼容性
-- API密钥管理
+- 针对REST API实施JWT认证
+- 对Webhook实施签名验证
+- 按客户端IP实施请求频率限制
+- API访问权限的细粒度控制
+- API密钥生命周期管理
+- 对系统API调用实施审计
 
 ## 7. 性能优化
 
 ### 7.1 查询优化
 
-- 定期收集统计信息优化查询
-- 智能查询拆分处理大数据量
-- 支持异步查询模式
-- 查询指标监控和优化建议
+- 实现查询执行计划分析
+- 自动识别并优化低效查询
+- 对大型查询结果实施分页处理
+- 缓存频繁执行的查询结果
+- 异步执行长时间运行的查询
 
 ### 7.2 系统优化
 
-- 数据库索引优化
-- 连接池管理
-- 缓存预热机制
-- 大查询结果分页处理
+- 使用连接池管理数据源连接
+- 针对API响应实施压缩
+- 实施请求合并减少数据库调用
+- 非阻塞I/O提高并发处理能力
+- 后台任务队列处理资源密集型操作
 
 ### 7.3 资源限制
 
-- 查询资源配额管理
-- 用户级别的频率限制
-- 数据导出量限制(最大50000条)
-- 长时间查询自动熔断
+- 按用户的查询资源配额
+- 单次查询结果大小限制
+- 数据导出记录数限制（最大50,000条）
+- 长时间运行查询的自动取消
+- 系统资源使用监控和报警
 
-## 8. 扩展性设计
+## 8. 部署架构
 
-### 8.1 数据源适配器
+### 8.1 部署方案
 
-系统采用适配器模式支持多种数据源：
+系统支持两种部署方案：
 
-```mermaid
-classDiagram
-    class DataSourceAdapter {
-        <<interface>>
-        +connect()
-        +disconnect()
-        +extractMetadata()
-        +executeQuery()
-        +testConnection()
-    }
-    
-    class MySQLAdapter {
-        +connect()
-        +disconnect()
-        +extractMetadata()
-        +executeQuery()
-        +testConnection()
-    }
-    
-    class DB2Adapter {
-        +connect()
-        +disconnect()
-        +extractMetadata()
-        +executeQuery()
-        +testConnection()
-    }
-    
-    class GenericJDBCAdapter {
-        +connect()
-        +disconnect()
-        +extractMetadata()
-        +executeQuery()
-        +testConnection()
-    }
-    
-    DataSourceAdapter <|.. MySQLAdapter
-    DataSourceAdapter <|.. DB2Adapter
-    DataSourceAdapter <|.. GenericJDBCAdapter
+1. **单节点部署**:
+   - 适用于中小规模场景
+   - 所有组件部署在单个服务器上
+   - 简化部署和维护
+
+2. **集群部署**:
+   - 适用于大规模高可用场景
+   - 应用服务器水平扩展
+   - Redis集群提供分布式缓存
+   - MySQL主从复制提供数据库高可用
+
+### 8.2 容器化部署
+
+系统提供Docker容器化部署支持：
+
+```
+# Docker Compose配置示例
+version: '3'
+services:
+  app:
+    image: datascope/app:latest
+    depends_on:
+      - mysql
+      - redis
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - MYSQL_HOST=mysql
+      - REDIS_HOST=redis
+      - JAVA_OPTS=-Xmx2g
+
+  mysql:
+    image: mysql:8.0
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=datascope
+
+  redis:
+    image: redis:6.0
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+
+volumes:
+  mysql-data:
+  redis-data:
 ```
 
-### 8.2 UI组件映射框架
+### 8.3 Kubernetes配置
 
-数据类型与UI组件的映射关系：
+系统提供Kubernetes部署支持，包括：
 
-| 数据库类型 | Java类型 | UI组件 | 验证规则 |
-|-----------|---------|--------|---------|
-| VARCHAR, CHAR | String | 文本框 | maxLength |
-| TEXT, CLOB | String | 文本域 | - |
-| INT, SMALLINT | Integer | 数字输入框 | min, max |
-| BIGINT | Long | 数字输入框 | min, max |
-| DECIMAL, NUMERIC | BigDecimal | 数字输入框 | min, max, precision |
-| DATE | LocalDate | 日期选择器 | minDate, maxDate |
-| TIME | LocalTime | 时间选择器 | - |
-| TIMESTAMP, DATETIME | LocalDateTime | 日期时间选择器 | - |
-| BOOLEAN, BIT | Boolean | 开关/复选框 | - |
-| ENUM | String | 下拉选择框 | enumValues |
-| BLOB, BINARY | byte[] | 文件上传 | maxSize, fileTypes |
+- 应用部署清单
+- 服务和入口配置
+- 持久化存储配置
+- 配置映射和密钥
+- 水平自动缩放
 
-### 8.3 插件系统设计
+## 9. 监控与运维
 
-系统支持通过插件扩展功能：
+### 9.1 监控指标
 
-1. **数据源插件**: 添加新的数据库类型支持
-2. **可视化插件**: 扩展数据可视化方式
-3. **UI组件插件**: 自定义UI组件类型
-4. **导出插件**: 支持更多导出格式
-5. **AI增强插件**: 扩展AI辅助功能
+系统收集以下关键指标：
 
-## 9. 部署架构
+- 接口响应时间和吞吐量
+- 数据源连接状态和性能
+- 查询执行时间和资源消耗
+- 缓存命中率和使用情况
+- JVM内存和GC状态
+- 系统资源利用率（CPU、内存、磁盘IO）
 
-### 9.1 本地部署架构
+### 9.2 运维功能
 
-```mermaid
-graph TD
-    A[客户端浏览器] --> B[Web服务器/负载均衡]
-    B --> C[应用服务器]
-    C --> D[MySQL系统数据库]
-    C --> E[Redis缓存服务器]
-    C --> F[外部数据源]
-    C --> G[OpenRouter API]
-    H[低代码平台] --> C
-## 系统功能模块关系图
-
-```mermaid
-graph LR
-    A[数据源管理] --> B(元数据管理)
-    A --> C(数据源配置)
-    B --> D{数据源}
-    C --> D
-    E[智能数据发现和查询] --> F(SQL查询构建)
-    E --> G(自然语言查询)
-    F --> D
-    G --> D
-    H[低代码集成] --> I(查询结果配置)
-    H --> J(查询条件表单)
-    I --> E
-    J --> E
-    K[API和服务集成] --> L(REST API)
-    K --> M(数据导出)
-    L --> E
-    M --> E
-    N[安全和性能] --> O(数据源凭证加密)
-    N --> P(SQL注入防护)
-    O --> A
-    P --> E
-```
-```
-
-### 9.2 部署要求
-
-- **硬件要求**:
-  - CPU: 4核+ (推荐8核)
-  - 内存: 8GB+ (推荐16GB)
-  - 存储: 100GB+ SSD
-  - 网络: 千兆网络连接
-
-- **软件要求**:
-  - JDK 17+
-  - MySQL 8.0+
-  - Redis 6.0+
-  - Nginx/Apache (可选，用于反向代理)
-  - Docker (可选，用于容器化部署)
-
-### 9.3 容器化部署
-
-系统支持使用Docker和Docker Compose进行容器化部署，包括以下容器：
-
-1. 应用服务容器
-2. MySQL数据库容器
-3. Redis缓存容器
-4. Nginx反向代理容器
-
-## 10. 后续扩展规划
-
-1. **多租户支持**: 扩展系统支持多租户隔离
-2. **高级权限控制**: 细粒度的数据访问控制
-3. **数据质量检测**: 添加数据质量评估功能
-4. **更多数据源支持**: 扩展支持NoSQL和大数据源
-5. **ETL集成**: 与ETL工具集成支持数据转换
-6. **更多AI功能**: 扩展AI辅助分析能力
+- 支持配置热更新
+- 提供系统健康检查端点
+- 支持日志级别动态调整
+- 定期数据备份与恢复
+- 系统性能指标导出
+- 支持灰度发布和回滚

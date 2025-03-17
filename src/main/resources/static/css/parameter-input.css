@@ -1,51 +1,94 @@
-/* 参数输入面板样式 */
+/**
+ * 查询参数输入组件样式
+ */
+
 .parameter-input {
-    background-color: #fff;
-    border: 1px solid #e8e8e8;
-    border-radius: 4px;
     padding: 16px;
+    background-color: #ffffff;
+    border-radius: 4px;
 }
 
-/* 参数列表 */
-.parameter-list {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
+.dark-theme .parameter-input {
+    background-color: #282c34;
 }
 
-/* 参数项 */
-.parameter-item {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
+/* 表单项样式 */
+.parameter-input .ant-form-item {
+    margin-bottom: 16px;
 }
 
-/* 参数标签 */
-.param-label {
+.parameter-input .ant-form-item:last-child {
+    margin-bottom: 0;
+}
+
+/* 标签样式 */
+.parameter-input .ant-form-item-label {
+    padding-bottom: 4px;
+}
+
+.parameter-input .ant-form-item-label > label {
+    color: #333333;
     font-size: 14px;
-    color: #000000d9;
-    font-weight: 500;
 }
 
-.param-label .required {
+.dark-theme .parameter-input .ant-form-item-label > label {
+    color: #abb2bf;
+}
+
+/* 必填标记 */
+.parameter-input .ant-form-item-required::before {
+    display: inline-block;
+    margin-right: 4px;
     color: #ff4d4f;
-    margin-left: 4px;
+    font-size: 14px;
+    line-height: 1;
+    content: '*';
 }
 
 /* 输入框样式 */
-.parameter-input .ant-input,
-.parameter-input .ant-input-number,
-.parameter-input .ant-select {
-    width: 100%;
+.parameter-input .ant-input {
+    border-radius: 4px;
 }
 
+.parameter-input .ant-input:hover {
+    border-color: #40a9ff;
+}
+
+.parameter-input .ant-input:focus {
+    border-color: #40a9ff;
+    box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+}
+
+.dark-theme .parameter-input .ant-input {
+    background-color: #1c1e24;
+    border-color: #3e4451;
+    color: #abb2bf;
+}
+
+.dark-theme .parameter-input .ant-input:hover {
+    border-color: #61afef;
+}
+
+.dark-theme .parameter-input .ant-input:focus {
+    border-color: #61afef;
+    box-shadow: 0 0 0 2px rgba(97, 175, 239, 0.2);
+}
+
+/* 数字输入框样式 */
 .parameter-input .ant-input-number {
-    max-width: none;
+    width: 100%;
+    border-radius: 4px;
 }
 
-/* 开关样式 */
-.parameter-input .ant-switch {
-    margin: 4px 0;
+.dark-theme .parameter-input .ant-input-number {
+    background-color: #1c1e24;
+    border-color: #3e4451;
+    color: #abb2bf;
+}
+
+.dark-theme .parameter-input .ant-input-number-handler-wrap {
+    background-color: #2c313a;
+    border-color: #3e4451;
 }
 
 /* 日期选择器样式 */
@@ -53,180 +96,115 @@
     width: 100%;
 }
 
-/* 多选框样式 */
-.parameter-input .ant-select-multiple .ant-select-selection--multiple {
-    min-height: 32px;
+.dark-theme .parameter-input .ant-calendar-picker-input {
+    background-color: #1c1e24;
+    border-color: #3e4451;
+    color: #abb2bf;
 }
 
-/* 验证错误提示 */
-.validation-error {
-    color: #ff4d4f;
-    font-size: 12px;
-    line-height: 1.5;
-    margin-top: 4px;
+/* 开关样式 */
+.parameter-input .ant-switch {
+    background-color: rgba(0, 0, 0, 0.25);
 }
 
-/* 操作按钮区域 */
-.parameter-actions {
-    margin-top: 24px;
-    padding-top: 16px;
-    border-top: 1px solid #e8e8e8;
-    display: flex;
-    justify-content: flex-end;
+.parameter-input .ant-switch-checked {
+    background-color: #1890ff;
 }
 
-/* 禁用状态 */
-.parameter-input.disabled {
+.dark-theme .parameter-input .ant-switch {
+    background-color: #4b5363;
+}
+
+.dark-theme .parameter-input .ant-switch-checked {
+    background-color: #61afef;
+}
+
+/* 下拉选择器样式 */
+.parameter-input .ant-select {
+    width: 100%;
+}
+
+.dark-theme .parameter-input .ant-select-selection {
+    background-color: #1c1e24;
+    border-color: #3e4451;
+    color: #abb2bf;
+}
+
+/* 建议列表样式 */
+.parameter-suggestions {
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.parameter-suggestions .ant-select-dropdown-menu-item {
+    padding: 8px 12px;
+}
+
+.dark-theme .parameter-suggestions .ant-select-dropdown-menu-item {
+    background-color: #1c1e24;
+    color: #abb2bf;
+}
+
+.parameter-suggestions .ant-select-dropdown-menu-item:hover {
     background-color: #f5f5f5;
-    cursor: not-allowed;
 }
 
-.parameter-input.disabled .param-label {
+.dark-theme .parameter-suggestions .ant-select-dropdown-menu-item:hover {
+    background-color: #2c313a;
+}
+
+/* 验证错误样式 */
+.parameter-input .ant-form-item-has-error .ant-input,
+.parameter-input .ant-form-item-has-error .ant-input-number,
+.parameter-input .ant-form-item-has-error .ant-calendar-picker-input,
+.parameter-input .ant-form-item-has-error .ant-select-selection {
+    border-color: #ff4d4f;
+}
+
+.parameter-input .ant-form-item-has-error .ant-form-item-explain {
+    color: #ff4d4f;
+}
+
+.dark-theme .parameter-input .ant-form-item-has-error .ant-form-item-explain {
+    color: #e06c75;
+}
+
+/* 清除按钮样式 */
+.parameter-input .ant-input-clear-icon {
     color: rgba(0, 0, 0, 0.25);
 }
 
-/* 空状态样式 */
-.parameter-input .ant-empty {
-    margin: 32px 0;
+.dark-theme .parameter-input .ant-input-clear-icon {
+    color: rgba(171, 178, 191, 0.3);
 }
 
-.parameter-input .ant-empty-description {
+.parameter-input .ant-input-clear-icon:hover {
     color: rgba(0, 0, 0, 0.45);
 }
 
-/* 输入框焦点状态 */
-.parameter-input .ant-input:focus,
-.parameter-input .ant-input-number:focus,
-.parameter-input .ant-select-focused .ant-select-selection,
-.parameter-input .ant-calendar-picker-focused .ant-calendar-picker-input {
-    border-color: #40a9ff;
-    box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+.dark-theme .parameter-input .ant-input-clear-icon:hover {
+    color: rgba(171, 178, 191, 0.5);
 }
 
-/* 输入框悬停状态 */
-.parameter-input .ant-input:hover,
-.parameter-input .ant-input-number:hover,
-.parameter-input .ant-select-selection:hover,
-.parameter-input .ant-calendar-picker:hover .ant-calendar-picker-input {
-    border-color: #40a9ff;
-}
-
-/* 多值标签样式 */
-.parameter-input .ant-select-selection--multiple .ant-select-selection__choice {
-    background-color: #f5f5f5;
-    border-color: #e8e8e8;
-}
-
-/* 参数组标题 */
-.parameter-group-title {
-    font-size: 16px;
-    color: #000000d9;
-    margin-bottom: 16px;
-    padding-bottom: 8px;
-    border-bottom: 1px solid #e8e8e8;
-}
-
-/* 参数描述 */
-.param-description {
-    font-size: 12px;
-    color: rgba(0, 0, 0, 0.45);
-    margin-top: 4px;
-}
-
-/* 动画效果 */
-.parameter-item {
-    transition: all 0.3s;
-}
-
-.validation-error {
-    animation: shake 0.5s;
-}
-
-@keyframes shake {
-    0%, 100% { transform: translateX(0); }
-    10%, 30%, 50%, 70%, 90% { transform: translateX(-2px); }
-    20%, 40%, 60%, 80% { transform: translateX(2px); }
-}
-
-/* 响应式布局 */
+/* 响应式调整 */
 @media (max-width: 768px) {
     .parameter-input {
         padding: 12px;
     }
 
-    .parameter-list {
-        gap: 12px;
+    .parameter-input .ant-form-item {
+        margin-bottom: 12px;
     }
 
-    .parameter-actions {
-        margin-top: 16px;
-        padding-top: 12px;
+    .parameter-input .ant-form-item-label > label {
+        font-size: 13px;
     }
 }
 
-/* 暗色主题支持 */
-@media (prefers-color-scheme: dark) {
-    .parameter-input {
-        background-color: #1f1f1f;
-        border-color: #434343;
-    }
-
-    .param-label {
-        color: rgba(255, 255, 255, 0.85);
-    }
-
-    .parameter-input.disabled {
-        background-color: #262626;
-    }
-
-    .parameter-input.disabled .param-label {
-        color: rgba(255, 255, 255, 0.25);
-    }
-
-    .parameter-actions {
-        border-top-color: #434343;
-    }
-
-    .parameter-input .ant-select-selection--multiple .ant-select-selection__choice {
-        background-color: #262626;
-        border-color: #434343;
-    }
-
-    .param-description {
-        color: rgba(255, 255, 255, 0.45);
-    }
-
-    .parameter-group-title {
-        color: rgba(255, 255, 255, 0.85);
-        border-bottom-color: #434343;
-    }
-
-    .parameter-input .ant-empty-description {
-        color: rgba(255, 255, 255, 0.45);
-    }
-
-    /* 暗色主题输入框样式 */
-    .parameter-input .ant-input,
-    .parameter-input .ant-input-number,
-    .parameter-input .ant-select-selection,
-    .parameter-input .ant-calendar-picker-input {
-        background-color: #1f1f1f;
-        border-color: #434343;
-        color: rgba(255, 255, 255, 0.85);
-    }
-
-    .parameter-input .ant-input:hover,
-    .parameter-input .ant-input-number:hover,
-    .parameter-input .ant-select-selection:hover,
-    .parameter-input .ant-calendar-picker:hover .ant-calendar-picker-input {
-        border-color: #177ddc;
-    }
-
-    .parameter-input .ant-input:focus,
-    .parameter-input .ant-input-number:focus,
-    .parameter-input .ant-select-focused .ant-select-selection,
-    .parameter-input .ant-calendar-picker-focused .ant-calendar-picker-input {
-        border-color: #177ddc;
-        box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.1);
-    }
+/* 加载状态样式 */
+.parameter-input .ant-spin {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100px;
 }
