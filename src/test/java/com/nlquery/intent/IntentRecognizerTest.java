@@ -112,7 +112,7 @@ public class IntentRecognizerTest {
         QueryIntent intent = intentRecognizer.recognizeIntent(preprocessedText);
         
         assertNotNull(intent.getLimitRequirement());
-        assertEquals(LimitRequirement.LimitType.TOP_N, intent.getLimitRequirement().getLimitType());
+        assertEquals(LimitType.TOP_N, intent.getLimitRequirement().getLimitType());
         assertEquals(10, intent.getLimitRequirement().getLimitValue());
     }
     
@@ -123,7 +123,7 @@ public class IntentRecognizerTest {
         QueryIntent intent = intentRecognizer.recognizeIntent(preprocessedText);
         
         assertNotNull(intent.getLimitRequirement());
-        assertEquals(LimitRequirement.LimitType.PAGINATION, intent.getLimitRequirement().getLimitType());
+        assertEquals(LimitType.PAGINATION, intent.getLimitRequirement().getLimitType());
         assertEquals(10, intent.getLimitRequirement().getLimitValue());
         assertEquals(10, intent.getLimitRequirement().getOffset());
     }
@@ -147,7 +147,7 @@ public class IntentRecognizerTest {
         assertEquals(SortRequirement.SortDirection.DESC, intent.getSortRequirements().get(0).getDirection());
         
         assertNotNull(intent.getLimitRequirement());
-        assertEquals(LimitRequirement.LimitType.TOP_N, intent.getLimitRequirement().getLimitType());
+        assertEquals(LimitType.TOP_N, intent.getLimitRequirement().getLimitType());
         assertEquals(5, intent.getLimitRequirement().getLimitValue());
     }
 }
