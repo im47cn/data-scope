@@ -1,335 +1,443 @@
 /**
  * 数据源详情组件
- * 用于查看数据源的详细信息，包括模式和表信息
+ * 展示数据源信息、元数据和同步状态
  */
 const DataSourceDetail = {
     props: {
-        // 数据源ID
         dataSourceId: {
-            type: [Number, String],
+            type: String,
             required: true
         }
     },
+
     data() {
         return {
             loading: false,
-            schemaLoading: false,
-            tableLoading: false,
             dataSource: null,
-            schemas: [],
-            currentSchema: null,
-            tables: [],
+            metadataStats: null,
+            syncHistory: [],
             activeTab: 'basic',
+            // 元数据树相关状态
+            metadataLoading: false,
+            metadataTree: [],
+            selectedSchema: null,
+            selectedTable: null,
+            tableDetails: null,
+            // 分页配置
+            pagination: {
+                current: 1,
+                pageSize: 10,
+                total: 0,
+                showSizeChanger: true,
+                showQuickJumper: true,
+                showTotal: total => `共 ${total} 条记录`
+            },
+            // 表格列定义
             tableColumns: [
-                {
-                    title: '表名',
-                    dataIndex: 'name',
-                    key: 'name',
-                    sorter: (a, b) => a.name.localeCompare(b.name)
-                },
-                {
-                    title: '类型',
-                    dataIndex: 'type',
-                    key: 'type',
-                    width: 120
-                },
-                {
-                    title: '行数',
-                    dataIndex: 'estimatedRowCount',
-                    key: 'estimatedRowCount',
-                    width: 120,
-                    sorter: (a, b) => (a.estimatedRowCount || 0) - (b.estimatedRowCount || 0)
-                },
-                {
-                    title: '数据大小',
-                    dataIndex: 'dataSize',
-                    key: 'dataSize',
-                    width: 120,
-                    customRender: (text) => this.formatSize(text)
-                },
-                {
-                    title: '索引大小',
-                    dataIndex: 'indexSize',
-                    key: 'indexSize',
-                    width: 120,
-                    customRender: (text) => this.formatSize(text)
-                },
-                {
-                    title: '最后分析时间',
-                    dataIndex: 'lastAnalyzed',
-                    key: 'lastAnalyzed',
-                    width: 180,
-                    customRender: (text) => this.formatDate(text)
-                },
-                {
-                    title: '操作',
-                    key: 'action',
-                    width: 120,
-                    customRender: (text, record) => (
-                        <a-button-group>
-                            <a-button type="primary" size="small" onClick={() => this.viewTable(record)}>
-                                <a-icon type="table" />查看
-                            </a-button>
-                            <a-button type="default" size="small" onClick={() => this.queryTable(record)}>
-                                <a-icon type="search" />查询
-                            </a-button>
-                        </a-button-group>
-                    )
-                }
+                { title: '列名', dataIndex: 'name', key: 'name', width: '20%' },
+                { title: '类型', dataIndex: 'type', key: 'type', width: '15%' },
+                { title: '可空', dataIndex: 'nullable', key: 'nullable', width: '10%',
+                    scopedSlots: { customRender: 'nullable' } },
+                { title: '主键', dataIndex: 'primaryKey', key: 'primaryKey', width: '10%',
+                    scopedSlots: { customRender: 'primaryKey' } },
+                { title: '默认值', dataIndex: 'defaultValue', key: 'defaultValue', width: '15%' },
+                { title: '注释', dataIndex: 'comment', key: 'comment', width: '30%', ellipsis: true }
+            ],
+            // 同步历史表格列定义
+            syncHistoryColumns: [
+                { title: '开始时间', dataIndex: 'startTime', key: 'startTime', width: '20%',
+                    scopedSlots: { customRender: 'startTime' } },
+                { title: '耗时', dataIndex: 'duration', key: 'duration', width: '15%',
+                    customRender: (text, record) => UtilService.formatDuration(record.startTime, record.endTime) },
+                { title: '状态', dataIndex: 'status', key: 'status', width: '15%',
+                    scopedSlots: { customRender: 'status' } },
+                { title: '同步类型', dataIndex: 'syncType', key: 'syncType', width: '15%' },
+                { title: '结果', dataIndex: 'result', key: 'result', width: '35%', ellipsis: true }
             ]
         };
     },
+
     computed: {
-        connectionPropertiesList() {
-            if (!this.dataSource || !this.dataSource.connectionProperties) {
-                return [];
-            }
-            
-            return Object.entries(this.dataSource.connectionProperties)
-                .map(([key, value]) => ({ key, value }));
+        isSyncing() {
+            return this.dataSource?.syncStatus && 
+                ['PENDING', 'RUNNING'].includes(this.dataSource.syncStatus.status);
         }
     },
-    mounted() {
+
+    created() {
+        this.debouncedRefresh = UtilService.debounce(this.fetchDataSource, 1000);
         this.fetchDataSource();
-        this.fetchSchemas();
+        this.fetchSyncHistory();
+        this.startPolling();
     },
+
+    beforeDestroy() {
+        this.stopPolling();
+    },
+
     methods: {
-        fetchDataSource() {
+        startPolling() {
+            if (this.pollingTimer) {
+                clearInterval(this.pollingTimer);
+            }
+            this.pollingTimer = setInterval(() => {
+                if (this.isSyncing) {
+                    this.debouncedRefresh();
+                }
+            }, 3000);
+        },
+
+        stopPolling() {
+            if (this.pollingTimer) {
+                clearInterval(this.pollingTimer);
+                this.pollingTimer = null;
+            }
+        },
+
+        async fetchDataSource() {
             this.loading = true;
-            
-            axios.get(`/datasources/${this.dataSourceId}`)
-                .then(response => {
-                    this.dataSource = response.data;
-                })
-                .catch(error => {
-                    console.error('获取数据源详情失败:', error);
-                    this.$message.error('获取数据源详情失败');
-                })
-                .finally(() => {
-                    this.loading = false;
+            try {
+                const [dataSourceRes, statsRes] = await Promise.all([
+                    DataSourceService.getDataSource(this.dataSourceId),
+                    DataSourceService.getMetadataStats(this.dataSourceId)
+                ]);
+                this.dataSource = dataSourceRes.data;
+                this.metadataStats = statsRes.data;
+            } catch (error) {
+                console.error('获取数据源详情失败:', error);
+                this.$message.error('获取数据源详情失败');
+            } finally {
+                this.loading = false;
+            }
+        },
+
+        async fetchSyncHistory() {
+            try {
+                const response = await DataSourceService.getSyncHistory(this.dataSourceId, {
+                    page: this.pagination.current - 1,
+                    size: this.pagination.pageSize
                 });
+                this.syncHistory = response.data.content;
+                this.pagination.total = response.data.pageable.totalElements;
+            } catch (error) {
+                console.error('获取同步历史失败:', error);
+                this.$message.error('获取同步历史失败');
+            }
         },
-        fetchSchemas() {
-            this.schemaLoading = true;
-            
-            axios.get(`/datasources/${this.dataSourceId}/schemas`)
-                .then(response => {
-                    this.schemas = response.data;
-                    
-                    // 如果有模式，默认选择第一个
-                    if (this.schemas.length > 0) {
-                        this.selectSchema(this.schemas[0]);
-                    }
-                })
-                .catch(error => {
-                    console.error('获取模式列表失败:', error);
-                    this.$message.error('获取模式列表失败');
-                })
-                .finally(() => {
-                    this.schemaLoading = false;
-                });
+
+        async handleSync() {
+            if (this.isSyncing) {
+                this.$message.warning('同步任务正在进行中');
+                return;
+            }
+
+            try {
+                await DataSourceService.syncMetadata(this.dataSourceId);
+                this.$message.success('同步任务已启动');
+                await this.fetchDataSource();
+            } catch (error) {
+                console.error('启动同步任务失败:', error);
+                this.$message.error('启动同步任务失败');
+            }
         },
-        fetchTables(schemaName) {
-            this.tableLoading = true;
-            
-            axios.get(`/datasources/${this.dataSourceId}/schemas/${schemaName}/tables`)
-                .then(response => {
-                    this.tables = response.data;
-                })
-                .catch(error => {
-                    console.error('获取表列表失败:', error);
-                    this.$message.error('获取表列表失败');
-                })
-                .finally(() => {
-                    this.tableLoading = false;
-                });
-        },
-        selectSchema(schema) {
-            this.currentSchema = schema;
-            this.fetchTables(schema.name);
-        },
-        handleTabChange(key) {
+
+        async handleTabChange(key) {
             this.activeTab = key;
+            if (key === 'metadata' && !this.metadataTree.length) {
+                await this.loadMetadataTree();
+            } else if (key === 'syncHistory') {
+                await this.fetchSyncHistory();
+            }
         },
+
+        async loadMetadataTree() {
+            this.metadataLoading = true;
+            try {
+                const response = await DataSourceService.getMetadataTree(this.dataSourceId);
+                this.metadataTree = this.transformMetadataTree(response.data);
+            } catch (error) {
+                console.error('加载元数据树失败:', error);
+                this.$message.error('加载元数据树失败');
+            } finally {
+                this.metadataLoading = false;
+            }
+        },
+
+        transformMetadataTree(data) {
+            return data.map(schema => ({
+                key: `schema-${schema.name}`,
+                title: schema.name,
+                type: 'schema',
+                children: schema.tables.map(table => ({
+                    key: `table-${schema.name}-${table.name}`,
+                    title: table.name,
+                    type: 'table',
+                    schema: schema.name,
+                    isLeaf: true,
+                    icon: 'table'
+                }))
+            }));
+        },
+
+        async handleTreeSelect(selectedKeys, { node }) {
+            if (node.type === 'table') {
+                this.selectedSchema = node.schema;
+                this.selectedTable = node.title;
+                await this.loadTableDetails(node.schema, node.title);
+            }
+        },
+
+        async loadTableDetails(schema, table) {
+            this.metadataLoading = true;
+            try {
+                const response = await DataSourceService.getTableDetails(
+                    this.dataSourceId,
+                    schema,
+                    table
+                );
+                this.tableDetails = response.data;
+            } catch (error) {
+                console.error('加载表详情失败:', error);
+                this.$message.error('加载表详情失败');
+            } finally {
+                this.metadataLoading = false;
+            }
+        },
+
         handleEdit() {
             this.$router.push(`/datasource/edit/${this.dataSourceId}`);
         },
-        handleSync() {
-            this.$confirm({
-                title: '确认同步',
-                content: `确定要同步数据源 "${this.dataSource.name}" 的元数据吗？`,
-                okText: '确认',
-                cancelText: '取消',
-                onOk: () => {
-                    axios.post(`/datasources/${this.dataSourceId}/sync`)
-                        .then(response => {
-                            this.$message.success('同步任务已启动');
-                            // 可以在这里处理同步作业ID
-                            console.log('同步作业ID:', response.data);
-                        })
-                        .catch(error => {
-                            console.error('启动同步任务失败:', error);
-                            this.$message.error('启动同步任务失败');
-                        });
-                }
-            });
-        },
-        handleBack() {
-            this.$router.push('/datasource/list');
-        },
-        viewTable(table) {
-            // 跳转到表详情页面
-            this.$router.push(`/datasource/${this.dataSourceId}/schema/${this.currentSchema.name}/table/${table.name}`);
-        },
-        queryTable(table) {
-            // 跳转到查询构建器页面
-            this.$router.push({
-                path: '/query-builder',
-                query: {
-                    dataSourceId: this.dataSourceId,
-                    schema: this.currentSchema.name,
-                    table: table.name
-                }
-            });
-        },
-        formatDate(date) {
-            if (!date) return '-';
-            return moment(date).format('YYYY-MM-DD HH:mm:ss');
-        },
-        formatSize(bytes) {
-            if (bytes === null || bytes === undefined) return '-';
-            
-            const units = ['B', 'KB', 'MB', 'GB', 'TB'];
-            let size = bytes;
-            let unitIndex = 0;
-            
-            while (size >= 1024 && unitIndex < units.length - 1) {
-                size /= 1024;
-                unitIndex++;
-            }
-            
-            return `${size.toFixed(2)} ${units[unitIndex]}`;
+
+        handleTableChange(pagination) {
+            this.pagination.current = pagination.current;
+            this.pagination.pageSize = pagination.pageSize;
+            this.fetchSyncHistory();
         }
     },
+
     template: `
         <div class="datasource-detail-container">
             <a-spin :spinning="loading">
                 <div class="page-header">
-                    <div class="page-title">
-                        <h1>{{ dataSource ? dataSource.name : '数据源详情' }}</h1>
-                        <a-tag :color="dataSource && dataSource.active ? 'green' : 'red'">
-                            {{ dataSource && dataSource.active ? '激活' : '禁用' }}
+                    <h1>
+                        {{ dataSource?.name || '数据源详情' }}
+                        <a-tag :color="dataSource?.active ? 'success' : 'default'">
+                            {{ dataSource?.active ? '激活' : '禁用' }}
                         </a-tag>
-                    </div>
-                    <div class="page-actions">
-                        <a-button-group>
-                            <a-button type="primary" @click="handleEdit">
-                                <a-icon type="edit" />编辑
-                            </a-button>
-                            <a-button @click="handleSync">
-                                <a-icon type="sync" />同步元数据
-                            </a-button>
-                            <a-button @click="handleBack">
-                                <a-icon type="arrow-left" />返回
-                            </a-button>
-                        </a-button-group>
-                    </div>
+                    </h1>
+                    <a-space>
+                        <a-button type="primary" @click="handleEdit">
+                            <a-icon type="edit" />编辑
+                        </a-button>
+                        <a-button @click="handleSync" :loading="isSyncing">
+                            <a-icon type="sync" :spin="isSyncing" />同步元数据
+                        </a-button>
+                    </a-space>
                 </div>
-                
-                <a-tabs v-if="dataSource" :activeKey="activeTab" @change="handleTabChange">
+
+                <a-tabs :activeKey="activeTab" @change="handleTabChange">
+                    <!-- 基本信息 -->
                     <a-tab-pane key="basic" tab="基本信息">
-                        <a-descriptions bordered :column="2">
-                            <a-descriptions-item label="数据源名称">{{ dataSource.name }}</a-descriptions-item>
-                            <a-descriptions-item label="数据源类型">{{ dataSource.type }}</a-descriptions-item>
-                            <a-descriptions-item label="主机地址">{{ dataSource.host }}</a-descriptions-item>
-                            <a-descriptions-item label="端口">{{ dataSource.port }}</a-descriptions-item>
-                            <a-descriptions-item label="数据库名称">{{ dataSource.databaseName }}</a-descriptions-item>
-                            <a-descriptions-item label="用户名">{{ dataSource.username }}</a-descriptions-item>
-                            <a-descriptions-item label="状态">
-                                <a-badge :status="dataSource.active ? 'success' : 'default'" />
-                                <span>{{ dataSource.active ? '激活' : '禁用' }}</span>
+                        <a-descriptions :column="2" bordered>
+                            <a-descriptions-item label="数据源类型">
+                                {{ dataSource?.type }}
                             </a-descriptions-item>
-                            <a-descriptions-item label="最后同步时间">
-                                {{ dataSource.lastSyncTime ? formatDate(dataSource.lastSyncTime) : '未同步' }}
+                            <a-descriptions-item label="连接地址">
+                                {{ dataSource?.host }}:{{ dataSource?.port }}
                             </a-descriptions-item>
-                            <a-descriptions-item label="创建时间">{{ formatDate(dataSource.createdAt) }}</a-descriptions-item>
-                            <a-descriptions-item label="更新时间">{{ formatDate(dataSource.updatedAt) }}</a-descriptions-item>
-                            <a-descriptions-item label="描述" :span="2">{{ dataSource.description || '-' }}</a-descriptions-item>
+                            <a-descriptions-item label="数据库名称">
+                                {{ dataSource?.databaseName }}
+                            </a-descriptions-item>
+                            <a-descriptions-item label="用户名">
+                                {{ dataSource?.username }}
+                            </a-descriptions-item>
+                            <a-descriptions-item label="创建时间">
+                                {{ UtilService.formatDateTime(dataSource?.createdAt) }}
+                            </a-descriptions-item>
+                            <a-descriptions-item label="最后更新">
+                                {{ UtilService.formatDateTime(dataSource?.updatedAt) }}
+                            </a-descriptions-item>
+                            <a-descriptions-item label="最后同步">
+                                {{ UtilService.formatDateTime(dataSource?.lastSyncedAt) }}
+                            </a-descriptions-item>
+                            <a-descriptions-item label="标签">
+                                <template v-if="dataSource?.tags?.length">
+                                    <a-tag v-for="tag in dataSource.tags" :key="tag">
+                                        {{ tag }}
+                                    </a-tag>
+                                </template>
+                                <span v-else>-</span>
+                            </a-descriptions-item>
+                            <a-descriptions-item label="同步状态" :span="2">
+                                <sync-status-badge
+                                    :status="dataSource?.syncStatus || { status: 'UNKNOWN' }"
+                                    :showProgress="true"
+                                    :showDetail="true"
+                                />
+                            </a-descriptions-item>
+                            <a-descriptions-item label="描述" :span="2">
+                                {{ dataSource?.description || '-' }}
+                            </a-descriptions-item>
                         </a-descriptions>
-                        
-                        <a-divider orientation="left">连接属性</a-divider>
-                        
-                        <a-table
-                            :columns="[
-                                { title: '属性名', dataIndex: 'key', key: 'key' },
-                                { title: '属性值', dataIndex: 'value', key: 'value' }
-                            ]"
-                            :dataSource="connectionPropertiesList"
-                            :pagination="false"
-                            size="small"
-                            :rowKey="(record, index) => index"
-                        />
-                    </a-tab-pane>
-                    
-                    <a-tab-pane key="metadata" tab="元数据">
-                        <a-row :gutter="16">
-                            <a-col :span="6">
-                                <a-spin :spinning="schemaLoading">
-                                    <a-card title="模式列表" :bordered="false">
-                                        <a-list
-                                            size="small"
-                                            :dataSource="schemas"
-                                            :rowKey="item => item.id"
-                                        >
-                                            <a-list-item slot="renderItem" slot-scope="item">
-                                                <a
-                                                    @click="selectSchema(item)"
-                                                    :class="{ active: currentSchema && currentSchema.id === item.id }"
-                                                >
-                                                    {{ item.name }}
-                                                </a>
-                                            </a-list-item>
-                                            <div slot="header" class="list-header">
-                                                <span>共 {{ schemas.length }} 个模式</span>
-                                            </div>
-                                            <div slot="footer" class="list-footer">
-                                                <a-button
-                                                    type="dashed"
-                                                    size="small"
-                                                    style="width: 100%"
-                                                    @click="handleSync"
-                                                >
-                                                    <a-icon type="sync" />刷新元数据
-                                                </a-button>
-                                            </div>
-                                        </a-list>
-                                    </a-card>
-                                </a-spin>
-                            </a-col>
-                            
-                            <a-col :span="18">
-                                <a-spin :spinning="tableLoading">
-                                    <a-card
-                                        :title="currentSchema ? \`\${currentSchema.name} 的表列表\` : '表列表'"
-                                        :bordered="false"
+
+                        <!-- 元数据统计 -->
+                        <div class="metadata-stats" style="margin-top: 24px">
+                            <h3>元数据统计</h3>
+                            <a-row :gutter="16">
+                                <a-col :span="6">
+                                    <a-statistic
+                                        title="模式数"
+                                        :value="metadataStats?.schemaCount || 0"
+                                        :valueStyle="{ color: '#1890ff' }"
                                     >
-                                        <a-table
-                                            :columns="tableColumns"
-                                            :dataSource="tables"
-                                            :rowKey="record => record.id"
-                                            :pagination="{ pageSize: 10 }"
-                                            size="middle"
-                                        />
-                                    </a-card>
+                                        <template #prefix>
+                                            <a-icon type="database" />
+                                        </template>
+                                    </a-statistic>
+                                </a-col>
+                                <a-col :span="6">
+                                    <a-statistic
+                                        title="表数量"
+                                        :value="metadataStats?.tableCount || 0"
+                                        :valueStyle="{ color: '#52c41a' }"
+                                    >
+                                        <template #prefix>
+                                            <a-icon type="table" />
+                                        </template>
+                                    </a-statistic>
+                                </a-col>
+                                <a-col :span="6">
+                                    <a-statistic
+                                        title="视图数量"
+                                        :value="metadataStats?.viewCount || 0"
+                                        :valueStyle="{ color: '#722ed1' }"
+                                    >
+                                        <template #prefix>
+                                            <a-icon type="eye" />
+                                        </template>
+                                    </a-statistic>
+                                </a-col>
+                                <a-col :span="6">
+                                    <a-statistic
+                                        title="列总数"
+                                        :value="metadataStats?.columnCount || 0"
+                                        :valueStyle="{ color: '#fa8c16' }"
+                                    >
+                                        <template #prefix>
+                                            <a-icon type="bars" />
+                                        </template>
+                                    </a-statistic>
+                                </a-col>
+                            </a-row>
+                        </div>
+                    </a-tab-pane>
+
+                    <!-- 元数据浏览 -->
+                    <a-tab-pane key="metadata" tab="元数据浏览" forceRender>
+                        <a-row :gutter="16">
+                            <!-- 元数据树 -->
+                            <a-col :span="6">
+                                <a-card :loading="metadataLoading" :bordered="false">
+                                    <a-tree
+                                        :treeData="metadataTree"
+                                        :defaultExpandAll="true"
+                                        @select="handleTreeSelect"
+                                    >
+                                        <template slot="title" slot-scope="{ title, type }">
+                                            <a-icon :type="type === 'schema' ? 'database' : 'table'" /> {{ title }}
+                                        </template>
+                                    </a-tree>
+                                </a-card>
+                            </a-col>
+
+                            <!-- 表详情 -->
+                            <a-col :span="18">
+                                <a-spin :spinning="metadataLoading">
+                                    <template v-if="selectedTable">
+                                        <a-card :bordered="false">
+                                            <template slot="title">
+                                                <span>{{ selectedSchema }}.{{ selectedTable }}</span>
+                                            </template>
+                                            <a-tabs>
+                                                <a-tab-pane key="columns" tab="列信息">
+                                                    <a-table
+                                                        :columns="tableColumns"
+                                                        :dataSource="tableDetails?.columns"
+                                                        :pagination="false"
+                                                        size="middle"
+                                                    >
+                                                        <template slot="nullable" slot-scope="text">
+                                                            <a-badge :status="text ? 'default' : 'error'" />
+                                                            {{ text ? '是' : '否' }}
+                                                        </template>
+                                                        <template slot="primaryKey" slot-scope="text">
+                                                            <a-badge :status="text ? 'success' : 'default'" />
+                                                            {{ text ? '是' : '否' }}
+                                                        </template>
+                                                    </a-table>
+                                                </a-tab-pane>
+                                                <a-tab-pane key="indexes" tab="索引">
+                                                    <a-table
+                                                        :columns="[
+                                                            { title: '索引名称', dataIndex: 'name', key: 'name' },
+                                                            { title: '类型', dataIndex: 'type', key: 'type' },
+                                                            { title: '唯一性', dataIndex: 'unique', key: 'unique',
+                                                                scopedSlots: { customRender: 'unique' } },
+                                                            { title: '列', dataIndex: 'columns', key: 'columns',
+                                                                scopedSlots: { customRender: 'columns' } }
+                                                        ]"
+                                                        :dataSource="tableDetails?.indexes"
+                                                        :pagination="false"
+                                                        size="middle"
+                                                    >
+                                                        <template slot="unique" slot-scope="text">
+                                                            <a-badge :status="text ? 'success' : 'default'" />
+                                                            {{ text ? '是' : '否' }}
+                                                        </template>
+                                                        <template slot="columns" slot-scope="columns">
+                                                            <a-tag v-for="col in columns" :key="col">{{ col }}</a-tag>
+                                                        </template>
+                                                    </a-table>
+                                                </a-tab-pane>
+                                            </a-tabs>
+                                        </a-card>
+                                    </template>
+                                    <template v-else>
+                                        <a-empty description="请选择要查看的表" />
+                                    </template>
                                 </a-spin>
                             </a-col>
                         </a-row>
+                    </a-tab-pane>
+
+                    <!-- 同步历史 -->
+                    <a-tab-pane key="syncHistory" tab="同步历史">
+                        <a-table
+                            :columns="syncHistoryColumns"
+                            :dataSource="syncHistory"
+                            :pagination="pagination"
+                            @change="handleTableChange"
+                        >
+                            <template slot="startTime" slot-scope="text">
+                                {{ UtilService.formatDateTime(text) }}
+                            </template>
+                            <template slot="status" slot-scope="text, record">
+                                <sync-status-badge
+                                    :status="{ status: text }"
+                                    :showDetail="false"
+                                />
+                            </template>
+                        </a-table>
                     </a-tab-pane>
                 </a-tabs>
             </a-spin>
         </div>
     `
 };
+
+// 导入依赖
+import DataSourceService from '../services/datasource-service.js';
+import UtilService from '../services/util-service.js';
 
 // 注册组件
 Vue.component('datasource-detail', DataSourceDetail);

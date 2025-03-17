@@ -1,424 +1,472 @@
 /**
  * 数据源表单组件
- * 用于添加和编辑数据源
+ * 用于创建和编辑数据源
  */
 const DataSourceForm = {
     props: {
         // 编辑模式时的数据源ID
         dataSourceId: {
-            type: [Number, String],
+            type: String,
             default: null
-        },
-        // 是否为只读模式（查看详情）
-        readonly: {
-            type: Boolean,
-            default: false
         }
     },
+
     data() {
         return {
-            form: this.$form.createForm(this),
             loading: false,
-            testingConnection: false,
-            supportedTypes: [],
-            dataSource: {
+            saving: false,
+            testing: false,
+            formData: {
                 name: '',
-                type: null,
+                type: undefined,
                 host: '',
-                port: null,
+                port: undefined,
                 databaseName: '',
                 username: '',
                 password: '',
+                description: '',
                 connectionProperties: {},
                 active: true,
-                description: ''
+                tags: []
             },
-            // 连接属性的键值对列表
-            connectionPropertiesList: []
+            supportedTypes: [],
+            // 数据源类型对应的默认端口
+            defaultPorts: {
+                MYSQL: 3306,
+                POSTGRESQL: 5432,
+                DB2: 50000,
+                ORACLE: 1521,
+                SQLSERVER: 1433
+            },
+            // 数据源类型对应的连接属性说明
+            connectionPropertiesHelp: {
+                MYSQL: '示例：{"useSSL": false, "serverTimezone": "UTC"}',
+                POSTGRESQL: '示例：{"ssl": true, "sslmode": "verify-full"}',
+                DB2: '示例：{"currentSchema": "myschema", "retrieveMessagesFromServerOnGetMessage": true}',
+                ORACLE: '示例：{"oracle.jdbc.ReadTimeout": 30000}',
+                SQLSERVER: '示例：{"encrypt": true, "trustServerCertificate": false}'
+            },
+            rules: {
+                name: [
+                    { required: true, message: '请输入数据源名称', trigger: 'blur' },
+                    { min: 2, max: 50, message: '长度在 2 到 50 个字符之间', trigger: 'blur' },
+                    { validator: this.validateDuplicateName, trigger: 'blur' }
+                ],
+                type: [
+                    { required: true, message: '请选择数据源类型', trigger: 'change' }
+                ],
+                host: [
+                    { required: true, message: '请输入主机地址', trigger: 'blur' },
+                    { validator: this.validateHost, trigger: 'blur' }
+                ],
+                port: [
+                    { required: true, message: '请输入端口号', trigger: 'blur' },
+                    { type: 'number', message: '端口号必须为数字', trigger: 'blur' },
+                    { validator: this.validatePort, trigger: 'blur' }
+                ],
+                databaseName: [
+                    { required: true, message: '请输入数据库名称', trigger: 'blur' },
+                    { pattern: /^[a-zA-Z0-9_]+$/, message: '数据库名称只能包含字母、数字和下划线', trigger: 'blur' }
+                ],
+                username: [
+                    { required: true, message: '请输入用户名', trigger: 'blur' }
+                ],
+                password: [
+                    { required: true, message: '请输入密码', trigger: 'blur' }
+                ],
+                connectionProperties: [
+                    { validator: this.validateConnectionProperties, trigger: 'blur' }
+                ]
+            }
         };
     },
+
     computed: {
         isEdit() {
             return !!this.dataSourceId;
         },
         title() {
-            if (this.readonly) return '查看数据源';
-            return this.isEdit ? '编辑数据源' : '添加数据源';
+            return this.isEdit ? '编辑数据源' : '创建数据源';
+        },
+        connectionPropertiesPlaceholder() {
+            return this.formData.type ? this.connectionPropertiesHelp[this.formData.type] : '请输入连接属性（JSON格式）';
         }
     },
-    mounted() {
+
+    created() {
+        this.debouncedTestConnection = UtilService.debounce(this.handleTest, 1000);
         this.fetchSupportedTypes();
-        
         if (this.isEdit) {
             this.fetchDataSource();
         }
     },
+
     methods: {
-        fetchSupportedTypes() {
-            axios.get('/datasources/types')
-                .then(response => {
-                    this.supportedTypes = response.data;
-                })
-                .catch(error => {
-                    console.error('获取数据源类型失败:', error);
-                    this.$message.error('获取数据源类型失败');
-                });
+        async fetchSupportedTypes() {
+            try {
+                const response = await DataSourceService.getSupportedTypes();
+                this.supportedTypes = response.data;
+            } catch (error) {
+                console.error('获取数据源类型失败:', error);
+                this.$message.error('获取数据源类型失败');
+            }
         },
-        fetchDataSource() {
+
+        async fetchDataSource() {
             this.loading = true;
-            
-            axios.get(`/datasources/${this.dataSourceId}`)
-                .then(response => {
-                    this.dataSource = response.data;
-                    
-                    // 将连接属性转换为键值对列表
-                    this.connectionPropertiesList = Object.entries(this.dataSource.connectionProperties || {})
-                        .map(([key, value]) => ({ key, value }));
-                    
-                    // 设置表单初始值
-                    this.$nextTick(() => {
-                        this.form.setFieldsValue({
-                            name: this.dataSource.name,
-                            type: this.dataSource.type,
-                            host: this.dataSource.host,
-                            port: this.dataSource.port,
-                            databaseName: this.dataSource.databaseName,
-                            username: this.dataSource.username,
-                            active: this.dataSource.active,
-                            description: this.dataSource.description
-                        });
-                    });
-                })
-                .catch(error => {
-                    console.error('获取数据源详情失败:', error);
-                    this.$message.error('获取数据源详情失败');
-                })
-                .finally(() => {
-                    this.loading = false;
-                });
-        },
-        handleSubmit(e) {
-            e.preventDefault();
-            
-            this.form.validateFields((err, values) => {
-                if (err) return;
-                
-                // 构建连接属性对象
-                const connectionProperties = {};
-                this.connectionPropertiesList.forEach(item => {
-                    if (item.key && item.value !== undefined) {
-                        connectionProperties[item.key] = item.value;
+            try {
+                const response = await DataSourceService.getDataSource(this.dataSourceId);
+                const { password, ...data } = response.data;
+                if (typeof data.connectionProperties === 'string') {
+                    try {
+                        data.connectionProperties = JSON.parse(data.connectionProperties);
+                    } catch (e) {
+                        data.connectionProperties = {};
                     }
-                });
-                
-                // 构建请求数据
-                const data = {
-                    ...values,
-                    connectionProperties
-                };
-                
-                // 如果是编辑模式，保留ID
-                if (this.isEdit) {
-                    data.id = this.dataSourceId;
                 }
-                
-                this.loading = true;
-                
-                const request = this.isEdit
-                    ? axios.put(`/datasources/${this.dataSourceId}`, data)
-                    : axios.post('/datasources', data);
-                
-                request
-                    .then(() => {
-                        this.$message.success(`${this.isEdit ? '更新' : '创建'}数据源成功`);
-                        this.$router.push('/datasource/list');
-                    })
-                    .catch(error => {
-                        console.error(`${this.isEdit ? '更新' : '创建'}数据源失败:`, error);
-                        this.$message.error(`${this.isEdit ? '更新' : '创建'}数据源失败`);
-                    })
-                    .finally(() => {
-                        this.loading = false;
-                    });
-            });
+                this.formData = { ...this.formData, ...data };
+            } catch (error) {
+                console.error('获取数据源信息失败:', error);
+                this.$message.error('获取数据源信息失败');
+            } finally {
+                this.loading = false;
+            }
         },
-        handleTestConnection() {
-            this.form.validateFields((err, values) => {
-                if (err) return;
-                
-                // 构建连接属性对象
-                const connectionProperties = {};
-                this.connectionPropertiesList.forEach(item => {
-                    if (item.key && item.value !== undefined) {
-                        connectionProperties[item.key] = item.value;
-                    }
+
+        async validateDuplicateName(rule, value, callback) {
+            if (!value) {
+                callback();
+                return;
+            }
+
+            try {
+                const response = await DataSourceService.checkNameExists(value, this.dataSourceId);
+                if (response.data.exists) {
+                    callback(new Error('数据源名称已存在'));
+                } else {
+                    callback();
+                }
+            } catch (error) {
+                console.error('检查数据源名称失败:', error);
+                callback();
+            }
+        },
+
+        validateHost(rule, value, callback) {
+            const hostPattern = /^[a-zA-Z0-9][a-zA-Z0-9-._]+[a-zA-Z0-9]$/;
+            const ipPattern = /^(\d{1,3}\.){3}\d{1,3}$/;
+            
+            if (value === 'localhost') {
+                callback();
+                return;
+            }
+            
+            if (!hostPattern.test(value) && !ipPattern.test(value)) {
+                callback(new Error('主机地址格式不正确'));
+                return;
+            }
+            
+            if (ipPattern.test(value)) {
+                const parts = value.split('.');
+                const isValid = parts.every(part => {
+                    const num = parseInt(part, 10);
+                    return num >= 0 && num <= 255;
                 });
-                
-                // 构建请求数据
-                const data = {
-                    ...values,
-                    connectionProperties
-                };
-                
-                this.testingConnection = true;
-                
-                axios.post('/datasources/test-connection', data)
-                    .then(response => {
-                        if (response.data.success) {
-                            this.$message.success('连接成功');
-                        } else {
-                            this.$message.error(`连接失败: ${response.data.message}`);
-                        }
-                    })
-                    .catch(error => {
-                        console.error('测试连接失败:', error);
-                        this.$message.error('测试连接失败');
-                    })
-                    .finally(() => {
-                        this.testingConnection = false;
-                    });
-            });
+                if (!isValid) {
+                    callback(new Error('IP地址格式不正确'));
+                    return;
+                }
+            }
+            
+            callback();
         },
+
+        validatePort(rule, value, callback) {
+            if (value < 1 || value > 65535) {
+                callback(new Error('端口号必须在 1-65535 之间'));
+                return;
+            }
+            callback();
+        },
+
+        validateConnectionProperties(rule, value, callback) {
+            if (!value || value === '') {
+                callback();
+                return;
+            }
+
+            if (typeof value === 'string') {
+                try {
+                    JSON.parse(value);
+                    callback();
+                } catch (e) {
+                    callback(new Error('连接属性必须是有效的JSON格式'));
+                }
+            } else if (typeof value === 'object') {
+                callback();
+            } else {
+                callback(new Error('连接属性格式不正确'));
+            }
+        },
+
+        handleTypeChange(value) {
+            // 设置默认端口
+            if (this.defaultPorts[value] && !this.formData.port) {
+                this.formData.port = this.defaultPorts[value];
+            }
+        },
+
+        async handleTest() {
+            try {
+                await this.$refs.form.validate();
+            } catch (error) {
+                return;
+            }
+
+            this.testing = true;
+            try {
+                const testData = UtilService.deepClone(this.formData);
+                if (typeof testData.connectionProperties === 'string') {
+                    try {
+                        testData.connectionProperties = JSON.parse(testData.connectionProperties);
+                    } catch (e) {
+                        testData.connectionProperties = {};
+                    }
+                }
+
+                let response;
+                if (this.isEdit) {
+                    response = await DataSourceService.testConnection(this.dataSourceId);
+                } else {
+                    response = await DataSourceService.testNewConnection(testData);
+                }
+
+                if (response.data.success) {
+                    this.$notification.success({
+                        message: '连接测试成功',
+                        description: `成功连接到 ${response.data.databaseVersion}`,
+                        duration: 4
+                    });
+                } else {
+                    this.$notification.error({
+                        message: '连接测试失败',
+                        description: response.data.message,
+                        duration: 4
+                    });
+                }
+            } catch (error) {
+                console.error('连接测试失败:', error);
+                this.$notification.error({
+                    message: '连接测试失败',
+                    description: error.response?.data?.message || '请检查连接信息是否正确',
+                    duration: 4
+                });
+            } finally {
+                this.testing = false;
+            }
+        },
+
+        async handleSubmit() {
+            try {
+                await this.$refs.form.validate();
+            } catch (error) {
+                return;
+            }
+
+            this.saving = true;
+            try {
+                const submitData = UtilService.deepClone(this.formData);
+                if (typeof submitData.connectionProperties === 'string') {
+                    try {
+                        submitData.connectionProperties = JSON.parse(submitData.connectionProperties);
+                    } catch (e) {
+                        submitData.connectionProperties = {};
+                    }
+                }
+
+                if (this.isEdit) {
+                    await DataSourceService.updateDataSource(this.dataSourceId, submitData);
+                    this.$message.success('数据源更新成功');
+                } else {
+                    await DataSourceService.createDataSource(submitData);
+                    this.$message.success('数据源创建成功');
+                }
+                this.$router.push('/datasource/list');
+            } catch (error) {
+                console.error('保存数据源失败:', error);
+                this.$message.error(error.response?.data?.message || '保存数据源失败');
+            } finally {
+                this.saving = false;
+            }
+        },
+
         handleCancel() {
             this.$router.push('/datasource/list');
-        },
-        addConnectionProperty() {
-            this.connectionPropertiesList.push({ key: '', value: '' });
-        },
-        removeConnectionProperty(index) {
-            this.connectionPropertiesList.splice(index, 1);
-        },
-        handleTypeChange(value) {
-            // 根据数据源类型设置默认端口
-            switch (value) {
-                case 'MYSQL':
-                    this.form.setFieldsValue({ port: 3306 });
-                    break;
-                case 'POSTGRESQL':
-                    this.form.setFieldsValue({ port: 5432 });
-                    break;
-                case 'ORACLE':
-                    this.form.setFieldsValue({ port: 1521 });
-                    break;
-                case 'SQL_SERVER':
-                    this.form.setFieldsValue({ port: 1433 });
-                    break;
-                case 'DB2':
-                    this.form.setFieldsValue({ port: 50000 });
-                    break;
-                default:
-                    break;
-            }
         }
     },
+
     template: `
         <div class="datasource-form-container">
             <div class="page-header">
                 <h1>{{ title }}</h1>
             </div>
-            
+
             <a-spin :spinning="loading">
-                <a-form :form="form" @submit="handleSubmit" layout="vertical">
-                    <a-row :gutter="16">
-                        <a-col :span="12">
-                            <a-form-item label="数据源名称" required>
-                                <a-input
-                                    v-decorator="[
-                                        'name',
-                                        {
-                                            rules: [{ required: true, message: '请输入数据源名称' }],
-                                            initialValue: dataSource.name
-                                        }
-                                    ]"
-                                    placeholder="请输入数据源名称"
-                                    :disabled="readonly"
-                                />
-                            </a-form-item>
-                        </a-col>
-                        <a-col :span="12">
-                            <a-form-item label="数据源类型" required>
-                                <a-select
-                                    v-decorator="[
-                                        'type',
-                                        {
-                                            rules: [{ required: true, message: '请选择数据源类型' }],
-                                            initialValue: dataSource.type
-                                        }
-                                    ]"
-                                    placeholder="请选择数据源类型"
-                                    :disabled="readonly"
-                                    @change="handleTypeChange"
-                                >
-                                    <a-select-option v-for="type in supportedTypes" :key="type" :value="type">
-                                        {{ type }}
-                                    </a-select-option>
-                                </a-select>
-                            </a-form-item>
-                        </a-col>
-                    </a-row>
-                    
-                    <a-row :gutter="16">
-                        <a-col :span="12">
-                            <a-form-item label="主机地址" required>
-                                <a-input
-                                    v-decorator="[
-                                        'host',
-                                        {
-                                            rules: [{ required: true, message: '请输入主机地址' }],
-                                            initialValue: dataSource.host
-                                        }
-                                    ]"
-                                    placeholder="请输入主机地址"
-                                    :disabled="readonly"
-                                />
-                            </a-form-item>
-                        </a-col>
-                        <a-col :span="12">
-                            <a-form-item label="端口" required>
-                                <a-input-number
-                                    v-decorator="[
-                                        'port',
-                                        {
-                                            rules: [{ required: true, message: '请输入端口号' }],
-                                            initialValue: dataSource.port
-                                        }
-                                    ]"
-                                    :min="1"
-                                    :max="65535"
-                                    style="width: 100%"
-                                    placeholder="请输入端口号"
-                                    :disabled="readonly"
-                                />
-                            </a-form-item>
-                        </a-col>
-                    </a-row>
-                    
-                    <a-row :gutter="16">
-                        <a-col :span="12">
-                            <a-form-item label="数据库名称" required>
-                                <a-input
-                                    v-decorator="[
-                                        'databaseName',
-                                        {
-                                            rules: [{ required: true, message: '请输入数据库名称' }],
-                                            initialValue: dataSource.databaseName
-                                        }
-                                    ]"
-                                    placeholder="请输入数据库名称"
-                                    :disabled="readonly"
-                                />
-                            </a-form-item>
-                        </a-col>
-                        <a-col :span="12">
-                            <a-form-item label="用户名" required>
-                                <a-input
-                                    v-decorator="[
-                                        'username',
-                                        {
-                                            rules: [{ required: true, message: '请输入用户名' }],
-                                            initialValue: dataSource.username
-                                        }
-                                    ]"
-                                    placeholder="请输入用户名"
-                                    :disabled="readonly"
-                                />
-                            </a-form-item>
-                        </a-col>
-                    </a-row>
-                    
-                    <a-row :gutter="16">
-                        <a-col :span="12">
-                            <a-form-item label="密码" :required="!isEdit">
-                                <a-input-password
-                                    v-decorator="[
-                                        'password',
-                                        {
-                                            rules: [{ required: !isEdit, message: '请输入密码' }],
-                                            initialValue: ''
-                                        }
-                                    ]"
-                                    placeholder="请输入密码"
-                                    :disabled="readonly"
-                                />
-                                <div v-if="isEdit" class="form-help-text">
-                                    如不修改密码，请留空
-                                </div>
-                            </a-form-item>
-                        </a-col>
-                        <a-col :span="12">
-                            <a-form-item label="状态">
-                                <a-switch
-                                    v-decorator="[
-                                        'active',
-                                        {
-                                            valuePropName: 'checked',
-                                            initialValue: dataSource.active !== false
-                                        }
-                                    ]"
-                                    :disabled="readonly"
-                                />
-                                <span class="status-text">{{ form.getFieldValue('active') ? '激活' : '禁用' }}</span>
-                            </a-form-item>
-                        </a-col>
-                    </a-row>
-                    
-                    <a-form-item label="描述">
-                        <a-textarea
-                            v-decorator="[
-                                'description',
-                                {
-                                    initialValue: dataSource.description
-                                }
-                            ]"
-                            :rows="4"
-                            placeholder="请输入描述信息"
-                            :disabled="readonly"
+                <a-form 
+                    ref="form"
+                    :model="formData"
+                    :rules="rules"
+                    :label-col="{ span: 4 }"
+                    :wrapper-col="{ span: 16 }"
+                >
+                    <a-form-item label="数据源名称" name="name">
+                        <a-input
+                            v-model="formData.name"
+                            placeholder="请输入数据源名称"
+                            :maxLength="50"
+                            :disabled="loading"
+                            allow-clear
+                        >
+                            <a-tooltip slot="suffix" title="数据源名称用于标识和区分不同的数据源">
+                                <a-icon type="info-circle" style="color: rgba(0,0,0,.45)" />
+                            </a-tooltip>
+                        </a-input>
+                    </a-form-item>
+
+                    <a-form-item label="数据源类型" name="type">
+                        <a-select
+                            v-model="formData.type"
+                            placeholder="请选择数据源类型"
+                            :disabled="loading || isEdit"
+                            @change="handleTypeChange"
+                        >
+                            <a-select-option 
+                                v-for="type in supportedTypes"
+                                :key="type"
+                                :value="type"
+                            >
+                                {{ type }}
+                            </a-select-option>
+                        </a-select>
+                    </a-form-item>
+
+                    <a-form-item label="主机地址" name="host">
+                        <a-input
+                            v-model="formData.host"
+                            placeholder="请输入主机地址"
+                            :disabled="loading"
+                            allow-clear
+                        >
+                            <a-tooltip slot="suffix" title="支持域名或IP地址">
+                                <a-icon type="info-circle" style="color: rgba(0,0,0,.45)" />
+                            </a-tooltip>
+                        </a-input>
+                    </a-form-item>
+
+                    <a-form-item label="端口号" name="port">
+                        <a-input-number
+                            v-model="formData.port"
+                            placeholder="请输入端口号"
+                            :min="1"
+                            :max="65535"
+                            :disabled="loading"
+                            style="width: 150px"
                         />
                     </a-form-item>
-                    
-                    <a-form-item label="连接属性">
-                        <div v-for="(prop, index) in connectionPropertiesList" :key="index" class="connection-property-item">
-                            <a-row :gutter="8">
-                                <a-col :span="10">
-                                    <a-input
-                                        v-model="prop.key"
-                                        placeholder="属性名"
-                                        :disabled="readonly"
-                                    />
-                                </a-col>
-                                <a-col :span="10">
-                                    <a-input
-                                        v-model="prop.value"
-                                        placeholder="属性值"
-                                        :disabled="readonly"
-                                    />
-                                </a-col>
-                                <a-col :span="4" v-if="!readonly">
-                                    <a-button type="danger" icon="delete" @click="removeConnectionProperty(index)" />
-                                </a-col>
-                            </a-row>
-                        </div>
-                        <a-button v-if="!readonly" type="dashed" style="width: 100%; margin-top: 8px" @click="addConnectionProperty">
-                            <a-icon type="plus" /> 添加连接属性
-                        </a-button>
+
+                    <a-form-item label="数据库名称" name="databaseName">
+                        <a-input
+                            v-model="formData.databaseName"
+                            placeholder="请输入数据库名称"
+                            :disabled="loading"
+                            allow-clear
+                        />
                     </a-form-item>
-                    
-                    <a-form-item>
-                        <a-button v-if="!readonly" type="primary" html-type="submit" :loading="loading">
-                            {{ isEdit ? '更新' : '创建' }}
-                        </a-button>
-                        <a-button v-if="!readonly" :loading="testingConnection" style="margin-left: 8px" @click="handleTestConnection">
-                            测试连接
-                        </a-button>
-                        <a-button style="margin-left: 8px" @click="handleCancel">
-                            {{ readonly ? '返回' : '取消' }}
-                        </a-button>
+
+                    <a-form-item label="用户名" name="username">
+                        <a-input
+                            v-model="formData.username"
+                            placeholder="请输入用户名"
+                            :disabled="loading"
+                            allow-clear
+                        />
+                    </a-form-item>
+
+                    <a-form-item label="密码" name="password">
+                        <a-input-password
+                            v-model="formData.password"
+                            placeholder="请输入密码"
+                            :disabled="loading"
+                            allow-clear
+                        />
+                    </a-form-item>
+
+                    <a-form-item label="连接属性" name="connectionProperties">
+                        <a-textarea
+                            v-model="formData.connectionProperties"
+                            :placeholder="connectionPropertiesPlaceholder"
+                            :rows="4"
+                            :disabled="loading"
+                        />
+                    </a-form-item>
+
+                    <a-form-item label="描述">
+                        <a-textarea
+                            v-model="formData.description"
+                            placeholder="请输入数据源描述"
+                            :rows="4"
+                            :disabled="loading"
+                        />
+                    </a-form-item>
+
+                    <a-form-item label="标签">
+                        <a-select
+                            v-model="formData.tags"
+                            mode="tags"
+                            placeholder="请输入标签"
+                            :disabled="loading"
+                        />
+                    </a-form-item>
+
+                    <a-form-item label="状态">
+                        <a-switch
+                            v-model="formData.active"
+                            :disabled="loading"
+                            checked-children="激活"
+                            un-checked-children="禁用"
+                        />
+                    </a-form-item>
+
+                    <a-form-item :wrapper-col="{ span: 16, offset: 4 }">
+                        <a-space>
+                            <a-button
+                                type="primary"
+                                @click="handleSubmit"
+                                :loading="saving"
+                            >
+                                {{ isEdit ? '更新' : '创建' }}
+                            </a-button>
+                            <a-button
+                                type="default"
+                                @click="handleTest"
+                                :loading="testing"
+                            >
+                                测试连接
+                            </a-button>
+                            <a-button @click="handleCancel">
+                                取消
+                            </a-button>
+                        </a-space>
                     </a-form-item>
                 </a-form>
             </a-spin>
         </div>
     `
 };
+
+// 导入依赖
+import DataSourceService from '../services/datasource-service.js';
+import UtilService from '../services/util-service.js';
 
 // 注册组件
 Vue.component('datasource-form', DataSourceForm);
