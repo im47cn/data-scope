@@ -51,7 +51,7 @@ public class DataSourceController {
     @PutMapping("/{id}")
     @Operation(summary = "更新数据源", description = "更新现有数据源")
     public ResponseEntity<DataSourceResponse> updateDataSource(
-            @Parameter(description = "数据源ID") @PathVariable Long id,
+            @Parameter(description = "数据源ID") @PathVariable String id,
             @Valid @RequestBody DataSourceUpdateRequest request) {
         // 检查数据源是否存在
         DataSource existingDataSource = dataSourceService.getDataSourceById(id)
@@ -77,7 +77,7 @@ public class DataSourceController {
     @GetMapping("/{id}")
     @Operation(summary = "获取数据源", description = "根据ID获取数据源")
     public ResponseEntity<DataSourceResponse> getDataSource(
-            @Parameter(description = "数据源ID") @PathVariable Long id) {
+            @Parameter(description = "数据源ID") @PathVariable String id) {
         // 获取数据源
         DataSource dataSource = dataSourceService.getDataSourceById(id)
                 .orElse(null);
@@ -119,7 +119,7 @@ public class DataSourceController {
     @DeleteMapping("/{id}")
     @Operation(summary = "删除数据源", description = "根据ID删除数据源")
     public ResponseEntity<Void> deleteDataSource(
-            @Parameter(description = "数据源ID") @PathVariable Long id) {
+            @Parameter(description = "数据源ID") @PathVariable String id) {
         // 检查数据源是否存在
         if (!dataSourceService.getDataSourceById(id).isPresent()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -156,7 +156,7 @@ public class DataSourceController {
     @GetMapping("/{id}/schemas")
     @Operation(summary = "获取模式列表", description = "获取数据源的所有模式")
     public ResponseEntity<List<SchemaResponse>> getSchemas(
-            @Parameter(description = "数据源ID") @PathVariable Long id) {
+            @Parameter(description = "数据源ID") @PathVariable String id) {
         // 检查数据源是否存在
         if (!dataSourceService.getDataSourceById(id).isPresent()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -176,7 +176,7 @@ public class DataSourceController {
     @GetMapping("/{id}/schemas/{schemaName}/tables")
     @Operation(summary = "获取表列表", description = "获取指定模式下的所有表")
     public ResponseEntity<List<TableResponse>> getTables(
-            @Parameter(description = "数据源ID") @PathVariable Long id,
+            @Parameter(description = "数据源ID") @PathVariable String id,
             @Parameter(description = "模式名称") @PathVariable String schemaName) {
         // 检查数据源是否存在
         if (!dataSourceService.getDataSourceById(id).isPresent()) {
@@ -197,7 +197,7 @@ public class DataSourceController {
     @PostMapping("/{id}/sync")
     @Operation(summary = "同步元数据", description = "同步数据源元数据")
     public ResponseEntity<String> syncMetadata(
-            @Parameter(description = "数据源ID") @PathVariable Long id) {
+            @Parameter(description = "数据源ID") @PathVariable String id) {
         // 检查数据源是否存在
         if (!dataSourceService.getDataSourceById(id).isPresent()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -284,7 +284,7 @@ public class DataSourceController {
         response.setUsername(dataSource.getUsername());
         response.setConnectionProperties(dataSource.getConnectionProperties());
         response.setLastSyncTime(dataSource.getLastSyncTime());
-        response.setActive(dataSource.isActive());
+        response.setActive(dataSource.getActive());
         response.setDescription(dataSource.getDescription());
         response.setCreatedAt(dataSource.getCreatedAt());
         response.setUpdatedAt(dataSource.getUpdatedAt());

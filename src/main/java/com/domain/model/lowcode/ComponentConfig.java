@@ -25,7 +25,7 @@ public class ComponentConfig {
     /**
      * 组件ID
      */
-    private Long id;
+    private String id;
     
     /**
      * 页面ID

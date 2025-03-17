@@ -22,12 +22,12 @@ public class TableRelationshipDTO {
     /**
      * 关系ID
      */
-    private Long id;
+    private String id;
     
     /**
      * 数据源ID
      */
-    private Long dataSourceId;
+    private String dataSourceId;
     
     /**
      * 源表

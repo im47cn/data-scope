@@ -18,7 +18,7 @@ public interface TableRelationshipService {
      * @param id 表关系ID
      * @return 表关系
      */
-    TableRelationship findById(Long id);
+    TableRelationship findById(String id);
 
     /**
      * 获取数据源的所有表关系
@@ -26,7 +26,7 @@ public interface TableRelationshipService {
      * @param dataSourceId 数据源ID
      * @return 表关系列表
      */
-    List<TableRelationship> getAllTableRelationships(Long dataSourceId);
+    List<TableRelationship> getAllTableRelationships(String dataSourceId);
     
     /**
      * 获取指定表之间的关系
@@ -35,7 +35,7 @@ public interface TableRelationshipService {
      * @param tableNames 表名列表
      * @return 表关系列表
      */
-    List<TableRelationship> getTableRelationships(Long dataSourceId, List<String> tableNames);
+    List<TableRelationship> getTableRelationships(String dataSourceId, List<String> tableNames);
     
     /**
      * 获取指定表的所有关系
@@ -44,7 +44,7 @@ public interface TableRelationshipService {
      * @param tableName 表名
      * @return 表关系列表
      */
-    List<TableRelationship> getTableRelationships(Long dataSourceId, String tableName);
+    List<TableRelationship> getTableRelationships(String dataSourceId, String tableName);
     
     /**
      * 从元数据中学习表关系
@@ -54,7 +54,7 @@ public interface TableRelationshipService {
      * @param schemaInfo 数据库模式信息
      * @return 学习到的表关系列表
      */
-    List<TableRelationship> learnFromMetadata(Long dataSourceId, SchemaInfo schemaInfo);
+    List<TableRelationship> learnFromMetadata(String dataSourceId, SchemaInfo schemaInfo);
     
     /**
      * 从查询历史中学习表关系
@@ -64,7 +64,7 @@ public interface TableRelationshipService {
      * @param queryHistories 查询历史列表
      * @return 学习到的表关系列表
      */
-    List<TableRelationship> learnFromQueryHistory(Long dataSourceId, List<QueryHistory> queryHistories);
+    List<TableRelationship> learnFromQueryHistory(String dataSourceId, List<QueryHistory> queryHistories);
     
     /**
      * 从用户反馈中学习表关系
@@ -77,7 +77,7 @@ public interface TableRelationshipService {
      * @param type 关系类型
      * @return 创建的表关系
      */
-    TableRelationship learnFromUserFeedback(Long dataSourceId, String sourceTable, String sourceColumn, 
+    TableRelationship learnFromUserFeedback(String dataSourceId, String sourceTable, String sourceColumn,
                                           String targetTable, String targetColumn, 
                                           TableRelationship.RelationshipType type);
     
@@ -94,7 +94,7 @@ public interface TableRelationshipService {
      *
      * @param relationshipId 关系ID
      */
-    void deleteTableRelationship(Long relationshipId);
+    void deleteTableRelationship(String relationshipId);
     
     /**
      * 更新表关系权重
@@ -104,7 +104,7 @@ public interface TableRelationshipService {
      * @param weightDelta 权重变化值
      * @return 更新后的表关系
      */
-    TableRelationship updateRelationshipWeight(Long relationshipId, double weightDelta);
+    TableRelationship updateRelationshipWeight(String relationshipId, double weightDelta);
     
     /**
      * 推荐表关系
@@ -115,5 +115,5 @@ public interface TableRelationshipService {
      * @param limit 限制数量
      * @return 推荐的表关系列表
      */
-    List<TableRelationship> recommendRelationships(Long dataSourceId, String tableName, int limit);
+    List<TableRelationship> recommendRelationships(String dataSourceId, String tableName, int limit);
 }

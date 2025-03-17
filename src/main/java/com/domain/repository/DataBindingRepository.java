@@ -26,7 +26,7 @@ public interface DataBindingRepository {
      * @param id 数据绑定ID
      * @return 数据绑定信息
      */
-    Optional<DataBinding> findById(Long id);
+    Optional<DataBinding> findById(String id);
     
     /**
      * 根据组件ID查询数据绑定列表
@@ -34,7 +34,7 @@ public interface DataBindingRepository {
      * @param componentId 组件ID
      * @return 数据绑定列表
      */
-    List<DataBinding> findByComponentId(Long componentId);
+    List<DataBinding> findByComponentId(String componentId);
     
     /**
      * 根据查询ID查询数据绑定列表
@@ -42,14 +42,14 @@ public interface DataBindingRepository {
      * @param queryId 查询ID
      * @return 数据绑定列表
      */
-    List<DataBinding> findByQueryId(Long queryId);
+    List<DataBinding> findByQueryId(String queryId);
     
     /**
      * 根据ID删除数据绑定
      *
      * @param id 数据绑定ID
      */
-    void deleteById(Long id);
+    void deleteById(String id);
     
     /**
      * 查询所有数据绑定
@@ -63,12 +63,12 @@ public interface DataBindingRepository {
      *
      * @param componentId 组件ID
      */
-    void deleteByComponentId(Long componentId);
+    void deleteByComponentId(String componentId);
     
     /**
      * 根据查询ID删除所有数据绑定
      *
      * @param queryId 查询ID
      */
-    void deleteByQueryId(Long queryId);
+    void deleteByQueryId(String queryId);
 }

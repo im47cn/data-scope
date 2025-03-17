@@ -4,19 +4,28 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.Accessors;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
- * 外键信息模型
- * 用于表示数据库表中外键约束的结构信息
+ * 外键信息实体类
+ * 表示数据库表之间的外键关系
  */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Accessors(chain = true)
 public class ForeignKeyInfo {
+    
+    /**
+     * 数据源ID
+     */
+    private Long dataSourceId;
     
     /**
      * 外键名称
@@ -24,7 +33,7 @@ public class ForeignKeyInfo {
     private String name;
     
     /**
-     * 外键所属的表（源表）
+     * 包含外键的表（源表）
      */
     private String sourceTableName;
     
@@ -34,111 +43,149 @@ public class ForeignKeyInfo {
     private String targetTableName;
     
     /**
-     * 所属模式（Schema）名称
-     */
-    private String schemaName;
-    
-    /**
-     * 目标表的模式（Schema）名称
-     */
-    private String targetSchemaName;
-    
-    /**
-     * 所属数据源ID
-     */
-    private Long dataSourceId;
-    
-    /**
-     * 更新规则（CASCADE, SET NULL, RESTRICT等）
+     * 外键的更新规则
+     * 例如：CASCADE, RESTRICT, SET NULL, NO ACTION
      */
     private String updateRule;
     
     /**
-     * 删除规则（CASCADE, SET NULL, RESTRICT等）
+     * 外键的删除规则
+     * 例如：CASCADE, RESTRICT, SET NULL, NO ACTION
      */
     private String deleteRule;
     
     /**
-     * 延迟规则（INITIALLY DEFERRED, INITIALLY IMMEDIATE等）
+     * 延迟规则
      */
     private String deferrability;
     
     /**
-     * 外键列信息列表
+     * 外键列映射
      */
-    private List<ForeignKeyColumnInfo> columns;
+    @Builder.Default
+    private List<ForeignKeyColumnInfo> columns = new ArrayList<>();
+    
+    /**
+     * 外键是否启用
+     */
+    private boolean enabled;
+    
+    /**
+     * 外键是否验证
+     */
+    private boolean validated;
+    
+    /**
+     * 外键描述/注释
+     */
+    private String description;
+    
+    /**
+     * 创建时间
+     */
+    private LocalDateTime createdAt;
+    
+    /**
+     * 更新时间
+     */
+    private LocalDateTime updatedAt;
     
     /**
      * 添加外键列映射
-     * 
-     * @param column 外键列信息
      */
-    public void addColumn(ForeignKeyColumnInfo column) {
+    public void addColumn(ForeignKeyColumnInfo columnInfo) {
         if (columns == null) {
             columns = new ArrayList<>();
         }
-        if (column != null) {
-            columns.add(column);
-        }
+        columns.add(columnInfo);
     }
     
     /**
      * 获取源表列名列表
-     * 
-     * @return 源表列名列表
      */
     public List<String> getSourceColumnNames() {
         if (columns == null) {
             return new ArrayList<>();
         }
-        
         return columns.stream()
                 .map(ForeignKeyColumnInfo::getSourceColumnName)
-                .toList();
+                .collect(Collectors.toList());
     }
     
     /**
      * 获取目标表列名列表
-     * 
-     * @return 目标表列名列表
      */
     public List<String> getTargetColumnNames() {
         if (columns == null) {
             return new ArrayList<>();
         }
-        
         return columns.stream()
                 .map(ForeignKeyColumnInfo::getTargetColumnName)
-                .toList();
+                .collect(Collectors.toList());
     }
     
     /**
-     * 检查外键是否包含指定源列
-     * 
-     * @param columnName 列名
-     * @return 如果外键包含指定源列返回true，否则返回false
+     * 检查外键是否为复合外键（由多列组成）
      */
-    public boolean containsSourceColumn(String columnName) {
-        if (columns == null || columnName == null) {
-            return false;
-        }
-        
-        return columns.stream()
-                .anyMatch(column -> columnName.equalsIgnoreCase(column.getSourceColumnName()));
+    public boolean isComposite() {
+        return columns != null && columns.size() > 1;
     }
     
     /**
-     * 检查外键是否包含指定目标列
-     * 
-     * @param columnName 列名
-     * @return 如果外键包含指定目标列返回true，否则返回false
+     * 检查外键是否为自引用（引用自己的表）
      */
-    public boolean containsTargetColumn(String columnName) {
-        if (columns == null || columnName == null) {
-            return false;
+    public boolean isSelfReferencing() {
+        return sourceTableName != null && 
+               sourceTableName.equals(targetTableName);
+    }
+    
+    /**
+     * 获取外键映射中的第一列（简单外键场景）
+     */
+    public ForeignKeyColumnInfo getFirstColumn() {
+        if (columns == null || columns.isEmpty()) {
+            return null;
+        }
+        return columns.get(0);
+    }
+    
+    /**
+     * 检查更新规则是否为级联
+     */
+    public boolean isUpdateCascade() {
+        return "CASCADE".equalsIgnoreCase(updateRule);
+    }
+    
+    /**
+     * 检查删除规则是否为级联
+     */
+    public boolean isDeleteCascade() {
+        return "CASCADE".equalsIgnoreCase(deleteRule);
+    }
+    
+    /**
+     * 获取外键的字符串表示形式
+     */
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("FOREIGN KEY (");
+        sb.append(String.join(", ", getSourceColumnNames()));
+        sb.append(") REFERENCES ");
+        sb.append(targetTableName);
+        sb.append(" (");
+        sb.append(String.join(", ", getTargetColumnNames()));
+        sb.append(")");
+        
+        if (updateRule != null && !updateRule.isEmpty()) {
+            sb.append(" ON UPDATE ").append(updateRule);
         }
         
-        return columns.stream()
-                .anyMatch(column -> columnName.equalsIgnoreCase(column.getTargetColumnName()));
+        if (deleteRule != null && !deleteRule.isEmpty()) {
+            sb.append(" ON DELETE ").append(deleteRule);
+        }
+        
+        return sb.toString();
     }
+
 }

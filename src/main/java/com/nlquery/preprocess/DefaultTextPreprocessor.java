@@ -1,5 +1,6 @@
 package com.nlquery.preprocess;
 
+import com.nlquery.entity.EntityTag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 

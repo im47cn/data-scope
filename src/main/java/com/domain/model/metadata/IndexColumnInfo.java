@@ -25,6 +25,11 @@ public class IndexColumnInfo {
     private String columnName;
 
     /**
+     * 排序顺序 (ASC/DESC)
+     */
+    public String sortOrder;
+
+    /**
      * 序号
      */
     private Integer ordinalPosition;

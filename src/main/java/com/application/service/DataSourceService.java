@@ -35,7 +35,7 @@ public interface DataSourceService {
      * @param id 数据源ID
      * @return 数据源对象
      */
-    Optional<DataSource> getDataSourceById(Long id);
+    Optional<DataSource> getDataSourceById(String id);
 
     /**
      * 根据名称查询数据源
@@ -73,7 +73,7 @@ public interface DataSourceService {
      *
      * @param id 数据源ID
      */
-    void deleteDataSource(Long id);
+    void deleteDataSource(String id);
 
     /**
      * 测试数据源连接
@@ -89,7 +89,7 @@ public interface DataSourceService {
      * @param dataSourceId 数据源ID
      * @return 模式列表
      */
-    List<SchemaInfo> getSchemas(Long dataSourceId);
+    List<SchemaInfo> getSchemas(String dataSourceId);
 
     /**
      * 获取数据源的指定模式
@@ -98,7 +98,7 @@ public interface DataSourceService {
      * @param schemaName   模式名称
      * @return 模式列表
      */
-    SchemaInfo getSchemaInfo(Long dataSourceId, String schemaName);
+    SchemaInfo getSchemaInfo(String dataSourceId, String schemaName);
 
     /**
      * 获取指定模式下的所有表
@@ -107,7 +107,7 @@ public interface DataSourceService {
      * @param schemaName   模式名称
      * @return 表列表
      */
-    List<TableInfo> getTables(Long dataSourceId, String schemaName);
+    List<TableInfo> getTables(String dataSourceId, String schemaName);
 
     /**
      * 同步数据源元数据
@@ -115,7 +115,7 @@ public interface DataSourceService {
      * @param dataSourceId 数据源ID
      * @return 同步作业ID
      */
-    String syncMetadata(Long dataSourceId);
+    String syncMetadata(String dataSourceId);
 
     /**
      * 获取支持的数据源类型

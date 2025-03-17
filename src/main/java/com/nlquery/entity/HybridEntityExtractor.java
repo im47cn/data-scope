@@ -1,6 +1,5 @@
 package com.nlquery.entity;
 
-import com.nlquery.preprocess.EntityTag;
 import com.nlquery.preprocess.PreprocessedText;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -60,7 +59,7 @@ public class HybridEntityExtractor implements EntityExtractor {
             mergedEntities.add(entity);
             
             // 添加到位置映射
-            for (int i = entity.getStartPosition(); i < entity.getEndPosition(); i++) {
+            for (int i = entity.getStartOffset(); i < entity.getEndOffset(); i++) {
                 positionMap.put(i, entity);
             }
         }
@@ -69,7 +68,7 @@ public class HybridEntityExtractor implements EntityExtractor {
         for (EntityTag entity : ruleEntities) {
             // 检查是否与已有实体重叠
             boolean overlap = false;
-            for (int i = entity.getStartPosition(); i < entity.getEndPosition(); i++) {
+            for (int i = entity.getStartOffset(); i < entity.getEndOffset(); i++) {
                 if (positionMap.containsKey(i)) {
                     overlap = true;
                     
@@ -80,7 +79,7 @@ public class HybridEntityExtractor implements EntityExtractor {
                         mergedEntities.remove(existingEntity);
                         
                         // 从位置映射中移除已有实体
-                        for (int j = existingEntity.getStartPosition(); j < existingEntity.getEndPosition(); j++) {
+                        for (int j = existingEntity.getStartOffset(); j < existingEntity.getEndOffset(); j++) {
                             positionMap.remove(j);
                         }
                         
@@ -88,7 +87,7 @@ public class HybridEntityExtractor implements EntityExtractor {
                         mergedEntities.add(entity);
                         
                         // 添加到位置映射
-                        for (int j = entity.getStartPosition(); j < entity.getEndPosition(); j++) {
+                        for (int j = entity.getStartOffset(); j < entity.getEndOffset(); j++) {
                             positionMap.put(j, entity);
                         }
                     }
@@ -102,7 +101,7 @@ public class HybridEntityExtractor implements EntityExtractor {
                 mergedEntities.add(entity);
                 
                 // 添加到位置映射
-                for (int i = entity.getStartPosition(); i < entity.getEndPosition(); i++) {
+                for (int i = entity.getStartOffset(); i < entity.getEndOffset(); i++) {
                     positionMap.put(i, entity);
                 }
             }

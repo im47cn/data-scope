@@ -33,7 +33,7 @@ public interface MetadataSyncJobRepository {
      * @param dataSourceId 数据源ID
      * @return 同步作业列表
      */
-    List<MetadataSyncJob> findByDataSourceId(Long dataSourceId);
+    List<MetadataSyncJob> findByDataSourceId(String dataSourceId);
     
     /**
      * 根据数据源ID和状态查询同步作业
@@ -42,7 +42,7 @@ public interface MetadataSyncJobRepository {
      * @param status 同步状态
      * @return 同步作业列表
      */
-    List<MetadataSyncJob> findByDataSourceIdAndStatus(Long dataSourceId, SyncStatus status);
+    List<MetadataSyncJob> findByDataSourceIdAndStatus(String dataSourceId, SyncStatus status);
     
     /**
      * 根据状态查询同步作业
@@ -58,7 +58,7 @@ public interface MetadataSyncJobRepository {
      * @param dataSourceId 数据源ID
      * @return 同步作业(如果存在)
      */
-    Optional<MetadataSyncJob> findLatestByDataSourceId(Long dataSourceId);
+    Optional<MetadataSyncJob> findLatestByDataSourceId(String dataSourceId);
     
     /**
      * 根据ID删除同步作业
@@ -72,5 +72,5 @@ public interface MetadataSyncJobRepository {
      * 
      * @param dataSourceId 数据源ID
      */
-    void deleteByDataSourceId(Long dataSourceId);
+    void deleteByDataSourceId(String dataSourceId);
 }

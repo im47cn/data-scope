@@ -20,9 +20,19 @@ public class ForeignKeyColumnInfo {
     private Long foreignKeyId;
 
     /**
+     * 源表名
+     */
+    private String sourceTableName;
+
+    /**
      * 源列名
      */
     private String sourceColumnName;
+
+    /**
+     * 目标表名
+     */
+    private String targetTableName;
 
     /**
      * 目标列名

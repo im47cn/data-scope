@@ -128,7 +128,7 @@ public class MetadataSyncJobController {
      * @return 同步作业列表
      */
     @GetMapping("/datasource/{dataSourceId}")
-    public ResponseEntity<List<MetadataSyncJobDTO>> getSyncJobsByDataSource(@PathVariable Long dataSourceId) {
+    public ResponseEntity<List<MetadataSyncJobDTO>> getSyncJobsByDataSource(@PathVariable String dataSourceId) {
         List<MetadataSyncJob> syncJobs = metadataSyncJobService.getSyncJobsByDataSource(dataSourceId);
         List<MetadataSyncJobDTO> dtos = syncJobs.stream()
                 .map(MetadataSyncJobDTO::fromDomain)
@@ -143,7 +143,7 @@ public class MetadataSyncJobController {
      * @return 最新同步作业
      */
     @GetMapping("/datasource/{dataSourceId}/latest")
-    public ResponseEntity<MetadataSyncJobDTO> getLatestSyncJob(@PathVariable Long dataSourceId) {
+    public ResponseEntity<MetadataSyncJobDTO> getLatestSyncJob(@PathVariable String dataSourceId) {
         return metadataSyncJobService.getLatestSyncJob(dataSourceId)
                 .map(syncJob -> ResponseEntity.ok(MetadataSyncJobDTO.fromDomain(syncJob)))
                 .orElse(ResponseEntity.notFound().build());

@@ -1,30 +1,27 @@
 package com.infrastructure.adapter;
 
-import com.common.enums.DataSourceType;
 import com.common.exception.DataSourceException;
 import com.domain.model.DataSource;
 import com.domain.model.metadata.*;
-import lombok.extern.slf4j.Slf4j;
+import com.nlquery.executor.QueryResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.sql.*;
 import java.util.*;
 
-@Slf4j
 @Component
 public class MySQLDataSourceAdapter implements DataSourceAdapter {
 
-    @Override
-    public DataSourceType getType() {
-        return DataSourceType.MYSQL;
-    }
+    private static final Logger LOGGER = LoggerFactory.getLogger(MySQLDataSourceAdapter.class);
 
     @Override
     public boolean testConnection(DataSource dataSource) {
         try (Connection connection = getConnection(dataSource)) {
             return connection.isValid(5);
         } catch (SQLException e) {
-            log.error("Failed to test connection to MySQL database: {}", dataSource.getName(), e);
+            LOGGER.error("Failed to test connection to MySQL database: {}", dataSource.getName(), e);
             return false;
         }
     }
@@ -45,7 +42,7 @@ public class MySQLDataSourceAdapter implements DataSourceAdapter {
                     props
             );
         } catch (SQLException e) {
-            log.error("Failed to connect to MySQL database: {}", dataSource.getName(), e);
+            LOGGER.error("Failed to connect to MySQL database: {}", dataSource.getName(), e);
             throw DataSourceException.connectionError("Failed to connect to MySQL database: " + e.getMessage(), e);
         }
     }
@@ -64,7 +61,7 @@ public class MySQLDataSourceAdapter implements DataSourceAdapter {
             }
             return schemas;
         } catch (SQLException e) {
-            log.error("Failed to get schemas from MySQL database: {}", dataSource.getName(), e);
+            LOGGER.error("Failed to get schemas from MySQL database: {}", dataSource.getName(), e);
             throw DataSourceException.metadataExtractionError("Failed to get schemas: " + e.getMessage(), e);
         }
     }
@@ -85,14 +82,9 @@ public class MySQLDataSourceAdapter implements DataSourceAdapter {
             }
             return null;
         } catch (SQLException e) {
-            log.error("Failed to get schema from MySQL database: {}", dataSource.getName(), e);
+            LOGGER.error("Failed to get schema from MySQL database: {}", dataSource.getName(), e);
             throw DataSourceException.metadataExtractionError("Failed to get schema: " + e.getMessage(), e);
         }
-    }
-
-    @Override
-    public SchemaInfo getSchemaInfo(DataSource dataSource, String schemaName) {
-        return getSchema(dataSource, schemaName);
     }
 
     @Override
@@ -120,13 +112,13 @@ public class MySQLDataSourceAdapter implements DataSourceAdapter {
             // 获取表的行数和大小信息
             for (TableInfo table : tables) {
                 table.setRowCount(getRowCount(dataSource, schemaName, table.getName()));
-                table.setDataSize(getDataSize(dataSource, schemaName, table.getName()));
-                table.setIndexSize(getIndexSize(dataSource, schemaName, table.getName()));
+//                table.setDataSize(getDataSize(dataSource, schemaName, table.getName()));
+//                table.setIndexSize(getIndexSize(dataSource, schemaName, table.getName()));
             }
 
             return tables;
         } catch (SQLException e) {
-            log.error("Failed to get tables from MySQL database: {}", dataSource.getName(), e);
+            LOGGER.error("Failed to get tables from MySQL database: {}", dataSource.getName(), e);
             throw DataSourceException.metadataExtractionError("Failed to get tables: " + e.getMessage(), e);
         }
     }
@@ -148,15 +140,15 @@ public class MySQLDataSourceAdapter implements DataSourceAdapter {
                             .build();
 
                     table.setRowCount(getRowCount(dataSource, schemaName, tableName));
-                    table.setDataSize(getDataSize(dataSource, schemaName, tableName));
-                    table.setIndexSize(getIndexSize(dataSource, schemaName, tableName));
+//                    table.setDataSize(getDataSize(dataSource, schemaName, tableName));
+//                    table.setIndexSize(getIndexSize(dataSource, schemaName, tableName));
 
                     return table;
                 }
             }
             return null;
         } catch (SQLException e) {
-            log.error("Failed to get table from MySQL database: {}", dataSource.getName(), e);
+            LOGGER.error("Failed to get table from MySQL database: {}", dataSource.getName(), e);
             throw DataSourceException.metadataExtractionError("Failed to get table: " + e.getMessage(), e);
         }
     }
@@ -192,8 +184,8 @@ public class MySQLDataSourceAdapter implements DataSourceAdapter {
                             .dataType(dataType)
                             .ordinalPosition(ordinalPosition)
                             .length(columnSize)
-                            .precision(columnSize)
-                            .scale(decimalDigits)
+                            .numericPrecision(columnSize)
+                            .numericScale(decimalDigits)
                             .nullable(nullable)
                             .defaultValue(defaultValue)
                             .description(remarks)
@@ -207,7 +199,7 @@ public class MySQLDataSourceAdapter implements DataSourceAdapter {
 
             return columns;
         } catch (SQLException e) {
-            log.error("Failed to get columns from MySQL database: {}", dataSource.getName(), e);
+            LOGGER.error("Failed to get columns from MySQL database: {}", dataSource.getName(), e);
             throw DataSourceException.metadataExtractionError("Failed to get columns: " + e.getMessage(), e);
         }
     }
@@ -250,7 +242,7 @@ public class MySQLDataSourceAdapter implements DataSourceAdapter {
 
             return new ArrayList<>(indexMap.values());
         } catch (SQLException e) {
-            log.error("Failed to get indexes from MySQL database: {}", dataSource.getName(), e);
+            LOGGER.error("Failed to get indexes from MySQL database: {}", dataSource.getName(), e);
             throw DataSourceException.metadataExtractionError("Failed to get indexes: " + e.getMessage(), e);
         }
     }
@@ -295,7 +287,7 @@ public class MySQLDataSourceAdapter implements DataSourceAdapter {
 
             return new ArrayList<>(foreignKeyMap.values());
         } catch (SQLException e) {
-            log.error("Failed to get foreign keys from MySQL database: {}", dataSource.getName(), e);
+            LOGGER.error("Failed to get foreign keys from MySQL database: {}", dataSource.getName(), e);
             throw DataSourceException.metadataExtractionError("Failed to get foreign keys: " + e.getMessage(), e);
         }
     }
@@ -303,7 +295,7 @@ public class MySQLDataSourceAdapter implements DataSourceAdapter {
     @Override
     public long getDataSize(DataSource dataSource, String schemaName, String tableName) {
         String sql = "SELECT data_length + index_length FROM information_schema.tables " +
-                    "WHERE table_schema = ? AND table_name = ?";
+                "WHERE table_schema = ? AND table_name = ?";
 
         try (Connection connection = getConnection(dataSource);
              PreparedStatement stmt = connection.prepareStatement(sql)) {
@@ -317,7 +309,7 @@ public class MySQLDataSourceAdapter implements DataSourceAdapter {
                 }
             }
         } catch (SQLException e) {
-            log.warn("Failed to get data size for table {}.{}: {}", schemaName, tableName, e.getMessage());
+            LOGGER.warn("Failed to get data size for table {}.{}: {}", schemaName, tableName, e.getMessage());
         }
 
         return 0;
@@ -336,30 +328,7 @@ public class MySQLDataSourceAdapter implements DataSourceAdapter {
                 }
             }
         } catch (SQLException e) {
-            log.warn("Failed to get row count for table {}.{}: {}", schemaName, tableName, e.getMessage());
-        }
-
-        return 0;
-    }
-
-    @Override
-    public long getEstimatedRowCount(DataSource dataSource, String schemaName, String tableName) {
-        String sql = "SELECT table_rows FROM information_schema.tables " +
-                    "WHERE table_schema = ? AND table_name = ?";
-
-        try (Connection connection = getConnection(dataSource);
-             PreparedStatement stmt = connection.prepareStatement(sql)) {
-
-            stmt.setString(1, schemaName);
-            stmt.setString(2, tableName);
-
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    return rs.getLong(1);
-                }
-            }
-        } catch (SQLException e) {
-            log.warn("Failed to get estimated row count for table {}.{}: {}", schemaName, tableName, e.getMessage());
+            LOGGER.warn("Failed to get row count for table {}.{}: {}", schemaName, tableName, e.getMessage());
         }
 
         return 0;
@@ -368,7 +337,7 @@ public class MySQLDataSourceAdapter implements DataSourceAdapter {
     @Override
     public long getIndexSize(DataSource dataSource, String schemaName, String tableName) {
         String sql = "SELECT SUM(index_length) FROM information_schema.tables " +
-                    "WHERE table_schema = ? AND table_name = ?";
+                "WHERE table_schema = ? AND table_name = ?";
 
         try (Connection connection = getConnection(dataSource);
              PreparedStatement stmt = connection.prepareStatement(sql)) {
@@ -382,49 +351,44 @@ public class MySQLDataSourceAdapter implements DataSourceAdapter {
                 }
             }
         } catch (SQLException e) {
-            log.warn("Failed to get index size for table {}.{}: {}", schemaName, tableName, e.getMessage());
+            LOGGER.warn("Failed to get index size for table {}.{}: {}", schemaName, tableName, e.getMessage());
         }
 
         return 0;
     }
 
     @Override
-    public List<List<Object>> executeQuery(DataSource dataSource, String sql, Object... params) {
-        List<List<Object>> results = new ArrayList<>();
+    public QueryResult executeQuery(String sql, DataSource dataSource) {
+        try (Connection conn = getConnection(dataSource);
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
 
-        try (Connection connection = getConnection(dataSource);
-             PreparedStatement stmt = connection.prepareStatement(sql)) {
-
-            for (int i = 0; i < params.length; i++) {
-                stmt.setObject(i + 1, params[i]);
+            // 获取列信息
+            List<String> columnLabels = new ArrayList<>();
+            for (int i = 1; i <= rs.getMetaData().getColumnCount(); i++) {
+                columnLabels.add(rs.getMetaData().getColumnLabel(i));
             }
 
-            try (ResultSet rs = stmt.executeQuery()) {
-                ResultSetMetaData metaData = rs.getMetaData();
-                int columnCount = metaData.getColumnCount();
-
-                // Add column names as first row
-                List<Object> columnNames = new ArrayList<>();
-                for (int i = 1; i <= columnCount; i++) {
-                    columnNames.add(metaData.getColumnName(i));
+            // 获取数据
+            List<Map<String, Object>> rows = new ArrayList<>();
+            while (rs.next()) {
+                Map<String, Object> row = new HashMap<>();
+                for (String label : columnLabels) {
+                    row.put(label, rs.getObject(label));
                 }
-                results.add(columnNames);
-
-                // Add data rows
-                while (rs.next()) {
-                    List<Object> row = new ArrayList<>();
-                    for (int i = 1; i <= columnCount; i++) {
-                        row.add(rs.getObject(i));
-                    }
-                    results.add(row);
-                }
+                rows.add(row);
             }
+
+            return QueryResult.builder()
+                    .success(true)
+                    .columnLabels(columnLabels)
+                    .rows(rows)
+                    .build();
+
         } catch (SQLException e) {
-            log.error("Failed to execute query on MySQL database: {}", dataSource.getName(), e);
-            throw DataSourceException.metadataExtractionError("Failed to execute query: " + e.getMessage(), e);
+            LOGGER.error("Failed to execute query on DB2 database: {}", dataSource.getName(), e);
+            throw new RuntimeException("Failed to execute query on DB2 database", e);
         }
-
-        return results;
     }
 
     private String getForeignKeyRuleName(int rule) {
@@ -442,5 +406,53 @@ public class MySQLDataSourceAdapter implements DataSourceAdapter {
             default:
                 return "UNKNOWN";
         }
+    }
+
+    @Override
+    public boolean isAutoIncrement(DataSource dataSource, String schemaName, String tableName, String columnName) {
+        // TODO
+        return false;
+    }
+
+    @Override
+    public String getDatabaseVersion(DataSource dataSource) {
+        try (Connection conn = getConnection(dataSource)) {
+            return conn.getMetaData().getDatabaseProductVersion();
+        } catch (SQLException e) {
+            return "Unknown";
+        }
+    }
+
+    @Override
+    public String getDriverVersion(DataSource dataSource) {
+        try (Connection conn = getConnection(dataSource)) {
+            return conn.getMetaData().getDriverVersion();
+        } catch (SQLException e) {
+            return "Unknown";
+        }
+    }
+
+    @Override
+    public String getDefaultSchema(DataSource dataSource) {
+        try (Connection conn = getConnection(dataSource)) {
+            return conn.getSchema();
+        } catch (SQLException e) {
+            return null;
+        }
+    }
+
+    @Override
+    public List<String> getSystemSchemas(DataSource dataSource) {
+        return Arrays.asList("information_schema", "performance_schema", "sys");
+    }
+
+    @Override
+    public boolean isSystemSchema(DataSource dataSource, String schemaName) {
+        return getSystemSchemas(dataSource).contains(schemaName.toUpperCase());
+    }
+
+    @Override
+    public boolean isSystemTable(DataSource dataSource, String schemaName, String tableName) {
+        return isSystemSchema(dataSource, schemaName) || schemaName.startsWith("SYS");
     }
 }

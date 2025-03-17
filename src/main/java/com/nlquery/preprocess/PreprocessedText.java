@@ -1,5 +1,7 @@
 package com.nlquery.preprocess;
 
+import com.nlquery.entity.EntityTag;
+import com.nlquery.entity.EntityType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

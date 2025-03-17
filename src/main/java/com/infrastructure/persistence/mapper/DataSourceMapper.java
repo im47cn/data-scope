@@ -36,7 +36,7 @@ public interface DataSourceMapper {
      * @param id 数据源ID
      * @return 数据源对象
      */
-    DataSource selectById(@Param("id") Long id);
+    DataSource selectById(@Param("id") String id);
 
     /**
      * 根据名称查询数据源
@@ -75,7 +75,7 @@ public interface DataSourceMapper {
      * @param id 数据源ID
      * @return 影响的行数
      */
-    int deleteById(@Param("id") Long id);
+    int deleteById(@Param("id") String id);
 
     /**
      * 根据名称统计数据源数量

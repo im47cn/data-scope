@@ -19,7 +19,7 @@ public class ColumnResponse {
     /**
      * ID
      */
-    private Long id;
+    private String id;
     
     /**
      * 表ID

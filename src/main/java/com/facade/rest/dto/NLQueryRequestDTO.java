@@ -16,7 +16,7 @@ public class NLQueryRequestDTO {
      * 数据源ID
      */
     @NotNull(message = "数据源ID不能为空")
-    private Long dataSourceId;
+    private String dataSourceId;
     
     /**
      * 查询语句

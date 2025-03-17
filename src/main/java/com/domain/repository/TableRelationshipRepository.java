@@ -32,7 +32,7 @@ public interface TableRelationshipRepository {
      * @param id 表关系ID
      * @return 表关系（如果存在）
      */
-    Optional<TableRelationship> findById(Long id);
+    Optional<TableRelationship> findById(String id);
     
     /**
      * 根据数据源ID查找所有表关系
@@ -40,7 +40,7 @@ public interface TableRelationshipRepository {
      * @param dataSourceId 数据源ID
      * @return 表关系列表
      */
-    List<TableRelationship> findByDataSourceId(Long dataSourceId);
+    List<TableRelationship> findByDataSourceId(String dataSourceId);
     
     /**
      * 查找特定表的所有关系
@@ -49,7 +49,7 @@ public interface TableRelationshipRepository {
      * @param tableName 表名
      * @return 表关系列表
      */
-    List<TableRelationship> findByDataSourceIdAndTable(Long dataSourceId, String tableName);
+    List<TableRelationship> findByDataSourceIdAndTable(String dataSourceId, String tableName);
     
     /**
      * 查找两个表之间的所有关系
@@ -59,21 +59,21 @@ public interface TableRelationshipRepository {
      * @param targetTable 目标表名
      * @return 表关系列表
      */
-    List<TableRelationship> findByDataSourceIdAndTables(Long dataSourceId, String sourceTable, String targetTable);
+    List<TableRelationship> findByDataSourceIdAndTables(String dataSourceId, String sourceTable, String targetTable);
     
     /**
      * 根据ID删除表关系
      * 
      * @param id 表关系ID
      */
-    void deleteById(Long id);
+    void deleteById(String id);
     
     /**
      * 删除数据源的所有表关系
      * 
      * @param dataSourceId 数据源ID
      */
-    void deleteByDataSourceId(Long dataSourceId);
+    void deleteByDataSourceId(String dataSourceId);
     
     /**
      * 通过学习来源删除数据源的表关系
@@ -81,12 +81,12 @@ public interface TableRelationshipRepository {
      * @param dataSourceId 数据源ID
      * @param source 关系来源
      */
-    void deleteByDataSourceIdAndSource(Long dataSourceId, TableRelationship.RelationshipSource source);
+    void deleteByDataSourceIdAndSource(String dataSourceId, TableRelationship.RelationshipSource source);
     
     /**
      * 更新表关系使用频率
      * 
      * @param id 表关系ID
      */
-    void incrementFrequency(Long id);
+    void incrementFrequency(String id);
 }

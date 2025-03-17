@@ -23,7 +23,7 @@ public class EntityExtractionContext {
     /**
      * 数据源ID
      */
-    private Long dataSourceId;
+    private String dataSourceId;
     
     /**
      * 元数据信息

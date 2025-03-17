@@ -1,7 +1,7 @@
 package com.domain.service;
 
-import com.domain.model.SavedQuery;
 import com.domain.model.query.QueryHistory;
+import com.domain.model.query.SavedQuery;
 import com.nlquery.NLQueryRequest;
 import com.nlquery.converter.SqlConversionResult;
 
@@ -35,20 +35,20 @@ public interface NLQueryService {
     /**
      * 获取保存的查询详情
      */
-    SavedQuery getSavedQuery(Long id);
+    SavedQuery getSavedQuery(String id);
     
     /**
      * 删除保存的查询
      */
-    void deleteSavedQuery(Long id);
+    void deleteSavedQuery(String id);
     
     /**
      * 更新保存的查询
      */
-    SavedQuery updateSavedQuery(Long id, String name, String description, boolean isPublic);
+    SavedQuery updateSavedQuery(String id, String name, String description, boolean isPublic);
     
     /**
      * 执行保存的查询
      */
-    Object executeSavedQuery(Long id);
+    Object executeSavedQuery(String id);
 }

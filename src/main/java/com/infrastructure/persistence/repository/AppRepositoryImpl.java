@@ -34,7 +34,7 @@ public class AppRepositoryImpl implements AppRepository {
     }
     
     @Override
-    public Optional<App> findById(Long id) {
+    public Optional<App> findById(String id) {
         AppEntity entity = appMapper.findById(id);
         return Optional.ofNullable(entity).map(this::toDomain);
     }
@@ -72,7 +72,7 @@ public class AppRepositoryImpl implements AppRepository {
     }
     
     @Override
-    public void deleteById(Long id) {
+    public void deleteById(String id) {
         appMapper.deleteById(id);
     }
     

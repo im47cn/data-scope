@@ -19,7 +19,7 @@ public interface MetadataSyncJobService {
      * @param type 同步类型
      * @return 创建的同步作业
      */
-    MetadataSyncJob createSyncJob(Long dataSourceId, SyncType type);
+    MetadataSyncJob createSyncJob(String dataSourceId, SyncType type);
     
     /**
      * 启动同步作业
@@ -78,7 +78,7 @@ public interface MetadataSyncJobService {
      * @param dataSourceId 数据源ID
      * @return 同步作业列表
      */
-    List<MetadataSyncJob> getSyncJobsByDataSource(Long dataSourceId);
+    List<MetadataSyncJob> getSyncJobsByDataSource(String dataSourceId);
     
     /**
      * 获取数据源的最新同步作业
@@ -86,7 +86,7 @@ public interface MetadataSyncJobService {
      * @param dataSourceId 数据源ID
      * @return 最新同步作业
      */
-    Optional<MetadataSyncJob> getLatestSyncJob(Long dataSourceId);
+    Optional<MetadataSyncJob> getLatestSyncJob(String dataSourceId);
     
     /**
      * 获取指定状态的同步作业列表

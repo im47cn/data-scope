@@ -89,7 +89,7 @@ public class IntentRecognizerTest {
         String query = "按部门统计员工数量";
         PreprocessedText preprocessedText = textPreprocessor.preprocess(query);
         QueryIntent intent = intentRecognizer.recognizeIntent(preprocessedText);
-        
+
         assertEquals(QueryType.GROUP, intent.getQueryType());
     }
     

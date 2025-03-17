@@ -39,7 +39,7 @@ public class SavedQueryRepositoryImpl implements SavedQueryRepository {
     }
 
     @Override
-    public Optional<SavedQuery> findById(Long id) {
+    public Optional<SavedQuery> findById(String id) {
         return Optional.ofNullable(savedQueryMapper.selectById(id));
     }
 
@@ -49,12 +49,12 @@ public class SavedQueryRepositoryImpl implements SavedQueryRepository {
     }
 
     @Override
-    public void deleteById(Long id) {
+    public void deleteById(String id) {
         savedQueryMapper.deleteById(id);
     }
 
     @Override
-    public List<SavedQuery> findByDataSourceIdOrderByUpdatedAtDesc(Long dataSourceId) {
+    public List<SavedQuery> findByDataSourceId(String dataSourceId) {
         return savedQueryMapper.selectByDataSourceIdOrderByUpdatedAtDesc(dataSourceId);
     }
 
@@ -63,8 +63,4 @@ public class SavedQueryRepositoryImpl implements SavedQueryRepository {
         return Optional.ofNullable(savedQueryMapper.selectByName(name));
     }
 
-    @Override
-    public List<SavedQuery> findByDataSourceIdAndIsPublicOrderByUpdatedAtDesc(Long dataSourceId, boolean isPublic) {
-        return savedQueryMapper.selectByDataSourceIdAndIsPublicOrderByUpdatedAtDesc(dataSourceId, isPublic);
-    }
 }

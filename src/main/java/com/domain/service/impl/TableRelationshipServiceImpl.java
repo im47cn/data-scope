@@ -29,32 +29,32 @@ public class TableRelationshipServiceImpl implements TableRelationshipService {
     private TableRelationshipRepository tableRelationshipRepository;
 
     @Override
-    public TableRelationship findById(Long id) {
+    public TableRelationship findById(String id) {
         return tableRelationshipRepository.findById(id).get();
     }
 
     @Override
-    public List<TableRelationship> getAllTableRelationships(Long dataSourceId) {
+    public List<TableRelationship> getAllTableRelationships(String dataSourceId) {
         return tableRelationshipRepository.findByDataSourceId(dataSourceId);
     }
 
     @Override
-    public List<TableRelationship> getTableRelationships(Long dataSourceId, List<String> tableNames) {
+    public List<TableRelationship> getTableRelationships(String dataSourceId, List<String> tableNames) {
         List<TableRelationship> allRelationships = tableRelationshipRepository.findByDataSourceId(dataSourceId);
         
         return allRelationships.stream()
-                .filter(r -> tableNames.contains(r.getSourceTable()) || tableNames.contains(r.getTargetTable()))
+                .filter(r -> tableNames.contains(r.getSourceTableName()) || tableNames.contains(r.getTargetTableName()))
                 .collect(Collectors.toList());
     }
 
     @Override
-    public List<TableRelationship> getTableRelationships(Long dataSourceId, String tableName) {
+    public List<TableRelationship> getTableRelationships(String dataSourceId, String tableName) {
         return tableRelationshipRepository.findByDataSourceIdAndTable(dataSourceId, tableName);
     }
 
     @Override
     @Transactional
-    public List<TableRelationship> learnFromMetadata(Long dataSourceId, SchemaInfo schemaInfo) {
+    public List<TableRelationship> learnFromMetadata(String dataSourceId, SchemaInfo schemaInfo) {
         List<TableRelationship> relationships = new ArrayList<>();
         
         // 遍历所有表
@@ -63,13 +63,13 @@ public class TableRelationshipServiceImpl implements TableRelationshipService {
             for (ForeignKeyInfo fkInfo : tableInfo.getForeignKeys()) {
                 TableRelationship relationship = TableRelationship.builder()
                         .dataSourceId(dataSourceId)
-                        .sourceTable(tableInfo.getName())
-                        .sourceColumn(fkInfo.getColumns().get(0).getSourceColumnName()) // 简化处理，只取第一列
-                        .targetTable(fkInfo.getTargetTableName())
-                        .targetColumn(fkInfo.getColumns().get(0).getTargetColumnName()) // 简化处理，只取第一列
-                        .type(RelationshipType.MANY_TO_ONE) // 默认为多对一
-                        .source(RelationshipSource.METADATA)
-                        .weight(1.0) // 元数据来源的权重最高
+                        .sourceTableName(tableInfo.getName())
+                        .sourceColumnNames(fkInfo.getColumns().get(0).getSourceColumnName()) // 简化处理，只取第一列
+                        .targetTableName(fkInfo.getTargetTableName())
+                        .targetColumnNames(fkInfo.getColumns().get(0).getTargetColumnName()) // 简化处理，只取第一列
+                        .relationType(RelationshipType.MANY_TO_ONE) // 默认为多对一
+                        .relationSource(RelationshipSource.METADATA)
+                        .confidence(1.0) // 元数据来源的权重最高
                         .frequency(1)
                         .createdAt(LocalDateTime.now())
                         .updatedAt(LocalDateTime.now())
@@ -103,13 +103,13 @@ public class TableRelationshipServiceImpl implements TableRelationshipService {
                             if (!existsForeignKey) {
                                 TableRelationship relationship = TableRelationship.builder()
                                         .dataSourceId(dataSourceId)
-                                        .sourceTable(tableInfo.getName())
-                                        .sourceColumn(column.getName())
-                                        .targetTable(otherTable.getName())
-                                        .targetColumn(otherColumn.getName())
-                                        .type(RelationshipType.MANY_TO_MANY) // 默认为多对多
-                                        .source(RelationshipSource.METADATA)
-                                        .weight(0.7) // 列名相似性的权重较低
+                                        .sourceTableName(tableInfo.getName())
+                                        .sourceColumnNames(column.getName())
+                                        .targetTableName(otherTable.getName())
+                                        .targetColumnNames(otherColumn.getName())
+                                        .relationType(RelationshipType.MANY_TO_MANY) // 默认为多对多
+                                        .relationSource(RelationshipSource.METADATA)
+                                        .confidence(0.7) // 列名相似性的权重较低
                                         .frequency(1)
                                         .createdAt(LocalDateTime.now())
                                         .updatedAt(LocalDateTime.now())
@@ -133,12 +133,12 @@ public class TableRelationshipServiceImpl implements TableRelationshipService {
 
     @Override
     @Transactional
-    public List<TableRelationship> learnFromQueryHistory(Long dataSourceId, List<QueryHistory> queryHistories) {
+    public List<TableRelationship> learnFromQueryHistory(String dataSourceId, List<QueryHistory> queryHistories) {
         List<TableRelationship> relationships = new ArrayList<>();
         Map<String, TableRelationship> relationshipMap = new HashMap<>();
         
         for (QueryHistory history : queryHistories) {
-            String sql = history.getExecutedSql().toLowerCase();
+            String sql = history.getSql().toLowerCase();
             
             // 分析JOIN语句
             analyzeJoins(dataSourceId, sql, relationshipMap);
@@ -159,7 +159,7 @@ public class TableRelationshipServiceImpl implements TableRelationshipService {
     /**
      * 分析JOIN语句
      */
-    private void analyzeJoins(Long dataSourceId, String sql, Map<String, TableRelationship> relationshipMap) {
+    private void analyzeJoins(String dataSourceId, String sql, Map<String, TableRelationship> relationshipMap) {
         // 简单实现，实际应用中需要更复杂的SQL解析
         String[] parts = sql.split("\\s+");
         
@@ -191,13 +191,13 @@ public class TableRelationshipServiceImpl implements TableRelationshipService {
                                 if (!relationshipMap.containsKey(key)) {
                                     TableRelationship relationship = TableRelationship.builder()
                                             .dataSourceId(dataSourceId)
-                                            .sourceTable(leftTable)
-                                            .sourceColumn(leftColumn)
-                                            .targetTable(rightTable)
-                                            .targetColumn(rightColumn)
-                                            .type(RelationshipType.MANY_TO_ONE) // 默认为多对一
-                                            .source(RelationshipSource.LEARNING)
-                                            .weight(0.8) // 查询历史的权重较高
+                                            .sourceTableName(leftTable)
+                                            .sourceColumnNames(leftColumn)
+                                            .targetTableName(rightTable)
+                                            .targetColumnNames(rightColumn)
+                                            .relationType(RelationshipType.MANY_TO_ONE) // 默认为多对一
+                                            .relationSource(RelationshipSource.LEARNING)
+                                            .confidence(0.8) // 查询历史的权重较高
                                             .frequency(1)
                                             .createdAt(LocalDateTime.now())
                                             .updatedAt(LocalDateTime.now())
@@ -221,7 +221,7 @@ public class TableRelationshipServiceImpl implements TableRelationshipService {
     /**
      * 分析WHERE条件
      */
-    private void analyzeWhereConditions(Long dataSourceId, String sql, Map<String, TableRelationship> relationshipMap) {
+    private void analyzeWhereConditions(String dataSourceId, String sql, Map<String, TableRelationship> relationshipMap) {
         // 简单实现，实际应用中需要更复杂的SQL解析
         int whereIndex = sql.indexOf("where");
         if (whereIndex == -1) {
@@ -254,13 +254,13 @@ public class TableRelationshipServiceImpl implements TableRelationshipService {
                             if (!relationshipMap.containsKey(key)) {
                                 TableRelationship relationship = TableRelationship.builder()
                                         .dataSourceId(dataSourceId)
-                                        .sourceTable(leftTable)
-                                        .sourceColumn(leftColumn)
-                                        .targetTable(rightTable)
-                                        .targetColumn(rightColumn)
-                                        .type(RelationshipType.MANY_TO_ONE) // 默认为多对一
-                                        .source(RelationshipSource.LEARNING)
-                                        .weight(0.7) // WHERE条件的权重略低于JOIN
+                                        .sourceTableName(leftTable)
+                                        .sourceColumnNames(leftColumn)
+                                        .targetTableName(rightTable)
+                                        .targetColumnNames(rightColumn)
+                                        .relationType(RelationshipType.MANY_TO_ONE) // 默认为多对一
+                                        .relationSource(RelationshipSource.LEARNING)
+                                        .confidence(0.7) // WHERE条件的权重略低于JOIN
                                         .frequency(1)
                                         .createdAt(LocalDateTime.now())
                                         .updatedAt(LocalDateTime.now())
@@ -282,20 +282,20 @@ public class TableRelationshipServiceImpl implements TableRelationshipService {
 
     @Override
     @Transactional
-    public TableRelationship learnFromUserFeedback(Long dataSourceId, String sourceTable, String sourceColumn,
+    public TableRelationship learnFromUserFeedback(String dataSourceId, String sourceTable, String sourceColumn,
                                                 String targetTable, String targetColumn, RelationshipType type) {
         // 检查是否已存在
         List<TableRelationship> existingRelationships = tableRelationshipRepository.findByDataSourceIdAndTables(
                 dataSourceId, sourceTable, targetTable);
         
         for (TableRelationship relationship : existingRelationships) {
-            if (relationship.getSourceColumn().equals(sourceColumn) && 
-                relationship.getTargetColumn().equals(targetColumn)) {
+            if (relationship.getSourceColumnNames().equals(sourceColumn) && 
+                relationship.getTargetColumnNames().equals(targetColumn)) {
                 
                 // 更新类型和权重
-                relationship.setType(type);
-                relationship.setWeight(1.0); // 用户反馈的权重最高
-                relationship.setSource(RelationshipSource.USER_FEEDBACK);
+                relationship.setRelationType(type);
+                relationship.setConfidence(1.0); // 用户反馈的权重最高
+                relationship.setRelationSource(RelationshipSource.USER_FEEDBACK);
                 relationship.setFrequency(relationship.getFrequency() + 1);
                 relationship.setUpdatedAt(LocalDateTime.now());
                 
@@ -306,13 +306,13 @@ public class TableRelationshipServiceImpl implements TableRelationshipService {
         // 创建新关系
         TableRelationship relationship = TableRelationship.builder()
                 .dataSourceId(dataSourceId)
-                .sourceTable(sourceTable)
-                .sourceColumn(sourceColumn)
-                .targetTable(targetTable)
-                .targetColumn(targetColumn)
-                .type(type)
-                .source(RelationshipSource.USER_FEEDBACK)
-                .weight(1.0) // 用户反馈的权重最高
+                .sourceTableName(sourceTable)
+                .sourceColumnNames(sourceColumn)
+                .targetTableName(targetTable)
+                .targetColumnNames(targetColumn)
+                .relationType(type)
+                .relationSource(RelationshipSource.USER_FEEDBACK)
+                .confidence(1.0) // 用户反馈的权重最高
                 .frequency(1)
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
@@ -329,20 +329,20 @@ public class TableRelationshipServiceImpl implements TableRelationshipService {
 
     @Override
     @Transactional
-    public void deleteTableRelationship(Long relationshipId) {
+    public void deleteTableRelationship(String relationshipId) {
         tableRelationshipRepository.deleteById(relationshipId);
     }
 
     @Override
     @Transactional
-    public TableRelationship updateRelationshipWeight(Long relationshipId, double weightDelta) {
+    public TableRelationship updateRelationshipWeight(String relationshipId, double weightDelta) {
         TableRelationship relationship = tableRelationshipRepository.findById(relationshipId).get();
         if (relationship != null) {
-            double newWeight = relationship.getWeight() + weightDelta;
+            double newWeight = relationship.getConfidence() + weightDelta;
             // 确保权重在0-1之间
             newWeight = Math.max(0, Math.min(1, newWeight));
             
-            relationship.setWeight(newWeight);
+            relationship.setConfidence(newWeight);
             relationship.setFrequency(relationship.getFrequency() + 1);
             relationship.setUpdatedAt(LocalDateTime.now());
             
@@ -352,16 +352,16 @@ public class TableRelationshipServiceImpl implements TableRelationshipService {
     }
 
     @Override
-    public List<TableRelationship> recommendRelationships(Long dataSourceId, String tableName, int limit) {
+    public List<TableRelationship> recommendRelationships(String dataSourceId, String tableName, int limit) {
         List<TableRelationship> allRelationships = tableRelationshipRepository.findByDataSourceId(dataSourceId);
         
         // 按权重和频率排序
         return allRelationships.stream()
-                .filter(r -> r.getSourceTable().equals(tableName) || r.getTargetTable().equals(tableName))
+                .filter(r -> r.getSourceTableName().equals(tableName) || r.getTargetTableName().equals(tableName))
                 .sorted((r1, r2) -> {
                     // 计算综合得分
-                    double score1 = r1.getWeight() * 0.7 + r1.getFrequency() * 0.3;
-                    double score2 = r2.getWeight() * 0.7 + r2.getFrequency() * 0.3;
+                    double score1 = r1.getConfidence() * 0.7 + r1.getFrequency() * 0.3;
+                    double score2 = r2.getConfidence() * 0.7 + r2.getFrequency() * 0.3;
                     return Double.compare(score2, score1); // 降序
                 })
                 .limit(limit)

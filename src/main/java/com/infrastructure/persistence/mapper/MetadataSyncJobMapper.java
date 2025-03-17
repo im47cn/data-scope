@@ -43,7 +43,7 @@ public interface MetadataSyncJobMapper {
      * @param dataSourceId 数据源ID
      * @return 同步作业实体列表
      */
-    List<MetadataSyncJobEntity> selectByDataSourceId(@Param("dataSourceId") Long dataSourceId);
+    List<MetadataSyncJobEntity> selectByDataSourceId(@Param("dataSourceId") String dataSourceId);
     
     /**
      * 根据数据源ID和状态查询同步作业列表
@@ -53,7 +53,7 @@ public interface MetadataSyncJobMapper {
      * @return 同步作业实体列表
      */
     List<MetadataSyncJobEntity> selectByDataSourceIdAndStatus(
-            @Param("dataSourceId") Long dataSourceId, 
+            @Param("dataSourceId") String dataSourceId,
             @Param("status") SyncStatus status);
     
     /**
@@ -70,7 +70,7 @@ public interface MetadataSyncJobMapper {
      * @param dataSourceId 数据源ID
      * @return 同步作业实体
      */
-    MetadataSyncJobEntity selectLatestByDataSourceId(@Param("dataSourceId") Long dataSourceId);
+    MetadataSyncJobEntity selectLatestByDataSourceId(@Param("dataSourceId") String dataSourceId);
     
     /**
      * 根据ID删除同步作业
@@ -86,5 +86,5 @@ public interface MetadataSyncJobMapper {
      * @param dataSourceId 数据源ID
      * @return 影响的行数
      */
-    int deleteByDataSourceId(@Param("dataSourceId") Long dataSourceId);
+    int deleteByDataSourceId(@Param("dataSourceId") String dataSourceId);
 }

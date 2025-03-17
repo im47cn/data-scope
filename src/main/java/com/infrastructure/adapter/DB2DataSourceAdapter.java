@@ -1,5 +1,6 @@
 package com.infrastructure.adapter;
 
+import com.common.exception.DataSourceException;
 import com.domain.model.DataSource;
 import com.domain.model.metadata.*;
 import com.nlquery.executor.QueryResult;
@@ -27,7 +28,7 @@ public class DB2DataSourceAdapter implements DataSourceAdapter {
     }
     
     @Override
-    public Connection getConnection(DataSource dataSource) {
+    public Connection getConnection(DataSource dataSource) throws SQLException{
         try {
             // 加载驱动
             Class.forName(dataSource.getDriverClassName());
@@ -44,13 +45,9 @@ public class DB2DataSourceAdapter implements DataSourceAdapter {
             
             // 获取连接
             return DriverManager.getConnection(dataSource.getJdbcUrl(), props);
-            
-        } catch (ClassNotFoundException e) {
-            log.error("DB2 JDBC driver not found", e);
-            throw new RuntimeException("DB2 JDBC driver not found", e);
-        } catch (SQLException e) {
+        } catch (SQLException | ClassNotFoundException e) {
             log.error("Failed to connect to DB2 database: {}", dataSource.getName(), e);
-            throw new RuntimeException("Failed to connect to DB2 database", e);
+            throw DataSourceException.connectionError("Failed to connect to DB2 database: " + e.getMessage(), e);
         }
     }
     
@@ -170,8 +167,8 @@ public class DB2DataSourceAdapter implements DataSourceAdapter {
                     
                     // 设置表的统计信息
                     table.setRowCount(getRowCount(dataSource, schemaName, table.getName()));
-                    table.setDataSize(getDataSize(dataSource, schemaName, table.getName()));
-                    table.setIndexSize(getIndexSize(dataSource, schemaName, table.getName()));
+//                    table.setDataSize(getDataSize(dataSource, schemaName, table.getName()));
+//                    table.setIndexSize(getIndexSize(dataSource, schemaName, table.getName()));
                     
                     tables.add(table);
                 }
@@ -196,8 +193,9 @@ public class DB2DataSourceAdapter implements DataSourceAdapter {
                     ColumnInfo column = ColumnInfo.builder()
                             .name(rs.getString("COLUMN_NAME"))
                             .dataType(rs.getString("TYPE_NAME"))
-                            .columnSize(rs.getInt("COLUMN_SIZE"))
-                            .decimalDigits(rs.getInt("DECIMAL_DIGITS"))
+                            .length(rs.getInt("COLUMN_SIZE"))
+                            .numericPrecision(rs.getInt("COLUMN_SIZE"))
+                            .numericScale(rs.getInt("DECIMAL_DIGITS"))
                             .nullable(rs.getInt("NULLABLE") == DatabaseMetaData.columnNullable)
                             .defaultValue(rs.getString("COLUMN_DEF"))
                             .remarks(rs.getString("REMARKS"))
@@ -244,7 +242,7 @@ public class DB2DataSourceAdapter implements DataSourceAdapter {
                     // 添加索引列
                     IndexColumnInfo indexColumn = IndexColumnInfo.builder()
                             .columnName(rs.getString("COLUMN_NAME"))
-                            .ordinalPosition(rs.getShort("ORDINAL_POSITION"))
+                            .ordinalPosition(rs.getInt("ORDINAL_POSITION"))
                             .ascending(rs.getString("ASC_OR_DESC").equals("A"))
                             .build();
                     
@@ -277,9 +275,9 @@ public class DB2DataSourceAdapter implements DataSourceAdapter {
                                 .name(fkName)
                                 .sourceTableName(rs.getString("FKTABLE_NAME"))
                                 .targetTableName(rs.getString("PKTABLE_NAME"))
-                                .updateRule(rs.getInt("UPDATE_RULE"))
-                                .deleteRule(rs.getInt("DELETE_RULE"))
-                                .deferrable(rs.getInt("DEFERRABILITY") != DatabaseMetaData.importedKeyNotDeferrable)
+                                .updateRule(rs.getString("UPDATE_RULE"))
+                                .deleteRule(rs.getString("DELETE_RULE"))
+                                .deferrability(rs.getString("DEFERRABILITY"))
                                 .build();
                         foreignKeys.add(currentFK);
                     }
@@ -288,7 +286,7 @@ public class DB2DataSourceAdapter implements DataSourceAdapter {
                     ForeignKeyColumnInfo foreignKeyColumn = ForeignKeyColumnInfo.builder()
                             .sourceColumnName(rs.getString("FKCOLUMN_NAME"))
                             .targetColumnName(rs.getString("PKCOLUMN_NAME"))
-                            .ordinalPosition(rs.getShort("KEY_SEQ"))
+                            .ordinalPosition(rs.getInt("KEY_SEQ"))
                             .build();
                     
                     currentFK.getColumns().add(foreignKeyColumn);

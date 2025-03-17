@@ -2,20 +2,27 @@ package com.infrastructure.adapter;
 
 import com.common.enums.DataSourceType;
 import com.domain.model.DataSource;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
  * 数据源适配器工厂
  */
-@Slf4j
 @Component
-@RequiredArgsConstructor
 public class DataSourceAdapterFactory {
     
+    private static final Logger LOGGER = LoggerFactory.getLogger(DataSourceAdapterFactory.class);
     private final DB2DataSourceAdapter db2DataSourceAdapter;
     private final MySQLDataSourceAdapter mysqlDataSourceAdapter;
+    
+    @Autowired
+    public DataSourceAdapterFactory(DB2DataSourceAdapter db2DataSourceAdapter, 
+            MySQLDataSourceAdapter mysqlDataSourceAdapter) {
+        this.db2DataSourceAdapter = db2DataSourceAdapter;
+        this.mysqlDataSourceAdapter = mysqlDataSourceAdapter;
+    }
     
     /**
      * 获取数据源适配器
@@ -25,7 +32,7 @@ public class DataSourceAdapterFactory {
             throw new IllegalArgumentException("数据源类型不能为空");
         }
         
-        log.debug("Getting adapter for data source type: {}", type);
+        LOGGER.debug("Getting adapter for data source type: {}", type);
         
         switch (type) {
             case MYSQL:

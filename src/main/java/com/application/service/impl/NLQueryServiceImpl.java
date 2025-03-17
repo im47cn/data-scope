@@ -2,9 +2,9 @@ package com.application.service.impl;
 
 import com.application.service.DataSourceService;
 import com.domain.model.DataSource;
-import com.domain.model.SavedQuery;
 import com.domain.model.metadata.SchemaInfo;
 import com.domain.model.query.QueryHistory;
+import com.domain.model.query.SavedQuery;
 import com.domain.repository.QueryHistoryRepository;
 import com.domain.repository.SavedQueryRepository;
 import com.nlquery.NLQueryRequest;
@@ -56,7 +56,7 @@ public class NLQueryServiceImpl {
             log.info("执行自然语言查询: {}", request.getQuery());
             
             // 1. 获取数据源信息
-            DataSource dataSource = dataSourceService.getDataSource(request.getDataSourceId());
+            DataSource dataSource = dataSourceService.getDataSourceById(request.getDataSourceId()).get();
             SchemaInfo schemaInfo = dataSourceService.getSchemaInfo(request.getDataSourceId(), dataSource.getName());
             
             // 2. 预处理文本
@@ -82,9 +82,9 @@ public class NLQueryServiceImpl {
     /**
      * 获取查询历史
      */
-    public List<QueryHistory> getQueryHistory(Long dataSourceId) {
+    public List<QueryHistory> getQueryHistory(String dataSourceId) {
         log.info("获取查询历史: {}", dataSourceId);
-        return queryHistoryRepository.findByDataSourceId(dataSourceId);
+        return queryHistoryRepository.findByDataSourceIdOrderByCreatedAtDesc(dataSourceId);
     }
 
     /**
@@ -97,10 +97,10 @@ public class NLQueryServiceImpl {
             savedQuery.setName(name);
             savedQuery.setDataSourceId(request.getDataSourceId());
             savedQuery.setQuery(request.getQuery());
-            savedQuery.setDescription(request.getDescription());
+            savedQuery.setDescription("");
             savedQuery.setTags(request.getTags());
-            savedQuery.setCreateTime(LocalDateTime.now());
-            savedQuery.setUpdateTime(LocalDateTime.now());
+            savedQuery.setCreatedAt(LocalDateTime.now());
+            savedQuery.setUpdatedAt(LocalDateTime.now());
             
             return savedQueryRepository.save(savedQuery);
             
@@ -113,7 +113,7 @@ public class NLQueryServiceImpl {
     /**
      * 获取保存的查询列表
      */
-    public List<SavedQuery> getSavedQueries(Long dataSourceId) {
+    public List<SavedQuery> getSavedQueries(String dataSourceId) {
         log.info("获取保存的查询: {}", dataSourceId);
         return savedQueryRepository.findByDataSourceId(dataSourceId);
     }
@@ -121,7 +121,7 @@ public class NLQueryServiceImpl {
     /**
      * 获取保存的查询
      */
-    public SavedQuery getSavedQuery(Long id) {
+    public SavedQuery getSavedQuery(String id) {
         log.info("获取保存的查询: {}", id);
         return savedQueryRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("查询不存在"));
@@ -130,7 +130,7 @@ public class NLQueryServiceImpl {
     /**
      * 删除保存的查询
      */
-    public void deleteSavedQuery(Long id) {
+    public void deleteSavedQuery(String id) {
         log.info("删除保存的查询: {}", id);
         savedQueryRepository.deleteById(id);
     }
@@ -138,7 +138,7 @@ public class NLQueryServiceImpl {
     /**
      * 更新保存的查询
      */
-    public SavedQuery updateSavedQuery(Long id, String name, String description, List<String> tags) {
+    public SavedQuery updateSavedQuery(String id, String name, String description, List<String> tags) {
         log.info("更新保存的查询: {}", id);
         SavedQuery savedQuery = savedQueryRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("查询不存在"));
@@ -146,7 +146,7 @@ public class NLQueryServiceImpl {
         savedQuery.setName(name);
         savedQuery.setDescription(description);
         savedQuery.setTags(tags);
-        savedQuery.setUpdateTime(LocalDateTime.now());
+        savedQuery.setUpdatedAt(LocalDateTime.now());
         
         return savedQueryRepository.save(savedQuery);
     }
@@ -154,7 +154,7 @@ public class NLQueryServiceImpl {
     /**
      * 执行保存的查询
      */
-    public QueryResult executeSavedQuery(Long queryId) {
+    public QueryResult executeSavedQuery(String queryId) {
         log.info("执行保存的查询: {}", queryId);
         try {
             // 1. 获取保存的查询
@@ -184,9 +184,9 @@ public class NLQueryServiceImpl {
             history.setDataSourceId(request.getDataSourceId());
             history.setQuery(request.getQuery());
             history.setSql(conversionResult.getSql());
-            history.setExecuteTime(LocalDateTime.now());
+            history.setExecutedAt(LocalDateTime.now());
             history.setDuration(result.getDuration());
-            history.setRowCount(result.getRowCount());
+            history.setResultCount(result.getTotalRows());
             history.setSuccess(result.isSuccess());
             history.setErrorMessage(result.getErrorMessage());
             

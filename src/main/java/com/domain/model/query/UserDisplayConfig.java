@@ -24,7 +24,7 @@ public class UserDisplayConfig {
     /**
      * 配置ID
      */
-    private Long id;
+    private String id;
     
     /**
      * 用户ID

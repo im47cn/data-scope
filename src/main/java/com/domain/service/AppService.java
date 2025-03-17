@@ -32,7 +32,7 @@ public interface AppService {
      * @param id 应用ID
      * @return 应用对象
      */
-    Optional<App> findAppById(Long id);
+    Optional<App> findAppById(String id);
     
     /**
      * 根据编码查找应用
@@ -70,7 +70,7 @@ public interface AppService {
      *
      * @param id 应用ID
      */
-    void deleteApp(Long id);
+    void deleteApp(String id);
     
     /**
      * 发布应用
@@ -78,7 +78,7 @@ public interface AppService {
      * @param id 应用ID
      * @return 发布后的应用对象
      */
-    App publishApp(Long id);
+    App publishApp(String id);
     
     /**
      * 下架应用
@@ -86,7 +86,7 @@ public interface AppService {
      * @param id 应用ID
      * @return 下架后的应用对象
      */
-    App unpublishApp(Long id);
+    App unpublishApp(String id);
     
     /**
      * 复制应用
@@ -96,7 +96,7 @@ public interface AppService {
      * @param newCode 新应用编码
      * @return 复制后的新应用对象
      */
-    App duplicateApp(Long id, String newName, String newCode);
+    App duplicateApp(String id, String newName, String newCode);
     
     /**
      * 检查应用编码是否已存在

@@ -34,7 +34,7 @@ public interface AppMapper {
      * @param id 应用ID
      * @return 应用实体
      */
-    AppEntity findById(@Param("id") Long id);
+    AppEntity findById(@Param("id") String id);
     
     /**
      * 根据应用编码查询应用
@@ -80,5 +80,5 @@ public interface AppMapper {
      * @param id 应用ID
      * @return 影响的行数
      */
-    int deleteById(@Param("id") Long id);
+    int deleteById(@Param("id") String id);
 }

@@ -26,7 +26,7 @@ public interface PageRepository {
      * @param id 页面ID
      * @return 页面信息
      */
-    Optional<Page> findById(Long id);
+    Optional<Page> findById(String id);
     
     /**
      * 根据应用ID查询页面列表
@@ -34,14 +34,14 @@ public interface PageRepository {
      * @param appId 应用ID
      * @return 页面列表
      */
-    List<Page> findByAppId(Long appId);
+    List<Page> findByAppId(String appId);
     
     /**
      * 根据ID删除页面
      *
      * @param id 页面ID
      */
-    void deleteById(Long id);
+    void deleteById(String id);
     
     /**
      * 查询所有页面

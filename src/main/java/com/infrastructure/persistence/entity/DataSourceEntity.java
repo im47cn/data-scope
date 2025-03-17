@@ -19,7 +19,7 @@ import java.util.Map;
 @AllArgsConstructor
 public class DataSourceEntity {
     
-    private Long id;
+    private String id;
     
     private String name;
     

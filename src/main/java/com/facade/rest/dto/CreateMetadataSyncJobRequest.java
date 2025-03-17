@@ -12,7 +12,7 @@ public class CreateMetadataSyncJobRequest {
      * 数据源ID
      */
     @NotNull(message = "数据源ID不能为空")
-    private Long dataSourceId;
+    private String dataSourceId;
     
     /**
      * 同步类型
@@ -23,16 +23,16 @@ public class CreateMetadataSyncJobRequest {
     public CreateMetadataSyncJobRequest() {
     }
     
-    public CreateMetadataSyncJobRequest(Long dataSourceId, SyncType type) {
+    public CreateMetadataSyncJobRequest(String dataSourceId, SyncType type) {
         this.dataSourceId = dataSourceId;
         this.type = type;
     }
     
-    public Long getDataSourceId() {
+    public String getDataSourceId() {
         return dataSourceId;
     }
     
-    public void setDataSourceId(Long dataSourceId) {
+    public void setDataSourceId(String dataSourceId) {
         this.dataSourceId = dataSourceId;
     }
     

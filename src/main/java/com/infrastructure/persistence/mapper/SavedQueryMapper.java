@@ -34,7 +34,7 @@ public interface SavedQueryMapper {
      * @param id 查询ID
      * @return 保存的查询
      */
-    SavedQuery selectById(@Param("id") Long id);
+    SavedQuery selectById(@Param("id") String id);
     
     /**
      * 查询所有保存的查询
@@ -49,7 +49,7 @@ public interface SavedQueryMapper {
      * @param id 查询ID
      * @return 影响的行数
      */
-    int deleteById(@Param("id") Long id);
+    int deleteById(@Param("id") String id);
     
     /**
      * 根据数据源ID查询保存的查询，按更新时间降序排序
@@ -57,7 +57,7 @@ public interface SavedQueryMapper {
      * @param dataSourceId 数据源ID
      * @return 保存的查询列表
      */
-    List<SavedQuery> selectByDataSourceIdOrderByUpdatedAtDesc(@Param("dataSourceId") Long dataSourceId);
+    List<SavedQuery> selectByDataSourceIdOrderByUpdatedAtDesc(@Param("dataSourceId") String dataSourceId);
     
     /**
      * 根据名称查询保存的查询
@@ -75,6 +75,6 @@ public interface SavedQueryMapper {
      * @return 保存的查询列表
      */
     List<SavedQuery> selectByDataSourceIdAndIsPublicOrderByUpdatedAtDesc(
-            @Param("dataSourceId") Long dataSourceId, 
+            @Param("dataSourceId") String dataSourceId,
             @Param("isPublic") boolean isPublic);
 }

@@ -40,7 +40,7 @@ public class TimeRange {
             return displayName;
         }
     }
-    
+
     /**
      * 时间类型
      */
@@ -63,7 +63,12 @@ public class TimeRange {
         /**
          * 时间区间
          */
-        INTERVAL("时间区间");
+        INTERVAL("时间区间"),
+
+        /**
+         * 未指定
+         */
+        UNSPECIFIED("未指定");
         
         private final String displayName;
         
@@ -84,7 +89,9 @@ public class TimeRange {
          * 年
          */
         YEAR("年"),
-        
+
+        QUARTER("季度"),
+
         /**
          * 月
          */

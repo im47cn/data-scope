@@ -25,7 +25,7 @@ public interface QueryHistoryRepository {
      * @param id 查询历史ID
      * @return 查询历史可选结果
      */
-    Optional<QueryHistory> findById(Long id);
+    Optional<QueryHistory> findById(String id);
     
     /**
      * 查询所有查询历史
@@ -39,7 +39,7 @@ public interface QueryHistoryRepository {
      * 
      * @param id 查询历史ID
      */
-    void deleteById(Long id);
+    void deleteById(String id);
     
     /**
      * 根据数据源ID查询历史记录
@@ -47,5 +47,5 @@ public interface QueryHistoryRepository {
      * @param dataSourceId 数据源ID
      * @return 查询历史列表
      */
-    List<QueryHistory> findByDataSourceIdOrderByCreatedAtDesc(Long dataSourceId);
+    List<QueryHistory> findByDataSourceIdOrderByCreatedAtDesc(String dataSourceId);
 }

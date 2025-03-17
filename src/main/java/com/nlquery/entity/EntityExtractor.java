@@ -1,6 +1,5 @@
 package com.nlquery.entity;
 
-import com.nlquery.preprocess.EntityTag;
 import com.nlquery.preprocess.PreprocessedText;
 
 import java.util.List;

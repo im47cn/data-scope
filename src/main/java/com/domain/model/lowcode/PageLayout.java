@@ -24,7 +24,7 @@ public class PageLayout {
     /**
      * 页面ID
      */
-    private Long id;
+    private String id;
     
     /**
      * 应用ID

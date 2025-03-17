@@ -1,8 +1,8 @@
 package com.nlquery.sql;
 
 import com.domain.model.metadata.SchemaInfo;
+import com.nlquery.entity.EntityTag;
 import com.nlquery.intent.QueryIntent;
-import com.nlquery.preprocess.EntityTag;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 

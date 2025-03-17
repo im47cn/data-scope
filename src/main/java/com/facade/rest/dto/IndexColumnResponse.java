@@ -17,7 +17,7 @@ public class IndexColumnResponse {
     /**
      * ID
      */
-    private Long id;
+    private String id;
     
     /**
      * 索引ID

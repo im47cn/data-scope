@@ -167,6 +167,12 @@
     *   `length` (INT): 长度，中文名称：长度
         *   数据库字段名: `length`
         *   类属性名: `length`
+    *   `numeric_precision` (INT): 数值精度，中文名称：数值精度
+        *   数据库字段名: `numeric_precision`
+        *   类属性名: `numericPrecision`
+    *   `numeric_scale` (INT): 数值刻度，中文名称：数值刻度
+        *   数据库字段名: `numeric_scale`
+        *   类属性名: `numericScale`
     *   `nullable` (BOOLEAN): 是否允许为空，中文名称：是否允许为空，默认值：true
         *   数据库字段名: `nullable`
         *   类属性名: `nullable`
@@ -464,6 +470,8 @@ erDiagram
         string name
         string data_type
         int length
+        int numeric_precision
+        int numeric_scale
         boolean nullable
         string description
         boolean is_primary_key

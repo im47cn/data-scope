@@ -23,7 +23,7 @@ public class AppEntity {
     /**
      * 应用ID
      */
-    private Long id;
+    private String id;
     
     /**
      * 应用编码

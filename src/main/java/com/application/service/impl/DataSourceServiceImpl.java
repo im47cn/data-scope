@@ -103,7 +103,7 @@ public class DataSourceServiceImpl implements DataSourceService {
     
     @Override
     @Transactional(readOnly = true)
-    public Optional<DataSource> getDataSourceById(Long id) {
+    public Optional<DataSource> getDataSourceById(String id) {
         return dataSourceRepository.findById(id);
     }
     
@@ -133,7 +133,7 @@ public class DataSourceServiceImpl implements DataSourceService {
     
     @Override
     @Transactional
-    public void deleteDataSource(Long id) {
+    public void deleteDataSource(String id) {
         // 检查数据源是否存在
         if (!dataSourceRepository.findById(id).isPresent()) {
             throw DataSourceException.notFound("Data source with ID " + id + " not found");
@@ -159,7 +159,7 @@ public class DataSourceServiceImpl implements DataSourceService {
     
     @Override
     @Transactional(readOnly = true)
-    public List<SchemaInfo> getSchemas(Long dataSourceId) {
+    public List<SchemaInfo> getSchemas(String dataSourceId) {
         // 获取数据源
         DataSource dataSource = dataSourceRepository.findById(dataSourceId)
                 .orElseThrow(() -> DataSourceException.notFound("Data source with ID " + dataSourceId + " not found"));
@@ -172,7 +172,7 @@ public class DataSourceServiceImpl implements DataSourceService {
     }
 
     @Override
-    public SchemaInfo getSchemaInfo(Long dataSourceId, String schemaName) {
+    public SchemaInfo getSchemaInfo(String dataSourceId, String schemaName) {
         // 获取数据源
         DataSource dataSource = dataSourceRepository.findById(dataSourceId)
                 .orElseThrow(() -> DataSourceException.notFound("Data source with ID " + dataSourceId + " not found"));
@@ -181,12 +181,12 @@ public class DataSourceServiceImpl implements DataSourceService {
         DataSourceAdapter adapter = adapterFactory.getAdapter(dataSource.getType());
 
         // 获取模式列表
-        return adapter.getSchemaInfo(dataSource, schemaName);
+        return adapter.getSchema(dataSource, schemaName);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<TableInfo> getTables(Long dataSourceId, String schemaName) {
+    public List<TableInfo> getTables(String dataSourceId, String schemaName) {
         // 获取数据源
         DataSource dataSource = dataSourceRepository.findById(dataSourceId)
                 .orElseThrow(() -> DataSourceException.notFound("Data source with ID " + dataSourceId + " not found"));
@@ -200,7 +200,7 @@ public class DataSourceServiceImpl implements DataSourceService {
     
     @Override
     @Transactional
-    public String syncMetadata(Long dataSourceId) {
+    public String syncMetadata(String dataSourceId) {
         // 获取数据源
         DataSource dataSource = dataSourceRepository.findById(dataSourceId)
                 .orElseThrow(() -> DataSourceException.notFound("Data source with ID " + dataSourceId + " not found"));

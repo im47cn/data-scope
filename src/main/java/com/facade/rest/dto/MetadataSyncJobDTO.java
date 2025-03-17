@@ -3,12 +3,18 @@ package com.facade.rest.dto;
 import com.common.enums.SyncStatus;
 import com.common.enums.SyncType;
 import com.domain.model.metadata.MetadataSyncJob;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 /**
  * 元数据同步作业DTO
  */
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@ToString
 public class MetadataSyncJobDTO {
     
     /**
@@ -19,7 +25,7 @@ public class MetadataSyncJobDTO {
     /**
      * 数据源ID
      */
-    private Long dataSourceId;
+    private String dataSourceId;
     
     /**
      * 同步类型
@@ -76,9 +82,6 @@ public class MetadataSyncJobDTO {
      */
     private Long executionDuration;
     
-    public MetadataSyncJobDTO() {
-    }
-    
     /**
      * 从领域模型创建DTO
      * 
@@ -121,107 +124,4 @@ public class MetadataSyncJobDTO {
         return dto;
     }
 
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public Long getDataSourceId() {
-        return dataSourceId;
-    }
-
-    public void setDataSourceId(Long dataSourceId) {
-        this.dataSourceId = dataSourceId;
-    }
-
-    public SyncType getType() {
-        return type;
-    }
-
-    public void setType(SyncType type) {
-        this.type = type;
-    }
-
-    public SyncStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(SyncStatus status) {
-        this.status = status;
-    }
-
-    public Integer getProgress() {
-        return progress;
-    }
-
-    public void setProgress(Integer progress) {
-        this.progress = progress;
-    }
-
-    public LocalDateTime getStartTime() {
-        return startTime;
-    }
-
-    public void setStartTime(LocalDateTime startTime) {
-        this.startTime = startTime;
-    }
-
-    public LocalDateTime getEndTime() {
-        return endTime;
-    }
-
-    public void setEndTime(LocalDateTime endTime) {
-        this.endTime = endTime;
-    }
-
-    public String getErrorMessage() {
-        return errorMessage;
-    }
-
-    public void setErrorMessage(String errorMessage) {
-        this.errorMessage = errorMessage;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
-    }
-
-    public String getTypeDisplayName() {
-        return typeDisplayName;
-    }
-
-    public void setTypeDisplayName(String typeDisplayName) {
-        this.typeDisplayName = typeDisplayName;
-    }
-
-    public String getStatusDisplayName() {
-        return statusDisplayName;
-    }
-
-    public void setStatusDisplayName(String statusDisplayName) {
-        this.statusDisplayName = statusDisplayName;
-    }
-
-    public Long getExecutionDuration() {
-        return executionDuration;
-    }
-
-    public void setExecutionDuration(Long executionDuration) {
-        this.executionDuration = executionDuration;
-    }
 }

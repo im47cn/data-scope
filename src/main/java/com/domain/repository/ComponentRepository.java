@@ -26,7 +26,7 @@ public interface ComponentRepository {
      * @param id 组件ID
      * @return 组件信息
      */
-    Optional<Component> findById(Long id);
+    Optional<Component> findById(String id);
     
     /**
      * 根据页面ID查询组件列表
@@ -34,14 +34,14 @@ public interface ComponentRepository {
      * @param pageId 页面ID
      * @return 组件列表
      */
-    List<Component> findByPageId(Long pageId);
+    List<Component> findByPageId(String pageId);
     
     /**
      * 根据ID删除组件
      *
      * @param id 组件ID
      */
-    void deleteById(Long id);
+    void deleteById(String id);
     
     /**
      * 查询所有组件
@@ -63,5 +63,5 @@ public interface ComponentRepository {
      *
      * @param pageId 页面ID
      */
-    void deleteByPageId(Long pageId);
+    void deleteByPageId(String pageId);
 }

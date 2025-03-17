@@ -129,7 +129,7 @@ public class QueryContext {
     /**
      * 获取数据源ID
      */
-    public Long getDataSourceId() {
+    public String getDataSourceId() {
         return dataSource != null ? dataSource.getId() : null;
     }
     
@@ -144,7 +144,7 @@ public class QueryContext {
      * 获取数据源类型
      */
     public String getDataSourceType() {
-        return dataSource != null ? dataSource.getType() : null;
+        return dataSource != null ? dataSource.getType().getCode() : null;
     }
     
     /**

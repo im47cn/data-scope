@@ -4,6 +4,7 @@ import com.common.enums.DataSourceType;
 import com.domain.model.DataSource;
 import com.domain.repository.DataSourceRepository;
 import com.infrastructure.persistence.mapper.DataSourceMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -14,6 +15,7 @@ import java.util.Optional;
  * 数据源仓储实现类 - MyBatis实现
  * @deprecated 请直接使用 {@link MyBatisDataSourceRepository}
  */
+@Slf4j
 @Repository
 @Deprecated
 public class DataSourceRepositoryImpl implements DataSourceRepository {
@@ -31,7 +33,7 @@ public class DataSourceRepositoryImpl implements DataSourceRepository {
     }
     
     @Override
-    public Optional<DataSource> findById(Long id) {
+    public Optional<DataSource> findById(String id) {
         return repository.findById(id);
     }
     
@@ -56,7 +58,7 @@ public class DataSourceRepositoryImpl implements DataSourceRepository {
     }
     
     @Override
-    public void deleteById(Long id) {
+    public void deleteById(String id) {
         repository.deleteById(id);
     }
     

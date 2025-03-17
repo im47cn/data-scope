@@ -34,7 +34,7 @@ public class MetadataSyncJobServiceImpl implements MetadataSyncJobService {
     
     @Override
     @Transactional
-    public MetadataSyncJob createSyncJob(Long dataSourceId, SyncType type) {
+    public MetadataSyncJob createSyncJob(String dataSourceId, SyncType type) {
         logger.info("创建同步作业: dataSourceId={}, type={}", dataSourceId, type);
         
         // 检查是否已存在进行中的同步作业
@@ -161,13 +161,13 @@ public class MetadataSyncJobServiceImpl implements MetadataSyncJobService {
     }
     
     @Override
-    public List<MetadataSyncJob> getSyncJobsByDataSource(Long dataSourceId) {
+    public List<MetadataSyncJob> getSyncJobsByDataSource(String dataSourceId) {
         logger.debug("获取数据源同步作业列表: dataSourceId={}", dataSourceId);
         return metadataSyncJobRepository.findByDataSourceId(dataSourceId);
     }
     
     @Override
-    public Optional<MetadataSyncJob> getLatestSyncJob(Long dataSourceId) {
+    public Optional<MetadataSyncJob> getLatestSyncJob(String dataSourceId) {
         logger.debug("获取数据源最新同步作业: dataSourceId={}", dataSourceId);
         return metadataSyncJobRepository.findLatestByDataSourceId(dataSourceId);
     }

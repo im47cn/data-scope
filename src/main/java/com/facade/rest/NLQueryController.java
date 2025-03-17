@@ -1,7 +1,7 @@
 package com.facade.rest;
 
-import com.domain.model.SavedQuery;
 import com.domain.model.query.QueryHistory;
+import com.domain.model.query.SavedQuery;
 import com.domain.service.NLQueryService;
 import com.facade.rest.dto.NLQueryRequestDTO;
 import com.facade.rest.dto.SavedQueryDTO;
@@ -86,7 +86,7 @@ public class NLQueryController {
     @GetMapping("/saved/detail/{id}")
     @Operation(summary = "查询详情", description = "获取保存的查询详情")
     public ResponseEntity<SavedQuery> getSavedQuery(
-            @Parameter(description = "查询ID") @PathVariable Long id) {
+            @Parameter(description = "查询ID") @PathVariable String id) {
         log.info("获取保存的查询: {}", id);
         return ResponseEntity.ok(nlQueryService.getSavedQuery(id));
     }
@@ -94,7 +94,7 @@ public class NLQueryController {
     @DeleteMapping("/saved/{id}")
     @Operation(summary = "删除查询", description = "删除保存的查询")
     public ResponseEntity<Void> deleteSavedQuery(
-            @Parameter(description = "查询ID") @PathVariable Long id) {
+            @Parameter(description = "查询ID") @PathVariable String id) {
         log.info("删除保存的查询: {}", id);
         nlQueryService.deleteSavedQuery(id);
         return ResponseEntity.ok().build();
@@ -103,7 +103,7 @@ public class NLQueryController {
     @PutMapping("/saved/{id}")
     @Operation(summary = "更新查询", description = "更新保存的查询")
     public ResponseEntity<SavedQuery> updateSavedQuery(
-            @Parameter(description = "查询ID") @PathVariable Long id,
+            @Parameter(description = "查询ID") @PathVariable String id,
             @Valid @RequestBody UpdateSavedQueryDTO requestDTO) {
         log.info("更新保存的查询: {}", id);
         
@@ -119,7 +119,7 @@ public class NLQueryController {
     @PostMapping("/saved/execute/{id}")
     @Operation(summary = "执行保存的查询", description = "执行保存的查询")
     public ResponseEntity<?> executeSavedQuery(
-            @Parameter(description = "查询ID") @PathVariable Long id) {
+            @Parameter(description = "查询ID") @PathVariable String id) {
         log.info("执行保存的查询: {}", id);
         return ResponseEntity.ok(nlQueryService.executeSavedQuery(id));
     }

@@ -21,12 +21,12 @@ public class TableResponse {
     /**
      * ID
      */
-    private Long id;
+    private String id;
     
     /**
      * 数据源ID
      */
-    private Long dataSourceId;
+    private String dataSourceId;
     
     /**
      * 模式名称

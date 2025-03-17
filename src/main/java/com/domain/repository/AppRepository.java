@@ -26,7 +26,7 @@ public interface AppRepository {
      * @param id 应用ID
      * @return 应用信息
      */
-    Optional<App> findById(Long id);
+    Optional<App> findById(String id);
     
     /**
      * 根据应用编码查询应用
@@ -71,5 +71,5 @@ public interface AppRepository {
      *
      * @param id 应用ID
      */
-    void deleteById(Long id);
+    void deleteById(String id);
 }

@@ -23,7 +23,7 @@ public interface SchemaInfoRepository {
      * @param id Schema ID
      * @return Schema信息
      */
-    Optional<SchemaInfo> findById(Long id);
+    Optional<SchemaInfo> findById(String id);
     
     /**
      * 根据数据源ID查询Schema信息列表

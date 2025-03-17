@@ -2,8 +2,8 @@ package com.nlquery.sql;
 
 import com.domain.model.metadata.SchemaInfo;
 import com.domain.service.TableRelationshipService;
+import com.nlquery.entity.EntityTag;
 import com.nlquery.intent.QueryIntent;
-import com.nlquery.preprocess.EntityTag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

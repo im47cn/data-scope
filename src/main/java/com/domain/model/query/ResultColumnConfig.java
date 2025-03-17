@@ -24,7 +24,7 @@ public class ResultColumnConfig {
     /**
      * 配置ID
      */
-    private Long id;
+    private String id;
     
     /**
      * 关联的界面配置ID

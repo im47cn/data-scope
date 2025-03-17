@@ -16,7 +16,7 @@ public interface DataSourceService {
      * @param dataSourceId 数据源ID
      * @return 数据源连接
      */
-    DataSource getDataSource(Long dataSourceId);
+    DataSource getDataSource(String dataSourceId);
 
     /**
      * 获取数据库模式信息
@@ -24,7 +24,7 @@ public interface DataSourceService {
      * @param dataSourceId 数据源ID
      * @return 数据库模式信息
      */
-    SchemaInfo getSchemaInfo(Long dataSourceId);
+    SchemaInfo getSchemaInfo(String dataSourceId);
 
     /**
      * 同步数据源元数据
@@ -32,7 +32,7 @@ public interface DataSourceService {
      * @param dataSourceId 数据源ID
      * @return 是否同步成功
      */
-    boolean syncMetadata(Long dataSourceId);
+    boolean syncMetadata(String dataSourceId);
 
     /**
      * 测试数据源连接
@@ -40,5 +40,5 @@ public interface DataSourceService {
      * @param dataSourceId 数据源ID
      * @return 是否连接成功
      */
-    boolean testConnection(Long dataSourceId);
+    boolean testConnection(String dataSourceId);
 }

@@ -38,7 +38,7 @@ public class TableRelationshipController {
      */
     @GetMapping
     public ResponseEntity<List<TableRelationshipDTO>> getAllTableRelationships(
-            @RequestParam Long dataSourceId) {
+            @RequestParam String dataSourceId) {
         List<TableRelationship> relationships = tableRelationshipService.getAllTableRelationships(dataSourceId);
         List<TableRelationshipDTO> dtos = relationships.stream()
                 .map(this::toDTO)
@@ -51,7 +51,7 @@ public class TableRelationshipController {
      */
     @GetMapping("/tables/{tableName}")
     public ResponseEntity<List<TableRelationshipDTO>> getTableRelationships(
-            @RequestParam Long dataSourceId,
+            @RequestParam String dataSourceId,
             @PathVariable String tableName) {
         List<TableRelationship> relationships = tableRelationshipService.getTableRelationships(dataSourceId, tableName);
         List<TableRelationshipDTO> dtos = relationships.stream()
@@ -64,7 +64,7 @@ public class TableRelationshipController {
      * 获取指定ID的表关系
      */
     @GetMapping("/{id}")
-    public ResponseEntity<TableRelationshipDTO> getTableRelationship(@PathVariable Long id) {
+    public ResponseEntity<TableRelationshipDTO> getTableRelationship(@PathVariable String id) {
         TableRelationship relationship = tableRelationshipService.findById(id);
         if (relationship == null) {
             return ResponseEntity.notFound().build();
@@ -79,14 +79,14 @@ public class TableRelationshipController {
     public ResponseEntity<TableRelationshipDTO> createTableRelationship(
             @RequestBody TableRelationshipDTO dto) {
         TableRelationship relationship = fromDTO(dto);
-        relationship.setSource(TableRelationship.RelationshipSource.USER_FEEDBACK);
+        relationship.setRelationSource(TableRelationship.RelationshipSource.USER_FEEDBACK);
         TableRelationship savedRelationship = tableRelationshipService.learnFromUserFeedback(
                 relationship.getDataSourceId(),
-                relationship.getSourceTable(),
-                relationship.getSourceColumn(),
-                relationship.getTargetTable(),
-                relationship.getTargetColumn(),
-                relationship.getType());
+                relationship.getSourceTableName(),
+                relationship.getSourceColumnNames(),
+                relationship.getTargetTableName(),
+                relationship.getTargetColumnNames(),
+                relationship.getRelationType());
         return ResponseEntity.status(HttpStatus.CREATED).body(toDTO(savedRelationship));
     }
     
@@ -95,7 +95,7 @@ public class TableRelationshipController {
      */
     @PutMapping("/{id}")
     public ResponseEntity<TableRelationshipDTO> updateTableRelationship(
-            @PathVariable Long id,
+            @PathVariable String id,
             @RequestBody TableRelationshipDTO dto) {
         // 检查是否存在
         TableRelationship existingRelationship = tableRelationshipService.findById(id);
@@ -106,7 +106,7 @@ public class TableRelationshipController {
         // 更新关系
         TableRelationship relationship = fromDTO(dto);
         relationship.setId(id);
-        relationship.setSource(TableRelationship.RelationshipSource.USER_FEEDBACK);
+        relationship.setRelationSource(TableRelationship.RelationshipSource.USER_FEEDBACK);
         TableRelationship updatedRelationship = tableRelationshipService.saveTableRelationship(relationship);
         return ResponseEntity.ok(toDTO(updatedRelationship));
     }
@@ -115,7 +115,7 @@ public class TableRelationshipController {
      * 删除表关系
      */
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteTableRelationship(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteTableRelationship(@PathVariable String id) {
         // 检查是否存在
         TableRelationship existingRelationship = tableRelationshipService.findById(id);
         if (existingRelationship == null) {
@@ -132,7 +132,7 @@ public class TableRelationshipController {
      */
     @PostMapping("/learn-from-metadata")
     public ResponseEntity<List<TableRelationshipDTO>> learnFromMetadata(
-            @RequestParam Long dataSourceId) {
+            @RequestParam String dataSourceId) {
         try {
             // 获取数据源的模式信息
             SchemaInfo schemaInfo = dataSourceService.getSchemaInfo(dataSourceId);
@@ -157,7 +157,7 @@ public class TableRelationshipController {
      */
     @PostMapping("/learn-from-query-history")
     public ResponseEntity<List<TableRelationshipDTO>> learnFromQueryHistory(
-            @RequestParam Long dataSourceId) {
+            @RequestParam String dataSourceId) {
         try {
             // 获取数据源的查询历史
             List<QueryHistory> queryHistories = queryHistoryRepository.findByDataSourceIdOrderByCreatedAtDesc(dataSourceId);
@@ -182,7 +182,7 @@ public class TableRelationshipController {
      */
     @GetMapping("/recommendations")
     public ResponseEntity<List<TableRelationshipDTO>> recommendRelationships(
-            @RequestParam Long dataSourceId,
+            @RequestParam String dataSourceId,
             @RequestParam String tableName,
             @RequestParam(defaultValue = "5") int limit) {
         List<TableRelationship> relationships = tableRelationshipService.recommendRelationships(dataSourceId, tableName, limit);
@@ -199,13 +199,13 @@ public class TableRelationshipController {
         TableRelationshipDTO dto = new TableRelationshipDTO();
         dto.setId(relationship.getId());
         dto.setDataSourceId(relationship.getDataSourceId());
-        dto.setSourceTable(relationship.getSourceTable());
-        dto.setSourceColumn(relationship.getSourceColumn());
-        dto.setTargetTable(relationship.getTargetTable());
-        dto.setTargetColumn(relationship.getTargetColumn());
-        dto.setType(relationship.getType().name());
-        dto.setSource(relationship.getSource().name());
-        dto.setWeight(relationship.getWeight());
+        dto.setSourceTable(relationship.getSourceTableName());
+        dto.setSourceColumn(relationship.getSourceColumnNames());
+        dto.setTargetTable(relationship.getTargetTableName());
+        dto.setTargetColumn(relationship.getTargetColumnNames());
+        dto.setType(relationship.getRelationType().name());
+        dto.setSource(relationship.getRelationSource().name());
+        dto.setWeight(relationship.getConfidence());
         dto.setFrequency(relationship.getFrequency());
         dto.setCreatedAt(relationship.getCreatedAt());
         dto.setUpdatedAt(relationship.getUpdatedAt());
@@ -219,15 +219,15 @@ public class TableRelationshipController {
         return TableRelationship.builder()
                 .id(dto.getId())
                 .dataSourceId(dto.getDataSourceId())
-                .sourceTable(dto.getSourceTable())
-                .sourceColumn(dto.getSourceColumn())
-                .targetTable(dto.getTargetTable())
-                .targetColumn(dto.getTargetColumn())
-                .type(TableRelationship.RelationshipType.valueOf(dto.getType()))
-                .source(dto.getSource() != null ? 
+                .sourceTableName(dto.getSourceTable())
+                .sourceColumnNames(dto.getSourceColumn())
+                .targetTableName(dto.getTargetTable())
+                .targetColumnNames(dto.getTargetColumn())
+                .relationType(TableRelationship.RelationshipType.valueOf(dto.getType()))
+                .relationSource(dto.getSource() != null ?
                         TableRelationship.RelationshipSource.valueOf(dto.getSource()) : 
                         TableRelationship.RelationshipSource.USER_FEEDBACK)
-                .weight(dto.getWeight() != null ? dto.getWeight() : 1.0)
+                .confidence(dto.getWeight() != null ? dto.getWeight() : 1.0)
                 .frequency(dto.getFrequency() != null ? dto.getFrequency() : 1)
                 .createdAt(dto.getCreatedAt())
                 .updatedAt(dto.getUpdatedAt())

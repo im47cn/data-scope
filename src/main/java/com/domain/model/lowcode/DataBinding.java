@@ -22,7 +22,7 @@ public class DataBinding {
     /**
      * 数据绑定ID
      */
-    private Long id;
+    private String id;
     
     /**
      * 绑定的组件ID

@@ -42,17 +42,20 @@ public class EntityTag {
     /**
      * 置信度分数(0-1)
      */
-    private double confidence;
-    
+    @Builder.Default
+    private double confidence = 1.0;
+
     /**
      * 是否是模糊匹配
      */
-    private boolean fuzzyMatch;
-    
+    @Builder.Default
+    private boolean fuzzyMatch = false;
+
     /**
      * 模糊匹配分数(0-1)
      */
-    private double fuzzyScore;
+    @Builder.Default
+    private double fuzzyScore = 1.0;
     
     /**
      * 实体属性

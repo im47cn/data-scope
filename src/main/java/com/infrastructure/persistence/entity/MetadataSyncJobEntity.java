@@ -27,7 +27,7 @@ public class MetadataSyncJobEntity {
     /**
      * 数据源ID
      */
-    private Long dataSourceId;
+    private String dataSourceId;
     
     /**
      * 同步类型

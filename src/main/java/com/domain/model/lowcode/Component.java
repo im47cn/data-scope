@@ -23,7 +23,7 @@ public class Component {
     /**
      * 组件ID
      */
-    private Long id;
+    private String id;
     
     /**
      * 组件类型

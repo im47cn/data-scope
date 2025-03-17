@@ -24,7 +24,7 @@ public class QueryInterfaceConfig {
     /**
      * 界面配置ID
      */
-    private Long id;
+    private String id;
     
     /**
      * 配置代码

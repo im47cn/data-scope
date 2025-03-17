@@ -22,7 +22,7 @@ public class NLQueryRequest {
     /**
      * 数据源ID
      */
-    private Long dataSourceId;
+    private String dataSourceId;
     
     /**
      * 查询语句
@@ -72,7 +72,7 @@ public class NLQueryRequest {
     /**
      * 创建一个简单的查询请求
      */
-    public static NLQueryRequest simple(Long dataSourceId, String query) {
+    public static NLQueryRequest simple(String dataSourceId, String query) {
         return NLQueryRequest.builder()
                 .dataSourceId(dataSourceId)
                 .query(query)
@@ -82,7 +82,7 @@ public class NLQueryRequest {
     /**
      * 创建一个带参数的查询请求
      */
-    public static NLQueryRequest withParameters(Long dataSourceId, String query, Map<String, Object> parameters) {
+    public static NLQueryRequest withParameters(String dataSourceId, String query, Map<String, Object> parameters) {
         return NLQueryRequest.builder()
                 .dataSourceId(dataSourceId)
                 .query(query)

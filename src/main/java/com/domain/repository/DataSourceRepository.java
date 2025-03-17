@@ -25,7 +25,7 @@ public interface DataSourceRepository {
      * @param id 数据源ID
      * @return 数据源对象
      */
-    Optional<DataSource> findById(Long id);
+    Optional<DataSource> findById(String id);
     
     /**
      * 根据名称查询数据源
@@ -63,7 +63,7 @@ public interface DataSourceRepository {
      *
      * @param id 数据源ID
      */
-    void deleteById(Long id);
+    void deleteById(String id);
     
     /**
      * 检查数据源名称是否已存在

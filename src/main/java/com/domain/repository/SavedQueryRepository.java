@@ -25,7 +25,7 @@ public interface SavedQueryRepository {
      * @param id 查询ID
      * @return 保存的查询可选结果
      */
-    Optional<SavedQuery> findById(Long id);
+    Optional<SavedQuery> findById(String id);
     
     /**
      * 查询所有保存的查询
@@ -39,7 +39,7 @@ public interface SavedQueryRepository {
      * 
      * @param id 查询ID
      */
-    void deleteById(Long id);
+    void deleteById(String id);
     
     /**
      * 根据数据源ID查询保存的查询
@@ -47,7 +47,7 @@ public interface SavedQueryRepository {
      * @param dataSourceId 数据源ID
      * @return 保存的查询列表
      */
-    List<SavedQuery> findByDataSourceIdOrderByUpdatedAtDesc(Long dataSourceId);
+    List<SavedQuery> findByDataSourceId(String dataSourceId);
     
     /**
      * 根据名称查询保存的查询
@@ -57,12 +57,4 @@ public interface SavedQueryRepository {
      */
     Optional<SavedQuery> findByName(String name);
     
-    /**
-     * 根据数据源ID和是否公开查询保存的查询
-     *
-     * @param dataSourceId 数据源ID
-     * @param isPublic 是否公开
-     * @return 保存的查询列表
-     */
-    List<SavedQuery> findByDataSourceIdAndIsPublicOrderByUpdatedAtDesc(Long dataSourceId, boolean isPublic);
 }

@@ -1,6 +1,5 @@
 package com.domain.service.impl;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.common.exception.InsightDataException;
 import com.domain.model.lowcode.App;
 import com.domain.model.lowcode.Component;
@@ -11,6 +10,7 @@ import com.domain.repository.ComponentRepository;
 import com.domain.repository.DataBindingRepository;
 import com.domain.repository.PageRepository;
 import com.domain.service.LowCodeService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -65,7 +65,7 @@ public class LowCodeServiceImpl implements LowCodeService {
 
     @Override
     @Transactional
-    public void deleteApp(Long appId) {
+    public void deleteApp(String appId) {
         log.info("Deleting app: {}", appId);
         appRepository.findById(appId)
             .orElseThrow(() -> new InsightDataException("App not found: " + appId));
@@ -80,7 +80,7 @@ public class LowCodeServiceImpl implements LowCodeService {
     }
 
     @Override
-    public Optional<App> getAppById(Long appId) {
+    public Optional<App> getAppById(String appId) {
         return appRepository.findById(appId);
     }
 
@@ -96,7 +96,7 @@ public class LowCodeServiceImpl implements LowCodeService {
 
     @Override
     @Transactional
-    public App publishApp(Long appId) {
+    public App publishApp(String appId) {
         log.info("Publishing app: {}", appId);
         App app = appRepository.findById(appId)
             .orElseThrow(() -> new InsightDataException("App not found: " + appId));
@@ -110,7 +110,7 @@ public class LowCodeServiceImpl implements LowCodeService {
 
     @Override
     @Transactional
-    public App unpublishApp(Long appId) {
+    public App unpublishApp(String appId) {
         log.info("Unpublishing app: {}", appId);
         App app = appRepository.findById(appId)
             .orElseThrow(() -> new InsightDataException("App not found: " + appId));
@@ -150,7 +150,7 @@ public class LowCodeServiceImpl implements LowCodeService {
 
     @Override
     @Transactional
-    public void deletePage(Long pageId) {
+    public void deletePage(String pageId) {
         log.info("Deleting page: {}", pageId);
         Page page = pageRepository.findById(pageId)
             .orElseThrow(() -> new InsightDataException("Page not found: " + pageId));
@@ -165,12 +165,12 @@ public class LowCodeServiceImpl implements LowCodeService {
     }
 
     @Override
-    public Optional<Page> getPageById(Long pageId) {
+    public Optional<Page> getPageById(String pageId) {
         return pageRepository.findById(pageId);
     }
 
     @Override
-    public List<Page> getPagesByAppId(Long appId) {
+    public List<Page> getPagesByAppId(String appId) {
         return pageRepository.findByAppId(appId);
     }
 
@@ -196,7 +196,7 @@ public class LowCodeServiceImpl implements LowCodeService {
 
     @Override
     @Transactional
-    public void deleteComponent(Long componentId) {
+    public void deleteComponent(String componentId) {
         log.info("Deleting component: {}", componentId);
         Component component = componentRepository.findById(componentId)
             .orElseThrow(() -> new InsightDataException("Component not found: " + componentId));
@@ -211,12 +211,12 @@ public class LowCodeServiceImpl implements LowCodeService {
     }
 
     @Override
-    public Optional<Component> getComponentById(Long componentId) {
+    public Optional<Component> getComponentById(String componentId) {
         return componentRepository.findById(componentId);
     }
 
     @Override
-    public List<Component> getComponentsByPageId(Long pageId) {
+    public List<Component> getComponentsByPageId(String pageId) {
         return componentRepository.findByPageId(pageId);
     }
 
@@ -249,7 +249,7 @@ public class LowCodeServiceImpl implements LowCodeService {
 
     @Override
     @Transactional
-    public void deleteDataBinding(Long dataBindingId) {
+    public void deleteDataBinding(String dataBindingId) {
         log.info("Deleting data binding: {}", dataBindingId);
         dataBindingRepository.findById(dataBindingId)
             .orElseThrow(() -> new InsightDataException("DataBinding not found: " + dataBindingId));
@@ -258,22 +258,22 @@ public class LowCodeServiceImpl implements LowCodeService {
     }
 
     @Override
-    public Optional<DataBinding> getDataBindingById(Long dataBindingId) {
+    public Optional<DataBinding> getDataBindingById(String dataBindingId) {
         return dataBindingRepository.findById(dataBindingId);
     }
 
     @Override
-    public List<DataBinding> getDataBindingsByComponentId(Long componentId) {
+    public List<DataBinding> getDataBindingsByComponentId(String componentId) {
         return dataBindingRepository.findByComponentId(componentId);
     }
 
     @Override
-    public List<DataBinding> getDataBindingsByQueryId(Long queryId) {
+    public List<DataBinding> getDataBindingsByQueryId(String queryId) {
         return dataBindingRepository.findByQueryId(queryId);
     }
 
     @Override
-    public String exportAppConfig(Long appId) {
+    public String exportAppConfig(String appId) {
         log.info("Exporting app configuration: {}", appId);
         App app = appRepository.findById(appId)
             .orElseThrow(() -> new InsightDataException("App not found: " + appId));
@@ -299,28 +299,28 @@ public class LowCodeServiceImpl implements LowCodeService {
     }
 
     @Override
-    public Component generateQueryForm(Long queryId) {
+    public Component generateQueryForm(String queryId) {
         log.info("Generating query form for query: {}", queryId);
         // TODO: 实现查询表单生成逻辑
         throw new UnsupportedOperationException("Not implemented yet");
     }
 
     @Override
-    public Component generateResultTable(Long queryId) {
+    public Component generateResultTable(String queryId) {
         log.info("Generating result table for query: {}", queryId);
         // TODO: 实现结果表格生成逻辑
         throw new UnsupportedOperationException("Not implemented yet");
     }
 
     @Override
-    public String previewAppByQueryId(Long queryId) {
+    public String previewAppByQueryId(String queryId) {
         log.info("Generating preview URL for query: {}", queryId);
         // TODO: 实现应用预览逻辑
         throw new UnsupportedOperationException("Not implemented yet");
     }
 
     @Override
-    public Map<String, Object> recommendComponentConfig(Long queryId, Map<String, Object> context) {
+    public Map<String, Object> recommendComponentConfig(String queryId, Map<String, Object> context) {
         log.info("Generating component recommendations for query: {}", queryId);
         // TODO: 实现组件配置推荐逻辑
         throw new UnsupportedOperationException("Not implemented yet");

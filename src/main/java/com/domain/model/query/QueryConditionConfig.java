@@ -24,7 +24,7 @@ public class QueryConditionConfig {
     /**
      * 条件ID
      */
-    private Long id;
+    private String id;
     
     /**
      * 关联的界面配置ID

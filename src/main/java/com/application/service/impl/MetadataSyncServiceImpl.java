@@ -46,7 +46,7 @@ public class MetadataSyncServiceImpl implements MetadataSyncService {
 
     @Override
     @Transactional
-    public void syncMetadata(Long dataSourceId) {
+    public void syncMetadata(String dataSourceId) {
         log.info("开始同步元数据: dataSourceId={}", dataSourceId);
 
         // 创建同步作业

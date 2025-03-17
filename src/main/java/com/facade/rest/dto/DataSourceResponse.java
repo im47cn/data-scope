@@ -21,7 +21,7 @@ public class DataSourceResponse {
     /**
      * ID
      */
-    private Long id;
+    private String id;
     
     /**
      * 数据源名称
@@ -66,7 +66,7 @@ public class DataSourceResponse {
     /**
      * 是否启用
      */
-    private boolean active;
+    private Boolean active;
     
     /**
      * 最后同步时间

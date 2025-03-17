@@ -4,21 +4,38 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.Accessors;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * 索引信息模型
- * 用于表示数据库表索引的结构信息
+ * 索引信息实体类
+ * 表示数据库表的索引及其元数据
  */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Accessors(chain = true)
 public class IndexInfo {
+
+    /**
+     * 数据源ID
+     */
+    private Long dataSourceId;
+
+    /**
+     * 模式名称
+     */
+    private String schemaName;
+
+    /**
+     * 表名称
+     */
+    private String tableName;
 
     /**
      * 索引名称
@@ -26,175 +43,218 @@ public class IndexInfo {
     private String name;
 
     /**
-     * 索引类型（BTREE, HASH等）
+     * 索引类型
+     * 例如: BTREE, HASH, GIN, GIST等
      */
     private String type;
 
     /**
-     * 所属表名
+     * 是否唯一索引
      */
-    private String tableName;
-
-    /**
-     * 所属模式（Schema）名称
-     */
-    private String schemaName;
-
-    /**
-     * 所属数据源ID
-     */
-    private Long dataSourceId;
-
-    /**
-     * 是否是唯一索引
-     */
-    private Boolean unique;
+    private boolean unique;
 
     /**
      * 是否是主键索引
      */
-    private Boolean primaryKey;
+    private boolean primaryKey;
 
     /**
-     * 索引的注释或描述
+     * 是否是聚集索引
      */
-    private String comment;
+    private boolean clustered;
 
     /**
-     * 索引的筛选条件（部分索引）
+     * 索引包含的列
+     */
+    @Builder.Default
+    private List<IndexColumnInfo> columns = new ArrayList<>();
+
+    /**
+     * 索引过滤条件
      */
     private String filterCondition;
 
     /**
-     * 索引中的列信息列表
+     * 索引大小（字节）
      */
-    private List<IndexColumnInfo> columns;
+    private Long size;
 
     /**
-     * 添加索引列信息
-     *
-     * @param column 索引列信息
+     * 索引的描述/注释
+     */
+    private String description;
+
+    /**
+     * 创建时间
+     */
+    private LocalDateTime createdAt;
+
+    /**
+     * 更新时间
+     */
+    private LocalDateTime updatedAt;
+
+    /**
+     * 添加索引列
      */
     public void addColumn(IndexColumnInfo column) {
         if (columns == null) {
             columns = new ArrayList<>();
         }
-        if (column != null) {
-            columns.add(column);
-        }
+        columns.add(column);
     }
 
     /**
-     * 获取索引列名列表
-     *
-     * @return 索引列名列表
+     * 获取索引列名称列表
      */
     public List<String> getColumnNames() {
-        if (columns == null) {
-            return Collections.emptyList();
+        if (columns == null || columns.isEmpty()) {
+            return new ArrayList<>();
         }
 
         return columns.stream()
-                .map(IndexColumnInfo::getColumnName)
+                .map(col -> col.getColumnName())
                 .collect(Collectors.toList());
     }
 
     /**
-     * 判断是否是唯一索引
-     *
-     * @return 如果是唯一索引返回true，否则返回false
+     * 检查索引是否包含指定列
      */
-    public boolean isUnique() {
-        return unique != null && unique;
+    public boolean containsColumn(String columnName) {
+        if (columns == null || columns.isEmpty()) {
+            return false;
+        }
+
+        return columns.stream()
+                .anyMatch(col -> col.getColumnName().equalsIgnoreCase(columnName));
     }
 
     /**
-     * 判断是否是主键索引
-     *
-     * @return 如果是主键索引返回true，否则返回false
+     * 获取索引的可读名称
+     * 例如: 表名_列名1_列名2_idx
      */
-    public boolean isPrimaryKey() {
-        return primaryKey != null && primaryKey;
-    }
+    public String getReadableName() {
+        if (name != null && !name.isEmpty()) {
+            return name;
+        }
 
-    /**
-     * 是否是部分索引
-     *
-     * @return 如果是部分索引返回true，否则返回false
-     */
-    public boolean isPartial() {
-        return filterCondition != null && !filterCondition.isEmpty();
-    }
-
-    /**
-     * 获取完整的索引标识
-     *
-     * @return 格式为"schema.table.index"的完整索引标识
-     */
-    public String getFullName() {
         StringBuilder sb = new StringBuilder();
-        if (schemaName != null && !schemaName.isEmpty()) {
-            sb.append(schemaName).append(".");
+        sb.append(tableName);
+
+        if (columns != null && !columns.isEmpty()) {
+            for (IndexColumnInfo column : columns) {
+                sb.append("_").append(column.getColumnName());
+            }
         }
-        if (tableName != null && !tableName.isEmpty()) {
-            sb.append(tableName).append(".");
+
+        if (primaryKey) {
+            sb.append("_pk");
+        } else if (unique) {
+            sb.append("_uk");
+        } else {
+            sb.append("_idx");
         }
-        if (name != null) {
-            sb.append(name);
-        }
+
         return sb.toString();
     }
 
     /**
-     * 获取索引定义的DDL语句
-     *
-     * @return 表示索引定义的DDL语句
+     * 生成创建索引的SQL语句
      */
-    public String getDDLStatement() {
-        if (columns == null || columns.isEmpty()) {
-            return "";
-        }
-
+    public String generateCreateIndexStatement() {
         StringBuilder sb = new StringBuilder();
-        sb.append("CREATE ");
 
-        if (isUnique()) {
-            sb.append("UNIQUE ");
-        }
+        if (primaryKey) {
+            sb.append("ALTER TABLE ");
+            if (schemaName != null && !schemaName.isEmpty()) {
+                sb.append(schemaName).append(".");
+            }
+            sb.append(tableName);
+            sb.append(" ADD CONSTRAINT ").append(name);
+            sb.append(" PRIMARY KEY (");
+            sb.append(columns.stream()
+                    .map(col -> col.getColumnName())
+                    .collect(Collectors.joining(", ")));
+            sb.append(")");
+        } else {
+            sb.append("CREATE ");
+            if (unique) {
+                sb.append("UNIQUE ");
+            }
+            if (clustered) {
+                sb.append("CLUSTERED ");
+            }
+            sb.append("INDEX ").append(name);
+            sb.append(" ON ");
+            if (schemaName != null && !schemaName.isEmpty()) {
+                sb.append(schemaName).append(".");
+            }
+            sb.append(tableName).append(" (");
 
-        sb.append("INDEX ");
-        sb.append(name);
-        sb.append(" ON ");
+            sb.append(columns.stream()
+                    .map(col -> {
+                        StringBuilder colSb = new StringBuilder();
+                        colSb.append(col.getColumnName());
+                        if (col.sortOrder != null && !col.sortOrder.isEmpty()) {
+                            colSb.append(" ").append(col.sortOrder);
+                        }
+                        return colSb.toString();
+                    })
+                    .collect(Collectors.joining(", ")));
 
-        if (schemaName != null && !schemaName.isEmpty()) {
-            sb.append(schemaName).append(".");
-        }
+            sb.append(")");
 
-        sb.append(tableName);
-        sb.append(" (");
-
-        // 添加索引列定义
-        List<String> columnDefinitions = new ArrayList<>();
-        for (IndexColumnInfo column : columns) {
-            StringBuilder colDef = new StringBuilder();
-            colDef.append(column.getExpression());
-
-            // 添加排序方向
-            if (!column.isAscending()) {
-                colDef.append(" DESC");
+            if (type != null && !type.isEmpty()) {
+                sb.append(" USING ").append(type);
             }
 
-            columnDefinitions.add(colDef.toString());
-        }
-
-        sb.append(String.join(", ", columnDefinitions));
-        sb.append(")");
-
-        // 添加过滤条件（如果有）
-        if (isPartial()) {
-            sb.append(" WHERE ").append(filterCondition);
+            if (filterCondition != null && !filterCondition.isEmpty()) {
+                sb.append(" WHERE ").append(filterCondition);
+            }
         }
 
         return sb.toString();
     }
+
+    /**
+     * 获取索引的完全限定名
+     */
+    public String getQualifiedName() {
+        if (schemaName != null && !schemaName.isEmpty()) {
+            return schemaName + "." + tableName + "." + name;
+        }
+        return tableName + "." + name;
+    }
+
+    /**
+     * 获取索引的展示信息
+     */
+    public String getDisplayInfo() {
+        StringBuilder sb = new StringBuilder();
+
+        if (primaryKey) {
+            sb.append("主键: ");
+        } else if (unique) {
+            sb.append("唯一索引: ");
+        } else {
+            sb.append("索引: ");
+        }
+
+        sb.append(name);
+
+        sb.append(" (");
+        if (columns != null && !columns.isEmpty()) {
+            sb.append(columns.stream()
+                    .map(col -> col.getColumnName())
+                    .collect(Collectors.joining(", ")));
+        }
+        sb.append(")");
+
+        if (type != null && !type.isEmpty()) {
+            sb.append(" [").append(type).append("]");
+        }
+
+        return sb.toString();
+    }
+
 }

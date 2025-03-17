@@ -29,7 +29,7 @@ public class QueryHistoryRepositoryImpl implements QueryHistoryRepository {
     }
 
     @Override
-    public Optional<QueryHistory> findById(Long id) {
+    public Optional<QueryHistory> findById(String id) {
         return Optional.ofNullable(queryHistoryMapper.selectById(id));
     }
 
@@ -39,12 +39,12 @@ public class QueryHistoryRepositoryImpl implements QueryHistoryRepository {
     }
 
     @Override
-    public void deleteById(Long id) {
+    public void deleteById(String id) {
         queryHistoryMapper.deleteById(id);
     }
 
     @Override
-    public List<QueryHistory> findByDataSourceIdOrderByCreatedAtDesc(Long dataSourceId) {
+    public List<QueryHistory> findByDataSourceIdOrderByCreatedAtDesc(String dataSourceId) {
         return queryHistoryMapper.selectByDataSourceIdOrderByCreatedAtDesc(dataSourceId);
     }
 }

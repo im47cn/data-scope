@@ -24,7 +24,7 @@ public class Page {
     /**
      * 页面ID
      */
-    private Long id;
+    private String id;
     
     /**
      * 所属应用ID

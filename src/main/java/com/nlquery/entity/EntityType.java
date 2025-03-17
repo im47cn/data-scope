@@ -53,7 +53,17 @@ public enum EntityType {
      * 分组关键字
      */
     GROUP("分组关键字"),
-    
+
+    /**
+     * 条件
+     */
+    CONDITION("条件"),
+
+    /**
+     * 值
+     */
+    VALUE("值"),
+
     /**
      * 数值
      */

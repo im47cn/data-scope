@@ -17,7 +17,7 @@ public class ForeignKeyColumnResponse {
     /**
      * ID
      */
-    private Long id;
+    private String id;
     
     /**
      * 外键ID

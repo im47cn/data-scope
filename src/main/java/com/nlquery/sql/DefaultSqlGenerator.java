@@ -3,9 +3,9 @@ package com.nlquery.sql;
 import com.domain.model.metadata.ColumnInfo;
 import com.domain.model.metadata.SchemaInfo;
 import com.domain.model.metadata.TableInfo;
+import com.nlquery.entity.EntityTag;
+import com.nlquery.entity.EntityType;
 import com.nlquery.intent.*;
-import com.nlquery.preprocess.EntityTag;
-import com.nlquery.preprocess.EntityType;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -44,7 +44,7 @@ public class DefaultSqlGenerator implements SqlGenerator {
                                 e.getType() == EntityType.VALUE ||
                                 e.getType() == EntityType.NUMBER ||
                                 e.getType() == EntityType.STRING ||
-                                e.getType() == EntityType.DATE ||
+                                e.getType() == EntityType.DATETIME ||
                                 e.getType() == EntityType.BOOLEAN)
                     .collect(Collectors.toList());
             
@@ -305,7 +305,7 @@ public class DefaultSqlGenerator implements SqlGenerator {
             } else if (entity.getType() == EntityType.VALUE ||
                       entity.getType() == EntityType.NUMBER ||
                       entity.getType() == EntityType.STRING ||
-                      entity.getType() == EntityType.DATE ||
+                      entity.getType() == EntityType.DATETIME ||
                       entity.getType() == EntityType.BOOLEAN) {
                 String paramName = "p" + paramIndex;
                 sqlBuilder.append("?");
@@ -376,7 +376,7 @@ public class DefaultSqlGenerator implements SqlGenerator {
             }
         } else if (entity.getType() == EntityType.BOOLEAN) {
             return Boolean.parseBoolean(entity.getText());
-        } else if (entity.getType() == EntityType.DATE) {
+        } else if (entity.getType() == EntityType.DATETIME) {
             // 简单实现，实际应用中需要更复杂的日期解析逻辑
             return entity.getText();
         } else {

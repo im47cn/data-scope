@@ -24,7 +24,7 @@ public interface TableInfoRepository {
      * @param id 表ID
      * @return 表信息
      */
-    Optional<TableInfo> findById(Long id);
+    Optional<TableInfo> findById(String id);
     
     /**
      * 根据数据源ID查询表信息列表

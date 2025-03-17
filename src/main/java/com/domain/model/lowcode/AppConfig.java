@@ -24,7 +24,7 @@ public class AppConfig {
     /**
      * 应用ID
      */
-    private Long id;
+    private String id;
     
     /**
      * 应用名称

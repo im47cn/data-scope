@@ -21,7 +21,7 @@ public class IndexResponse {
     /**
      * ID
      */
-    private Long id;
+    private String id;
 
     /**
      * 表ID

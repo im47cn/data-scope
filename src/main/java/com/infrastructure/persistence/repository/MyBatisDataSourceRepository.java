@@ -4,6 +4,7 @@ import com.common.enums.DataSourceType;
 import com.domain.model.DataSource;
 import com.domain.repository.DataSourceRepository;
 import com.infrastructure.persistence.mapper.DataSourceMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
@@ -13,6 +14,7 @@ import java.util.Optional;
 /**
  * MyBatis实现的数据源仓储
  */
+@Slf4j
 @Repository
 public class MyBatisDataSourceRepository implements DataSourceRepository {
     
@@ -24,21 +26,31 @@ public class MyBatisDataSourceRepository implements DataSourceRepository {
     
     @Override
     public DataSource save(DataSource dataSource) {
-        if (dataSource.getId() == null) {
-            // 新建数据源
-            dataSource.setCreatedAt(LocalDateTime.now());
-            dataSource.setUpdatedAt(LocalDateTime.now());
+        LocalDateTime now = LocalDateTime.now();
+        
+        // 查看是否已存在该ID的数据源
+        boolean exists = false;
+        if (dataSource.getId() != null) {
+            DataSource existing = dataSourceMapper.selectById(dataSource.getId());
+            exists = (existing != null);
+        }
+        
+        if (!exists) {
+            // 新数据源
+            dataSource.setCreatedAt(now);
+            dataSource.setUpdatedAt(now);
             dataSourceMapper.insert(dataSource);
         } else {
-            // 更新数据源
-            dataSource.setUpdatedAt(LocalDateTime.now());
+            // 更新
+            dataSource.setUpdatedAt(now);
             dataSourceMapper.update(dataSource);
         }
+        
         return dataSource;
     }
     
     @Override
-    public Optional<DataSource> findById(Long id) {
+    public Optional<DataSource> findById(String id) {
         return Optional.ofNullable(dataSourceMapper.selectById(id));
     }
     
@@ -63,7 +75,7 @@ public class MyBatisDataSourceRepository implements DataSourceRepository {
     }
     
     @Override
-    public void deleteById(Long id) {
+    public void deleteById(String id) {
         dataSourceMapper.deleteById(id);
     }
     

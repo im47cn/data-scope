@@ -35,7 +35,7 @@ public interface QueryHistoryMapper {
      * @param id 查询历史ID
      * @return 查询历史对象
      */
-    QueryHistory selectById(@Param("id") Long id);
+    QueryHistory selectById(@Param("id") String id);
 
     /**
      * 查询所有查询历史记录
@@ -50,7 +50,7 @@ public interface QueryHistoryMapper {
      * @param dataSourceId 数据源ID
      * @return 查询历史列表
      */
-    List<QueryHistory> selectByDataSourceIdOrderByCreatedAtDesc(@Param("dataSourceId") Long dataSourceId);
+    List<QueryHistory> selectByDataSourceIdOrderByCreatedAtDesc(@Param("dataSourceId") String dataSourceId);
 
     /**
      * 根据ID删除查询历史
@@ -58,5 +58,5 @@ public interface QueryHistoryMapper {
      * @param id 查询历史ID
      * @return 影响的行数
      */
-    int deleteById(@Param("id") Long id);
+    int deleteById(@Param("id") String id);
 }

@@ -8,8 +8,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import com.nlquery.preprocess.DefaultTextPreprocessor;
-import com.nlquery.preprocess.EntityTag;
-import com.nlquery.preprocess.EntityType;
 import com.nlquery.preprocess.PreprocessedText;
 import com.nlquery.preprocess.TextPreprocessor;
 
@@ -126,8 +124,8 @@ public class EntityExtractorTest {
         List<EntityTag> entities = entityExtractor.extractEntities(preprocessedText);
         
         assertFalse(entities.isEmpty());
-        assertTrue(entities.stream().anyMatch(e -> e.getType() == EntityType.DATE && e.getText().contains("2023-01-01")));
-        assertTrue(entities.stream().anyMatch(e -> e.getType() == EntityType.DATE && e.getText().contains("2023-12-31")));
+        assertTrue(entities.stream().anyMatch(e -> e.getType() == EntityType.DATETIME && e.getText().contains("2023-01-01")));
+        assertTrue(entities.stream().anyMatch(e -> e.getType() == EntityType.DATETIME && e.getText().contains("2023-12-31")));
     }
     
     @Test

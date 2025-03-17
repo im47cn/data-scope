@@ -4,208 +4,158 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.Accessors;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
 /**
- * 查询历史记录
- * 记录用户的查询历史，包括查询条件、结果和性能统计
+ * 查询历史实体类
+ * 记录用户执行的查询历史
  */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Accessors(chain = true)
 public class QueryHistory {
-    
+
     /**
-     * 历史记录ID
+     * 查询历史ID
      */
-    private Long id;
-    
-    /**
-     * 用户ID
-     */
-    private Long userId;
-    
-    /**
-     * 用户名称
-     */
-    private String userName;
-    
-    /**
-     * 查询界面配置ID
-     */
-    private Long interfaceConfigId;
-    
-    /**
-     * 查询界面配置名称
-     */
-    private String interfaceName;
-    
-    /**
-     * 查询界面配置版本
-     */
-    private String interfaceVersion;
+    private String id;
     
     /**
      * 数据源ID
      */
-    private Long dataSourceId;
+    private String dataSourceId;
     
     /**
-     * 数据源名称
+     * 用户ID
      */
-    private String dataSourceName;
+    private String userId;
     
     /**
-     * 查询条件参数
+     * 原始查询（可能是自然语言或SQL）
      */
-    @Builder.Default
-    private Map<String, Object> queryParams = new HashMap<>();
+    private String query;
     
     /**
-     * 原始SQL语句
+     * 查询类型
+     * SQL: 直接SQL查询
+     * NL: 自然语言查询
      */
-    private String originalSql;
+    private String queryType;
     
     /**
-     * 实际执行的SQL语句（包含参数替换后）
+     * 执行的SQL
      */
-    private String executedSql;
+    private String sql;
     
     /**
-     * 查询开始时间
+     * 查询参数
      */
-    private LocalDateTime startTime;
+    private String parameters;
     
     /**
-     * 查询结束时间
+     * 执行时间（毫秒）
      */
-    private LocalDateTime endTime;
+    private Long duration;
     
     /**
-     * 执行时长（毫秒）
+     * 查询结果行数
      */
-    private Long executionTimeMs;
+    private Long resultCount;
     
     /**
-     * 结果行数
+     * 查询是否成功
      */
-    private Long resultRowCount;
+    private boolean success;
     
     /**
-     * 查询状态
-     * 例如: SUCCESS, FAILED, TIMEOUT, CANCELLED
-     */
-    private String status;
-    
-    /**
-     * 错误信息（如果查询失败）
+     * 错误消息（如果失败）
      */
     private String errorMessage;
     
     /**
-     * 错误代码（如果查询失败）
+     * 查询结果字段
      */
-    private String errorCode;
+    private List<String> resultColumns;
     
     /**
-     * 是否导出数据
+     * 执行查询的时间
      */
-    private boolean exported;
-    
-    /**
-     * 导出格式
-     */
-    private String exportFormat;
-    
-    /**
-     * 导出行数
-     */
-    private Long exportedRowCount;
-    
-    /**
-     * 客户端IP地址
-     */
-    private String clientIp;
-    
-    /**
-     * 用户代理信息
-     */
-    private String userAgent;
-    
-    /**
-     * 会话ID
-     */
-    private String sessionId;
-    
-    /**
-     * 是否是收藏的查询
-     */
-    private boolean favorite;
-    
-    /**
-     * 查询标题
-     * 用户可以为收藏的查询指定标题
-     */
-    private String title;
-    
-    /**
-     * 查询描述
-     * 用户可以为收藏的查询添加描述
-     */
-    private String description;
-    
-    /**
-     * 标签
-     * 用户可以为收藏的查询添加标签
-     */
-    private String tags;
-    
-    /**
-     * 性能分析数据
-     */
-    @Builder.Default
-    private Map<String, Object> performanceStats = new HashMap<>();
-    
-    /**
-     * 查询来源
-     * 例如: MANUAL(手动查询), SCHEDULED(计划任务), API(API调用)
-     */
-    private String querySource;
-    
-    /**
-     * 是否缓存命中
-     */
-    private boolean cacheHit;
-    
-    /**
-     * 缓存键
-     */
-    private String cacheKey;
-    
-    /**
-     * API请求ID
-     * 如果是通过API调用，记录对应的请求ID
-     */
-    private String apiRequestId;
-    
-    /**
-     * 相似查询ID
-     * 与此查询相似的历史查询ID
-     */
-    private Long similarQueryId;
-    
-    /**
-     * 相似度得分
-     * 与相似查询的相似度得分
-     */
-    private Double similarityScore;
+    private LocalDateTime executedAt;
     
     /**
      * 创建时间
      */
     private LocalDateTime createdAt;
+    
+    /**
+     * 更新时间
+     */
+    private LocalDateTime updatedAt;
+    
+    /**
+     * 是否已保存
+     */
+    private boolean saved;
+    
+    /**
+     * 关联的保存查询ID（如果已保存）
+     */
+    private Long savedQueryId;
+    
+    /**
+     * 检查查询是否为自然语言查询
+     */
+    public boolean isNaturalLanguageQuery() {
+        return "NL".equals(queryType);
+    }
+    
+    /**
+     * 检查查询是否为直接SQL查询
+     */
+    public boolean isSqlQuery() {
+        return "SQL".equals(queryType);
+    }
+    
+    /**
+     * 获取查询执行的简要摘要
+     */
+    public String getSummary() {
+        StringBuilder sb = new StringBuilder();
+        
+        if (isNaturalLanguageQuery()) {
+            sb.append("自然语言: ").append(truncateIfNeeded(query, 50));
+        } else {
+            sb.append("SQL: ").append(truncateIfNeeded(sql, 50));
+        }
+        
+        sb.append(" [");
+        if (success) {
+            sb.append(resultCount).append("行, ").append(duration).append("ms");
+        } else {
+            sb.append("失败: ").append(truncateIfNeeded(errorMessage, 30));
+        }
+        sb.append("]");
+        
+        return sb.toString();
+    }
+    
+    /**
+     * 截断过长的字符串
+     */
+    private String truncateIfNeeded(String str, int maxLength) {
+        if (str == null) {
+            return "";
+        }
+        
+        if (str.length() <= maxLength) {
+            return str;
+        }
+        
+        return str.substring(0, maxLength - 3) + "...";
+    }
 }

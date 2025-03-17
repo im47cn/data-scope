@@ -48,13 +48,13 @@ public class TableRelationshipRepositoryImpl implements TableRelationshipReposit
     }
     
     @Override
-    public Optional<TableRelationship> findById(Long id) {
+    public Optional<TableRelationship> findById(String id) {
         return Optional.ofNullable(tableRelationshipMapper.selectById(id))
                 .map(converter::toDomain);
     }
     
     @Override
-    public List<TableRelationship> findByDataSourceId(Long dataSourceId) {
+    public List<TableRelationship> findByDataSourceId(String dataSourceId) {
         return tableRelationshipMapper.selectByDataSourceIdAndTableName(dataSourceId, null)
                 .stream()
                 .map(converter::toDomain)
@@ -62,7 +62,7 @@ public class TableRelationshipRepositoryImpl implements TableRelationshipReposit
     }
     
     @Override
-    public List<TableRelationship> findByDataSourceIdAndTable(Long dataSourceId, String tableName) {
+    public List<TableRelationship> findByDataSourceIdAndTable(String dataSourceId, String tableName) {
         return tableRelationshipMapper.selectByDataSourceIdAndTableName(dataSourceId, tableName)
                 .stream()
                 .map(converter::toDomain)
@@ -70,7 +70,7 @@ public class TableRelationshipRepositoryImpl implements TableRelationshipReposit
     }
     
     @Override
-    public List<TableRelationship> findByDataSourceIdAndTables(Long dataSourceId, String sourceTable, String targetTable) {
+    public List<TableRelationship> findByDataSourceIdAndTables(String dataSourceId, String sourceTable, String targetTable) {
         return tableRelationshipMapper.selectByDataSourceIdAndTableName(dataSourceId, sourceTable)
                 .stream()
                 .map(converter::toDomain)
@@ -78,22 +78,22 @@ public class TableRelationshipRepositoryImpl implements TableRelationshipReposit
     }
     
     @Override
-    public void deleteById(Long id) {
+    public void deleteById(String id) {
         tableRelationshipMapper.deleteById(id);
     }
     
     @Override
-    public void deleteByDataSourceId(Long dataSourceId) {
+    public void deleteByDataSourceId(String dataSourceId) {
         tableRelationshipMapper.deleteByDataSourceIdAndSource(dataSourceId, null);
     }
     
     @Override
-    public void deleteByDataSourceIdAndSource(Long dataSourceId, TableRelationship.RelationshipSource source) {
+    public void deleteByDataSourceIdAndSource(String dataSourceId, TableRelationship.RelationshipSource source) {
         tableRelationshipMapper.deleteByDataSourceIdAndSource(dataSourceId, source.name());
     }
     
     @Override
-    public void incrementFrequency(Long id) {
+    public void incrementFrequency(String id) {
         tableRelationshipMapper.incrementFrequency(id);
     }
 }

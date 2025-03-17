@@ -38,7 +38,7 @@ public interface LowCodeService {
      *
      * @param appId 应用ID
      */
-    void deleteApp(Long appId);
+    void deleteApp(String appId);
     
     /**
      * 根据ID获取应用
@@ -46,7 +46,7 @@ public interface LowCodeService {
      * @param appId 应用ID
      * @return 应用信息
      */
-    Optional<App> getAppById(Long appId);
+    Optional<App> getAppById(String appId);
     
     /**
      * 根据编码获取应用
@@ -69,7 +69,7 @@ public interface LowCodeService {
      * @param appId 应用ID
      * @return 发布后的应用
      */
-    App publishApp(Long appId);
+    App publishApp(String appId);
     
     /**
      * 取消发布应用
@@ -77,7 +77,7 @@ public interface LowCodeService {
      * @param appId 应用ID
      * @return 取消发布后的应用
      */
-    App unpublishApp(Long appId);
+    App unpublishApp(String appId);
     
     // 页面相关方法
     
@@ -102,7 +102,7 @@ public interface LowCodeService {
      *
      * @param pageId 页面ID
      */
-    void deletePage(Long pageId);
+    void deletePage(String pageId);
     
     /**
      * 根据ID获取页面
@@ -110,7 +110,7 @@ public interface LowCodeService {
      * @param pageId 页面ID
      * @return 页面信息
      */
-    Optional<Page> getPageById(Long pageId);
+    Optional<Page> getPageById(String pageId);
     
     /**
      * 根据应用ID获取页面列表
@@ -118,7 +118,7 @@ public interface LowCodeService {
      * @param appId 应用ID
      * @return 页面列表
      */
-    List<Page> getPagesByAppId(Long appId);
+    List<Page> getPagesByAppId(String appId);
     
     // 组件相关方法
     
@@ -143,7 +143,7 @@ public interface LowCodeService {
      *
      * @param componentId 组件ID
      */
-    void deleteComponent(Long componentId);
+    void deleteComponent(String componentId);
     
     /**
      * 根据ID获取组件
@@ -151,7 +151,7 @@ public interface LowCodeService {
      * @param componentId 组件ID
      * @return 组件信息
      */
-    Optional<Component> getComponentById(Long componentId);
+    Optional<Component> getComponentById(String componentId);
     
     /**
      * 根据页面ID获取组件列表
@@ -159,7 +159,7 @@ public interface LowCodeService {
      * @param pageId 页面ID
      * @return 组件列表
      */
-    List<Component> getComponentsByPageId(Long pageId);
+    List<Component> getComponentsByPageId(String pageId);
     
     // 数据绑定相关方法
     
@@ -184,7 +184,7 @@ public interface LowCodeService {
      *
      * @param dataBindingId 数据绑定ID
      */
-    void deleteDataBinding(Long dataBindingId);
+    void deleteDataBinding(String dataBindingId);
     
     /**
      * 根据ID获取数据绑定
@@ -192,7 +192,7 @@ public interface LowCodeService {
      * @param dataBindingId 数据绑定ID
      * @return 数据绑定信息
      */
-    Optional<DataBinding> getDataBindingById(Long dataBindingId);
+    Optional<DataBinding> getDataBindingById(String dataBindingId);
     
     /**
      * 根据组件ID获取数据绑定列表
@@ -200,7 +200,7 @@ public interface LowCodeService {
      * @param componentId 组件ID
      * @return 数据绑定列表
      */
-    List<DataBinding> getDataBindingsByComponentId(Long componentId);
+    List<DataBinding> getDataBindingsByComponentId(String componentId);
     
     /**
      * 根据查询ID获取数据绑定列表
@@ -208,7 +208,7 @@ public interface LowCodeService {
      * @param queryId 查询ID
      * @return 数据绑定列表
      */
-    List<DataBinding> getDataBindingsByQueryId(Long queryId);
+    List<DataBinding> getDataBindingsByQueryId(String queryId);
     
     /**
      * 根据应用ID导出应用配置
@@ -216,7 +216,7 @@ public interface LowCodeService {
      * @param appId 应用ID
      * @return 应用配置JSON
      */
-    String exportAppConfig(Long appId);
+    String exportAppConfig(String appId);
     
     /**
      * 导入应用配置
@@ -232,7 +232,7 @@ public interface LowCodeService {
      * @param queryId 查询ID
      * @return 表单组件配置
      */
-    Component generateQueryForm(Long queryId);
+    Component generateQueryForm(String queryId);
     
     /**
      * 为查询结果生成表格组件
@@ -240,7 +240,7 @@ public interface LowCodeService {
      * @param queryId 查询ID
      * @return 表格组件配置
      */
-    Component generateResultTable(Long queryId);
+    Component generateResultTable(String queryId);
     
     /**
      * 根据查询ID预览应用
@@ -248,7 +248,7 @@ public interface LowCodeService {
      * @param queryId 查询ID
      * @return 预览URL
      */
-    String previewAppByQueryId(Long queryId);
+    String previewAppByQueryId(String queryId);
     
     /**
      * 智能推荐组件配置
@@ -257,5 +257,5 @@ public interface LowCodeService {
      * @param context 上下文信息
      * @return 推荐的组件配置
      */
-    Map<String, Object> recommendComponentConfig(Long queryId, Map<String, Object> context);
+    Map<String, Object> recommendComponentConfig(String queryId, Map<String, Object> context);
 }

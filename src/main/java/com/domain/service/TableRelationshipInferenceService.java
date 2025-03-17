@@ -18,7 +18,7 @@ public interface TableRelationshipInferenceService {
      * @param schemaInfo 数据库模式信息
      * @return 推断出的表关系列表
      */
-    List<TableRelationship> inferRelationshipsFromContent(Long dataSourceId, SchemaInfo schemaInfo);
+    List<TableRelationship> inferRelationshipsFromContent(String dataSourceId, SchemaInfo schemaInfo);
     
     /**
      * 根据列名相似性推断表关系
@@ -27,7 +27,7 @@ public interface TableRelationshipInferenceService {
      * @param schemaInfo 数据库模式信息
      * @return 推断出的表关系列表
      */
-    List<TableRelationship> inferRelationshipsFromColumnNames(Long dataSourceId, SchemaInfo schemaInfo);
+    List<TableRelationship> inferRelationshipsFromColumnNames(String dataSourceId, SchemaInfo schemaInfo);
     
     /**
      * 根据常见模式推断表关系
@@ -37,7 +37,7 @@ public interface TableRelationshipInferenceService {
      * @param schemaInfo 数据库模式信息
      * @return 推断出的表关系列表
      */
-    List<TableRelationship> inferRelationshipsFromCommonPatterns(Long dataSourceId, SchemaInfo schemaInfo);
+    List<TableRelationship> inferRelationshipsFromCommonPatterns(String dataSourceId, SchemaInfo schemaInfo);
     
     /**
      * 综合多种方法推断表关系
@@ -46,7 +46,7 @@ public interface TableRelationshipInferenceService {
      * @param schemaInfo 数据库模式信息
      * @return 推断出的表关系列表
      */
-    List<TableRelationship> inferRelationships(Long dataSourceId, SchemaInfo schemaInfo);
+    List<TableRelationship> inferRelationships(String dataSourceId, SchemaInfo schemaInfo);
     
     /**
      * 为特定表推荐可能的关系
@@ -57,5 +57,5 @@ public interface TableRelationshipInferenceService {
      * @param limit 最大推荐数量
      * @return 推荐的表关系列表
      */
-    List<TableRelationship> recommendRelationships(Long dataSourceId, String tableName, double confidence, int limit);
+    List<TableRelationship> recommendRelationships(String dataSourceId, String tableName, double confidence, int limit);
 }

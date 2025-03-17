@@ -51,13 +51,13 @@ public class MetadataSyncJobRepositoryImpl implements MetadataSyncJobRepository 
     }
 
     @Override
-    public List<MetadataSyncJob> findByDataSourceId(Long dataSourceId) {
+    public List<MetadataSyncJob> findByDataSourceId(String dataSourceId) {
         List<MetadataSyncJobEntity> entities = metadataSyncJobMapper.selectByDataSourceId(dataSourceId);
         return entities.stream().map(this::toModel).collect(Collectors.toList());
     }
 
     @Override
-    public List<MetadataSyncJob> findByDataSourceIdAndStatus(Long dataSourceId, SyncStatus status) {
+    public List<MetadataSyncJob> findByDataSourceIdAndStatus(String dataSourceId, SyncStatus status) {
         List<MetadataSyncJobEntity> entities = metadataSyncJobMapper.selectByDataSourceIdAndStatus(dataSourceId, status);
         return entities.stream().map(this::toModel).collect(Collectors.toList());
     }
@@ -69,7 +69,7 @@ public class MetadataSyncJobRepositoryImpl implements MetadataSyncJobRepository 
     }
 
     @Override
-    public Optional<MetadataSyncJob> findLatestByDataSourceId(Long dataSourceId) {
+    public Optional<MetadataSyncJob> findLatestByDataSourceId(String dataSourceId) {
         MetadataSyncJobEntity entity = metadataSyncJobMapper.selectLatestByDataSourceId(dataSourceId);
         return Optional.ofNullable(entity).map(this::toModel);
     }
@@ -80,7 +80,7 @@ public class MetadataSyncJobRepositoryImpl implements MetadataSyncJobRepository 
     }
 
     @Override
-    public void deleteByDataSourceId(Long dataSourceId) {
+    public void deleteByDataSourceId(String dataSourceId) {
         metadataSyncJobMapper.deleteByDataSourceId(dataSourceId);
     }
     

@@ -4,53 +4,45 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.Accessors;
+
+import java.time.LocalDateTime;
 
 /**
- * 列信息模型
- * 用于表示数据库表中列的结构信息
+ * 列信息实体类
+ * 表示数据库表的列及其元数据
  */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Accessors(chain = true)
 public class ColumnInfo {
+
+    /**
+     * 数据源ID
+     */
+    private Long dataSourceId;
     
     /**
-     * 列名
+     * 模式名称
+     */
+    private String schemaName;
+    
+    /**
+     * 表名称
+     */
+    private String tableName;
+    
+    /**
+     * 列名称
      */
     private String name;
     
     /**
-     * 列描述
+     * 列序号（在表中的位置）
      */
-    private String description;
-    
-    /**
-     * 数据类型
-     */
-    private String dataType;
-
-    private String columnType;
-
-    /**
-     * 字段长度
-     */
-    private Integer length;
-    
-    /**
-     * 精度（用于数值类型）
-     */
-    private Integer precision;
-    
-    /**
-     * 小数位数（用于数值类型）
-     */
-    private Integer scale;
-    
-    /**
-     * 是否允许为空
-     */
-    private Boolean nullable;
+    private Integer ordinalPosition;
     
     /**
      * 默认值
@@ -58,190 +50,300 @@ public class ColumnInfo {
     private String defaultValue;
     
     /**
-     * 是否是主键
+     * 是否可为空
      */
-    private Boolean primaryKey;
+    private boolean nullable;
     
     /**
-     * 是否是外键
+     * 数据类型
      */
-    private Boolean foreignKey;
+    private String dataType;
     
     /**
-     * 是否是唯一键
+     * 字符最大长度
      */
-    private Boolean unique;
+    private Integer length;
     
     /**
-     * 是否是自增列
+     * 数值精度
      */
-    private Boolean autoIncrement;
+    private Integer numericPrecision;
     
     /**
-     * 序号位置
+     * 数值刻度
      */
-    private Integer ordinalPosition;
+    private Integer numericScale;
     
     /**
-     * 所属表名
+     * 日期时间精度
      */
-    private String tableName;
+    private Integer datetimePrecision;
     
     /**
-     * 所属模式（Schema）名称
+     * 字符集名称
      */
-    private String schemaName;
+    private String characterSetName;
     
     /**
-     * 所属数据源ID
+     * 排序规则名称
      */
-    private Long dataSourceId;
+    private String collationName;
     
     /**
-     * 列统计信息
+     * 列类型（数据库原始类型）
      */
-    private ColumnStatistics statistics;
+    private String columnType;
     
     /**
-     * 判断是否是主键
-     * 
-     * @return 如果是主键返回true，否则返回false
+     * 是否为主键
      */
-    public boolean isPrimaryKey() {
-        return primaryKey != null && primaryKey;
-    }
+    private boolean primaryKey;
     
     /**
-     * 判断是否是外键
-     * 
-     * @return 如果是外键返回true，否则返回false
+     * 是否为外键
      */
-    public boolean isForeignKey() {
-        return foreignKey != null && foreignKey;
-    }
+    private boolean foreignKey;
     
     /**
-     * 判断是否允许为空
-     * 
-     * @return 如果允许为空返回true，否则返回false
+     * 是否唯一
      */
-    public boolean isNullable() {
-        return nullable != null && nullable;
-    }
+    private boolean unique;
     
     /**
-     * 判断是否是唯一键
-     * 
-     * @return 如果是唯一键返回true，否则返回false
+     * 是否自增
      */
-    public boolean isUnique() {
-        return unique != null && unique;
-    }
+    private boolean autoIncrement;
     
     /**
-     * 判断是否是自增列
-     * 
-     * @return 如果是自增列返回true，否则返回false
+     * 是否为生成的列
      */
-    public boolean isAutoIncrement() {
-        return autoIncrement != null && autoIncrement;
-    }
+    private boolean generated;
     
     /**
-     * 获取完整的列标识
-     * 
-     * @return 格式为"schema.table.column"的完整标识
+     * 生成表达式
      */
-    public String getFullName() {
-        StringBuilder sb = new StringBuilder();
-        if (schemaName != null && !schemaName.isEmpty()) {
-            sb.append(schemaName).append(".");
+    private String generationExpression;
+    
+    /**
+     * 列的描述/注释
+     */
+    private String description;
+    
+    /**
+     * 创建时间
+     */
+    private LocalDateTime createdAt;
+    
+    /**
+     * 更新时间
+     */
+    private LocalDateTime updatedAt;
+
+    private String remarks;
+    
+    /**
+     * 检查是否为数值类型列
+     */
+    public boolean isNumeric() {
+        if (dataType == null) {
+            return false;
         }
+        
+        String type = dataType.toLowerCase();
+        return type.contains("int") || 
+               type.contains("float") || 
+               type.contains("double") || 
+               type.contains("decimal") || 
+               type.contains("numeric") || 
+               type.contains("real") || 
+               type.contains("money") || 
+               type.contains("number") || 
+               type.contains("bit");
+    }
+    
+    /**
+     * 检查是否为字符串类型列
+     */
+    public boolean isString() {
+        if (dataType == null) {
+            return false;
+        }
+        
+        String type = dataType.toLowerCase();
+        return type.contains("char") || 
+               type.contains("text") || 
+               type.contains("string") || 
+               type.contains("varchar") || 
+               type.contains("clob");
+    }
+    
+    /**
+     * 检查是否为日期时间类型列
+     */
+    public boolean isDateTime() {
+        if (dataType == null) {
+            return false;
+        }
+        
+        String type = dataType.toLowerCase();
+        return type.contains("date") || 
+               type.contains("time") || 
+               type.contains("timestamp") || 
+               type.contains("interval");
+    }
+    
+    /**
+     * 检查是否为BLOB/二进制类型列
+     */
+    public boolean isBinary() {
+        if (dataType == null) {
+            return false;
+        }
+        
+        String type = dataType.toLowerCase();
+        return type.contains("blob") || 
+               type.contains("binary") || 
+               type.contains("image") || 
+               type.contains("raw");
+    }
+    
+    /**
+     * 检查是否为布尔类型列
+     */
+    public boolean isBoolean() {
+        if (dataType == null) {
+            return false;
+        }
+        
+        String type = dataType.toLowerCase();
+        return type.contains("bool") || 
+               type.equals("bit") || 
+               type.contains("logical");
+    }
+    
+    /**
+     * 检查是否为枚举类型列
+     */
+    public boolean isEnum() {
+        if (dataType == null) {
+            return false;
+        }
+        
+        String type = dataType.toLowerCase();
+        return type.contains("enum");
+    }
+    
+    /**
+     * 检查是否为JSON类型列
+     */
+    public boolean isJson() {
+        if (dataType == null) {
+            return false;
+        }
+        
+        String type = dataType.toLowerCase();
+        return type.contains("json");
+    }
+    
+    /**
+     * 检查是否为XML类型列
+     */
+    public boolean isXml() {
+        if (dataType == null) {
+            return false;
+        }
+        
+        String type = dataType.toLowerCase();
+        return type.contains("xml");
+    }
+    
+    /**
+     * 检查是否为几何/地理类型列
+     */
+    public boolean isGeospatial() {
+        if (dataType == null) {
+            return false;
+        }
+        
+        String type = dataType.toLowerCase();
+        return type.contains("geo") || 
+               type.contains("geometry") || 
+               type.contains("point") || 
+               type.contains("polygon") || 
+               type.contains("linestring");
+    }
+    
+    /**
+     * 获取列的展示类型（更友好的类型名称）
+     */
+    public String getDisplayType() {
+        if (isNumeric()) {
+            if (dataType.toLowerCase().contains("int")) {
+                return "整数";
+            } else {
+                return "数值";
+            }
+        } else if (isString()) {
+            return "文本";
+        } else if (isDateTime()) {
+            if (dataType.toLowerCase().contains("date") && !dataType.toLowerCase().contains("time")) {
+                return "日期";
+            } else if (dataType.toLowerCase().contains("time") && !dataType.toLowerCase().contains("date")) {
+                return "时间";
+            } else {
+                return "日期时间";
+            }
+        } else if (isBoolean()) {
+            return "布尔值";
+        } else if (isBinary()) {
+            return "二进制";
+        } else if (isJson()) {
+            return "JSON";
+        } else if (isXml()) {
+            return "XML";
+        } else if (isGeospatial()) {
+            return "地理数据";
+        } else if (isEnum()) {
+            return "枚举";
+        } else {
+            return dataType;
+        }
+    }
+    
+    /**
+     * 获取列的完全限定名
+     */
+    public String getQualifiedName() {
         if (tableName != null && !tableName.isEmpty()) {
-            sb.append(tableName).append(".");
+            if (schemaName != null && !schemaName.isEmpty()) {
+                return schemaName + "." + tableName + "." + name;
+            }
+            return tableName + "." + name;
         }
-        if (name != null) {
-            sb.append(name);
-        }
-        return sb.toString();
+        return name;
     }
     
     /**
-     * 获取列的完整类型描述
-     * 
-     * @return 完整的类型描述，包括长度、精度和小数位数
+     * 获取列的显示信息（带备注）
      */
-    public String getFullDataType() {
-        StringBuilder sb = new StringBuilder(dataType == null ? "" : dataType);
+    public String getDisplayInfo() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(name);
         
-        if ("CHAR".equalsIgnoreCase(dataType) || 
-            "VARCHAR".equalsIgnoreCase(dataType) || 
-            "NVARCHAR".equalsIgnoreCase(dataType) ||
-            "BINARY".equalsIgnoreCase(dataType) ||
-            "VARBINARY".equalsIgnoreCase(dataType)) {
-            if (length != null) {
-                sb.append("(").append(length).append(")");
-            }
-        } else if ("DECIMAL".equalsIgnoreCase(dataType) || 
-                   "NUMERIC".equalsIgnoreCase(dataType)) {
-            if (precision != null) {
-                sb.append("(").append(precision);
-                if (scale != null) {
-                    sb.append(",").append(scale);
-                }
-                sb.append(")");
-            }
+        if (description != null && !description.isEmpty()) {
+            sb.append(" (").append(description).append(")");
+        }
+        
+        sb.append(": ").append(getDisplayType());
+        
+        if (primaryKey) {
+            sb.append(" [主键]");
+        }
+        
+        if (foreignKey) {
+            sb.append(" [外键]");
         }
         
         return sb.toString();
-    }
-    
-    /**
-     * 列统计信息
-     */
-    @Data
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class ColumnStatistics {
-        /**
-         * 唯一值数量
-         */
-        private Long distinctCount;
-        
-        /**
-         * 空值数量
-         */
-        private Long nullCount;
-        
-        /**
-         * 最大值
-         */
-        private String maxValue;
-        
-        /**
-         * 最小值
-         */
-        private String minValue;
-        
-        /**
-         * 平均值
-         */
-        private Double avgValue;
-        
-        /**
-         * 中位数
-         */
-        private Double medianValue;
-        
-        /**
-         * 频率最高的值
-         */
-        private String mostFrequentValue;
-        
-        /**
-         * 频率最高的值出现次数
-         */
-        private Long mostFrequentValueCount;
     }
 }
