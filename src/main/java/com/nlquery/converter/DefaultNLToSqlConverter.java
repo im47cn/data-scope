@@ -14,6 +14,7 @@ import com.nlquery.sql.SqlGenerator;
 import com.nlquery.sql.SqlGenerator.SqlGenerationResult;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -26,6 +27,7 @@ import java.util.List;
 @Component
 public class DefaultNLToSqlConverter implements NLToSqlConverter {
 
+    @Qualifier("metadataBasedEntityExtractor")
     @Autowired
     private EntityExtractor entityExtractor;
     

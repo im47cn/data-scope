@@ -16,16 +16,6 @@ spring:
       connection-timeout: 30000
       pool-name: InsightDataHikariCP
   
-  # MyBatis配置
-  mybatis:
-    mapper-locations: classpath:mapper/**/*.xml
-    type-aliases-package: com.domain.model
-    configuration:
-      map-underscore-to-camel-case: true
-      default-fetch-size: 100
-      default-statement-timeout: 30
-      cache-enabled: true
-  
   # Redis配置
   data:
     redis:
@@ -56,6 +46,16 @@ spring:
     baseline-version: 0
     validate-on-migrate: true
     out-of-order: false
+
+# MyBatis配置
+mybatis:
+  mapper-locations: classpath:mapper/**/*.xml
+  type-aliases-package: com.domain.modal
+  configuration:
+    map-underscore-to-camel-case: true
+    default-fetch-size: 100
+    default-statement-timeout: 30
+    cache-enabled: true
 
 # 服务器配置
 server:

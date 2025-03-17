@@ -26,6 +26,7 @@ public class MetadataSyncServiceImpl implements MetadataSyncService {
 
     private final MetadataSyncJobService metadataSyncJobService;
     private final DataSourceAdapterFactory dataSourceAdapterFactory;
+
     private final DataSourceRepository dataSourceRepository;
     private final SchemaInfoRepository schemaInfoRepository;
     private final TableInfoRepository tableInfoRepository;
