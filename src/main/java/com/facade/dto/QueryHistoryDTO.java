@@ -1,25 +1,24 @@
-package com.domain.model.query;
+package com.facade.dto;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Map;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.experimental.SuperBuilder;
 
 /**
- * 查询历史实体
+ * 查询历史DTO
  */
 @Data
-@SuperBuilder
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class QueryHistory {
+public class QueryHistoryDTO {
     
     /**
-     * 主键ID
+     * 查询历史ID
      */
     private String id;
     
@@ -27,6 +26,11 @@ public class QueryHistory {
      * 数据源ID
      */
     private String dataSourceId;
+    
+    /**
+     * 数据源名称
+     */
+    private String dataSourceName;
     
     /**
      * 原始查询（自然语言或SQL）
@@ -49,12 +53,12 @@ public class QueryHistory {
     private Long executionTime;
     
     /**
-     * 返回行数
+     * 返回的行数
      */
     private Long rowCount;
     
     /**
-     * 状态（成功/失败）
+     * 查询状态（成功/失败）
      */
     private String status;
     
@@ -91,30 +95,5 @@ public class QueryHistory {
     /**
      * 标签
      */
-    private List<String> tags;
-    
-    /**
-     * 乐观锁版本号
-     */
-    private Long nonce;
-    
-    /**
-     * 创建时间
-     */
-    private LocalDateTime createdAt;
-    
-    /**
-     * 更新时间
-     */
-    private LocalDateTime updatedAt;
-    
-    /**
-     * 创建者
-     */
-    private String createdBy;
-    
-    /**
-     * 更新者
-     */
-    private String updatedBy;
+    private String[] tags;
 }

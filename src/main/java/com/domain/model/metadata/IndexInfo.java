@@ -1,260 +1,187 @@
 package com.domain.model.metadata;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.experimental.Accessors;
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
+
 /**
  * 索引信息实体类
- * 表示数据库表的索引及其元数据
  */
 @Data
-@Builder
+@SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-@Accessors(chain = true)
 public class IndexInfo {
 
     /**
+     * 索引ID，使用UUID
+     */
+    private String id;
+    
+    /**
+     * 表ID
+     */
+    private String tableId;
+    
+    /**
      * 数据源ID
      */
-    private Long dataSourceId;
-
-    /**
-     * 模式名称
-     */
-    private String schemaName;
-
-    /**
-     * 表名称
-     */
-    private String tableName;
-
+    private String dataSourceId;
+    
     /**
      * 索引名称
      */
     private String name;
-
+    
     /**
-     * 索引类型
-     * 例如: BTREE, HASH, GIN, GIST等
+     * 表名
      */
-    private String type;
-
+    private String tableName;
+    
+    /**
+     * 模式名
+     */
+    private String schemaName;
+    
     /**
      * 是否唯一索引
      */
-    private boolean unique;
-
+    private Boolean isUnique;
+    
     /**
      * 是否是主键索引
      */
-    private boolean primaryKey;
-
+    private Boolean isPrimary;
+    
     /**
-     * 是否是聚集索引
+     * 索引类型（如BTREE、HASH等）
      */
-    private boolean clustered;
-
+    private String type;
+    
     /**
-     * 索引包含的列
+     * 索引方法（如btree、gin、gist等）
      */
-    @Builder.Default
-    private List<IndexColumnInfo> columns = new ArrayList<>();
-
+    private String method;
+    
     /**
-     * 索引过滤条件
+     * 过滤条件（用于部分索引）
      */
     private String filterCondition;
-
+    
     /**
-     * 索引大小（字节）
+     * 索引选项
      */
-    private Long size;
-
+    private String options;
+    
     /**
-     * 索引的描述/注释
+     * 索引列列表
      */
-    private String description;
-
+    private List<IndexColumnInfo> columns = new ArrayList<>();
+    
     /**
      * 创建时间
      */
     private LocalDateTime createdAt;
-
+    
     /**
      * 更新时间
      */
     private LocalDateTime updatedAt;
-
+    
     /**
-     * 添加索引列
+     * 创建者
      */
-    public void addColumn(IndexColumnInfo column) {
-        if (columns == null) {
-            columns = new ArrayList<>();
-        }
-        columns.add(column);
-    }
-
+    private String createdBy;
+    
     /**
-     * 获取索引列名称列表
+     * 更新者
+     */
+    private String updatedBy;
+    
+    /**
+     * 获取索引的所有列名
+     * 
+     * @return 列名列表
      */
     public List<String> getColumnNames() {
         if (columns == null || columns.isEmpty()) {
             return new ArrayList<>();
         }
-
+        
         return columns.stream()
-                .map(col -> col.getColumnName())
+                .map(IndexColumnInfo::getColumnName)
                 .collect(Collectors.toList());
     }
-
+    
     /**
      * 检查索引是否包含指定列
+     * 
+     * @param columnName 列名
+     * @return 是否包含
      */
     public boolean containsColumn(String columnName) {
         if (columns == null || columns.isEmpty()) {
             return false;
         }
-
+        
         return columns.stream()
-                .anyMatch(col -> col.getColumnName().equalsIgnoreCase(columnName));
+                .anyMatch(column -> column.getColumnName().equalsIgnoreCase(columnName));
     }
-
+    
     /**
-     * 获取索引的可读名称
-     * 例如: 表名_列名1_列名2_idx
+     * 获取索引的降序列名列表
+     * 
+     * @return 降序列名列表
      */
-    public String getReadableName() {
-        if (name != null && !name.isEmpty()) {
-            return name;
+    public List<String> getDescendingColumnNames() {
+        if (columns == null || columns.isEmpty()) {
+            return new ArrayList<>();
         }
-
-        StringBuilder sb = new StringBuilder();
-        sb.append(tableName);
-
-        if (columns != null && !columns.isEmpty()) {
-            for (IndexColumnInfo column : columns) {
-                sb.append("_").append(column.getColumnName());
-            }
-        }
-
-        if (primaryKey) {
-            sb.append("_pk");
-        } else if (unique) {
-            sb.append("_uk");
-        } else {
-            sb.append("_idx");
-        }
-
-        return sb.toString();
+        
+        return columns.stream()
+                .filter(column -> !column.isAscending())
+                .map(IndexColumnInfo::getColumnName)
+                .collect(Collectors.toList());
     }
-
+    
     /**
-     * 生成创建索引的SQL语句
+     * 获取指定位置的列信息
+     * 
+     * @param position 位置（从1开始）
+     * @return 索引列信息
      */
-    public String generateCreateIndexStatement() {
-        StringBuilder sb = new StringBuilder();
-
-        if (primaryKey) {
-            sb.append("ALTER TABLE ");
-            if (schemaName != null && !schemaName.isEmpty()) {
-                sb.append(schemaName).append(".");
-            }
-            sb.append(tableName);
-            sb.append(" ADD CONSTRAINT ").append(name);
-            sb.append(" PRIMARY KEY (");
-            sb.append(columns.stream()
-                    .map(col -> col.getColumnName())
-                    .collect(Collectors.joining(", ")));
-            sb.append(")");
-        } else {
-            sb.append("CREATE ");
-            if (unique) {
-                sb.append("UNIQUE ");
-            }
-            if (clustered) {
-                sb.append("CLUSTERED ");
-            }
-            sb.append("INDEX ").append(name);
-            sb.append(" ON ");
-            if (schemaName != null && !schemaName.isEmpty()) {
-                sb.append(schemaName).append(".");
-            }
-            sb.append(tableName).append(" (");
-
-            sb.append(columns.stream()
-                    .map(col -> {
-                        StringBuilder colSb = new StringBuilder();
-                        colSb.append(col.getColumnName());
-                        if (col.sortOrder != null && !col.sortOrder.isEmpty()) {
-                            colSb.append(" ").append(col.sortOrder);
-                        }
-                        return colSb.toString();
-                    })
-                    .collect(Collectors.joining(", ")));
-
-            sb.append(")");
-
-            if (type != null && !type.isEmpty()) {
-                sb.append(" USING ").append(type);
-            }
-
-            if (filterCondition != null && !filterCondition.isEmpty()) {
-                sb.append(" WHERE ").append(filterCondition);
-            }
+    public IndexColumnInfo getColumnAtPosition(int position) {
+        if (columns == null || columns.isEmpty()) {
+            return null;
         }
-
-        return sb.toString();
+        
+        return columns.stream()
+                .filter(column -> column.getPosition() == position)
+                .findFirst()
+                .orElse(null);
     }
-
+    
     /**
-     * 获取索引的完全限定名
+     * 检查索引是否是简单索引（只有一列）
+     * 
+     * @return 是否是简单索引
      */
-    public String getQualifiedName() {
-        if (schemaName != null && !schemaName.isEmpty()) {
-            return schemaName + "." + tableName + "." + name;
-        }
-        return tableName + "." + name;
+    public boolean isSimpleIndex() {
+        return columns != null && columns.size() == 1;
     }
-
+    
     /**
-     * 获取索引的展示信息
+     * 获取索引列数量
+     * 
+     * @return 列数量
      */
-    public String getDisplayInfo() {
-        StringBuilder sb = new StringBuilder();
-
-        if (primaryKey) {
-            sb.append("主键: ");
-        } else if (unique) {
-            sb.append("唯一索引: ");
-        } else {
-            sb.append("索引: ");
-        }
-
-        sb.append(name);
-
-        sb.append(" (");
-        if (columns != null && !columns.isEmpty()) {
-            sb.append(columns.stream()
-                    .map(col -> col.getColumnName())
-                    .collect(Collectors.joining(", ")));
-        }
-        sb.append(")");
-
-        if (type != null && !type.isEmpty()) {
-            sb.append(" [").append(type).append("]");
-        }
-
-        return sb.toString();
+    public int getColumnCount() {
+        return columns != null ? columns.size() : 0;
     }
-
 }

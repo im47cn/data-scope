@@ -6,99 +6,119 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 /**
- * 索引列信息
+ * 索引列信息实体类
  */
 @Data
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
 public class IndexColumnInfo {
-
+    
+    /**
+     * 索引列ID，使用UUID
+     */
+    private String id;
+    
     /**
      * 索引ID
      */
-    private Long indexId;
-
+    private String indexId;
+    
     /**
      * 列名
      */
     private String columnName;
-
+    
     /**
-     * 排序顺序 (ASC/DESC)
+     * 位置（从1开始）
      */
-    public String sortOrder;
-
+    private int position;
+    
     /**
-     * 序号
+     * 是否升序排序
      */
-    private Integer ordinalPosition;
-
+    private boolean ascending = true;
+    
     /**
-     * 是否升序
+     * 排序方向
      */
-    private boolean ascending;
-
+    private String sortOrder;
+    
     /**
-     * 是否表达式
+     * 列的表达式（用于函数索引）
      */
-    private boolean expression;
-
+    private String expression;
+    
     /**
-     * 表达式内容
+     * 操作符类（用于某些特殊索引类型）
      */
-    private String expressionContent;
-
+    private String operatorClass;
+    
     /**
      * 排序规则
      */
     private String collation;
-
+    
     /**
-     * 操作符类
+     * 列统计信息
      */
-    private String operatorClass;
-
+    private String statistics;
+    
     /**
-     * 是否包含在索引中
+     * 设置为降序排序
      */
-    private boolean included;
-
-    /**
-     * 获取表达式
-     */
-    public String getExpression() {
-        return expression ? expressionContent : columnName;
+    public void setDescending() {
+        this.ascending = false;
+        this.sortOrder = "DESC";
     }
-
+    
     /**
-     * 获取完整的列定义
+     * 设置为升序排序
      */
-    public String getColumnDefinition() {
+    public void setAscending() {
+        this.ascending = true;
+        this.sortOrder = "ASC";
+    }
+    
+    /**
+     * 获取排序方向描述
+     * 
+     * @return 排序方向描述
+     */
+    public String getSortDirection() {
+        return ascending ? "升序" : "降序";
+    }
+    
+    /**
+     * 判断是否是表达式列
+     * 
+     * @return 是否是表达式列
+     */
+    public boolean isExpression() {
+        return expression != null && !expression.isEmpty();
+    }
+    
+    /**
+     * 获取列描述
+     * 
+     * @return 列描述
+     */
+    public String getDescription() {
         StringBuilder sb = new StringBuilder();
-
-        // 添加列名或表达式
-        if (expression) {
-            sb.append(expressionContent);
-        } else {
-            sb.append(columnName);
-        }
-
-        // 添加排序方向
+        sb.append(columnName);
+        
         if (!ascending) {
-            sb.append(" DESC");
+            sb.append(" 降序");
         }
-
-        // 添加排序规则
-        if (collation != null && !collation.isEmpty()) {
-            sb.append(" COLLATE ").append(collation);
+        
+        if (isExpression()) {
+            sb.append(" (").append(expression).append(")");
         }
-
-        // 添加操作符类
+        
         if (operatorClass != null && !operatorClass.isEmpty()) {
-            sb.append(" ").append(operatorClass);
+            sb.append(" using ").append(operatorClass);
         }
-
+        
         return sb.toString();
     }
 }

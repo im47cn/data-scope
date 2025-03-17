@@ -1,31 +1,33 @@
 package com.domain.model.metadata;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.experimental.Accessors;
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
+
 /**
  * 外键信息实体类
- * 表示数据库表之间的外键关系
  */
 @Data
-@Builder
+@SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-@Accessors(chain = true)
 public class ForeignKeyInfo {
+    
+    /**
+     * 外键ID，使用UUID
+     */
+    private String id;
     
     /**
      * 数据源ID
      */
-    private Long dataSourceId;
+    private String dataSourceId;
     
     /**
      * 外键名称
@@ -33,52 +35,47 @@ public class ForeignKeyInfo {
     private String name;
     
     /**
-     * 包含外键的表（源表）
+     * 模式名
      */
-    private String sourceTableName;
+    private String schemaName;
     
     /**
-     * 外键引用的表（目标表）
+     * 表名
+     */
+    private String tableName;
+    
+    /**
+     * 目标模式名
+     */
+    private String targetSchemaName;
+    
+    /**
+     * 目标表名
      */
     private String targetTableName;
     
     /**
-     * 外键的更新规则
-     * 例如：CASCADE, RESTRICT, SET NULL, NO ACTION
+     * 更新规则
+     * CASCADE, RESTRICT, NO ACTION, SET NULL, SET DEFAULT
      */
     private String updateRule;
     
     /**
-     * 外键的删除规则
-     * 例如：CASCADE, RESTRICT, SET NULL, NO ACTION
+     * 删除规则
+     * CASCADE, RESTRICT, NO ACTION, SET NULL, SET DEFAULT
      */
     private String deleteRule;
     
     /**
-     * 延迟规则
+     * 延迟性
+     * INITIALLY_DEFERRED, INITIALLY_IMMEDIATE, NOT_DEFERRABLE
      */
     private String deferrability;
     
     /**
-     * 外键列映射
+     * 外键列列表
      */
-    @Builder.Default
     private List<ForeignKeyColumnInfo> columns = new ArrayList<>();
-    
-    /**
-     * 外键是否启用
-     */
-    private boolean enabled;
-    
-    /**
-     * 外键是否验证
-     */
-    private boolean validated;
-    
-    /**
-     * 外键描述/注释
-     */
-    private String description;
     
     /**
      * 创建时间
@@ -91,101 +88,124 @@ public class ForeignKeyInfo {
     private LocalDateTime updatedAt;
     
     /**
-     * 添加外键列映射
+     * 系统生成的
      */
-    public void addColumn(ForeignKeyColumnInfo columnInfo) {
-        if (columns == null) {
-            columns = new ArrayList<>();
-        }
-        columns.add(columnInfo);
+    private boolean systemGenerated;
+    
+    /**
+     * 是否启用
+     */
+    private boolean enabled = true;
+    
+    /**
+     * 状态
+     */
+    private String status;
+    
+    /**
+     * 注释
+     */
+    private String remarks;
+    
+    /**
+     * 获取外键列数量
+     * 
+     * @return 外键列数量
+     */
+    public int getColumnCount() {
+        return columns.size();
     }
     
     /**
-     * 获取源表列名列表
+     * 获取源列名列表
+     * 
+     * @return 源列名列表
      */
-    public List<String> getSourceColumnNames() {
-        if (columns == null) {
-            return new ArrayList<>();
-        }
+    public List<String> getSourceColumns() {
         return columns.stream()
                 .map(ForeignKeyColumnInfo::getSourceColumnName)
                 .collect(Collectors.toList());
     }
     
     /**
-     * 获取目标表列名列表
+     * 获取目标列名列表
+     * 
+     * @return 目标列名列表
      */
-    public List<String> getTargetColumnNames() {
-        if (columns == null) {
-            return new ArrayList<>();
-        }
+    public List<String> getTargetColumns() {
         return columns.stream()
                 .map(ForeignKeyColumnInfo::getTargetColumnName)
                 .collect(Collectors.toList());
     }
     
     /**
-     * 检查外键是否为复合外键（由多列组成）
+     * 获取外键描述信息
+     * 
+     * @return 外键描述信息
      */
-    public boolean isComposite() {
-        return columns != null && columns.size() > 1;
-    }
-    
-    /**
-     * 检查外键是否为自引用（引用自己的表）
-     */
-    public boolean isSelfReferencing() {
-        return sourceTableName != null && 
-               sourceTableName.equals(targetTableName);
-    }
-    
-    /**
-     * 获取外键映射中的第一列（简单外键场景）
-     */
-    public ForeignKeyColumnInfo getFirstColumn() {
-        if (columns == null || columns.isEmpty()) {
-            return null;
-        }
-        return columns.get(0);
-    }
-    
-    /**
-     * 检查更新规则是否为级联
-     */
-    public boolean isUpdateCascade() {
-        return "CASCADE".equalsIgnoreCase(updateRule);
-    }
-    
-    /**
-     * 检查删除规则是否为级联
-     */
-    public boolean isDeleteCascade() {
-        return "CASCADE".equalsIgnoreCase(deleteRule);
-    }
-    
-    /**
-     * 获取外键的字符串表示形式
-     */
-    @Override
-    public String toString() {
+    public String getDescription() {
         StringBuilder sb = new StringBuilder();
-        sb.append("FOREIGN KEY (");
-        sb.append(String.join(", ", getSourceColumnNames()));
-        sb.append(") REFERENCES ");
-        sb.append(targetTableName);
-        sb.append(" (");
-        sb.append(String.join(", ", getTargetColumnNames()));
-        sb.append(")");
-        
+        sb.append(tableName)
+                .append(" (")
+                .append(String.join(", ", getSourceColumns()))
+                .append(") 引用 ")
+                .append(targetTableName)
+                .append(" (")
+                .append(String.join(", ", getTargetColumns()))
+                .append(")");
+                
         if (updateRule != null && !updateRule.isEmpty()) {
-            sb.append(" ON UPDATE ").append(updateRule);
+            sb.append(", 更新:")
+              .append(updateRule);
         }
         
         if (deleteRule != null && !deleteRule.isEmpty()) {
-            sb.append(" ON DELETE ").append(deleteRule);
+            sb.append(", 删除:")
+              .append(deleteRule);
         }
         
         return sb.toString();
     }
-
+    
+    /**
+     * 判断是否指定列是否在外键列中
+     * 
+     * @param columnName 列名
+     * @return 是否在外键列中
+     */
+    public boolean containsColumn(String columnName) {
+        return columns.stream()
+                .anyMatch(col -> col.getSourceColumnName().equalsIgnoreCase(columnName));
+    }
+    
+    /**
+     * 根据位置获取外键列
+     * 
+     * @param ordinalPosition 位置（从1开始）
+     * @return 外键列
+     */
+    public ForeignKeyColumnInfo getColumnByPosition(int ordinalPosition) {
+        return columns.stream()
+                .filter(col -> col.getOrdinalPosition() == ordinalPosition)
+                .findFirst()
+                .orElse(null);
+    }
+    
+    /**
+     * 添加外键列
+     * 
+     * @param columnInfo 外键列信息
+     */
+    public void addColumn(ForeignKeyColumnInfo columnInfo) {
+        columns.add(columnInfo);
+    }
+    
+    /**
+     * 设置外键列列表
+     * 
+     * @param columns 外键列列表
+     */
+    public void setColumns(List<ForeignKeyColumnInfo> columns) {
+        this.columns = columns != null ? columns : new ArrayList<>();
+    }
 }

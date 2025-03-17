@@ -1,25 +1,24 @@
-package com.domain.model.query;
+package com.facade.dto;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Map;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.experimental.SuperBuilder;
 
 /**
- * 保存的查询实体
+ * 保存的查询DTO
  */
 @Data
-@SuperBuilder
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class SavedQuery {
+public class SavedQueryDTO {
     
     /**
-     * 主键ID
+     * 查询ID
      */
     private String id;
     
@@ -27,6 +26,11 @@ public class SavedQuery {
      * 数据源ID
      */
     private String dataSourceId;
+    
+    /**
+     * 数据源名称
+     */
+    private String dataSourceName;
     
     /**
      * 查询名称
@@ -69,14 +73,14 @@ public class SavedQuery {
     private Integer displayOrder;
     
     /**
-     * 标签
+     * 创建者ID
      */
-    private List<String> tags;
+    private String createdById;
     
     /**
-     * 乐观锁版本号
+     * 创建者名称
      */
-    private Long nonce;
+    private String createdByName;
     
     /**
      * 创建时间
@@ -99,12 +103,7 @@ public class SavedQuery {
     private Long executionCount;
     
     /**
-     * 创建者
+     * 标签
      */
-    private String createdBy;
-    
-    /**
-     * 更新者
-     */
-    private String updatedBy;
+    private String[] tags;
 }

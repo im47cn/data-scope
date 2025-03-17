@@ -2,6 +2,7 @@ package com.domain.model;
 
 import java.time.LocalDateTime;
 import java.util.Map;
+import java.util.Set;
 
 import com.common.enums.DataSourceType;
 
@@ -10,6 +11,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * 数据源领域模型
+ */
 @Data
 @Builder
 @NoArgsConstructor
@@ -32,12 +36,12 @@ public class DataSource {
     private DataSourceType type;
     
     /**
-     * 主机地址
+     * 数据库主机地址
      */
     private String host;
     
     /**
-     * 端口号
+     * 数据库端口号
      */
     private Integer port;
     
@@ -50,42 +54,47 @@ public class DataSource {
      * 用户名
      */
     private String username;
-
+    
     /**
-     * 密码
+     * 密码（未加密）
      */
     private String password;
-
+    
     /**
      * 加密后的密码
      */
     private String encryptedPassword;
-
+    
     /**
      * 加密盐值
      */
     private String encryptionSalt;
-
+    
     /**
      * 连接属性
      */
     private Map<String, String> connectionProperties;
-
-    /**
-     * 最后同步时间
-     */
-    private LocalDateTime lastSyncTime;
-
+    
     /**
      * 是否启用
      */
     private Boolean enabled;
-
+    
     /**
-     * 描述
+     * 描述信息
      */
     private String description;
-
+    
+    /**
+     * 最后同步时间
+     */
+    private LocalDateTime lastSyncTime;
+    
+    /**
+     * 最后连接时间
+     */
+    private LocalDateTime lastConnectedAt;
+    
     /**
      * 创建时间
      */
@@ -97,68 +106,45 @@ public class DataSource {
     private LocalDateTime updatedAt;
     
     /**
-     * 最后连接时间
-     */
-    private LocalDateTime lastConnectedAt;
-    
-    /**
-     * 最后同步时间
-     */
-    private LocalDateTime lastSyncedAt;
-    
-    /**
      * 标签
      */
-    private String[] tags;
-
+    private Set<String> tags;
+    
     /**
-     * 获取JDBC URL
-     */
-    public String getJdbcUrl() {
-        switch (type) {
-            case MYSQL:
-                return "jdbc:mysql://" + host + ":" + port + "/" + databaseName;
-            case DB2:
-                return "jdbc:db2://" + host + ":" + port + "/" + databaseName;
-            case ORACLE:
-                return "jdbc:oracle:thin:@" + host + ":" + port + ":" + databaseName;
-            case POSTGRESQL:
-                return "jdbc:postgresql://" + host + ":" + port + "/" + databaseName;
-            case SQLSERVER:
-                return "jdbc:sqlserver://" + host + ":" + port + ";databaseName=" + databaseName;
-            default:
-                throw new IllegalArgumentException("不支持的数据源类型: " + type);
-        }
-    }
-
-    /**
-     * 获取驱动类名
+     * 获取数据库驱动类名
+     * @return 数据库驱动类名
      */
     public String getDriverClassName() {
+        if (type == null) {
+            return null;
+        }
+        
         switch (type) {
             case MYSQL:
                 return "com.mysql.cj.jdbc.Driver";
             case DB2:
                 return "com.ibm.db2.jcc.DB2Driver";
-            case ORACLE:
-                return "oracle.jdbc.OracleDriver";
-            case POSTGRESQL:
-                return "org.postgresql.Driver";
-            case SQLSERVER:
-                return "com.microsoft.sqlserver.jdbc.SQLServerDriver";
             default:
                 throw new IllegalArgumentException("不支持的数据源类型: " + type);
         }
     }
-
+    
     /**
-     * 判断数据源是否需要进行元数据同步
-     *
-     * @return 如果需要同步返回true，否则返回false
+     * 获取JDBC URL
+     * @return JDBC连接URL
      */
-    public boolean needSync() {
-        return lastSyncTime == null ||
-                LocalDateTime.now().minusDays(1).isAfter(lastSyncTime);
+    public String getJdbcUrl() {
+        if (type == null || host == null || port == null || databaseName == null) {
+            return null;
+        }
+        
+        switch (type) {
+            case MYSQL:
+                return String.format("jdbc:mysql://%s:%d/%s", host, port, databaseName);
+            case DB2:
+                return String.format("jdbc:db2://%s:%d/%s", host, port, databaseName);
+            default:
+                throw new IllegalArgumentException("不支持的数据源类型: " + type);
+        }
     }
-
 }

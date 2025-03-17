@@ -1,22 +1,26 @@
-package com.domain.model.metadata;
+package com.facade.dto;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.experimental.SuperBuilder;
 
 /**
- * 数据库模式信息
+ * 数据库模式信息DTO
  */
 @Data
-@SuperBuilder
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class SchemaInfo {
-
+public class SchemaInfoDTO {
+    
+    /**
+     * 模式ID
+     */
+    private String id;
+    
     /**
      * 数据源ID
      */
@@ -28,24 +32,24 @@ public class SchemaInfo {
     private String name;
     
     /**
-     * 模式描述
+     * 描述信息
      */
     private String description;
     
     /**
-     * 表信息列表
+     * 表数量
      */
-    private List<TableInfo> tables;
+    private Integer tableCount;
+    
+    /**
+     * 视图数量
+     */
+    private Integer viewCount;
     
     /**
      * 最后同步时间
      */
     private LocalDateTime lastSyncTime;
-    
-    /**
-     * 是否默认模式
-     */
-    private Boolean isDefault;
     
     /**
      * 创建时间
