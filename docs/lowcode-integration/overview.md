@@ -1,382 +1,287 @@
-# DataScope低代码集成模块 - 系统总览
+# 低代码集成模块概述
 
-本文档提供DataScope低代码集成模块的整体架构、核心组件和设计理念的全面概述，是实施和开发的顶层指南。
+## 1. 模块简介
 
-## 1. 模块目标
+### 1.1 目的
+低代码集成模块旨在提供标准化、灵活且安全的接口机制，使系统能够无缝集成到各种低代码开发平台，让用户可以在低代码应用中直接利用数据查询、分析和可视化能力，而无需复杂的编码。
 
-低代码集成模块旨在实现以下目标：
+### 1.2 范围
+低代码集成模块包括数据绑定引擎、组件封装器、事件处理器、版本控制系统和集成API等核心组件，覆盖从API设计到UI组件集成的全流程。
 
-- 提供DataScope系统与低代码开发平台的无缝集成能力
-- 支持查询结果和配置的双向同步
-- 实现参数化查询和动态数据绑定
-- 提供稳定、可扩展、高效的集成接口
-- 确保数据一致性和安全性
-- 简化开发流程，提高开发效率
+### 1.3 核心价值
+- 降低系统集成门槛，提高开发效率
+- 实现数据分析能力的模块化复用
+- 标准化数据访问和操作接口
+- 保障跨平台一致性体验
+- 使非开发人员能够构建数据驱动应用
 
-## 2. 系统架构
+## 2. 核心功能
 
-### 2.1 整体架构
+### 2.1 标准化集成接口
+- RESTful API接口设计
+- 数据服务契约定义
+- 批量和实时数据访问
+- 认证和授权机制
+- 错误处理和状态管理
 
-```mermaid
-graph TB
-    subgraph "DataScope系统"
-        DS[数据源管理] --> MD[元数据服务]
-        MD --> QB[查询构建器]
-        QB --> QE[查询执行引擎]
-        QE --> QR[查询结果]
-        QB --> SQ[存储查询]
-        NL[自然语言处理] --> QB
-    end
-    
-    subgraph "低代码集成模块"
-        API[REST API层] <--> QR
-        API <--> SQ
-        API <--> VS[版本控制服务]
-        VS <--> SQ
-        WH[WebHook服务] <--> API
-        WH --> EQ[事件队列]
-        WH <-- 事件通知 --> LCP
-        API <--> BS[数据绑定服务]
-        BS <--> TS[数据转换服务]
-        BS <--> SS[同步服务]
-        API <--> Auth[认证授权]
-    end
-    
-    subgraph "低代码平台"
-        LCP[低代码平台] <--> API
-        LCP <--> APP[应用组件]
-        APP <--> UI[UI组件]
-    end
-    
-    style 低代码集成模块 fill:#f5f5f5,stroke:#333,stroke-width:2px
-```
+### 2.2 组件封装与注册
+- 查询构建器组件封装
+- 数据可视化组件封装
+- 表单与数据绑定组件
+- 自定义UI控件
+- 组件版本管理
 
-### 2.2 分层架构
+### 2.3 数据绑定与流转
+- 组件间数据绑定机制
+- 数据源动态配置
+- 数据格式自动转换
+- 双向数据更新
+- 上下文状态共享
 
-低代码集成模块采用DDD架构设计，分为以下层次：
+### 2.4 事件处理和生命周期
+- 组件生命周期事件
+- 查询执行事件
+- 用户交互事件
+- 错误和异常事件
+- 跨组件事件通信
 
-```mermaid
-graph TB
-    subgraph "外部接口层 (Facade)"
-        REST[REST API控制器]
-        DTOs[数据传输对象]
-        Auth[认证过滤器]
-    end
-    
-    subgraph "应用层 (Application)"
-        Services[业务服务]
-        Events[事件处理]
-        Mappers[对象映射]
-    end
-    
-    subgraph "领域层 (Domain)"
-        Models[领域模型]
-        Aggregates[聚合]
-        Repos[仓库接口]
-        Services2[领域服务]
-    end
-    
-    subgraph "基础设施层 (Infrastructure)"
-        DB[数据库实现]
-        Cache[缓存实现]
-        Queue[消息队列]
-        External[外部服务]
-    end
-    
-    REST --> Services
-    DTOs --> Mappers
-    Auth --> Services
-    Services --> Models
-    Services --> Repos
-    Services --> Services2
-    Events --> Models
-    Events --> Services
-    Repos --> DB
-    Services --> Cache
-    Events --> Queue
-    Services --> External
-```
+### 2.5 版本控制与部署
+- 组件版本管理
+- API版本控制
+- 增量更新机制
+- 向后兼容性保障
+- 部署配置管理
 
 ## 3. 核心组件
 
-DataScope低代码集成模块由四个核心组件组成，每个组件负责特定的集成功能：
+### 3.1 [数据绑定引擎](./data-binding-design.md)
+数据绑定引擎负责管理低代码环境中组件与数据源之间的连接，处理数据映射、转换和同步，确保数据流的一致性和可靠性。
 
-### 3.1 版本控制服务
+### 3.2 [组件封装器](./component-wrapper-design.md)
+组件封装器将系统核心功能封装为可在低代码平台使用的标准组件，处理渲染、状态管理和事件响应。
 
-版本控制服务负责管理查询和API配置的版本历史，支持版本比较、回滚和发布管理。
+### 3.3 [REST API服务](./rest-api-design.md)
+REST API服务提供标准化的HTTP接口，用于低代码平台访问系统功能和数据，包括认证、查询执行和元数据服务。
 
-**主要功能**：
-- 查询与API版本管理
-- 版本差异比较
-- 版本回滚
-- 协作编辑支持
-- 历史追踪
+### 3.4 [Webhook机制](./webhook-mechanism-design.md)
+Webhook机制允许系统在发生特定事件时通知低代码平台，实现数据变更的实时同步和事件驱动架构。
 
-**详细设计**：[版本控制设计文档](./version-control-design.md)
+### 3.5 [版本控制系统](./version-control-design.md)
+版本控制系统管理API和组件的版本演进，确保在系统升级的同时保持与现有低代码应用的兼容性。
 
-### 3.2 WebHook机制
+### 3.6 [实现指南](./implementation-guide.md)
+实现指南提供面向低代码平台开发者的详细集成文档，包括示例代码、最佳实践和故障排除。
 
-WebHook机制提供基于事件的实时通知系统，支持低代码平台与DataScope之间的实时事件通知。
+## 4. 架构设计
 
-**主要功能**：
-- 事件定义与分发
-- 可靠的通知机制
-- 安全的数据传输
-- 自定义事件过滤
-- 重试与监控
-
-**详细设计**：[WebHook机制设计文档](./webhook-mechanism-design.md)
-
-### 3.3 REST API接口
-
-REST API接口提供标准化的资源访问方式，支持查询配置、执行和结果获取等功能。
-
-**主要功能**：
-- 查询管理API
-- 版本控制API
-- 数据绑定API
-- 元数据访问API
-- 认证与授权
-
-**详细设计**：[REST API接口设计文档](./rest-api-design.md)
-
-### 3.4 数据绑定与同步
-
-数据绑定与同步机制提供DataScope数据与低代码组件的映射和同步功能。
-
-**主要功能**：
-- 单向/双向数据绑定
-- 数据格式转换
-- 冲突检测与解决
-- 实时数据同步
-- 参数化查询绑定
-
-**详细设计**：[数据绑定设计文档](./data-binding-design.md)
-
-## 4. 组件间关系
-
-四个核心组件之间的关系和协作方式：
-
-```mermaid
-graph LR
-    REST[REST API接口] --> VC[版本控制服务]
-    REST --> DB[数据绑定服务]
-    REST --> WH[WebHook服务]
-    
-    DB --> VC
-    VC --> WH
-    
-    WH -- 事件通知 --> DB
-    DB -- 数据变更 --> WH
-    
-    subgraph "外部集成点"
-        LC[低代码平台]
-    end
-    
-    REST <--> LC
-    WH --> LC
-```
-
-### 4.1 协作场景
-
-1. **查询创建与版本管理**：
-   - REST API接收查询创建请求
-   - 版本控制服务创建初始版本
-   - WebHook发送创建事件通知
-   - 低代码平台接收通知并更新
-
-2. **数据绑定与同步**：
-   - 低代码平台通过REST API创建数据绑定
-   - 数据绑定服务设置初始映射和转换规则
-   - 当数据变更时，WebHook发送通知
-   - 低代码平台接收通知并更新UI
-
-3. **查询执行与结果获取**：
-   - 低代码平台通过REST API执行查询
-   - 执行结果通过REST API返回
-   - 如配置了实时同步，WebSocket推送结果更新
-
-## 5. 安全架构
-
-### 5.1 认证与授权
-
+### 4.1 模块架构
 ```mermaid
 graph TB
-    subgraph "请求流程"
-        R[请求] --> AF[认证过滤器]
-        AF --> JF[JWT验证]
-        JF --> PF[权限过滤器]
-        PF --> RBAC[基于角色访问控制]
-        RBAC --> ABAC[基于属性访问控制]
-        ABAC --> RS[资源服务]
+    subgraph 低代码集成模块
+        BindingEngine[数据绑定引擎]
+        ComponentWrapper[组件封装器]
+        APIService[REST API服务]
+        WebhookService[Webhook机制]
+        VersionControl[版本控制系统]
+        IntegrationSDK[集成SDK]
+        
+        ComponentWrapper --> BindingEngine
+        BindingEngine --> APIService
+        APIService --> WebhookService
+        VersionControl --> APIService
+        VersionControl --> ComponentWrapper
+        IntegrationSDK --> APIService
+        IntegrationSDK --> WebhookService
     end
     
-    subgraph "用户角色"
-        Admin[管理员]
-        Dev[开发者]
-        Analyst[分析师]
-        Viewer[查看者]
-        API[API客户端]
+    subgraph 外部系统
+        LowCode[低代码平台]
+        QueryService[查询服务]
+        MetadataService[元数据服务]
+        AIAssistant[AI辅助服务]
     end
     
-    Admin --> RBAC
-    Dev --> RBAC
-    Analyst --> RBAC
-    Viewer --> RBAC
-    API --> RBAC
+    LowCode --> ComponentWrapper
+    LowCode --> IntegrationSDK
+    APIService --> QueryService
+    APIService --> MetadataService
+    APIService --> AIAssistant
+    WebhookService --> LowCode
 ```
 
-### 5.2 数据安全
-
-- 所有API通信使用HTTPS加密
-- 敏感数据（如连接凭证）在传输和存储时加密
-- WebHook请求使用HMAC签名验证
-- 支持数据过滤和脱敏
-- 细粒度访问控制到资源级别
-
-## 6. 性能优化策略
-
-- **缓存机制**：对频繁访问的数据和查询结果实施缓存
-- **批量处理**：支持批量操作API减少请求次数
-- **增量同步**：只同步发生变化的数据
-- **分页与懒加载**：大数据集的优化加载策略
-- **异步处理**：使用消息队列处理时间长的操作
-- **资源限制**：防止资源滥用的限制策略
-
-## 7. 扩展性设计
-
-### 7.1 插件架构
-
-```mermaid
-graph TB
-    Core[核心服务] --> PluginManager[插件管理器]
-    PluginManager --> P1[转换器插件]
-    PluginManager --> P2[认证插件]
-    PluginManager --> P3[同步插件]
-    PluginManager --> P4[自定义插件]
-    
-    P1 --> T1[格式转换器]
-    P1 --> T2[映射转换器]
-    P1 --> T3[验证转换器]
-    
-    P3 --> S1[实时同步]
-    P3 --> S2[批量同步]
-    P3 --> S3[定时同步]
-```
-
-### 7.2 事件驱动架构
-
-系统采用事件驱动架构，支持松耦合的组件交互：
-
-```mermaid
-graph LR
-    src1[查询服务] -- 查询执行事件 --> EQ[事件队列]
-    src2[数据绑定服务] -- 数据更新事件 --> EQ
-    src3[版本控制服务] -- 版本变更事件 --> EQ
-    
-    EQ --> c1[WebHook处理器]
-    EQ --> c2[同步处理器]
-    EQ --> c3[通知处理器]
-    EQ --> c4[日志处理器]
-```
-
-## 8. 集成模式
-
-### 8.1 支持的集成模式
-
-1. **API集成模式**：
-   - 低代码平台通过REST API直接访问DataScope资源
-   - 适合简单的查询执行和数据获取场景
-
-2. **WebHook驱动模式**：
-   - 通过WebHook实现事件驱动的集成
-   - 适合需要实时通知的场景
-
-3. **数据绑定模式**：
-   - 通过数据绑定实现组件与数据的映射
-   - 适合需要数据同步的场景
-
-4. **混合集成模式**：
-   - 综合使用上述三种模式
-   - 适合复杂的企业应用场景
-
-### 8.2 集成流程
-
+### 4.2 数据流
 ```mermaid
 sequenceDiagram
     participant LC as 低代码平台
-    participant API as REST API
-    participant DS as DataScope核心
-    participant WH as WebHook服务
+    participant API as REST API服务
+    participant BE as 数据绑定引擎
+    participant CW as 组件封装器
+    participant QS as 查询服务
+    participant WH as Webhook服务
     
-    LC->>API: 认证和获取资源列表
-    API->>LC: 返回可用资源
+    LC->>API: 认证请求
+    API-->>LC: 返回令牌
     
-    LC->>API: 创建数据绑定
-    API->>DS: 设置绑定规则
-    DS->>API: 确认绑定创建
-    API->>LC: 返回绑定配置
+    LC->>CW: 初始化组件
+    CW->>BE: 配置数据绑定
+    BE->>API: 请求元数据
+    API-->>BE: 返回元数据
+    BE-->>CW: 完成绑定配置
+    CW-->>LC: 组件就绪
     
-    LC->>API: 获取初始数据
-    API->>DS: 执行查询
-    DS->>API: 返回查询结果
-    API->>LC: 返回初始数据
+    LC->>CW: 用户交互(如查询)
+    CW->>BE: 处理数据请求
+    BE->>API: 执行查询
+    API->>QS: 转发查询
+    QS-->>API: 返回结果
+    API-->>BE: 传递结果
+    BE-->>CW: 更新组件状态
+    CW-->>LC: 显示结果
     
-    Note over DS: 数据变更发生
-    DS->>WH: 触发数据变更事件
-    WH->>LC: 发送WebHook通知
-    LC->>API: 请求最新数据
-    API->>DS: 获取最新数据
-    DS->>API: 返回最新数据
-    API->>LC: 返回更新数据
+    QS->>WH: 数据变更通知
+    WH->>LC: 推送Webhook事件
+    LC->>CW: 更新相关组件
 ```
 
-## 9. 客户端SDK
+## 5. 关键技术
 
-为简化集成开发，提供多种语言的客户端SDK：
+### 5.1 接口技术
+- RESTful API设计原则
+- OpenAPI/Swagger规范
+- API网关与服务路由
+- 数据序列化格式
+- 协议缓冲和gRPC
 
-1. **JavaScript SDK**：适用于Web前端开发
-2. **Java SDK**：适用于Java后端集成
-3. **React组件库**：提供开箱即用的React组件
-4. **Vue组件库**：提供开箱即用的Vue组件
+### 5.2 组件技术
+- Web Components标准
+- 响应式UI框架
+- 状态管理模式
+- 微前端架构
+- 组件沙箱隔离
 
-SDK提供的核心功能：
-- 认证和会话管理
-- 资源访问和操作
-- 数据绑定配置
-- WebSocket连接管理
-- 错误处理和重试
+### 5.3 集成技术
+- OAuth/OIDC认证
+- CORS和安全策略
+- WebSocket实时通信
+- 服务发现机制
+- API版本控制策略
 
-## 10. 实施路线图
+## 6. 与其他模块的关系
 
-低代码集成模块的实施计划分为以下阶段：
+### 6.1 与查询构建模块的关系
+- 封装查询构建器为低代码组件
+- 利用查询模型实现数据绑定
+- 在低代码环境中复用查询模板
+- 传递查询参数和执行指令
 
-### 10.1 阶段一：基础架构与核心API（1-2周）
-- 实现REST API基础架构
-- 设计并实现认证授权机制
-- 开发核心数据模型
-- 实现基本查询管理API
+### 6.2 与查询执行引擎的关系
+- 通过API代理查询执行请求
+- 管理查询执行状态和结果
+- 处理异步查询通知
+- 控制查询资源分配
 
-### 10.2 阶段二：版本控制与WebHook（2-3周）
-- 实现版本控制服务
-- 开发WebHook注册和管理
-- 实现基本事件通知
-- 开发重试和监控机制
+### 6.3 与元数据管理模块的关系
+- 提供元数据浏览和选择组件
+- 同步元数据变更通知
+- 利用元数据实现智能数据绑定
+- 基于元数据生成表单控件
 
-### 10.3 阶段三：数据绑定与同步（3-4周）
-- 实现数据绑定模型
-- 开发数据转换服务
-- 实现冲突检测和解决
-- 开发同步服务和WebSocket支持
+### 6.4 与AI辅助模块的关系
+- 集成AI生成的数据见解
+- 提供自然语言查询界面
+- 在低代码组件中展示推荐
+- 利用上下文增强AI理解
 
-### 10.4 阶段四：客户端SDK与文档（2周）
-- 开发JavaScript客户端SDK
-- 实现React和Vue组件库
-- 编写全面的API文档
-- 开发示例应用和集成指南
+## 7. 技术选型与实现考量
 
-## 11. 总结
+### 7.1 前端技术
+- Web Components (组件封装)
+- React (UI库)
+- Redux/MobX (状态管理)
+- D3.js/ECharts (数据可视化)
+- StencilJS/Lit (组件编译)
 
-DataScope低代码集成模块提供全面的集成能力，实现DataScope系统与低代码平台的无缝对接。通过四个核心组件的协同工作，系统能够支持各种集成场景，满足企业对数据驱动应用的需求。
+### 7.2 后端技术
+- Spring Boot (API实现)
+- Express.js (轻量级服务)
+- JSON Schema (数据验证)
+- Kong/Tyk (API网关)
+- Redis (缓存层)
 
-本设计考虑了系统的性能、安全性、扩展性和可维护性，提供了清晰的实施路线和最佳实践指南，为开发团队提供了实现参考。
+### 7.3 通信技术
+- RESTful HTTP API
+- WebSocket
+- Server-Sent Events
+- GraphQL (高级数据查询)
+- Webhook推送
+
+## 8. 安全与合规
+
+### 8.1 接口安全
+- API认证和授权
+- 令牌管理和刷新
+- 请求限流和防护
+- API密钥轮换
+- 参数验证和清洁
+
+### 8.2 组件安全
+- 组件隔离机制
+- 跨站脚本防护
+- 数据访问控制
+- 用户操作审计
+- 敏感数据处理
+
+### 8.3 合规考量
+- 数据使用追踪
+- 接口合规文档
+- 隐私保护机制
+- 访问控制与权限
+- 审计日志记录
+
+## 9. 扩展性设计
+
+### 9.1 扩展点
+- 自定义组件注册
+- 插件式数据转换器
+- 自定义认证提供者
+- 事件处理扩展
+- 主题和样式定制
+
+### 9.2 适配策略
+- 低代码平台适配器模式
+- 组件接口标准化
+- 数据协议兼容层
+- 特性检测与降级
+- 配置驱动的集成
+
+## 10. 性能与可靠性
+
+### 10.1 性能目标
+- API响应时间 < 200ms
+- 组件初始化时间 < 300ms
+- 支持每秒50+API请求
+- 组件渲染更新 < 100ms
+- Webhook发送延迟 < 500ms
+
+### 10.2 可靠性保障
+- 接口降级策略
+- 组件错误边界
+- 请求重试机制
+- 缓存策略优化
+- 状态一致性保证
+
+## 11. 未来发展
+
+### 11.1 短期路线图
+- 扩展支持更多低代码平台
+- 增强组件配置的灵活性
+- 改进数据绑定性能
+- 提供更丰富的可视化组件
+- 简化集成配置流程
+
+### 11.2 长期规划
+- AI驱动的低代码界面生成
+- 跨平台组件标准化
+- 实时协作数据分析
+- 端到端集成测试框架
+- 统一的集成监控系统
