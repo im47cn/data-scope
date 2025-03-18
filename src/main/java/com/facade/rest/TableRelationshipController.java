@@ -1,237 +1,139 @@
 package com.facade.rest;
 
-import com.domain.model.metadata.SchemaInfo;
 import com.domain.model.metadata.TableRelationship;
-import com.domain.model.query.QueryHistory;
-import com.domain.repository.QueryHistoryRepository;
-import com.domain.service.DataSourceService;
 import com.domain.service.TableRelationshipService;
-import com.facade.rest.dto.TableRelationshipDTO;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
+import com.facade.dto.TableRelationshipDTO;
+import java.util.List;
+
+import com.infrastructure.persistence.mapper.TableRelationshipMapper;
+import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.stream.Collectors;
+import javax.validation.Valid;
 
-/**
- * 表关系REST控制器
- */
-@Slf4j
 @RestController
-@RequestMapping("/api/table-relationships")
+@RequestMapping("/api/v1/table-relationships")
+@RequiredArgsConstructor
 public class TableRelationshipController {
 
-    @Autowired
-    private TableRelationshipService tableRelationshipService;
-    
-    @Autowired
-    private DataSourceService dataSourceService;
-    
-    @Autowired
-    private QueryHistoryRepository queryHistoryRepository;
-    
-    /**
-     * 获取数据源的所有表关系
-     */
-    @GetMapping
-    public ResponseEntity<List<TableRelationshipDTO>> getAllTableRelationships(
-            @RequestParam String dataSourceId) {
-        List<TableRelationship> relationships = tableRelationshipService.getAllTableRelationships(dataSourceId);
-        List<TableRelationshipDTO> dtos = relationships.stream()
-                .map(this::toDTO)
-                .collect(Collectors.toList());
-        return ResponseEntity.ok(dtos);
-    }
-    
-    /**
-     * 获取指定表的所有关系
-     */
-    @GetMapping("/tables/{tableName}")
-    public ResponseEntity<List<TableRelationshipDTO>> getTableRelationships(
-            @RequestParam String dataSourceId,
-            @PathVariable String tableName) {
-        List<TableRelationship> relationships = tableRelationshipService.getTableRelationships(dataSourceId, tableName);
-        List<TableRelationshipDTO> dtos = relationships.stream()
-                .map(this::toDTO)
-                .collect(Collectors.toList());
-        return ResponseEntity.ok(dtos);
-    }
-    
-    /**
-     * 获取指定ID的表关系
-     */
-    @GetMapping("/{id}")
-    public ResponseEntity<TableRelationshipDTO> getTableRelationship(@PathVariable String id) {
-        TableRelationship relationship = tableRelationshipService.findById(id);
-        if (relationship == null) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(toDTO(relationship));
-    }
-    
-    /**
-     * 创建表关系
-     */
+    private static final Logger logger = LoggerFactory.getLogger(TableRelationshipController.class);
+
+    private final TableRelationshipService tableRelationshipService;
+    private final TableRelationshipMapper tableRelationshipMapper;
+
     @PostMapping
-    public ResponseEntity<TableRelationshipDTO> createTableRelationship(
-            @RequestBody TableRelationshipDTO dto) {
-        TableRelationship relationship = fromDTO(dto);
-        relationship.setRelationSource(TableRelationship.RelationshipSource.USER_FEEDBACK);
-        TableRelationship savedRelationship = tableRelationshipService.learnFromUserFeedback(
-                relationship.getDataSourceId(),
-                relationship.getSourceTableName(),
-                relationship.getSourceColumnNames(),
-                relationship.getTargetTableName(),
-                relationship.getTargetColumnNames(),
-                relationship.getRelationType());
-        return ResponseEntity.status(HttpStatus.CREATED).body(toDTO(savedRelationship));
+    public ResponseEntity<TableRelationshipDTO> createRelationship(
+            @Valid @RequestBody TableRelationshipDTO relationshipDTO) {
+        logger.info("Creating new table relationship: {}", relationshipDTO);
+        TableRelationship relationship = tableRelationshipMapper.toEntity(relationshipDTO);
+        TableRelationship createdRelationship = tableRelationshipService.createRelationship(relationship);
+        return ResponseEntity.ok(tableRelationshipMapper.toDTO(createdRelationship));
     }
-    
-    /**
-     * 更新表关系
-     */
+
     @PutMapping("/{id}")
-    public ResponseEntity<TableRelationshipDTO> updateTableRelationship(
+    public ResponseEntity<TableRelationshipDTO> updateRelationship(
             @PathVariable String id,
-            @RequestBody TableRelationshipDTO dto) {
-        // 检查是否存在
-        TableRelationship existingRelationship = tableRelationshipService.findById(id);
-        if (existingRelationship == null) {
-            return ResponseEntity.notFound().build();
-        }
-        
-        // 更新关系
-        TableRelationship relationship = fromDTO(dto);
-        relationship.setId(id);
-        relationship.setRelationSource(TableRelationship.RelationshipSource.USER_FEEDBACK);
-        TableRelationship updatedRelationship = tableRelationshipService.saveTableRelationship(relationship);
-        return ResponseEntity.ok(toDTO(updatedRelationship));
+            @Valid @RequestBody TableRelationshipDTO relationshipDTO) {
+        logger.info("Updating table relationship with ID: {}", id);
+        TableRelationship relationship = tableRelationshipMapper.toEntity(relationshipDTO);
+        relationship.setId(id); // Ensure ID is set from the path variable
+        TableRelationship updatedRelationship = tableRelationshipService.updateRelationship(relationship);
+        return ResponseEntity.ok(tableRelationshipMapper.toDTO(updatedRelationship));
     }
-    
-    /**
-     * 删除表关系
-     */
+
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteTableRelationship(@PathVariable String id) {
-        // 检查是否存在
-        TableRelationship existingRelationship = tableRelationshipService.findById(id);
-        if (existingRelationship == null) {
-            return ResponseEntity.notFound().build();
-        }
-        
-        // 删除关系
-        tableRelationshipService.deleteTableRelationship(id);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<Void> deleteRelationship(@PathVariable String id) {
+        logger.info("Deleting table relationship with ID: {}", id);
+        tableRelationshipService.deleteRelationship(id);
+        return ResponseEntity.ok().build();
     }
-    
-    /**
-     * 从元数据学习表关系
-     */
-    @PostMapping("/learn-from-metadata")
-    public ResponseEntity<List<TableRelationshipDTO>> learnFromMetadata(
-            @RequestParam String dataSourceId,
-            @RequestParam String schemaName) {
-        try {
-            // 获取数据源的模式信息
-            SchemaInfo schemaInfo = dataSourceService.getSchemaInfo(dataSourceId, schemaName);
-            
-            // 从元数据学习表关系
-            List<TableRelationship> relationships = tableRelationshipService.learnFromMetadata(dataSourceId, schemaInfo);
-            
-            // 转换为DTO
-            List<TableRelationshipDTO> dtos = relationships.stream()
-                    .map(this::toDTO)
-                    .collect(Collectors.toList());
-            
-            return ResponseEntity.ok(dtos);
-        } catch (Exception e) {
-            log.error("从元数据学习表关系失败", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
-    }
-    
-    /**
-     * 从查询历史学习表关系
-     */
-    @PostMapping("/learn-from-query-history")
-    public ResponseEntity<List<TableRelationshipDTO>> learnFromQueryHistory(
+
+    @GetMapping
+    public ResponseEntity<List<TableRelationshipDTO>> getAllRelationships(
             @RequestParam String dataSourceId) {
+        logger.info("Getting all table relationships for data source ID: {}", dataSourceId);
+        List<TableRelationship> relationships = tableRelationshipService.findByDataSourceId(dataSourceId);
+        return ResponseEntity.ok(tableRelationshipMapper.toDTOList(relationships));
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<TableRelationshipDTO>> searchRelationships(
+        @RequestParam(required = false) String sourceTable,
+        @RequestParam(required = false) String targetTable,
+        @RequestParam(required = false) String relationType) {
+        logger.info("Searching table relationships with sourceTable={}, targetTable={}, relationType={}",
+                sourceTable, targetTable, relationType);
+        List<TableRelationship> relationships = tableRelationshipService.searchRelationships(
+                sourceTable, targetTable, relationType);
+        return ResponseEntity.ok(tableRelationshipMapper.toDTOList(relationships));
+    }
+
+    @GetMapping("/suggest")
+    public ResponseEntity<List<TableRelationshipDTO>> suggestRelationships(
+            @RequestParam String dataSourceId,
+            @RequestParam String tableName) {
+        logger.info("Suggesting table relationships for data source ID: {} and table: {}", dataSourceId, tableName);
+        List<TableRelationship> relationships = tableRelationshipService.suggestRelationships(dataSourceId, tableName);
+        return ResponseEntity.ok(tableRelationshipMapper.toDTOList(relationships));
+    }
+
+    @PostMapping("/learn/metadata")
+    public ResponseEntity<Void> learnFromMetadata(@RequestParam String dataSourceId) {
+        logger.info("Learning table relationships from metadata for data source ID: {}", dataSourceId);
         try {
-            // 获取数据源的查询历史
-            List<QueryHistory> queryHistories = queryHistoryRepository.findByDataSourceIdOrderByCreatedAtDesc(dataSourceId);
-            
-            // 从查询历史学习表关系
-            List<TableRelationship> relationships = tableRelationshipService.learnFromQueryHistory(dataSourceId, queryHistories);
-            
-            // 转换为DTO
-            List<TableRelationshipDTO> dtos = relationships.stream()
-                    .map(this::toDTO)
-                    .collect(Collectors.toList());
-            
-            return ResponseEntity.ok(dtos);
+            tableRelationshipService.learnFromMetadata(dataSourceId);
+            return ResponseEntity.ok().build();
         } catch (Exception e) {
-            log.error("从查询历史学习表关系失败", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            logger.error("从元数据学习表关系失败", e);
+            return ResponseEntity.internalServerError().build();
         }
     }
-    
-    /**
-     * 推荐表关系
-     */
-    @GetMapping("/recommendations")
-    public ResponseEntity<List<TableRelationshipDTO>> recommendRelationships(
-            @RequestParam String dataSourceId,
-            @RequestParam String tableName,
-            @RequestParam(defaultValue = "5") int limit) {
-        List<TableRelationship> relationships = tableRelationshipService.recommendRelationships(dataSourceId, tableName, limit);
-        List<TableRelationshipDTO> dtos = relationships.stream()
-                .map(this::toDTO)
-                .collect(Collectors.toList());
-        return ResponseEntity.ok(dtos);
+
+    @PostMapping("/learn/query-history")
+    public ResponseEntity<Void> learnFromQueryHistory(@RequestParam String dataSourceId) {
+        logger.info("Learning table relationships from query history for data source ID: {}", dataSourceId);
+        try {
+            tableRelationshipService.learnFromQueryHistory(dataSourceId);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            logger.error("从查询历史学习表关系失败", e);
+            return ResponseEntity.internalServerError().build();
+        }
     }
-    
-    /**
-     * 将领域模型转换为DTO
-     */
-    private TableRelationshipDTO toDTO(TableRelationship relationship) {
-        TableRelationshipDTO dto = new TableRelationshipDTO();
-        dto.setId(relationship.getId());
-        dto.setDataSourceId(relationship.getDataSourceId());
-        dto.setSourceTable(relationship.getSourceTableName());
-        dto.setSourceColumn(relationship.getSourceColumnNames());
-        dto.setTargetTable(relationship.getTargetTableName());
-        dto.setTargetColumn(relationship.getTargetColumnNames());
-        dto.setType(relationship.getRelationType().name());
-        dto.setSource(relationship.getRelationSource().name());
-        dto.setWeight(relationship.getConfidence());
-        dto.setFrequency(relationship.getFrequency());
-        dto.setCreatedAt(relationship.getCreatedAt());
-        dto.setUpdatedAt(relationship.getUpdatedAt());
-        return dto;
+
+    @PostMapping("/{id}/feedback")
+    public ResponseEntity<Void> provideFeedback(
+            @PathVariable String id,
+            @RequestParam String sourceColumn,
+            @RequestParam String targetColumn,
+            @RequestParam String type)
+    {
+        logger.info("Received feedback for table relationship with ID: {}. SourceColumn={}, TargetColumn={}, Type={}",
+                id, sourceColumn, targetColumn, type);
+        tableRelationshipService.addUserFeedback(id, sourceColumn, targetColumn, type);
+        return ResponseEntity.ok().build();
     }
-    
-    /**
-     * 将DTO转换为领域模型
-     */
-    private TableRelationship fromDTO(TableRelationshipDTO dto) {
-        return TableRelationship.builder()
-                .id(dto.getId())
-                .dataSourceId(dto.getDataSourceId())
-                .sourceTableName(dto.getSourceTable())
-                .sourceColumnNames(dto.getSourceColumn())
-                .targetTableName(dto.getTargetTable())
-                .targetColumnNames(dto.getTargetColumn())
-                .relationType(TableRelationship.RelationshipType.valueOf(dto.getType()))
-                .relationSource(dto.getSource() != null ?
-                        TableRelationship.RelationshipSource.valueOf(dto.getSource()) : 
-                        TableRelationship.RelationshipSource.USER_FEEDBACK)
-                .confidence(dto.getWeight() != null ? dto.getWeight() : 1.0)
-                .frequency(dto.getFrequency() != null ? dto.getFrequency() : 1)
-                .createdAt(dto.getCreatedAt())
-                .updatedAt(dto.getUpdatedAt())
-                .build();
+
+    @PostMapping("/{id}/adjust-weight")
+    public ResponseEntity<Void> adjustWeight(
+            @PathVariable String id,
+            @RequestParam double weightDelta)
+    {
+        logger.info("Adjusting weight for table relationship with ID: {}. WeightDelta={}", id, weightDelta);
+        tableRelationshipService.adjustConfidence(id, weightDelta);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/table/{tableName}")
+    public ResponseEntity<List<TableRelationshipDTO>> getRelationshipsForTable(
+            @PathVariable String tableName,
+            @RequestParam(defaultValue = "0.5") double confidence)
+    {
+        logger.info("Getting table relationships for table: {}, with confidence: {}", tableName, confidence);
+        List<TableRelationship> relationships = tableRelationshipService.findRelatedTables(tableName, confidence);
+        return ResponseEntity.ok(tableRelationshipMapper.toDTOList(relationships));
     }
 }

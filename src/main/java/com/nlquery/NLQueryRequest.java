@@ -1,36 +1,48 @@
 package com.nlquery;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Data
 @Builder
-@NoArgsConstructor
-@AllArgsConstructor
 public class NLQueryRequest {
-    
-    /**
-     * 数据源ID
-     */
-    private String dataSourceId;
-    
-    /**
-     * 查询语句
-     */
     private String query;
-    
-    /**
-     * 查询参数
-     */
+    private String dataSourceId;
     private Map<String, Object> parameters;
-    
-    /**
-     * 查询标签
-     */
-    private List<String> tags;
+    private List<String> tags; // Assuming tags are relevant here.
+
+   public String getQuery(){
+       return this.query;
+   }
+
+   public String getDataSourceId(){
+       return this.dataSourceId;
+   }
+   public Map<String, Object> getParameters(){
+       return this.parameters;
+   }
+
+   public List<String> getTags(){
+       return this.tags;
+   }
+
+    public Integer getMaxRows() {
+        return 1000;
+    }
+
+    public  Map<String, Object> getOptions(){
+        return new HashMap<>();
+    }
+
+    public String getContextId(){
+        return "";
+    }
+
+    public Boolean getIncludeSqlExplanation(){
+        return false;
+    }
 }

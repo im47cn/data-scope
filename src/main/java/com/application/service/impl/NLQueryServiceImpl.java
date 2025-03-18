@@ -1,8 +1,8 @@
 package com.application.service.impl;
 
-import com.application.service.NLQueryService;
 import com.common.exception.InsightDataException;
 import com.domain.model.query.QueryResult;
+import com.domain.service.NLQueryService;
 import com.nlquery.NLQueryRequest;
 import com.nlquery.QueryContext;
 import com.nlquery.converter.NLToSqlConverter;

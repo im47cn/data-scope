@@ -4,18 +4,14 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
-import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.experimental.SuperBuilder;
 
 /**
  * 保存的查询实体
  */
 @Data
-@SuperBuilder
-@NoArgsConstructor
-@AllArgsConstructor
+@Builder
 public class SavedQuery {
     
     /**

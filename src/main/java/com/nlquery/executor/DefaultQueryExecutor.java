@@ -75,9 +75,8 @@ public class DefaultQueryExecutor implements QueryExecutor {
                                 .success(true)
                                 .duration(duration)
                                 .affectedRows(rows.size())
-                                .columnLabels(columnNames)
+                                .columns(columnNames)
                                 .columnTypes(columnTypes)
-                                .columnLabels(columnLabels)
                                 .rows(rows)
                                 .build();
                     }

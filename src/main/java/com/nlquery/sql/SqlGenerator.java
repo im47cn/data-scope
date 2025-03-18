@@ -1,58 +1,79 @@
 package com.nlquery.sql;
 
-import java.util.List;
-import java.util.Map;
-
 import com.domain.model.metadata.SchemaInfo;
-import com.nlquery.QueryContext;
 import com.nlquery.entity.EntityTag;
 import com.nlquery.intent.QueryIntent;
-
 import lombok.Builder;
 import lombok.Data;
 
+import java.util.List;
+import java.util.Map;
+
 public interface SqlGenerator {
 
-    /**
-     * SQL生成结果
-     */
-    @Data
-    @Builder
-    class SqlGenerationResult {
-        /**
-         * 生成的SQL语句
-         */
-        private String sql;
-
-        /**
-         * SQL参数
-         */
-        private Map<String, Object> parameters;
-
-        /**
-         * 置信度
-         */
-        private double confidence;
-
-        /**
-         * SQL解释
-         */
-        private List<String> explanations;
-
-        /**
-         * 备选SQL语句
-         */
-        private List<String> alternativeSqls;
-    }
-
-    /**
-     * 生成SQL
-     *
-     * @param entities    提取的实体
-     * @param queryIntent 查询意图
-     * @param schemaInfo
-     * @return SQL生成结果
-     */
     SqlGenerationResult generate(List<EntityTag> entities, QueryIntent queryIntent, SchemaInfo schemaInfo);
 
+    @Data
+    @Builder
+    class SqlGenerationResult{
+        private String sql;
+        private Map<String, Object> parameters;
+        private double confidence;
+        private List<String> explanations;
+        private List<String> alternativeSqls; // Optional alternative SQL queries
+        private boolean success;
+        private String errorMessage;
+
+        public String getSql() {
+            return sql;
+        }
+
+        public Map<String, Object> getParameters() {
+            return parameters;
+        }
+
+        public double getConfidence() {
+            return confidence;
+        }
+
+        public List<String> getExplanations() {
+            return explanations;
+        }
+
+        public List<String> getAlternativeSqls() {
+            return alternativeSqls;
+        }
+        public boolean isSuccess() {
+            return success;
+        }
+        public String getErrorMessage(){
+            return this.errorMessage;
+        }
+
+        public void setSql(String sql) {
+            this.sql = sql;
+        }
+
+        public void setParameters(Map<String, Object> parameters) {
+            this.parameters = parameters;
+        }
+
+        public void setConfidence(double confidence) {
+            this.confidence = confidence;
+        }
+
+        public void setExplanations(List<String> explanations) {
+            this.explanations = explanations;
+        }
+
+        public void setAlternativeSqls(List<String> alternativeSqls) {
+            this.alternativeSqls = alternativeSqls;
+        }
+        public void setSuccess(boolean success){
+            this.success = success;
+        }
+        public void setErrorMessage(String errorMessage){
+            this.errorMessage = errorMessage;
+        }
+    }
 }

@@ -83,7 +83,7 @@ public class DB2DataSourceAdapter implements DataSourceAdapter {
                     TableInfo table = TableInfo.builder()
                             .name(tableName)
                             .type(rs.getString("TABLE_TYPE"))
-                            .remarks(rs.getString("REMARKS"))
+                            .comment(rs.getString("REMARKS"))
                             .schemaName(schemaName)
                             .dataSourceId(dataSource.getId())
                             .build();
@@ -160,7 +160,7 @@ public class DB2DataSourceAdapter implements DataSourceAdapter {
                     TableInfo table = TableInfo.builder()
                             .name(rs.getString("TABLE_NAME"))
                             .type(rs.getString("TABLE_TYPE"))
-                            .remarks(rs.getString("REMARKS"))
+                            .comment(rs.getString("REMARKS"))
                             .schemaName(schemaName)
                             .dataSourceId(dataSource.getId())
                             .build();
@@ -194,12 +194,12 @@ public class DB2DataSourceAdapter implements DataSourceAdapter {
                             .name(rs.getString("COLUMN_NAME"))
                             .dataType(rs.getString("TYPE_NAME"))
                             .length(rs.getInt("COLUMN_SIZE"))
-                            .numericPrecision(rs.getInt("COLUMN_SIZE"))
-                            .numericScale(rs.getInt("DECIMAL_DIGITS"))
+                            .precision(rs.getInt("COLUMN_SIZE"))
+                            .scale(rs.getInt("DECIMAL_DIGITS"))
                             .nullable(rs.getInt("NULLABLE") == DatabaseMetaData.columnNullable)
                             .defaultValue(rs.getString("COLUMN_DEF"))
-                            .remarks(rs.getString("REMARKS"))
-                            .ordinalPosition(rs.getInt("ORDINAL_POSITION"))
+                            .comment(rs.getString("REMARKS"))
+                            .position(rs.getInt("ORDINAL_POSITION"))
                             .autoIncrement(isAutoIncrement(dataSource, schemaName, tableName, rs.getString("COLUMN_NAME")))
                             .build();
                     
@@ -233,7 +233,7 @@ public class DB2DataSourceAdapter implements DataSourceAdapter {
                     if (currentIndex == null || !indexName.equals(currentIndex.getName())) {
                         currentIndex = IndexInfo.builder()
                                 .name(indexName)
-                                .unique(!rs.getBoolean("NON_UNIQUE"))
+                                .isUnique(!rs.getBoolean("NON_UNIQUE"))
                                 .type(rs.getShort("TYPE") == DatabaseMetaData.tableIndexClustered ? "CLUSTERED" : "NONCLUSTERED")
                                 .build();
                         indexes.add(currentIndex);
@@ -242,7 +242,7 @@ public class DB2DataSourceAdapter implements DataSourceAdapter {
                     // 添加索引列
                     IndexColumnInfo indexColumn = IndexColumnInfo.builder()
                             .columnName(rs.getString("COLUMN_NAME"))
-                            .ordinalPosition(rs.getInt("ORDINAL_POSITION"))
+                            .position(rs.getInt("ORDINAL_POSITION"))
                             .ascending(rs.getString("ASC_OR_DESC").equals("A"))
                             .build();
                     
@@ -273,7 +273,7 @@ public class DB2DataSourceAdapter implements DataSourceAdapter {
                     if (currentFK == null || !fkName.equals(currentFK.getName())) {
                         currentFK = ForeignKeyInfo.builder()
                                 .name(fkName)
-                                .sourceTableName(rs.getString("FKTABLE_NAME"))
+                                .tableName(rs.getString("FKTABLE_NAME"))
                                 .targetTableName(rs.getString("PKTABLE_NAME"))
                                 .updateRule(rs.getString("UPDATE_RULE"))
                                 .deleteRule(rs.getString("DELETE_RULE"))

@@ -1,120 +1,101 @@
 package com.domain.model.query;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Map;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.experimental.SuperBuilder;
 
-/**
- * 查询历史实体
- */
 @Data
-@SuperBuilder
-@NoArgsConstructor
-@AllArgsConstructor
 public class QueryHistory {
-    
-    /**
-     * 主键ID
-     */
     private String id;
-    
-    /**
-     * 数据源ID
-     */
     private String dataSourceId;
-    
-    /**
-     * 原始查询（自然语言或SQL）
-     */
     private String originalQuery;
-    
-    /**
-     * 执行的SQL
-     */
     private String executedSql;
-    
-    /**
-     * 查询参数
-     */
     private Map<String, Object> parameters;
-    
-    /**
-     * 执行时间（毫秒）
-     */
-    private Long executionTime;
-    
-    /**
-     * 返回行数
-     */
-    private Long rowCount;
-    
-    /**
-     * 状态（成功/失败）
-     */
-    private String status;
-    
-    /**
-     * 错误信息（如果失败）
-     */
-    private String errorMessage;
-    
-    /**
-     * 查询类型（NL/SQL）
-     */
-    private String queryType;
-    
-    /**
-     * 用户ID
-     */
+    private String queryType; // "NL" or "SAVED"
+    private String status; // "成功" or "失败"
+    private String errorMessage; // 错误信息
+    private long executionTime; // 执行时间（毫秒）
+    private long rowCount;
     private String userId;
-    
-    /**
-     * 用户名
-     */
     private String username;
-    
-    /**
-     * 执行时间
-     */
     private LocalDateTime executedAt;
-    
-    /**
-     * 是否已保存为常用查询
-     */
-    private Boolean isSaved;
-    
-    /**
-     * 标签
-     */
-    private List<String> tags;
-    
-    /**
-     * 乐观锁版本号
-     */
-    private Long nonce;
-    
-    /**
-     * 创建时间
-     */
-    private LocalDateTime createdAt;
-    
-    /**
-     * 更新时间
-     */
-    private LocalDateTime updatedAt;
-    
-    /**
-     * 创建者
-     */
-    private String createdBy;
-    
-    /**
-     * 更新者
-     */
-    private String updatedBy;
+    private boolean isSaved; // 是否已保存为常用查询
+
+    public void setSql(String sql){
+        this.executedSql = sql;
+    }
+
+    public void setDuration(long duration){
+        this.executionTime = duration;
+    }
+
+    public void setResultCount(long count){
+        this.rowCount = count;
+    }
+
+    public void setSuccess(boolean success){
+        if (success)
+            this.status = "成功";
+        else
+            this.status = "失败";
+    }
+    public String getExecutedSql(){
+        return this.executedSql;
+    }
+
+    public Map<String, Object> getParameters(){
+        return this.parameters;
+    }
+    public String getDataSourceId(){
+        return this.dataSourceId;
+    }
+    public String getOriginalQuery(){
+        return this.originalQuery;
+    }
+    public String getId(){
+        return this.id;
+    }
+    public String getStatus(){
+        return this.status;
+    }
+    public long getRowCount(){
+        return this.rowCount;
+    }
+    public String getErrorMessage(){
+        return this.errorMessage;
+    }
+    public long getExecutionTime(){
+        return this.executionTime;
+    }
+    public boolean getIsSaved(){
+        return this.isSaved;
+    }
+    public void setIsSaved(boolean isSaved){
+        this.isSaved = isSaved;
+    }
+
+    public String getQueryType() {
+        return queryType;
+    }
+
+    public void setQueryType(String queryType) {
+        this.queryType = queryType;
+    }
+     public void setErrorMessage(String errorMessage) {
+        this.errorMessage = errorMessage;
+     }
+    public void setUserId(String userId){
+        this.userId = userId;
+    }
+
+    public void  setUsername(String username){
+        this.username = username;
+    }
+    public void setExecutedAt(LocalDateTime executedAt){
+        this.executedAt = executedAt;
+    }
+    public void setParameters(Map<String, Object> parameters){
+        this.parameters = parameters;
+    }
 }

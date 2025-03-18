@@ -198,7 +198,7 @@ const SqlFormatter = {
      */
     highlight(sql) {
         // 替换HTML特殊字符
-        sql = sql.replace(/&/g, '&amp;')
+        sql = sql.replace(/&/g, '&')
                  .replace(/</g, '&lt;')
                  .replace(/>/g, '&gt;');
 

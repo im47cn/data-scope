@@ -30,8 +30,7 @@ public class SavedQueryService {
         template.setCreatedBy(userId);
         template.setCreatedAt(LocalDateTime.now());
         template.setUpdatedAt(LocalDateTime.now());
-        template.setUsageCount(0);
-        template.setAverageExecutionTime(0);
+        template.setExecutionCount(0L);
         
         savedQueryRepository.insert(template);
         log.info("Created query template: {}", template.getId());
@@ -49,7 +48,7 @@ public class SavedQueryService {
             throw new InsightDataException("模板不存在");
         }
         
-        if (!existing.getCreatedBy().equals(userId) && !existing.isPublic()) {
+        if (!existing.getCreatedBy().equals(userId) && !existing.getIsShared()) {
             throw new InsightDataException("无权修改此模板");
         }
         
@@ -71,7 +70,7 @@ public class SavedQueryService {
             throw new InsightDataException("模板不存在");
         }
         
-        if (!template.getCreatedBy().equals(userId) && !template.isPublic()) {
+        if (!template.getCreatedBy().equals(userId) && !template.getIsShared()) {
             throw new InsightDataException("无权删除此模板");
         }
         
@@ -116,6 +115,6 @@ public class SavedQueryService {
     public boolean hasAccess(String id, String userId) {
         SavedQuery template = savedQueryRepository.selectById(id);
         return template != null && 
-               (template.isPublic() || template.getCreatedBy().equals(userId));
+               (template.getIsShared() || template.getCreatedBy().equals(userId));
     }
 }

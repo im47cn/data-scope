@@ -1,17 +1,13 @@
 package com.nlquery.preprocess;
 
+import lombok.Builder;
+import lombok.Data;
+
 import java.util.List;
 import java.util.Map;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
 @Data
 @Builder
-@NoArgsConstructor
-@AllArgsConstructor
 public class PreprocessedText {
     
     /**
@@ -83,53 +79,5 @@ public class PreprocessedText {
      * 错误信息
      */
     private String errorMessage;
-    
-    /**
-     * 获取原始文本
-     */
-    public String getOriginalText() {
-        return originalText;
-    }
-    
-    /**
-     * 获取标准化文本
-     */
-    public String getNormalizedText() {
-        return normalizedText;
-    }
-    
-    /**
-     * 获取分词结果
-     */
-    public List<String> getTokens() {
-        return tokens;
-    }
-    
-    /**
-     * 获取语言
-     */
-    public String getLanguage() {
-        return language;
-    }
-    
-    /**
-     * 设置语言
-     */
-    public void setLanguage(String language) {
-        this.language = language;
-    }
-    
-    /**
-     * 是否成功
-     */
-    public boolean isSuccess() {
-        return Boolean.TRUE.equals(success);
-    }
-    
-    /**
-     * 获取错误信息
-     */
-    public String getErrorMessage() {
-        return errorMessage != null ? errorMessage : "";
-    }
+
 }
