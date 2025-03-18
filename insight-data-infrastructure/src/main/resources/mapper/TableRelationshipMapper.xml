@@ -21,7 +21,7 @@
     <!-- 插入表关系 -->
     <insert id="insert" parameterType="com.infrastructure.persistence.entity.TableRelationshipEntity"
             useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO table_relationship (
+        INSERT INTO tbl_table_relationship (
             data_source_id, source_table, source_column, target_table, target_column,
             relationship_type, relationship_source, weight, frequency, created_at, updated_at
         ) VALUES (
@@ -32,33 +32,33 @@
 
     <!-- 根据ID查询表关系 -->
     <select id="selectById" resultMap="BaseResultMap">
-        SELECT * FROM table_relationship WHERE id = #{id}
+        SELECT * FROM tbl_table_relationship WHERE id = #{id}
     </select>
 
     <!-- 根据数据源ID和表名查询关系 -->
     <select id="selectByDataSourceIdAndTableName" resultMap="BaseResultMap">
-        SELECT * FROM table_relationship 
+        SELECT * FROM tbl_table_relationship
         WHERE data_source_id = #{dataSourceId}
         AND (source_table = #{tableName} OR target_table = #{tableName})
     </select>
 
     <!-- 根据数据源ID和关系类型查询 -->
     <select id="selectByDataSourceIdAndType" resultMap="BaseResultMap">
-        SELECT * FROM table_relationship 
+        SELECT * FROM tbl_table_relationship
         WHERE data_source_id = #{dataSourceId}
         AND relationship_type = #{type}
     </select>
 
     <!-- 删除指定数据源和来源的关系 -->
     <delete id="deleteByDataSourceIdAndSource">
-        DELETE FROM table_relationship 
+        DELETE FROM tbl_table_relationship
         WHERE data_source_id = #{dataSourceId}
         AND relationship_source = #{source}
     </delete>
 
     <!-- 更新关系使用频率 -->
     <update id="incrementFrequency">
-        UPDATE table_relationship 
+        UPDATE tbl_table_relationship
         SET frequency = frequency + 1,
             updated_at = NOW()
         WHERE id = #{id}
@@ -82,7 +82,7 @@
 
     <!-- 删除表关系 -->
     <delete id="deleteById">
-        DELETE FROM table_relationship WHERE id = #{id}
+        DELETE FROM tbl_table_relationship WHERE id = #{id}
     </delete>
 
 </mapper>

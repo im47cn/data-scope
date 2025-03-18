@@ -16,6 +16,28 @@
     <version>1.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
+    <properties>
+        <java.version>17</java.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+
+        <!-- MyBatis -->
+        <mybatis-spring-boot.version>3.0.3</mybatis-spring-boot.version>
+
+        <!-- Database -->
+        <mysql-connector.version>8.3.0</mysql-connector.version>
+        <db2-jdbc.version>11.5.9.0</db2-jdbc.version>
+
+        <!-- Jackson -->
+        <jackson.version>2.16.1</jackson.version>
+        <springdoc.version>2.3.0</springdoc.version>
+
+        <!-- Lombok -->
+        <lombok.version>1.18.30</lombok.version>
+        <mapstruct.version>1.5.5.Final</mapstruct.version>
+        <lombok-mapstruct-binding.version>0.2.0</lombok-mapstruct-binding.version>
+    </properties>
+
     <modules>
         <module>insight-data-domain</module>
         <module>insight-data-infrastructure</module>
@@ -23,41 +45,6 @@
         <module>insight-data-facade</module>
         <module>insight-data-main</module>
     </modules>
-
-    <properties>
-        <java.version>17</java.version>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <maven.compiler.source>${java.version}</maven.compiler.source>
-        <maven.compiler.target>${java.version}</maven.compiler.target>
-        
-        <!-- Spring -->
-        <spring-boot.version>2.7.18</spring-boot.version>
-        
-        <!-- MyBatis -->
-        <mybatis-spring-boot-starter.version>2.3.2</mybatis-spring-boot-starter.version>
-        
-        <!-- Database -->
-        <mysql-connector.version>8.0.33</mysql-connector.version>
-        <db2-jdbc.version>11.5.8.0</db2-jdbc.version>
-        
-        <!-- Jackson -->
-        <jackson.version>2.15.3</jackson.version>
-        
-        <!-- Validation -->
-        <jakarta-validation.version>3.0.2</jakarta-validation.version>
-        
-        <!-- Logging -->
-        <slf4j.version>2.0.9</slf4j.version>
-        <logback.version>1.4.14</logback.version>
-        
-        <!-- Lombok -->
-        <lombok.version>1.18.30</lombok.version>
-        
-        <!-- Testing -->
-        <junit-jupiter.version>5.10.1</junit-jupiter.version>
-        <mockito.version>5.8.0</mockito.version>
-    </properties>
 
     <dependencyManagement>
         <dependencies>
@@ -87,7 +74,7 @@
             <dependency>
                 <groupId>org.mybatis.spring.boot</groupId>
                 <artifactId>mybatis-spring-boot-starter</artifactId>
-                <version>${mybatis-spring-boot-starter.version}</version>
+                <version>${mybatis-spring-boot.version}</version>
             </dependency>
 
             <!-- Database Drivers -->
@@ -105,6 +92,11 @@
             <!-- Jackson -->
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-core</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-databind</artifactId>
                 <version>${jackson.version}</version>
             </dependency>
@@ -114,23 +106,11 @@
                 <version>${jackson.version}</version>
             </dependency>
 
-            <!-- Validation -->
+            <!-- SpringDoc OpenAPI -->
             <dependency>
-                <groupId>jakarta.validation</groupId>
-                <artifactId>jakarta.validation-api</artifactId>
-                <version>${jakarta-validation.version}</version>
-            </dependency>
-
-            <!-- Logging -->
-            <dependency>
-                <groupId>org.slf4j</groupId>
-                <artifactId>slf4j-api</artifactId>
-                <version>${slf4j.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>ch.qos.logback</groupId>
-                <artifactId>logback-classic</artifactId>
-                <version>${logback.version}</version>
+                <groupId>org.springdoc</groupId>
+                <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+                <version>${springdoc.version}</version>
             </dependency>
 
             <!-- Lombok -->
@@ -139,6 +119,13 @@
                 <artifactId>lombok</artifactId>
                 <version>${lombok.version}</version>
             </dependency>
+
+            <!-- MapStruct -->
+            <dependency>
+                <groupId>org.mapstruct</groupId>
+                <artifactId>mapstruct</artifactId>
+                <version>${mapstruct.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -146,9 +133,29 @@
         <pluginManagement>
             <plugins>
                 <plugin>
-                    <groupId>org.springframework.boot</groupId>
-                    <artifactId>spring-boot-maven-plugin</artifactId>
-                    <version>${spring-boot.version}</version>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <configuration>
+                        <source>${java.version}</source>
+                        <target>${java.version}</target>
+                        <annotationProcessorPaths>
+                            <path>
+                                <groupId>org.projectlombok</groupId>
+                                <artifactId>lombok</artifactId>
+                                <version>${lombok.version}</version>
+                            </path>
+                            <path>
+                                <groupId>org.mapstruct</groupId>
+                                <artifactId>mapstruct-processor</artifactId>
+                                <version>${mapstruct.version}</version>
+                            </path>
+                            <path>
+                                <groupId>org.projectlombok</groupId>
+                                <artifactId>lombok-mapstruct-binding</artifactId>
+                                <version>${lombok-mapstruct-binding.version}</version>
+                            </path>
+                        </annotationProcessorPaths>
+                    </configuration>
                 </plugin>
             </plugins>
         </pluginManagement>

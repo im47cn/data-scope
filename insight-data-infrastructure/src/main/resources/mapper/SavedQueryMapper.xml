@@ -24,15 +24,15 @@
     </resultMap>
 
     <select id="selectById" resultMap="savedQueryMap">
-        SELECT * FROM saved_query WHERE id = #{id}
+        SELECT * FROM tbl_saved_query WHERE id = #{id}
     </select>
 
     <select id="selectByDataSourceId" resultMap="savedQueryMap">
-        SELECT * FROM saved_query WHERE data_source_id = #{dataSourceId}
+        SELECT * FROM tbl_saved_query WHERE data_source_id = #{dataSourceId}
     </select>
 
     <insert id="insert" parameterType="com.domain.model.SavedQuery">
-        INSERT INTO saved_query (
+        INSERT INTO tbl_saved_query (
             id, data_source_id, name, description, sql, parameters,
             default_values, tags, is_public, created_by, created_at,
             updated_at, usage_count, average_execution_time, last_executed_at
@@ -61,41 +61,41 @@
     </update>
 
     <delete id="deleteById">
-        DELETE FROM saved_query WHERE id = #{id}
+        DELETE FROM tbl_saved_query WHERE id = #{id}
     </delete>
 
     <delete id="deleteByDataSourceId">
-        DELETE FROM saved_query WHERE data_source_id = #{dataSourceId}
+        DELETE FROM tbl_saved_query WHERE data_source_id = #{dataSourceId}
     </delete>
 
     <select id="selectByNameLike" resultMap="savedQueryMap">
-        SELECT * FROM saved_query WHERE name LIKE CONCAT('%', #{name}, '%')
+        SELECT * FROM tbl_saved_query WHERE name LIKE CONCAT('%', #{name}, '%')
     </select>
 
     <select id="selectByTags" resultMap="savedQueryMap">
-        SELECT * FROM saved_query 
+        SELECT * FROM tbl_saved_query
         WHERE tags @> #{tags,typeHandler=com.infrastructure.persistence.typehandler.JsonListTypeHandler}::jsonb
     </select>
 
     <select id="selectByIsPublic" resultMap="savedQueryMap">
-        SELECT * FROM saved_query WHERE is_public = #{isPublic}
+        SELECT * FROM tbl_saved_query WHERE is_public = #{isPublic}
     </select>
 
     <select id="selectByDataSourceIdAndIsPublic" resultMap="savedQueryMap">
-        SELECT * FROM saved_query 
+        SELECT * FROM tbl_saved_query
         WHERE data_source_id = #{dataSourceId}
           AND is_public = #{isPublic}
     </select>
 
     <update id="incrementUsageCount">
-        UPDATE saved_query 
+        UPDATE tbl_saved_query
         SET usage_count = usage_count + 1,
             updated_at = CURRENT_TIMESTAMP
         WHERE id = #{id}
     </update>
 
     <update id="updateExecutionStats">
-        UPDATE saved_query 
+        UPDATE tbl_saved_query
         SET average_execution_time = (
                 (average_execution_time * usage_count + #{executionTime}) / (usage_count + 1)
             ),

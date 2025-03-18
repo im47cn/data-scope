@@ -46,6 +46,20 @@ spring:
     baseline-version: 0
     validate-on-migrate: true
     out-of-order: false
+    clean-disabled: true
+    placeholder-replacement: true
+    placeholders:
+      schema_name: datainsight
+    table: flyway_schema_history
+    sql-migration-prefix: V
+    sql-migration-separator: __
+    sql-migration-suffixes: .sql
+    init-sql: CREATE DATABASE IF NOT EXISTS datainsight
+    repair-on-migrate: true
+    connect-retries: 3
+    connect-retries-interval: 10
+    mixed: false
+    encoding: UTF-8
 
 # MyBatis配置
 mybatis:
@@ -73,6 +87,7 @@ logging:
     root: INFO
     com: INFO
     org.springframework: WARN
+    org.flywaydb: DEBUG
   file:
     name: logs/insight-data.log
   pattern:

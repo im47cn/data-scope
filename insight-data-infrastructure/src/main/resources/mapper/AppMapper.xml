@@ -36,7 +36,7 @@
     </sql>
     
     <insert id="insert" parameterType="com.infrastructure.persistence.entity.AppEntity" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO app (
+        INSERT INTO tbl_app (
             code, name, description, icon, type, version, home_page_id, publish_status, published_at,
             theme, style_config, settings, permissions, routes, menus, global_state, query_ids, data_source_ids,
             custom_config, created_by, created_at, updated_by, updated_at
