@@ -1,227 +1,347 @@
-# 数据库数据类型与UI组件映射框架
+# 数据库表结构与 UI 映射
 
-本文档定义了数据库列数据类型与前端UI组件之间的映射关系，用于自动化界面生成过程。
+## 1. 数据库表结构 (Database Table Schemas)
 
-## 1. 映射框架概述
+### 1.1 tbl_data_source
 
-映射框架的目标是根据数据库列的数据类型，自动推荐最合适的前端UI组件，同时考虑数据验证规则和用户体验。这种映射应用于两个主要场景：
+*   **表名**: `tbl_data_source`
+*   **描述**: 存储数据源信息
+*   **列**:
+    *   `id` varchar(36) PRIMARY KEY COMMENT '数据源ID'
+    *   `name` varchar(255) UNIQUE NOT NULL COMMENT '数据源名称'
+    *   `type` varchar(50) NOT NULL COMMENT '数据源类型 (MySQL, DB2 等)'
+    *   `connection_details` TEXT NOT NULL COMMENT '连接详细信息 (JSON 格式)'
+    *   `description` TEXT COMMENT '数据源描述'
+    *   `status` varchar(50) NOT NULL COMMENT '连接状态 (Connected, Disconnected, Connecting)'
+    *   `sync_status` varchar(50) NOT NULL COMMENT '元数据同步状态 (Pending, Syncing, Synced, Failed)'
+    *   `last_sync_time` datetime COMMENT '上次元数据同步时间'
+    *   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间'
+    *   `created_by` varchar(255) COMMENT '创建用户'
+    *   `modified_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '修改时间'
+    *   `modified_by` varchar(255) COMMENT '修改用户'
+    *   `nonce` int NOT NULL DEFAULT 0 COMMENT '乐观锁版本号'
+*   **索引**:
+    *   `u_idx_datasource_name` UNIQUE INDEX (`name`)
+    *   `idx_datasource_type` INDEX (`type`)
 
-1. **查询条件表单生成**：根据查询参数的数据类型，生成合适的输入控件
-2. **查询结果展示**：根据结果列的数据类型，选择合适的展示方式和格式化规则
+### 1.2 tbl_database
 
-## 2. 数据类型映射表
+*   **表名**: `tbl_database`
+*   **描述**: 存储数据库实例信息
+*   **列**:
+    *   `id` varchar(36) PRIMARY KEY COMMENT '数据库ID'
+    *   `data_source_id` varchar(36) NOT NULL COMMENT '所属数据源ID，外键 references tbl_data_source(id)'
+    *   `name` varchar(255) NOT NULL COMMENT '数据库名称'
+    *   `version` varchar(100) COMMENT '数据库版本'
+    *   `character_set` varchar(100) COMMENT '字符集'
+    *   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间'
+    *   `created_by` varchar(255) COMMENT '创建用户'
+    *   `modified_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '修改时间'
+    *   `modified_by` varchar(255) COMMENT '修改用户'
+    *   `nonce` int NOT NULL DEFAULT 0 COMMENT '乐观锁版本号'
+*   **索引**:
+    *   `idx_database_datasourceid` INDEX (`data_source_id`)
+    *   `idx_database_name` INDEX (`name`)
+*   **外键**:
+    *   `data_source_id` FOREIGN KEY REFERENCES `tbl_data_source` (`id`)
 
-下表定义了MySQL和DB2常见数据类型到Java类型和UI组件的映射关系：
+### 1.3 tbl_table
 
-| 数据库类型 | Java类型 | 查询条件UI组件 | 结果展示组件 | 验证规则 | 格式化规则 |
-|-----------|---------|--------------|------------|---------|-----------|
-| **字符串类型** |
-| VARCHAR, CHAR | String | 文本框 | 文本单元格 | maxLength | 无特殊格式 |
-| TEXT, CLOB | String | 文本域 | 文本单元格(可展开) | - | 截断长文本 |
-| ENUM | String | 下拉选择框 | 文本单元格 | enumValues | 无特殊格式 |
-| **数值类型** |
-| INT, SMALLINT | Integer | 数字输入框 | 数字单元格 | min, max | 千分位分隔 |
-| BIGINT | Long | 数字输入框 | 数字单元格 | min, max | 千分位分隔 |
-| DECIMAL, NUMERIC | BigDecimal | 数字输入框 | 数字单元格 | min, max, precision | 千分位分隔+小数位 |
-| FLOAT, DOUBLE | Double | 数字输入框 | 数字单元格 | min, max | 科学计数法 |
-| **日期时间类型** |
-| DATE | LocalDate | 日期选择器 | 日期单元格 | minDate, maxDate | yyyy-MM-dd |
-| TIME | LocalTime | 时间选择器 | 时间单元格 | - | HH:mm:ss |
-| TIMESTAMP, DATETIME | LocalDateTime | 日期时间选择器 | 日期时间单元格 | - | yyyy-MM-dd HH:mm:ss |
-| **布尔类型** |
-| BOOLEAN, BIT(1) | Boolean | 开关/复选框 | 图标/文本 | - | ✓/✗ 或 是/否 |
-| **二进制类型** |
-| BLOB, BINARY | byte[] | 文件上传 | 下载链接 | maxSize, fileTypes | 文件大小 |
-| **其他类型** |
-| JSON | String | JSON编辑器 | 格式化JSON | validJSON | 语法高亮 |
-| XML | String | XML编辑器 | 格式化XML | validXML | 语法高亮 |
-| ARRAY | List<?> | 多选框/标签输入 | 标签列表 | - | 逗号分隔 |
+*   **表名**: `tbl_table`
+*   **描述**: 存储表格信息
+*   **列**:
+    *   `id` varchar(36) PRIMARY KEY COMMENT '表格ID'
+    *   `database_id` varchar(36) NOT NULL COMMENT '所属数据库ID，外键 references tbl_database(id)'
+    *   `name` varchar(255) NOT NULL COMMENT '表格名称'
+    *   `schema` TEXT COMMENT '表格结构信息 (JSON 格式)'
+    *   `table_type` varchar(100) COMMENT '表格类型 (TABLE, VIEW)'
+    *   `record_count` bigint COMMENT '记录数'
+    *   `description` TEXT COMMENT '表格描述'
+    *   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间'
+    *   `created_by` varchar(255) COMMENT '创建用户'
+    *   `modified_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '修改时间'
+    *   `modified_by` varchar(255) COMMENT '修改用户'
+    *   `nonce` int NOT NULL DEFAULT 0 COMMENT '乐观锁版本号'
+*   **索引**:
+    *   `idx_table_databaseid` INDEX (`database_id`)
+    *   `idx_table_name` INDEX (`name`)
+*   **外键**:
+    *   `database_id` FOREIGN KEY REFERENCES `tbl_database` (`id`)
 
-## 3. 特殊数据类型处理
+### 1.4 tbl_column
 
-### 3.1 敏感数据类型
+*   **表名**: `tbl_column`
+*   **描述**: 存储列信息
+*   **列**:
+    *   `id` varchar(36) PRIMARY KEY COMMENT '列ID'
+    *   `table_id` varchar(36) NOT NULL COMMENT '所属表格ID，外键 references tbl_table(id)'
+    *   `name` varchar(255) NOT NULL COMMENT '列名称'
+    *   `data_type` varchar(100) NOT NULL COMMENT '数据类型 (VARCHAR, INT, DATETIME)'
+    *   `length` int COMMENT '长度'
+    *   `precision` int COMMENT '精度'
+    *   `nullable` boolean DEFAULT TRUE COMMENT '是否允许为空'
+    *   `primary_key` boolean DEFAULT FALSE COMMENT '是否为主键'
+    *   `foreign_key` boolean DEFAULT FALSE COMMENT '是否为外键'
+    *   `description` TEXT COMMENT '列描述'
+    *   `column_metadata` TEXT COMMENT '列元数据 (JSON 格式)'
+    *   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间'
+    *   `created_by` varchar(255) COMMENT '创建用户'
+    *   `modified_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '修改时间'
+    *   `modified_by` varchar(255) COMMENT '修改用户'
+    *   `nonce` int NOT NULL DEFAULT 0 COMMENT '乐观锁版本号'
+*   **索引**:
+    *   `idx_column_tableid` INDEX (`table_id`)
+    *   `idx_column_name` INDEX (`name`)
+*   **外键**:
+    *   `table_id` FOREIGN KEY REFERENCES `tbl_table` (`id`)
 
-对于敏感数据类型，系统提供特殊的处理机制：
+### 1.5 tbl_query
 
-| 数据类型模式 | 识别规则 | UI组件 | 掩码规则 |
-|------------|---------|--------|---------|
-| 手机号码 | 列名包含"phone"/"mobile"/"tel" | 电话输入框 | 显示前3后4位，中间用*替代 |
-| 身份证号 | 列名包含"id_card"/"idcard"/"identity" | 身份证输入框 | 显示前3后4位，中间用*替代 |
-| 邮箱地址 | 列名包含"email"/"mail" | 邮箱输入框 | 显示@前首字符和@后完整域名 |
-| 密码/凭证 | 列名包含"password"/"pwd"/"secret"/"key" | 密码输入框 | 完全隐藏为***** |
-| 银行卡号 | 列名包含"card"/"account"/"bank" | 银行卡输入框 | 仅显示后4位 |
-| 地址信息 | 列名包含"address"/"addr" | 地址输入框 | 显示省市，详细地址用***替代 |
+*   **表名**: `tbl_query`
+*   **描述**: 存储用户创建的查询信息
+*   **列**:
+    *   `id` varchar(36) PRIMARY KEY COMMENT '查询ID'
+    *   `name` varchar(255) NOT NULL COMMENT '查询名称'
+    *   `sql_text` TEXT NOT NULL COMMENT 'SQL 查询语句'
+    *   `description` TEXT COMMENT '查询描述'
+    *   `data_source_id` varchar(36) NOT NULL COMMENT '关联数据源ID，外键 references tbl_data_source(id)'
+    *   `version` int NOT NULL DEFAULT 1 COMMENT '版本号'
+    *   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间'
+    *   `created_by` varchar(255) COMMENT '创建用户'
+    *   `modified_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '修改时间'
+    *   `modified_by` varchar(255) COMMENT '修改用户'
+    *   `nonce` int NOT NULL DEFAULT 0 COMMENT '乐观锁版本号'
+*   **索引**:
+    *   `idx_query_datasourceid` INDEX (`data_source_id`)
+    *   `idx_query_name` INDEX (`name`)
+*   **外键**:
+    *   `data_source_id` FOREIGN KEY REFERENCES `tbl_data_source` (`id`)
 
-### 3.2 特殊格式数据
+### 1.6 tbl_saved_query
 
-对于具有特定格式的数据，系统提供专门的UI组件：
+*   **表名**: `tbl_saved_query`
+*   **描述**: 存储用户保存的查询信息
+*   **列**:
+    *   `id` varchar(36) PRIMARY KEY COMMENT '保存查询ID'
+    *   `query_id` varchar(36) NOT NULL COMMENT '关联查询ID，外键 references tbl_query(id)'
+    *   `name` varchar(255) NOT NULL COMMENT '保存查询名称'
+    *   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间'
+    *   `created_by` varchar(255) COMMENT '创建用户'
+    *   `modified_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '修改时间'
+    *   `modified_by` varchar(255) COMMENT '修改用户'
+    *   `nonce` int NOT NULL DEFAULT 0 COMMENT '乐观锁版本号'
+*   **索引**:
+    *   `u_idx_savedquery_queryid` UNIQUE INDEX (`query_id`)
+    *   `idx_savedquery_name` INDEX (`name`)
+*   **外键**:
+    *   `query_id` FOREIGN KEY REFERENCES `tbl_query` (`id`)
 
-| 数据格式 | 识别规则 | UI组件 | 特殊处理 |
-|---------|---------|--------|---------|
-| URL | 列名包含"url"/"link"/"website" | URL输入框 | 自动验证URL格式，结果显示为可点击链接 |
-| IP地址 | 列名包含"ip"/"ipaddr" | IP地址输入框 | 自动验证IP格式 |
-| 颜色值 | 列名包含"color"/"colour" | 颜色选择器 | 显示颜色预览 |
-| 百分比 | 列名包含"percent"/"ratio"/"rate" | 百分比输入框 | 自动转换为百分比格式 |
-| 货币金额 | 列名包含"price"/"amount"/"cost"/"salary" | 金额输入框 | 自动添加货币符号和千分位 |
+### 1.7 tbl_query_history
 
-## 4. 查询条件组件映射
+*   **表名**: `tbl_query_history`
+*   **描述**: 存储查询历史记录
+*   **列**:
+    *   `id` varchar(36) PRIMARY KEY COMMENT '历史记录ID'
+    *   `query_id` varchar(36) NOT NULL COMMENT '关联查询ID，外键 references tbl_query(id)'
+    *   `data_source_id` varchar(36) NOT NULL COMMENT '关联数据源ID，外键 references tbl_data_source(id)'
+    *   `sql_text` TEXT NOT NULL COMMENT '执行的 SQL 查询语句'
+    *   `execution_time` datetime NOT NULL COMMENT '执行时间'
+    *   `status` varchar(50) NOT NULL COMMENT '执行状态 (Success, Failed, Timeout)'
+    *   `error` TEXT COMMENT '错误信息 (JSON 格式 SQLError)'
+    *   `user_id` varchar(36) NOT NULL COMMENT '执行用户ID，外键 references tbl_user(id)'
+    *   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间'
+    *   `created_by` varchar(255) COMMENT '创建用户'
+    *   `modified_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '修改时间'
+    *   `modified_by` varchar(255) COMMENT '修改用户'
+    *   `nonce` int NOT NULL DEFAULT 0 COMMENT '乐观锁版本号'
+*   **索引**:
+    *   `idx_queryhistory_queryid` INDEX (`query_id`)
+    *   `idx_queryhistory_datasourceid` INDEX (`data_source_id`)
+    *   `idx_queryhistory_userid` INDEX (`user_id`)
+    *   `idx_queryhistory_executiontime` INDEX (`execution_time`)
+*   **外键**:
+    *   `query_id` FOREIGN KEY REFERENCES `tbl_query` (`id`)
+    *   `data_source_id` FOREIGN KEY REFERENCES `tbl_data_source` (`id`)
+    *   `user_id` FOREIGN KEY REFERENCES `tbl_user` (`id`)
 
-### 4.1 基础映射规则
+### 1.8 tbl_user
 
-查询条件表单生成时，除了基本的数据类型映射外，还考虑以下因素：
+*   **表名**: `tbl_user`
+*   **描述**: 存储用户信息
+*   **列**:
+    *   `id` varchar(36) PRIMARY KEY COMMENT '用户ID'
+    *   `username` varchar(255) UNIQUE NOT NULL COMMENT '用户名'
+    *   `password` varchar(255) NOT NULL COMMENT '密码 (AES-256 加密 + Salt)'
+    *   `email` varchar(255) COMMENT '邮箱'
+    *   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间'
+    *   `created_by` varchar(255) COMMENT '创建用户'
+    *   `modified_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '修改时间'
+    *   `modified_by` varchar(255) COMMENT '修改用户'
+    *   `nonce` int NOT NULL DEFAULT 0 COMMENT '乐观锁版本号'
+*   **索引**:
+    *   `u_idx_user_username` UNIQUE INDEX (`username`)
 
-1. **精确匹配 vs 范围查询**：
-   - 数值类型：提供精确值输入框或范围选择器
-   - 日期类型：提供单日期选择或日期范围选择
-   - 字符串类型：提供精确匹配、模糊匹配、前缀匹配等选项
+### 1.9 tbl_role
 
-2. **多值选择**：
-   - 枚举类型：提供多选下拉框
-   - 外键关联字段：提供带搜索的下拉选择器
+*   **表名**: `tbl_role`
+*   **描述**: 存储角色信息
+*   **列**:
+    *   `id` varchar(36) PRIMARY KEY COMMENT '角色ID'
+    *   `name` varchar(255) UNIQUE NOT NULL COMMENT '角色名称'
+    *   `description` TEXT COMMENT '角色描述'
+    *   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间'
+    *   `created_by` varchar(255) COMMENT '创建用户'
+    *   `modified_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '修改时间'
+    *   `modified_by` varchar(255) COMMENT '修改用户'
+    *   `nonce` int NOT NULL DEFAULT 0 COMMENT '乐观锁版本号'
+*   **索引**:
+    *   `u_idx_role_name` UNIQUE INDEX (`name`)
 
-3. **复杂条件**：
-   - 提供AND/OR逻辑组合器
-   - 支持嵌套条件组
+### 1.10 tbl_permission
 
-### 4.2 高级查询组件
+*   **表名**: `tbl_permission`
+*   **描述**: 存储权限信息
+*   **列**:
+    *   `id` varchar(36) PRIMARY KEY COMMENT '权限ID'
+    *   `name` varchar(255) UNIQUE NOT NULL COMMENT '权限名称'
+    *   `description` TEXT COMMENT '权限描述'
+    *   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间'
+    *   `created_by` varchar(255) COMMENT '创建用户'
+    *   `modified_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '修改时间'
+    *   `modified_by` varchar(255) COMMENT '修改用户'
+    *   `nonce` int NOT NULL DEFAULT 0 COMMENT '乐观锁版本号'
+*   **索引**:
+    *   `u_idx_permission_name` UNIQUE INDEX (`name`)
 
-对于复杂查询场景，提供以下高级组件：
+### 1.11 tbl_low_code_app
 
-| 查询类型 | 适用数据类型 | UI组件 | 说明 |
-|---------|------------|--------|------|
-| 范围查询 | 数值、日期时间 | 范围选择器 | 设置最小值和最大值 |
-| 多值查询 | 任意类型 | 多值选择器 | 选择多个离散值 |
-| 模糊查询 | 字符串 | 带选项的文本框 | 包含、开始于、结束于等选项 |
-| 空值查询 | 任意类型 | 三态选择器 | 是、否、不限（包括空值和非空值） |
-| 地理位置查询 | 坐标类型 | 地图选择器 | 在地图上选择点或区域 |
-| 时间段查询 | 日期时间 | 预定义时间段 | 今天、本周、本月、自定义等 |
+*   **表名**: `tbl_low_code_app`
+*   **描述**: 存储低代码应用信息
+*   **列**:
+    *   `id` varchar(36) PRIMARY KEY COMMENT '应用ID'
+    *   `name` varchar(255) NOT NULL COMMENT '应用名称'
+    *   `config` TEXT COMMENT '应用配置信息 (JSON 格式)'
+    *   `sync_status` varchar(50) NOT NULL COMMENT '同步状态 (Pending, Syncing, Synced, Failed)'
+    *   `last_sync_time` datetime COMMENT '上次同步时间'
+    *   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间'
+    *   `created_by` varchar(255) COMMENT '创建用户'
+    *   `modified_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '修改时间'
+    *   `modified_by` varchar(255) COMMENT '修改用户'
+    *   `nonce` int NOT NULL DEFAULT 0 COMMENT '乐观锁版本号'
+*   **索引**:
+    *   `idx_lowcodeapp_name` INDEX (`name`)
 
-## 5. 结果展示组件映射
+### 1.12 tbl_metadata_sync_job
 
-### 5.1 基础展示组件
+*   **表名**: `tbl_metadata_sync_job`
+*   **描述**: 存储元数据同步任务信息
+*   **列**:
+    *   `id` varchar(36) PRIMARY KEY COMMENT '任务ID'
+    *   `data_source_id` varchar(36) NOT NULL COMMENT '关联数据源ID，外键 references tbl_data_source(id)'
+    *   `sync_type` varchar(50) NOT NULL COMMENT '同步类型 (Full, Incremental)'
+    *   `sync_frequency` varchar(100) COMMENT '同步频率 (Daily, Weekly)'
+    *   `last_sync_time` datetime COMMENT '上次同步时间'
+    *   `status` varchar(50) NOT NULL COMMENT '任务状态 (Pending, Running, Success, Failed)'
+    *   `error` TEXT COMMENT '错误信息 (JSON 格式 SQLError)'
+    *   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间'
+    *   `created_by` varchar(255) COMMENT '创建用户'
+    *   `modified_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '修改时间'
+    *   `modified_by` varchar(255) COMMENT '修改用户'
+    *   `nonce` int NOT NULL DEFAULT 0 COMMENT '乐观锁版本号'
+*   **索引**:
+    *   `idx_metadatasyncjob_datasourceid` INDEX (`data_source_id`)
+    *   `idx_metadatasyncjob_synctype` INDEX (`sync_type`)
+    *   `idx_metadatasyncjob_status` INDEX (`status`)
+*   **外键**:
+    *   `data_source_id` FOREIGN KEY REFERENCES `tbl_data_source` (`id`)
 
-查询结果展示时，根据数据类型选择合适的展示组件：
+### 1.13 tbl_user_role (用户角色关联表)
 
-| 数据类型 | 基础展示组件 | 高级展示组件 | 适用场景 |
-|---------|------------|------------|---------|
-| 文本型 | 文本单元格 | 可复制文本、富文本 | 一般文本信息 |
-| 数值型 | 数字单元格 | 进度条、仪表盘 | 数量、比率等 |
-| 日期时间型 | 格式化日期单元格 | 日历视图、时间轴 | 时间相关信息 |
-| 布尔型 | 图标/文本 | 开关、标记 | 状态、标志等 |
-| 图片URL | 缩略图 | 图片预览 | 产品图片等 |
-| 文件路径 | 文件链接 | 文件预览 | 文档、附件等 |
+*   **表名**: `tbl_user_role`
+*   **描述**: 存储用户和角色之间的多对多关系
+*   **列**:
+    *   `user_id` varchar(36) NOT NULL COMMENT '用户ID，外键 references tbl_user(id)'
+    *   `role_id` varchar(36) NOT NULL COMMENT '角色ID，外键 references tbl_role(id)'
+    *   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间'
+    *   `created_by` varchar(255) COMMENT '创建用户'
+    *   `modified_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '修改时间'
+    *   `modified_by` varchar(255) COMMENT '修改用户'
+    *   **联合主键**: (`user_id`, `role_id`)
+*   **索引**:
+    *   `idx_userrole_userid` INDEX (`user_id`)
+    *   `idx_userrole_roleid` INDEX (`role_id`)
+*   **外键**:
+    *   `user_id` FOREIGN KEY REFERENCES `tbl_user` (`id`)
+    *   `role_id` FOREIGN KEY REFERENCES `tbl_role` (`id`)
 
-### 5.2 特殊展示效果
+### 1.14 tbl_role_permission (角色权限关联表)
 
-根据数据特性，提供特殊的展示效果：
+*   **表名**: `tbl_role_permission`
+*   **描述**: 存储角色和权限之间的多对多关系
+*   **列**:
+    *   `role_id` varchar(36) NOT NULL COMMENT '角色ID，外键 references tbl_role(id)'
+    *   `permission_id` varchar(36) NOT NULL COMMENT '权限ID，外键 references tbl_permission(id)'
+    *   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间'
+    *   `created_by` varchar(255) COMMENT '创建用户'
+    *   `modified_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '修改时间'
+    *   `modified_by` varchar(255) COMMENT '修改用户'
+    *   **联合主键**: (`role_id`, `permission_id`)
+*   **索引**:
+    *   `idx_rolepermission_roleid` INDEX (`role_id`)
+    *   `idx_rolepermission_permissionid` INDEX (`permission_id`)
+*   **外键**:
+    *   `role_id` FOREIGN KEY REFERENCES `tbl_role` (`id`)
+    *   `permission_id` FOREIGN KEY REFERENCES `tbl_permission` (`id`)
 
-| 数据特性 | 展示效果 | 适用场景 |
-|---------|---------|---------|
-| 状态值 | 状态标签（不同颜色） | 订单状态、任务状态等 |
-| 趋势值 | 趋势指示器（上升/下降箭头） | 同比增长、库存变化等 |
-| 评分值 | 星级评分 | 产品评分、满意度等 |
-| 进度值 | 进度条 | 完成率、使用率等 |
-| 关键指标 | 突出显示（加粗、颜色） | KPI指标、超阈值数据等 |
+## 2. UI 元素与数据库表映射 (UI Element to Database Table Mapping)
 
-## 6. 自定义映射规则
+| UI 界面/元素                 | 数据库表                  | 主要操作                                                                 |
+| :--------------------------- | :------------------------ | :----------------------------------------------------------------------- |
+| **数据源管理**               | `tbl_data_source`         | 增删改查数据源，连接测试，元数据同步配置                                                 |
+| 数据源列表 (表格)            | `tbl_data_source`         | 展示数据源列表，分页，排序，筛选                                                               |
+| 数据源表单 (表单)            | `tbl_data_source`         | 创建和编辑数据源                                                                   |
+| 数据源连接状态指示器 (图标)   | `tbl_data_source`         | 实时显示数据源连接状态                                                               |
+| 元数据同步配置 (表单)        | `tbl_data_source`, `tbl_metadata_sync_job` | 配置元数据同步频率和类型                                                               |
+| **元数据浏览**               | `tbl_database`, `tbl_table`, `tbl_column` | 浏览数据库、表格和列的元数据信息                                                               |
+| 数据库列表 (树形控件)        | `tbl_data_source`, `tbl_database` | 展示数据源和数据库的层级结构                                                               |
+| 表格列表 (表格)              | `tbl_table`               | 展示表格列表，分页，排序，筛选，查看表结构                                                           |
+| 列列表 (表格)                | `tbl_column`              | 展示列列表，分页，排序，筛选，查看列详细信息                                                           |
+| 表结构详情 (表格)            | `tbl_column`              | 展示表格的列结构详细信息                                                               |
+| **查询构建**                 | `tbl_query`, `tbl_data_source`, `tbl_table`, `tbl_column` | 构建 SQL 查询，选择数据源和表格，选择列，设置查询条件，执行查询                                                   |
+| 数据源选择器 (下拉框)        | `tbl_data_source`         | 选择要查询的数据源                                                                   |
+| 表格选择器 (树形控件/多选框) | `tbl_database`, `tbl_table` | 选择要查询的表格                                                                     |
+| 列选择器 (多选框/拖拽列表)   | `tbl_column`              | 选择要查询的列                                                                       |
+| 条件构建器 (表单)            |  N/A                      | 构建查询条件 (WHERE 子句)                                                              |
+| SQL 编辑器 (文本框)          | `tbl_query`               | 手动编写和编辑 SQL 查询语句，支持语法高亮和自动补全                                                        |
+| 查询执行按钮 (按钮)          |  N/A                      | 提交查询请求                                                                       |
+| **查询结果展示**             |  N/A                      | 展示查询结果数据                                                                   |
+| 结果表格 (表格)              |  N/A                      | 以表格形式展示查询结果数据，支持分页，排序，筛选                                                         |
+| 分页控件 (分页器)            |  N/A                      | 分页浏览查询结果                                                                   |
+| 排序控件 (表头)              |  N/A                      | 对查询结果进行排序                                                                   |
+| 筛选控件 (输入框/下拉框)     |  N/A                      | 对查询结果进行筛选                                                                   |
+| 图表可视化 (图表)            |  N/A                      | 以图表形式可视化展示查询结果数据 (柱状图，折线图，饼图，散点图)                                                |
+| **查询历史**                 | `tbl_query_history`, `tbl_query`, `tbl_data_source`, `tbl_user` | 查看和管理查询历史记录                                                               |
+| 查询历史列表 (表格)          | `tbl_query_history`         | 展示查询历史记录列表，分页，排序，筛选，查看查询详情                                                         |
+| 查询详情 (弹窗/页面)         | `tbl_query_history`, `tbl_query`, `tbl_data_source`, `tbl_user` | 展示查询历史记录的详细信息，包括 SQL 语句，执行时间，执行状态，错误信息，执行用户，关联数据源和查询等 |
+| **保存查询**                 | `tbl_saved_query`, `tbl_query` | 保存和管理常用查询                                                                   |
+| 保存查询列表 (表格)          | `tbl_saved_query`         | 展示保存查询列表，分页，排序，筛选，查看保存查询详情                                                         |
+| 保存查询表单 (表单)          | `tbl_saved_query`         | 创建和编辑保存查询                                                                 |
+| **用户管理**                 | `tbl_user`, `tbl_role`    | 管理系统用户信息                                                                   |
+| 用户列表 (表格)              | `tbl_user`                | 展示用户列表，分页，排序，筛选，查看用户详情                                                             |
+| 用户表单 (表单)              | `tbl_user`                | 创建和编辑用户                                                                     |
+| **角色管理**                 | `tbl_role`, `tbl_permission` | 管理系统角色信息和权限                                                               |
+| 角色列表 (表格)              | `tbl_role`                | 展示角色列表，分页，排序，筛选，查看角色详情                                                             |
+| 角色表单 (表单)              | `tbl_role`                | 创建和编辑角色，配置角色权限                                                               |
+| 权限列表 (多选框/列表)       | `tbl_permission`          | 选择角色拥有的权限                                                                   |
+| **低代码应用管理**           | `tbl_low_code_app`        | 管理与 DataScope 集成的低代码应用                                                           |
+| 低代码应用列表 (表格)        | `tbl_low_code_app`        | 展示低代码应用列表，分页，排序，筛选，查看应用详情                                                         |
+| 低代码应用表单 (表单)        | `tbl_low_code_app`        | 创建和编辑低代码应用，配置同步信息                                                             |
+| **元数据同步任务管理**       | `tbl_metadata_sync_job`, `tbl_data_source` | 管理元数据同步任务                                                                   |
+| 同步任务列表 (表格)          | `tbl_metadata_sync_job`         | 展示同步任务列表，分页，排序，筛选，查看任务详情                                                             |
+| 同步任务表单 (表单)          | `tbl_metadata_sync_job`         | 创建和编辑同步任务，配置同步频率和类型                                                             |
+| 手动同步按钮 (按钮)          | `tbl_data_source`         | 手动触发元数据同步                                                                   |
 
-系统支持自定义映射规则，可通过以下方式扩展：
+---
+**版本记录**
 
-### 6.1 基于命名约定的映射
-
-可以基于列名命名约定自动应用特定映射：
-
-```json
-{
-  "columnNamePatterns": [
-    {
-      "pattern": ".*_status$",
-      "uiComponent": "StatusBadge",
-      "properties": {
-        "options": [
-          {"value": "active", "label": "活跃", "color": "green"},
-          {"value": "inactive", "label": "不活跃", "color": "gray"},
-          {"value": "pending", "label": "待处理", "color": "yellow"}
-        ]
-      }
-    },
-    {
-      "pattern": "^is_.*",
-      "uiComponent": "Switch",
-      "properties": {
-        "trueText": "是",
-        "falseText": "否"
-      }
-    }
-  ]
-}
-```
-
-### 6.2 基于元数据的映射
-
-可以基于表和列的元数据信息自动应用特定映射：
-
-```json
-{
-  "tableColumnMappings": [
-    {
-      "table": "employees",
-      "column": "department_id",
-      "uiComponent": "DepartmentSelector",
-      "properties": {
-        "dataSource": "departments",
-        "valueField": "id",
-        "textField": "name"
-      }
-    },
-    {
-      "table": "products",
-      "column": "category",
-      "uiComponent": "CategoryTree",
-      "properties": {
-        "treeData": "product_categories",
-        "multiple": false
-      }
-    }
-  ]
-}
-```
-
-## 7. 用户偏好学习
-
-系统记录用户的显示偏好设置，用于智能推断默认配置：
-
-1. **个人偏好记录**：记录每个用户对特定数据类型的组件选择和配置
-2. **智能默认值**：为新建查询界面提供基于历史偏好的默认显示属性
-3. **上下文感知**：根据查询场景（如查询条件数量、结果列特性）调整推荐
-
-## 8. 映射框架实现
-
-映射框架的核心实现包括：
-
-1. **TypeMapperRegistry**：注册和管理所有类型映射器
-2. **DatabaseTypeMapper**：数据库类型到Java类型的映射
-3. **UIComponentMapper**：Java类型到UI组件的映射
-4. **ValidationRuleGenerator**：根据数据类型和约束生成验证规则
-5. **FormatterRegistry**：管理不同数据类型的格式化规则
-6. **CustomMappingManager**：管理和应用自定义映射规则
-7. **UserPreferenceManager**：记录和应用用户偏好设置
-
-## 9. 扩展机制
-
-映射框架提供以下扩展点：
-
-1. **自定义类型映射器**：实现TypeMapper接口，支持新的数据类型
-2. **自定义UI组件映射**：实现UIComponentMapper接口，支持新的UI组件
-3. **自定义验证规则**：实现ValidationRuleGenerator接口，支持新的验证规则
-4. **自定义格式化器**：实现Formatter接口，支持新的格式化规则
-5. **插件机制**：通过SPI机制加载第三方映射插件
-
-## 10. 最佳实践
-
-1. **优先使用标准映射**：尽量使用系统提供的标准映射，保持一致性
-2. **考虑数据规模**：大数据量场景选择性能更好的组件（如虚拟滚动表格）
-3. **注重用户体验**：选择符合用户习惯的组件，减少学习成本
-4. **保持简洁**：避免过度复杂的组件和配置，保持界面简洁
-5. **响应式设计**：确保组件在不同设备上有良好表现
-6. **考虑无障碍性**：选择支持键盘操作和屏幕阅读器的组件
+[2025-03-18 12:35:00] - 初始版本，创建数据库表结构与 UI 映射文档。

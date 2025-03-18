@@ -1,839 +1,1174 @@
 # DataScope系统 - 技术规范
 
-本文档详细描述了DataScope全面数据管理和查询系统的技术规范，为系统实现提供详细指导。
+本文档详细说明DataScope全面数据管理和查询系统的技术实现规范，包括技术栈选择、架构模块划分、接口定义、数据模型设计及关键实现细节。
 
 ## 1. 技术栈
 
-### 1.1 后端技术
+### 1.1 后端技术栈
 
-| 技术 | 版本 | 用途 | 选择理由 |
-|------|------|------|---------|
-| Java | 17+ | 主要编程语言 | 符合项目要求，具有良好的性能和生态系统 |
-| Spring Boot | 3.x | 应用框架 | 简化开发，提供丰富的企业级功能 |
-| MyBatis | 3.5+ | ORM框架 | 灵活的SQL操作，高性能，符合项目要求 |
-| Redis | 6.0+ | 缓存 | 高性能，支持多种数据结构，适合分布式环境 |
-| MySQL | 8.0+ | 系统数据存储 | 稳定可靠，广泛使用，符合项目要求 |
-| Maven | 3.8+ | 构建工具 | 依赖管理，构建自动化 |
-| Spring Security | 6.x | 安全框架 | 提供身份验证、授权和保护功能 |
-| SLF4J + Logback | 最新版 | 日志框架 | 灵活配置，性能优良 |
-| JUnit 5 | 5.9+ | 单元测试 | 现代测试框架，易于扩展 |
-| Mockito | 5.x | 测试模拟 | 简化单元测试，隔离依赖 |
-| Lombok | 1.18+ | 代码简化 | 减少样板代码，提高开发效率 |
-| MapStruct | 1.5+ | 对象映射 | 高性能的对象映射，代码清晰 |
-| Jackson | 2.14+ | JSON处理 | 功能丰富，性能优良 |
-| OpenRouter SDK | 最新版 | LLM API集成 | 简化与OpenRouter API的集成 |
+| 技术 | 版本 | 用途 |
+|------|------|------|
+| Java | 17+ | 开发语言 |
+| Spring Boot | 3.x | 应用框架 |
+| MyBatis | 3.x | 数据访问层 |
+| Maven | 3.8+ | 构建工具 |
+| MySQL | 8.0+ | 系统数据存储 |
+| Redis | 6.0+ | 分布式缓存 |
+| Lombok | 最新稳定版 | 简化Java代码 |
+| MapStruct | 最新稳定版 | 对象映射 |
+| Logback | 最新稳定版 | 日志管理 |
+| JUnit 5 | 最新稳定版 | 单元测试 |
+| Mockito | 最新稳定版 | 测试框架 |
 
-### 1.2 前端技术
+### 1.2 前端技术栈
 
-| 技术 | 版本 | 用途 | 选择理由 |
-|------|------|------|---------|
-| HTML5 | 最新标准 | 页面结构 | 行业标准 |
-| Tailwind CSS | 3.x | 样式框架 | 高度可定制，符合项目要求 |
-| JavaScript/TypeScript | ES2022+ | 脚本语言 | 类型安全，现代特性 |
-| Vue.js | 3.x | 前端框架 | 轻量级，响应式，易于集成 |
-| Vue Router | 4.x | 路由管理 | 与Vue.js配套，功能完善 |
-| Pinia | 2.x | 状态管理 | Vue.js官方推荐，替代Vuex |
-| Axios | 1.x | HTTP客户端 | 易用，功能丰富 |
-| Element Plus | 2.x | UI组件库 | 丰富的组件，主题定制，适配Vue 3 |
-| FontAwesome | 6.x | 图标库 | 符合项目要求 |
-| Chart.js | 4.x | 图表库 | 轻量级，易用性好 |
-| CodeMirror | 6.x | 代码编辑器 | 适合SQL编辑，语法高亮 |
-| Day.js | 1.x | 日期处理 | 轻量级，简单易用 |
+| 技术 | 版本 | 用途 |
+|------|------|------|
+| HTML5 | - | 页面结构 |
+| Tailwind CSS | 2.2.19+ | 样式框架 |
+| JavaScript/TypeScript | ES6+ | 脚本语言 |
+| Vue.js | 3.x | 前端框架 |
+| Pinia | 最新稳定版 | 状态管理 |
+| Vue Router | 最新稳定版 | 路由管理 |
+| FontAwesome | 6.x | 图标库 |
+| Element Plus / Ant Design Vue | 最新稳定版 | UI组件库 |
+| Chart.js / ECharts | 最新稳定版 | 图表库 |
+| Axios | 最新稳定版 | HTTP客户端 |
 
-## 2. 系统分层架构
+### 1.3 外部服务集成
 
-遵循DDD的四层架构设计，各层职责如下：
+| 服务 | 用途 |
+|------|------|
+| OpenRouter LLM API | 自然语言处理 |
+| MySQL数据库 | 外部数据源 |
+| DB2数据库 | 外部数据源 |
+| Redis服务 | 分布式缓存 |
+
+## 2. DDD四层架构划分
+
+系统基于领域驱动设计(DDD)的四层架构模式实现，清晰划分职责边界：
 
 ### 2.1 领域层 (Domain)
 
-**职责**：定义核心业务模型、业务规则和领域服务。
-
-**主要组件**：
-- 领域实体 (Entity)
-- 值对象 (Value Object)
-- 聚合根 (Aggregate Root)
-- 领域服务 (Domain Service)
-- 领域事件 (Domain Event)
-- 仓储接口 (Repository Interface)
-
-**命名规范**：
-- 实体类：直接使用业务名称，如`DataSource`
-- 值对象：以业务名称+`VO`后缀，如`CredentialVO`
-- 领域服务：以业务名称+`Service`后缀，如`DataSourceService`
-- 仓储接口：以业务名称+`Repository`后缀，如`DataSourceRepository`
+- **职责**：封装核心业务逻辑和领域模型，定义领域实体、值对象、聚合根和领域服务
+- **目录结构**：`com.domain.model`、`com.domain.service`、`com.domain.repository`
+- **主要内容**：
+  - 领域实体：如DataSource、TableInfo、SavedQuery等
+  - 领域服务：核心业务逻辑
+  - 仓储接口：定义持久化操作的接口
 
 ### 2.2 应用层 (Application)
 
-**职责**：协调领域层对象完成用户用例，处理事务，应用安全规则。
-
-**主要组件**：
-- 应用服务 (Application Service)
-- DTO (Data Transfer Object)
-- 装配器 (Assembler)
-- 事件处理器 (Event Handler)
-
-**命名规范**：
-- 应用服务：以业务名称+`AppService`后缀，如`DataSourceAppService`
-- DTO：以业务名称+`DTO`后缀，如`DataSourceDTO`
-- 装配器：以业务名称+`Assembler`后缀，如`DataSourceAssembler`
-- 事件处理器：以事件名称+`Handler`后缀，如`DataSourceCreatedHandler`
+- **职责**：协调领域对象完成用户用例，处理事务边界，不包含业务规则
+- **目录结构**：`com.application.service`
+- **主要内容**：
+  - 应用服务：如DataSourceService、QueryService等
+  - 事务管理：定义事务边界
+  - 领域事件处理
+  - 用例编排
 
 ### 2.3 基础设施层 (Infrastructure)
 
-**职责**：提供技术实现，如数据持久化、消息传递、外部服务集成等。
-
-**主要组件**：
-- 仓储实现 (Repository Implementation)
-- 外部服务适配器 (External Service Adapter)
-- 消息发送/接收 (Message Sender/Receiver)
-- 缓存实现 (Cache Implementation)
-- 安全实现 (Security Implementation)
-
-**命名规范**：
-- 仓储实现：以业务名称+`RepositoryImpl`后缀，如`DataSourceRepositoryImpl`
-- 适配器：以外部系统名称+`Adapter`后缀，如`OpenRouterAdapter`
-- 缓存实现：以目标缓存+`Cache`后缀，如`RedisDataSourceCache`
+- **职责**：提供技术实现和外部系统集成，实现仓储接口
+- **目录结构**：`com.infrastructure.persistence`、`com.infrastructure.adapter`、`com.infrastructure.service`
+- **主要内容**：
+  - 仓储实现：基于MyBatis的持久化实现
+  - 外部系统适配器：如LLM API适配器
+  - 缓存实现
+  - 消息队列实现
+  - 安全组件
 
 ### 2.4 接口层 (Facade)
 
-**职责**：处理用户请求，格式转换，向应用层传递命令，向用户返回响应。
+- **职责**：处理外部请求和响应转换，协调用户界面和应用层
+- **目录结构**：`com.facade.rest`、`com.facade.dto`、`com.facade.mapper`
+- **主要内容**：
+  - REST控制器
+  - DTO对象定义
+  - DTO与领域对象的转换
+  - 参数验证
+  - 异常处理
 
-**主要组件**：
-- REST控制器 (Controller)
-- 请求/响应模型 (Request/Response Model)
-- 异常处理器 (Exception Handler)
-- 验证器 (Validator)
+## 3. 核心模块设计
 
-**命名规范**：
-- 控制器：以业务名称+`Controller`后缀，如`DataSourceController`
-- 请求模型：以业务名称+`Request`后缀，如`CreateDataSourceRequest`
-- 响应模型：以业务名称+`Response`后缀，如`DataSourceResponse`
-- 验证器：以业务名称+`Validator`后缀，如`DataSourceValidator`
-
-## 3. 模块划分
-
-系统按功能领域划分为以下核心模块：
+系统划分为以下核心模块，每个模块包含特定的领域逻辑和技术实现。
 
 ### 3.1 数据源管理模块
 
-**主要功能**：
-- 数据源连接管理
-- 元数据提取与同步
-- 表关系管理
-- 数据源健康监控
+#### 3.1.1 关键领域模型
 
-**包结构**：
+```java
+// 数据源实体
+public class DataSource {
+    private String id;                // UUID主键
+    private String name;              // 数据源名称
+    private DataSourceType type;      // 数据源类型(MySQL/DB2)
+    private String host;              // 服务器地址
+    private int port;                 // 端口
+    private String databaseName;      // 数据库名称
+    private String username;          // 用户名
+    private String encryptedPassword; // 加密密码
+    private String encryptionSalt;    // 加密盐值
+    private Map<String, String> connectionProperties; // 连接参数
+    private boolean active;           // 是否激活
+    // 审计字段
+    private LocalDateTime createdAt;
+    private String createdBy;
+    private LocalDateTime modifiedAt;
+    private String modifiedBy;
+    private int nonce;                // 乐观锁字段
+}
+
+// 表信息实体
+public class TableInfo {
+    private String id;
+    private String schemaId;
+    private String name;
+    private String type;
+    private String description;
+    private Long estimatedRowCount;
+    private List<ColumnInfo> columns;
+    private List<IndexInfo> indexes;
+    // 审计字段...
+}
+
+// 表关系实体
+public class TableRelationship {
+    private String id;
+    private String sourceTableId;
+    private String targetTableId;
+    private String sourceColumnId;
+    private String targetColumnId;
+    private RelationType relationType;
+    private boolean isInferred;
+    private double confidence;  // 推断关系的置信度0-1
+    // 审计字段...
+}
+
+// 元数据同步作业
+public class MetadataSyncJob {
+    private String id;
+    private String dataSourceId;
+    private SyncType type;      // 全量/增量
+    private SyncStatus status;  // 状态(进行中/完成/失败)
+    private int progress;       // 进度百分比
+    private String errorMessage;
+    private LocalDateTime startTime;
+    private LocalDateTime endTime;
+    // 审计字段...
+}
 ```
-com.datasource
-  ├── domain
-  │   ├── model
-  │   ├── service
-  │   └── repository
-  ├── application
-  │   ├── service
-  │   ├── dto
-  │   └── assembler
-  ├── infrastructure
-  │   ├── repository
-  │   ├── adapter
-  │   └── cache
-  └── facade
-      ├── controller
-      ├── request
-      └── response
+
+#### 3.1.2 接口定义
+
+```java
+// 数据源服务接口
+public interface DataSourceService {
+    DataSource createDataSource(DataSourceDTO dto);
+    DataSource getDataSource(String id);
+    List<DataSource> getAllDataSources();
+    DataSource updateDataSource(String id, DataSourceDTO dto);
+    void deleteDataSource(String id);
+    ConnectionTestResult testConnection(String id);
+    MetadataSyncJob synchronizeMetadata(String id, SyncType syncType);
+    MetadataSyncJob getSyncJob(String jobId);
+    HealthStatus getHealthStatus(String id);
+}
+
+// 元数据服务接口
+public interface MetadataService {
+    List<SchemaInfo> getSchemas(String dataSourceId);
+    List<TableInfo> getTables(String schemaId);
+    List<ColumnInfo> getColumns(String tableId);
+    List<IndexInfo> getIndexes(String tableId);
+    List<Object[]> getSampleData(String tableId, int limit);
+    TableRelationship createRelationship(RelationshipDTO dto);
+    List<TableRelationship> detectRelationships(String dataSourceId, double confidenceThreshold);
+}
+```
+
+#### 3.1.3 实现细节
+
+1. **数据源凭证加密**
+   - 使用AES-256加密算法保护数据源密码
+   - 每个密码使用唯一的随机盐值
+   - 实现主密钥轮换机制
+   
+```java
+public class CredentialEncryptor {
+    public String encrypt(String plaintext, String salt) {
+        // 使用AES-256加密，CBC模式
+        // 返回Base64编码的密文
+    }
+    
+    public String decrypt(String ciphertext, String salt) {
+        // 解密过程
+    }
+    
+    public String generateSalt() {
+        // 生成随机盐值
+    }
+}
+```
+
+2. **元数据提取机制**
+   - 基于JDBC DatabaseMetaData API提取元数据
+   - 支持MySQL和DB2特定元数据查询
+   - 实现增量元数据同步算法
+   
+```java
+public class JdbcMetadataExtractor implements MetadataExtractor {
+    
+    public List<SchemaInfo> extractSchemas(Connection connection) {
+        // 提取数据库模式信息
+    }
+    
+    public List<TableInfo> extractTables(Connection connection, String schema) {
+        // 提取表信息
+    }
+    
+    public List<ColumnInfo> extractColumns(Connection connection, String schema, String table) {
+        // 提取列信息
+    }
+    
+    // 其他元数据提取方法...
+}
+```
+
+3. **表关系推断算法**
+   - 基于约定命名规则的关系推断
+   - 基于列数据类型和索引的关系推断
+   - 使用置信度评分机制
+   
+```java
+public class RelationshipInferenceEngine {
+    
+    public List<TableRelationship> inferRelationships(String dataSourceId) {
+        // 推断表关系的算法实现
+    }
+    
+    private double calculateConfidence(TableInfo sourceTable, 
+                                      ColumnInfo sourceColumn,
+                                      TableInfo targetTable,
+                                      ColumnInfo targetColumn) {
+        // 计算关系置信度的逻辑
+    }
+}
 ```
 
 ### 3.2 查询构建模块
 
-**主要功能**：
-- SQL查询构建
-- 查询执行管理
-- 查询结果处理
-- 查询优化分析
+#### 3.2.1 关键领域模型
 
-**包结构**：
+```java
+// 保存的查询
+public class SavedQuery {
+    private String id;
+    private String name;
+    private String description;
+    private String dataSourceId;
+    private String sqlText;
+    private List<QueryParameter> parameters;
+    private boolean isPublic;
+    private QueryType type;
+    private int executionCount;
+    private LocalDateTime lastExecutedAt;
+    // 审计字段...
+}
+
+// 查询参数
+public class QueryParameter {
+    private String id;
+    private String queryId;
+    private String name;
+    private String description;
+    private ParameterType type;
+    private String defaultValue;
+    private boolean required;
+    private String validationRule;
+    // 审计字段...
+}
+
+// 查询执行记录
+public class QueryExecution {
+    private String id;
+    private String queryId;
+    private String versionId;
+    private Map<String, Object> parameters;
+    private LocalDateTime startTime;
+    private LocalDateTime endTime;
+    private ExecutionStatus status;
+    private String errorMessage;
+    private long recordCount;
+    private long executionTimeMs;
+    // 审计字段...
+}
+
+// 查询执行计划
+public class QueryPlan {
+    private String id;
+    private String queryId;
+    private String executionId;
+    private String planJson;        // 执行计划JSON
+    private List<String> warnings;  // 潜在性能问题警告
+    private List<String> suggestions; // 优化建议
+    // 审计字段...
+}
 ```
-com.query
-  ├── domain
-  │   ├── model
-  │   ├── service
-  │   └── repository
-  ├── application
-  │   ├── service
-  │   ├── dto
-  │   └── assembler
-  ├── infrastructure
-  │   ├── repository
-  │   ├── executor
-  │   └── cache
-  └── facade
-      ├── controller
-      ├── request
-      └── response
+
+#### 3.2.2 接口定义
+
+```java
+// 查询服务接口
+public interface QueryService {
+    SavedQuery createQuery(QueryDTO dto);
+    SavedQuery getQuery(String id);
+    List<SavedQuery> getAllQueries(QueryFilter filter);
+    SavedQuery updateQuery(String id, QueryDTO dto);
+    void deleteQuery(String id);
+    QueryResult executeQuery(String id, Map<String, Object> parameters);
+    void cancelQuery(String executionId);
+    List<QueryExecution> getQueryHistory(String id);
+    QueryPlan analyzeQuery(String id);
+}
+
+// 查询执行接口
+public interface QueryExecutor {
+    QueryExecution execute(String dataSourceId, String sql, 
+                          Map<String, Object> parameters, 
+                          int timeout);
+    void cancel(String executionId);
+    ExecutionStatus getStatus(String executionId);
+}
+
+// 查询结果管理接口
+public interface ResultManager {
+    PagedResult getPagedResults(String executionId, int page, int size);
+    boolean exportToCsv(String executionId, String filePath, ExportOptions options);
+    void cacheResults(String executionId, QueryResult results);
+    QueryResult getCachedResults(String executionId);
+}
 ```
 
-### 3.3 自然语言查询模块
+#### 3.2.3 实现细节
 
-**主要功能**：
-- 自然语言处理
-- SQL生成
-- 上下文管理
-- 反馈学习
-
-**包结构**：
+1. **SQL构建器**
+   - 实现SqlBuilder接口，支持各种SQL语法
+   - 支持条件、连接、分组、排序等SQL功能
+   - 实现参数化查询防止SQL注入
+   
+```java
+public class SqlBuilder {
+    private StringBuilder sql = new StringBuilder();
+    private List<Object> parameters = new ArrayList<>();
+    
+    public SqlBuilder select(String... columns) {
+        // 构建SELECT子句
+        return this;
+    }
+    
+    public SqlBuilder from(String table) {
+        // 构建FROM子句
+        return this;
+    }
+    
+    public SqlBuilder where(String condition, Object... params) {
+        // 构建WHERE子句
+        return this;
+    }
+    
+    // 其他SQL构建方法...
+    
+    public PreparedStatement buildPreparedStatement(Connection conn) {
+        // 创建并返回PreparedStatement
+    }
+}
 ```
-com.nlquery
-  ├── domain
-  │   ├── model
-  │   ├── service
-  │   └── repository
-  ├── application
-  │   ├── service
-  │   ├── dto
-  │   └── assembler
-  ├── infrastructure
-  │   ├── repository
-  │   ├── adapter
-  │   └── processor
-  └── facade
-      ├── controller
-      ├── request
-      └── response
+
+2. **查询执行引擎**
+   - 实现查询超时控制(默认30秒)
+   - 支持查询取消功能
+   - 实现资源限制和监控
+   
+```java
+public class QueryExecutionEngine implements QueryExecutor {
+    
+    public QueryExecution execute(String dataSourceId, String sql, 
+                                 Map<String, Object> parameters, 
+                                 int timeout) {
+        // 实现查询执行逻辑
+    }
+    
+    public void cancel(String executionId) {
+        // 实现查询取消逻辑
+    }
+    
+    public ExecutionStatus getStatus(String executionId) {
+        // 获取查询执行状态
+    }
+    
+    private void checkQueryLimit(String userId) {
+        // 检查用户查询频率限制
+    }
+}
+```
+
+3. **查询优化器**
+   - 分析SQL执行计划
+   - 提供查询优化建议
+   - 识别潜在性能问题
+   
+```java
+public class QueryOptimizer {
+    
+    public QueryPlan analyze(String dataSourceId, String sql) {
+        // 分析SQL执行计划
+    }
+    
+    public List<String> suggestOptimizations(QueryPlan plan) {
+        // 根据执行计划提供优化建议
+    }
+    
+    public List<String> identifyBottlenecks(QueryPlan plan) {
+        // 识别性能瓶颈
+    }
+}
+```
+
+4. **结果管理器**
+   - 实现结果分页处理
+   - 实现结果导出功能
+   - 使用游标和流式处理大结果集
+   
+```java
+public class QueryResultManager implements ResultManager {
+    
+    public PagedResult getPagedResults(String executionId, int page, int size) {
+        // 获取分页查询结果
+    }
+    
+    public boolean exportToCsv(String executionId, String filePath, ExportOptions options) {
+        // 导出结果到CSV
+    }
+    
+    public void cacheResults(String executionId, QueryResult results) {
+        // 缓存查询结果
+    }
+    
+    public QueryResult getCachedResults(String executionId) {
+        // 获取缓存结果
+    }
+}
+```
+
+### 3.3 NL2SQL模块
+
+#### 3.3.1 关键领域模型
+
+```java
+// 自然语言查询
+public class NLQuery {
+    private String id;
+    private String dataSourceId;
+    private String naturalLanguage;
+    private String generatedSql;
+    private double confidence;
+    private ProcessingStatus status;
+    private String errorMessage;
+    private String userId;
+    private boolean hasFeedback;
+    private boolean isSuccessful;
+    // 审计字段...
+}
+
+// 查询上下文
+public class QueryContext {
+    private String id;
+    private String userId;
+    private String dataSourceId;
+    private List<String> recentQueries;
+    private Map<String, Object> contextData;
+    private LocalDateTime createdAt;
+    private LocalDateTime expiresAt;
+}
+
+// 用户反馈
+public class Feedback {
+    private String id;
+    private String nlQueryId;
+    private boolean isPositive;
+    private String comments;
+    private String correctSql;
+    private String userId;
+    private LocalDateTime createdAt;
+}
+```
+
+#### 3.3.2 接口定义
+
+```java
+// 自然语言查询服务
+public interface NLQueryService {
+    NLQueryResult processNaturalLanguageQuery(String dataSourceId, String naturalLanguage);
+    List<String> suggestRefinements(String dataSourceId, String naturalLanguage);
+    void submitFeedback(String queryId, boolean isAccepted, String feedback);
+    List<NLQueryHistory> getQueryHistory(String userId);
+}
+
+// SQL生成服务
+public interface SQLGeneratorService {
+    String generateSQL(String naturalLanguage, QueryContext context);
+    String optimizeSQL(String sql);
+    boolean validateSQL(String sql);
+    String explainSQL(String sql);
+}
+
+// 上下文管理服务
+public interface ContextManagerService {
+    QueryContext createContext(String userId, String dataSourceId);
+    QueryContext updateContext(String contextId, Map<String, Object> data);
+    List<String> getRelevantTables(String naturalLanguage, String dataSourceId);
+    QueryContext getHistoricalContext(String userId, String dataSourceId);
+}
+```
+
+#### 3.3.3 实现细节
+
+1. **NL处理器**
+   - 实现自然语言预处理
+   - 使用OpenRouter API集成
+   - 实现提示词工程最佳实践
+   
+```java
+public class NLProcessor {
+    
+    public ProcessedQuery processQuery(String naturalLanguage, String dataSourceId) {
+        // 预处理查询文本
+    }
+    
+    public List<String> extractEntities(String naturalLanguage) {
+        // 提取查询中的实体
+    }
+    
+    public QueryIntent identifyIntent(String naturalLanguage) {
+        // 识别查询意图
+    }
+    
+    public String preprocessText(String naturalLanguage) {
+        // 文本预处理
+    }
+}
+```
+
+2. **LLM提示工程**
+   - 设计结构化的提示模板
+   - 包含上下文信息和数据库结构
+   - 优化生成SQL的准确性
+   
+```java
+public class PromptEngineering {
+    
+    public String buildSystemPrompt(String dataSourceId) {
+        // 构建系统提示
+    }
+    
+    public String buildUserPrompt(String naturalLanguage, 
+                                 List<TableInfo> relevantTables,
+                                 QueryContext context) {
+        // 构建用户提示
+    }
+    
+    public String extractSqlFromResponse(String llmResponse) {
+        // 从LLM响应中提取SQL
+    }
+}
+```
+
+3. **反馈学习机制**
+   - 收集用户反馈
+   - 调整查询处理策略
+   - 记录成功和失败案例
+   
+```java
+public class FeedbackLearner {
+    
+    public void recordFeedback(String queryId, boolean isPositive) {
+        // 记录用户反馈
+    }
+    
+    public void trainFromFeedback() {
+        // 基于反馈调整模型
+    }
+    
+    public double adjustConfidence(String naturalLanguage, double baseConfidence) {
+        // 根据历史数据调整置信度
+    }
+    
+    public List<String> getSuggestions(String naturalLanguage) {
+        // 获取查询建议
+    }
+}
 ```
 
 ### 3.4 低代码集成模块
 
-**主要功能**：
-- 低代码配置管理
-- 表单生成
-- Webhook管理
-- 协议处理
+#### 3.4.1 关键领域模型
 
-**包结构**：
+```java
+// 低代码配置
+public class LowCodeConfig {
+    private String id;
+    private String queryId;
+    private String name;
+    private String description;
+    private String version;
+    private FormConfig formConfig;
+    private DisplayConfig displayConfig;
+    private List<WebhookConfig> webhooks;
+    // 审计字段...
+}
+
+// 表单配置
+public class FormConfig {
+    private String id;
+    private String configId;
+    private String layout;
+    private List<FormSection> sections;
+    private List<FormField> fields;
+    private List<FormButton> buttons;
+    // 审计字段...
+}
+
+// 展示配置
+public class DisplayConfig {
+    private String id;
+    private String configId;
+    private String type;
+    private String title;
+    private PaginationConfig pagination;
+    private SortingConfig sorting;
+    private List<ColumnConfig> columns;
+    private List<OperationConfig> operations;
+    // 审计字段...
+}
+
+// Webhook配置
+public class WebhookConfig {
+    private String id;
+    private String configId;
+    private String endpointUrl;
+    private String secretKey;
+    private List<String> eventTypes;
+    private boolean active;
+    // 审计字段...
+}
 ```
-com.lowcode
-  ├── domain
-  │   ├── model
-  │   ├── service
-  │   └── repository
-  ├── application
-  │   ├── service
-  │   ├── dto
-  │   └── assembler
-  ├── infrastructure
-  │   ├── repository
-  │   ├── generator
-  │   └── webhook
-  └── facade
-      ├── controller
-      ├── request
-      └── response
+
+#### 3.4.2 接口定义
+
+```java
+// 低代码服务
+public interface LowCodeService {
+    LowCodeConfig createConfig(String queryId, LowCodeConfigDTO dto);
+    LowCodeConfig getConfig(String id);
+    List<LowCodeConfig> getAllConfigs(ConfigFilter filter);
+    LowCodeConfig updateConfig(String id, LowCodeConfigDTO dto);
+    void deleteConfig(String id);
+    String exportConfig(String id, String format);
+}
+
+// 表单生成服务
+public interface FormGeneratorService {
+    FormConfig generateForm(String queryId);
+    FormConfig customizeForm(String formId, FormDTO dto);
+    boolean validateFormConfig(FormConfig config);
+    FormLayoutSuggestion suggestFormLayout(QueryDTO query);
+}
+
+// Webhook管理服务
+public interface WebhookService {
+    WebhookConfig registerWebhook(WebhookDTO dto);
+    void triggerWebhook(String webhookId, Map<String, Object> eventData);
+    WebhookActivityLog logWebhookActivity(String webhookId, WebhookEvent event);
+    WebhookTestResult testWebhook(String webhookId);
+}
+```
+
+#### 3.4.3 实现细节
+
+1. **JSON协议处理器**
+   - 定义低代码平台集成协议
+   - 实现协议序列化和反序列化
+   - 协议版本控制
+   
+```java
+public class ProtocolHandler {
+    
+    public String formatMessage(Object data, String protocolVersion) {
+        // 格式化消息为JSON
+    }
+    
+    public <T> T parseMessage(String message, Class<T> type) {
+        // 解析JSON消息
+    }
+    
+    public boolean validateMessage(String message, String schemaVersion) {
+        // 验证消息格式
+    }
+    
+    public JsonSchema getProtocolSchema(String version) {
+        // 获取协议模式定义
+    }
+}
+```
+
+2. **表单生成器**
+   - 根据查询参数自动生成表单
+   - 智能选择合适的输入控件
+   - 支持表单验证规则
+   
+```java
+public class FormGenerator {
+    
+    public FormConfig generateFormFromQuery(SavedQuery query) {
+        // 从查询生成表单配置
+    }
+    
+    public FormField createFieldForParameter(QueryParameter parameter) {
+        // 为参数创建表单字段
+    }
+    
+    public String suggestControlType(ParameterType type, 
+                                     String name, 
+                                     String defaultValue) {
+        // 建议控件类型
+    }
+}
+```
+
+3. **Webhook管理器**
+   - 实现Webhook注册和触发
+   - 支持事件过滤
+   - 实现消息签名验证
+   
+```java
+public class WebhookManager {
+    
+    public WebhookConfig register(String configId, WebhookDTO dto) {
+        // 注册Webhook
+    }
+    
+    public WebhookResult trigger(String webhookId, WebhookEvent event) {
+        // 触发Webhook
+    }
+    
+    public String generateSignature(String payload, String secret) {
+        // 生成消息签名
+    }
+    
+    public boolean verifySignature(String payload, String signature, String secret) {
+        // 验证消息签名
+    }
+}
 ```
 
 ### 3.5 版本控制模块
 
-**主要功能**：
-- 查询版本管理
-- API版本管理
-- 差异比较
-- 协作管理
+#### 3.5.1 关键领域模型
 
-**包结构**：
-```
-com.version
-  ├── domain
-  │   ├── model
-  │   ├── service
-  │   └── repository
-  ├── application
-  │   ├── service
-  │   ├── dto
-  │   └── assembler
-  ├── infrastructure
-  │   ├── repository
-  │   ├── diff
-  │   └── lock
-  └── facade
-      ├── controller
-      ├── request
-      └── response
-```
-
-### 3.6 共享基础模块
-
-**主要功能**：
-- 通用工具类
-- 异常处理
-- 安全实现
-- 缓存管理
-- 审计日志
-
-**包结构**：
-```
-com.common
-  ├── exception
-  ├── util
-  ├── security
-  ├── cache
-  ├── audit
-  └── config
-```
-
-## 4. 实施阶段划分
-
-系统实施分为以下阶段：
-
-### 4.1 第一阶段：基础设施与数据源管理
-
-**主要任务**：
-- 项目基础框架搭建
-- 领域模型设计与实现
-- 数据源连接与管理功能
-- 元数据提取与同步
-- 表关系基础管理
-
-**预估工作量**：5人月
-**优先级**：高
-
-### 4.2 第二阶段：查询构建与执行
-
-**主要任务**：
-- 查询构建器实现
-- SQL生成与验证
-- 查询执行引擎
-- 结果处理与展示
-- 查询历史管理
-
-**预估工作量**：4人月
-**优先级**：高
-
-### 4.3 第三阶段：自然语言查询
-
-**主要任务**：
-- OpenRouter API集成
-- 自然语言处理
-- SQL生成优化
-- 上下文管理
-- 反馈学习机制
-
-**预估工作量**：3人月
-**优先级**：中
-
-### 4.4 第四阶段：低代码集成
-
-**主要任务**：
-- 配置管理
-- 表单生成
-- JSON协议实现
-- Webhook管理
-- 集成示例
-
-**预估工作量**：3人月
-**优先级**：中
-
-### 4.5 第五阶段：版本控制与协作
-
-**主要任务**：
-- 版本管理实现
-- 差异比较
-- 回滚功能
-- 协作锁定
-- 变更历史
-
-**预估工作量**：2人月
-**优先级**：低
-
-### 4.6 第六阶段：UI优化与系统测试
-
-**主要任务**：
-- 界面美化
-- 用户体验优化
-- 系统性能测试
-- 安全测试
-- 文档完善
-
-**预估工作量**：3人月
-**优先级**：中
-
-## 5. 核心组件详细规范
-
-### 5.1 数据源连接管理
-
-**接口定义**：
 ```java
-public interface DataSourceService {
-    /**
-     * 创建新的数据源
-     * @param dto 数据源信息
-     * @return 创建的数据源
-     */
-    DataSource createDataSource(DataSourceDTO dto);
-    
-    /**
-     * 测试数据源连接
-     * @param id 数据源ID
-     * @return 连接测试结果
-     */
-    ConnectionTestResult testConnection(String id);
-    
-    /**
-     * 同步数据源元数据
-     * @param id 数据源ID
-     * @return 同步作业信息
-     */
-    MetadataSyncJob synchronizeMetadata(String id);
-    
-    /**
-     * 获取所有数据源
-     * @param filter 过滤条件
-     * @return 数据源列表
-     */
-    Page<DataSource> getDataSources(DataSourceFilter filter, Pageable pageable);
+// 查询版本
+public class QueryVersion {
+    private String id;
+    private String queryId;
+    private int versionNumber;
+    private String sqlText;
+    private List<ParameterDefinition> parameters;
+    private String description;
+    private String commitMessage;
+    private boolean isCurrent;
+    // 审计字段...
+}
+
+// API版本
+public class ApiVersion {
+    private String id;
+    private String queryId;
+    private String version;
+    private boolean isActive;
+    private String apiPath;
+    private ApiConfig config;
+    // 审计字段...
+}
+
+// 变更历史
+public class ChangeHistory {
+    private String id;
+    private String resourceId;
+    private String resourceType;
+    private ChangeType changeType;
+    private String beforeValue;
+    private String afterValue;
+    private String changeReason;
+    // 审计字段...
+}
+
+// 协作锁
+public class CollaborationLock {
+    private String id;
+    private String resourceId;
+    private String resourceType;
+    private String lockedBy;
+    private LocalDateTime lockedAt;
+    private LocalDateTime expiresAt;
+    // 审计字段...
 }
 ```
 
-**实现要点**：
-- 使用连接池管理数据库连接，避免频繁创建连接
-- 实现超时和重试机制处理连接问题
-- 数据源凭证使用AES-256加密存储，每个密码使用唯一盐值
-- 支持多种数据库类型适配器，使用工厂模式创建
+#### 3.5.2 接口定义
 
-### 5.2 元数据提取器
-
-**接口定义**：
 ```java
-public interface MetadataExtractor {
-    /**
-     * 提取数据源元数据
-     * @param dataSourceId 数据源ID
-     * @return 提取作业信息
-     */
-    ExtractionJob extractMetadata(String dataSourceId);
-    
-    /**
-     * 增量同步元数据
-     * @param dataSourceId 数据源ID
-     * @return 同步作业信息
-     */
-    ExtractionJob incrementalSync(String dataSourceId);
-    
-    /**
-     * 获取提取作业状态
-     * @param jobId 作业ID
-     * @return 作业状态
-     */
-    JobStatus getJobStatus(String jobId);
-}
-```
-
-**实现要点**：
-- 使用异步任务处理长时间运行的提取操作
-- 实现增量同步算法，避免全量同步的性能开销
-- 使用内存缓存优化频繁访问的元数据
-- 提供详细的进度报告和错误处理
-
-### 5.3 查询构建器
-
-**接口定义**：
-```java
-public interface QueryBuilder {
-    /**
-     * 创建新查询
-     * @param dto 查询定义
-     * @return 创建的查询
-     */
-    SavedQuery createQuery(QueryDTO dto);
-    
-    /**
-     * 生成SQL
-     * @param dto 查询定义
-     * @return 生成的SQL
-     */
-    String generateSQL(QueryDTO dto);
-    
-    /**
-     * 验证查询
-     * @param sql SQL语句
-     * @param dataSourceId 数据源ID
-     * @return 验证结果
-     */
-    ValidationResult validateQuery(String sql, String dataSourceId);
-    
-    /**
-     * 执行查询
-     * @param queryId 查询ID
-     * @param parameters 参数
-     * @return 查询结果
-     */
-    QueryResult executeQuery(String queryId, Map<String, Object> parameters);
-}
-```
-
-**实现要点**：
-- 使用访问者模式构建SQL抽象语法树
-- 实现SQL注入防护和参数化查询
-- 提供查询超时控制和资源限制
-- 支持多种SQL方言适配不同数据库
-
-### 5.4 自然语言处理器
-
-**接口定义**：
-```java
-public interface NLProcessor {
-    /**
-     * 处理自然语言查询
-     * @param dataSourceId 数据源ID
-     * @param naturalLanguage 自然语言描述
-     * @return 处理结果
-     */
-    NLProcessResult processQuery(String dataSourceId, String naturalLanguage);
-    
-    /**
-     * 获取优化建议
-     * @param dataSourceId 数据源ID
-     * @param naturalLanguage 自然语言描述
-     * @return 建议列表
-     */
-    List<String> suggestRefinements(String dataSourceId, String naturalLanguage);
-    
-    /**
-     * 记录反馈
-     * @param queryId 查询ID
-     * @param feedback 反馈信息
-     * @return 是否成功
-     */
-    boolean recordFeedback(String queryId, FeedbackDTO feedback);
-}
-```
-
-**实现要点**：
-- 集成OpenRouter API，使用适当的提示工程优化结果
-- 提供上下文信息（数据库结构、表关系）增强转换准确性
-- 实现本地缓存减少API调用
-- 建立反馈循环，通过用户反馈不断改进
-
-### 5.5 低代码配置管理器
-
-**接口定义**：
-```java
-public interface LowCodeConfigManager {
-    /**
-     * 创建配置
-     * @param queryId 查询ID
-     * @param dto 配置信息
-     * @return 创建的配置
-     */
-    LowCodeConfig createConfig(String queryId, LowCodeConfigDTO dto);
-    
-    /**
-     * 生成表单
-     * @param configId 配置ID
-     * @return 表单定义
-     */
-    FormDefinition generateForm(String configId);
-    
-    /**
-     * 注册Webhook
-     * @param configId 配置ID
-     * @param dto Webhook信息
-     * @return 创建的Webhook
-     */
-    WebhookConfig registerWebhook(String configId, WebhookDTO dto);
-    
-    /**
-     * 导出配置为JSON
-     * @param configId 配置ID
-     * @return JSON格式配置
-     */
-    String exportConfigAsJson(String configId);
-}
-```
-
-**实现要点**：
-- 实现标准化的JSON协议格式
-- 使用策略模式支持不同类型的表单生成
-- 实现Webhook安全验证和重试机制
-- 提供版本兼容性检查
-
-### 5.6 版本管理器
-
-**接口定义**：
-```java
-public interface VersionManager {
-    /**
-     * 创建版本
-     * @param resourceId 资源ID
-     * @param resourceType 资源类型
-     * @param dto 版本信息
-     * @return 创建的版本
-     */
-    Version createVersion(String resourceId, String resourceType, VersionDTO dto);
-    
-    /**
-     * 获取版本历史
-     * @param resourceId 资源ID
-     * @param resourceType 资源类型
-     * @return 版本列表
-     */
-    List<Version> getVersionHistory(String resourceId, String resourceType);
-    
-    /**
-     * 比较版本
-     * @param versionId1 版本1
-     * @param versionId2 版本2
-     * @return 差异结果
-     */
+// 版本控制服务
+public interface VersionControlService {
+    QueryVersion createQueryVersion(String queryId, VersionDTO dto);
+    List<QueryVersion> getQueryVersions(String queryId);
+    QueryVersion getQueryVersion(String queryId, String versionId);
+    SavedQuery rollbackToVersion(String queryId, String versionId);
     DiffResult compareVersions(String versionId1, String versionId2);
-    
-    /**
-     * 回滚到指定版本
-     * @param resourceId 资源ID
-     * @param resourceType 资源类型
-     * @param versionId 版本ID
-     * @return 回滚结果
-     */
-    RollbackResult rollbackToVersion(String resourceId, String resourceType, String versionId);
+}
+
+// 协作服务
+public interface CollaborationService {
+    CollaborationLock lockResource(String resourceType, String resourceId, String userId);
+    void unlockResource(String resourceType, String resourceId, String userId);
+    CollaborationStatus getEditStatus(String resourceType, String resourceId);
+    List<ChangeHistory> getChangeHistory(String resourceType, String resourceId);
 }
 ```
 
-**实现要点**：
-- 使用类Git模型实现版本管理
-- 提供高效的差异比较算法
-- 实现乐观锁防止并发编辑冲突
-- 支持版本标签和注释
+#### 3.5.3 实现细节
 
-## 6. 技术风险与缓解策略
+1. **Git风格版本管理**
+   - 实现类似Git的版本模型
+   - 支持版本差异比较
+   - 支持版本回滚
+   
+```java
+public class VersionManager {
+    
+    public QueryVersion createVersion(String queryId, VersionDTO dto) {
+        // 创建新版本
+    }
+    
+    public QueryVersion getVersion(String versionId) {
+        // 获取版本信息
+    }
+    
+    public List<QueryVersion> listVersions(String queryId) {
+        // 列出所有版本
+    }
+    
+    public SavedQuery rollbackToVersion(String queryId, String versionId) {
+        // 回滚到指定版本
+    }
+}
+```
 
-### 6.1 性能风险
+2. **差异比较引擎**
+   - 实现文本差异比较算法
+   - 生成可视化差异报告
+   - 支持结构化差异比较
+   
+```java
+public class DiffGenerator {
+    
+    public DiffResult compareSQLVersions(String versionId1, String versionId2) {
+        // 比较SQL版本差异
+    }
+    
+    public String visualizeDiff(String text1, String text2) {
+        // 生成可视化差异
+    }
+    
+    public ChangeSummary getChangeSummary(String versionId1, String versionId2) {
+        // 获取变更摘要
+    }
+}
+```
 
-**风险**：查询大型数据源时性能下降，影响用户体验。
+3. **协作编辑控制**
+   - 实现资源锁定机制
+   - 支持锁定超时和自动释放
+   - 记录编辑状态和冲突解决
+   
+```java
+public class CollaborationManager {
+    
+    public CollaborationLock lockResource(String resourceType, String resourceId, String userId) {
+        // 锁定资源
+    }
+    
+    public void unlockResource(String resourceType, String resourceId, String userId) {
+        // 释放锁定
+    }
+    
+    public CollaborationStatus getEditStatus(String resourceType, String resourceId) {
+        // 获取编辑状态
+    }
+    
+    public ConflictResolution mergeChanges(String resourceId, String changeSetId) {
+        // 合并变更
+    }
+}
+```
 
-**缓解策略**：
-- 实施多层缓存策略，减少数据库访问
-- 查询分页处理，限制单次返回数据量
-- 使用异步任务处理长时间运行的操作
-- 实施查询超时和资源限制
-- 定期监控性能指标，及时优化
+### 3.6 共享基础设施
 
-### 6.2 安全风险
+#### 3.6.1 数据访问服务
 
-**风险**：数据源凭证泄露，SQL注入攻击。
+```java
+public interface DataAccessService {
+    <T> T executeQuery(String sql, Object[] params, ResultSetExtractor<T> extractor);
+    int executeUpdate(String sql, Object[] params);
+    List<Map<String, Object>> queryForList(String sql, Object[] params);
+    <T> List<T> queryForList(String sql, Object[] params, Class<T> elementType);
+}
+```
 
-**缓解策略**：
-- 凭证使用AES-256加密存储，每个密码使用唯一盐值
-- 实施参数化查询防止SQL注入
-- 加强访问控制，严格权限管理
-- 敏感数据掩码处理
-- 完善的审计日志记录
+#### 3.6.2 缓存服务
 
-### 6.3 外部依赖风险
+```java
+public interface CacheService {
+    <T> T get(String key, Class<T> type);
+    <T> void put(String key, T value, Duration ttl);
+    boolean remove(String key);
+    void clear(String pattern);
+    <T> T getOrCompute(String key, Function<String, T> computeFunction, Duration ttl);
+}
+```
 
-**风险**：OpenRouter API不可用或限流，影响自然语言查询功能。
+#### 3.6.3 安全服务
 
-**缓解策略**：
-- 实现本地缓存减少API调用
-- 提供降级策略，在API不可用时提供基本功能
-- 实施请求限流和重试机制
-- 监控API调用状态和响应时间
-- 考虑备选AI服务提供商
+```java
+public interface SecurityService {
+    String encryptData(String data, String salt);
+    String decryptData(String encryptedData, String salt);
+    String hashPassword(String password);
+    boolean verifyPassword(String password, String hashedPassword);
+    String generateToken(Map<String, Object> claims);
+    Map<String, Object> validateToken(String token);
+}
+```
 
-### 6.4 扩展性风险
+#### 3.6.4 集成服务
 
-**风险**：随着数据源和用户增加，系统难以扩展。
+```java
+public interface IntegrationService {
+    <T> T callExternalAPI(String url, String method, Object requestBody, Class<T> responseType);
+    void registerCallback(String eventType, CallbackHandler handler);
+    Connection connectToDataSource(DataSource dataSource);
+    LLMResponse callLLMService(LLMRequest request);
+}
+```
 
-**缓解策略**：
-- 模块化设计，支持独立扩展
-- 使用连接池和资源限制控制系统负载
-- 支持水平扩展的缓存和消息队列
-- 定期性能测试，预测扩展需求
-- 实施监控告警，及时发现瓶颈
+## 4. 数据模型设计
 
-### 6.5 集成风险
+### 4.1 数据库表设计
 
-**风险**：低代码平台集成不兼容，影响用户体验。
+系统使用以下命名规范：
+- 所有表名以`tbl_`开头
+- 使用下划线分隔单词
+- 主键使用UUID (varchar(36))
+- 所有表包含created_at, modified_at, created_by, modified_by和nonce字段
 
-**缓解策略**：
-- 设计标准化的JSON协议，支持版本控制
-- 提供全面的集成测试套件
-- 文档化集成接口和最佳实践
-- 提供示例实现和SDK
-- 建立反馈渠道，及时修复集成问题
+#### 数据源相关表
 
-## 7. 安全实现
+| 表名 | 主要字段 | 说明 |
+|------|---------|------|
+| tbl_data_source | id, name, type, host, port, database_name, username, encrypted_password, encryption_salt, connection_properties, active | 存储数据源连接信息 |
+| tbl_schema_info | id, data_source_id, name, description | 存储数据库模式信息 |
+| tbl_table_info | id, schema_id, name, type, description, estimated_row_count | 存储表信息 |
+| tbl_column_info | id, table_id, name, data_type, ordinal_position, nullable, is_primary_key | 存储列信息 |
+| tbl_index_info | id, table_id, name, type, is_unique | 存储索引信息 |
+| tbl_foreign_key | id, name, source_table_id, target_table_id, update_rule, delete_rule | 存储外键信息 |
+| tbl_table_relation | id, source_table_id, target_table_id, relation_type, is_inferred, confidence | 存储推断的表关系 |
+| tbl_metadata_version | id, data_source_id, description, snapshot_location | 存储元数据版本 |
+| tbl_sync_job | id, data_source_id, type, status, progress, error_message | 存储同步作业信息 |
 
-### 7.1 数据源凭证加密
+#### 查询相关表
 
-**实现方式**：
-- 使用AES-256加密算法
-- 每个密码使用唯一的随机盐值
-- 密钥使用PBKDF2派生，增强安全性
-- 加密密钥不在配置文件中明文存储
-- 支持密钥轮换机制
+| 表名 | 主要字段 | 说明 |
+|------|---------|------|
+| tbl_saved_query | id, name, description, data_source_id, sql_text, created_by, is_public | 存储保存的查询 |
+| tbl_query_parameter | id, query_id, name, type, default_value, required | 存储查询参数定义 |
+| tbl_query_version | id, query_id, version_number, sql_text, parameters, description | 存储查询版本 |
+| tbl_query_execution | id, query_id, version_id, parameters, start_time, end_time, status, error_message | 存储查询执行记录 |
+| tbl_query_history | id, user_id, query_text, execution_time, record_count, created_at | 存储查询历史 |
 
-**代码示例**：
+#### 低代码集成相关表
+
+| 表名 | 主要字段 | 说明 |
+|------|---------|------|
+| tbl_lowcode_config | id, query_id, name, description, version | 存储低代码配置 |
+| tbl_form_config | id, config_id, layout, sections, fields, buttons | 存储表单配置 |
+| tbl_display_config | id, config_id, type, title, pagination, sorting, columns, operations | 存储展示配置 |
+| tbl_webhook_config | id, config_id, endpoint_url, secret_key, event_types, active | 存储Webhook配置 |
+| tbl_api_version | id, query_id, version, is_active, api_path | 存储API版本 |
+
+#### 自然语言查询相关表
+
+| 表名 | 主要字段 | 说明 |
+|------|---------|------|
+| tbl_nl_query | id, data_source_id, natural_language, generated_sql, confidence, status, user_id | 存储自然语言查询 |
+| tbl_nl_feedback | id, nl_query_id, is_positive, comments, correct_sql, user_id | 存储用户反馈 |
+| tbl_query_context | id, user_id, data_source_id, context_data, created_at, expires_at | 存储查询上下文 |
+
+#### 协作相关表
+
+| 表名 | 主要字段 | 说明 |
+|------|---------|------|
+| tbl_collaboration_lock | id, resource_id, resource_type, locked_by, locked_at, expires_at | 存储协作锁 |
+| tbl_change_history | id, resource_id, resource_type, change_type, before_value, after_value | 存储变更历史 |
+| tbl_user_preference | id, user_id, preference_type, preference_key, preference_value | 存储用户偏好 |
+
+### 4.2 索引策略
+
+- 使用唯一索引(前缀u_idx_)保证关键字段唯一性
+- 使用普通索引(前缀idx_)优化查询性能
+- 索引名包含列名以便于识别用途
+- 对频繁查询的字段创建索引
+- 对外键关系创建索引
+
+示例索引定义：
+
+```sql
+-- 数据源表索引
+CREATE UNIQUE INDEX u_idx_datasource_name ON tbl_data_source(name);
+CREATE INDEX idx_datasource_type ON tbl_data_source(type);
+
+-- 表信息索引
+CREATE INDEX idx_table_schema_id ON tbl_table_info(schema_id);
+CREATE UNIQUE INDEX u_idx_table_schema_name ON tbl_table_info(schema_id, name);
+
+-- 列信息索引
+CREATE INDEX idx_column_table_id ON tbl_column_info(table_id);
+CREATE UNIQUE INDEX u_idx_column_table_name ON tbl_column_info(table_id, name);
+
+-- 查询相关索引
+CREATE INDEX idx_query_datasource ON tbl_saved_query(data_source_id);
+CREATE INDEX idx_query_created_by ON tbl_saved_query(created_by);
+CREATE INDEX idx_query_execution_query_id ON tbl_query_execution(query_id);
+CREATE INDEX idx_query_history_user_id ON tbl_query_history(user_id);
+```
+
+### 4.3 数据迁移策略
+
+使用Flyway进行数据库版本控制和迁移：
+
+1. 创建初始数据库结构
+2. 增量更新数据库结构
+3. 支持回滚和升级路径
+4. 版本控制确保环境一致性
+
+迁移脚本目录：`src/main/resources/db/migration`
+命名规范：`V{version}__{description}.sql`
+
+## 5. 安全实施
+
+### 5.1 数据源凭证加密
+
+- 使用AES-256 CBC模式加密算法
+- 主密钥存储在环境变量或配置文件中
+- 每个数据源密码使用唯一盐值
+- 数据库中只存储密文和盐值
+
+实现示例：
+
 ```java
 @Service
-public class CredentialEncryptionServiceImpl implements CredentialEncryptionService {
-    @Value("${encryption.master.key}")
-    private String masterKeyEncoded;
+public class AESCredentialEncryptor implements CredentialEncryptor {
+    @Value("${datasource.encryption.key}")
+    private String masterKey;
     
     @Override
-    public EncryptedCredential encrypt(String plaintext) {
-        byte[] salt = generateRandomSalt();
-        SecretKey key = deriveKey(masterKeyEncoded, salt);
-        byte[] encrypted = performAesEncryption(plaintext, key);
-        return new EncryptedCredential(encrypted, salt);
+    public String encrypt(String plaintext, String salt) {
+        // 基于主密钥和盐值派生加密密钥
+        SecretKey key = deriveKey(masterKey, salt);
+        
+        // 执行AES加密
+        Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+        cipher.init(Cipher.ENCRYPT_MODE, key, new IvParameterSpec(salt.getBytes()));
+        byte[] encryptedBytes = cipher.doFinal(plaintext.getBytes(StandardCharsets.UTF_8));
+        
+        // 返回Base64编码的密文
+        return Base64.getEncoder().encodeToString(encryptedBytes);
     }
     
     @Override
-    public String decrypt(EncryptedCredential credential) {
-        SecretKey key = deriveKey(masterKeyEncoded, credential.getSalt());
-        return performAesDecryption(credential.getEncrypted(), key);
+    public String decrypt(String ciphertext, String salt) {
+        // 解密实现...
     }
     
-    private byte[] generateRandomSalt() {
-        byte[] salt = new byte[16];
-        new SecureRandom().nextBytes(salt);
-        return salt;
+    @Override
+    public String generateSalt() {
+        // 生成随机盐值...
     }
     
-    private SecretKey deriveKey(String masterKey, byte[] salt) {
-        // PBKDF2 key derivation
-        // ...
-    }
-    
-    private byte[] performAesEncryption(String plaintext, SecretKey key) {
-        // AES encryption implementation
-        // ...
-    }
-    
-    private String performAesDecryption(byte[] encrypted, SecretKey key) {
-        // AES decryption implementation
-        // ...
+    private SecretKey deriveKey(String masterKey, String salt) {
+        // 使用PBKDF2派生密钥...
     }
 }
 ```
 
-### 7.2 SQL注入防护
+### 5.2 SQL注入防护
 
-**实现方式**：
-- 使用参数化查询
-- 输入验证和净化
-- 限制查询权限
-- SQL语法分析和验证
-- 敏感操作审计
+- 使用参数化查询，避免直接字符串拼接
+- 输入验证和清理，过滤潜在危险字符
+- 使用MyBatis的预编译功能
+- 最小权限原则，数据源连接使用只读权限
 
-**代码示例**：
-```java
-@Service
-public class QueryExecutorImpl implements QueryExecutor {
-    @Override
-    public QueryResult executeQuery(String sql, Map<String, Object> parameters, String dataSourceId) {
-        // 验证SQL，防止注入
-        if (!sqlValidator.isValid(sql)) {
-            throw new SecurityException("Invalid SQL detected");
-        }
-        
-        // 使用命名参数替换，而非字符串拼接
-        sql = prepareParameterizedSql(sql, parameters);
-        
-        // 执行参数化查询
-        Connection conn = dataSourceManager.getConnection(dataSourceId);
-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-            bindParameters(stmt, parameters);
-            
-            // 记录审计日志
-            auditLogger.logQueryExecution(dataSourceId, sql, parameters);
-            
-            boolean hasResultSet = stmt.execute();
-            return processQueryResult(stmt, hasResultSet);
-        } catch (SQLException e) {
-            throw new QueryExecutionException("Error executing query", e);
-        }
-    }
-    
-    private String prepareParameterizedSql(String sql, Map<String, Object> parameters) {
-        // 将SQL中的参数标记转换为JDBC参数
-        // ...
-    }
-    
-    private void bindParameters(PreparedStatement stmt, Map<String, Object> parameters) throws SQLException {
-        // 绑定参数到PreparedStatement
-        // ...
-    }
-    
-    private QueryResult processQueryResult(PreparedStatement stmt, boolean hasResultSet) throws SQLException {
-        // 处理查询结果
-        // ...
-    }
-}
-```
+### 5.3 API安全
 
-### 7.3 API安全
+- JWT认证和授权
+- 请求频率限制(每分钟10次查询)
+- API密钥管理和轮换
+- HTTPS传输加密
+- 审计日志记录所有API调用
 
-**实现方式**：
-- JWT认证
-- 请求频率限制
-- API密钥管理
-- 细粒度权限控制
-- 请求签名验证
+### 5.4 数据掩码
 
-**代码示例**：
-```java
-@Component
-public class ApiAuthenticationFilter extends OncePerRequestFilter {
-    @Autowired
-    private JwtTokenProvider tokenProvider;
-    
-    @Autowired
-    private RateLimiter rateLimiter;
-    
-    @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) 
-            throws ServletException, IOException {
-        
-        // 检查API密钥或JWT
-        String token = extractToken(request);
-        
-        if (token != null && tokenProvider.validateToken(token)) {
-            // 频率限制检查
-            String userId = tokenProvider.getUserIdFromToken(token);
-            if (!rateLimiter.allowRequest(userId)) {
-                response.setStatus(HttpServletResponse.SC_TOO_MANY_REQUESTS);
-                response.getWriter().write("Rate limit exceeded");
-                return;
-            }
-            
-            // 设置认证信息
-            Authentication auth = tokenProvider.getAuthentication(token);
-            SecurityContextHolder.getContext().setAuthentication(auth);
-            
-            // 记录API调用
-            apiAuditLogger.logApiCall(userId, request.getRequestURI(), request.getMethod());
-        }
-        
-        filterChain.doFilter(request, response);
-    }
-    
-    private String extractToken(HttpServletRequest request) {
-        // 从请求中提取token
-        // ...
-    }
-}
-```
+- 支持指定敏感列的掩码规则
+- 掩码规则包括：完全掩码、部分掩码、字符替换等
+- 在数据导出和API响应中应用一致的掩码规则
 
-## 8. 缓存策略实现
+## 6. 缓存策略
 
-### 8.1 多层缓存架构
+### 6.1 多级缓存设计
 
-**实现方式**：
-- Spring Cache抽象统一缓存管理
-- 本地缓存用于频繁访问的小型数据
-- Redis缓存用于分布式和大型数据
-- 缓存键生成策略确保唯一性
-- 缓存过期和刷新策略
+1. **应用内缓存**
+   - 本地内存缓存(Caffeine)
+   - 适用于频繁使用的小型静态数据
+   - 短期缓存，默认TTL 5分钟
 
-**代码示例**：
+2. **分布式缓存**
+   - Redis实现
+   - 存储共享数据和跨实例数据
+   - 可配置的TTL和缓存策略
+
+### 6.2 缓存模式
+
+| 缓存类型 | 缓存键模式 | 过期时间 | 刷新策略 | 实现方式 |
+|---------|-----------|---------|----------|---------|
+| 元数据缓存 | metadata:{dataSourceId}:{objectType} | 24小时 | 元数据同步时刷新 | Redis |
+| 表关系缓存 | relation:{dataSourceId} | 24小时 | 关系更新时刷新 | Redis |
+| 查询结果缓存 | query:result:{queryId}:{paramHash} | 可配置(默认10分钟) | 按需刷新，数据变更时失效 | Redis |
+| 查询分析缓存 | query:analysis:{queryId} | 1小时 | 查询更新时刷新 | Redis |
+| 低代码配置缓存 | lowcode:config:{configId} | 1小时 | 配置更新时刷新 | Redis |
+| 常用查询缓存 | query:frequent:{userId} | 7天 | 查询频率变化时更新 | Redis |
+| 用户偏好缓存 | user:preference:{userId} | 30天 | 用户修改时更新 | Redis |
+
+### 6.3 缓存实现
+
 ```java
 @Configuration
 @EnableCaching
@@ -841,627 +1176,150 @@ public class CacheConfig {
     
     @Bean
     public CacheManager cacheManager(RedisConnectionFactory redisConnectionFactory) {
-        // 本地缓存 + Redis缓存的复合缓存管理器
-        return new CompositeCacheManager(
-            caffeineCacheManager(), // 本地缓存
-            redisCacheManager(redisConnectionFactory) // Redis缓存
-        );
+        // 配置Redis缓存管理器
     }
     
     @Bean
-    public CacheManager caffeineCacheManager() {
-        CaffeineCacheManager cacheManager = new CaffeineCacheManager();
-        cacheManager.setCacheNames(Arrays.asList("localMetadata", "userPreferences"));
-        cacheManager.setCaffeineSpec(CaffeineSpec.parse("maximumSize=1000,expireAfterWrite=10m"));
-        return cacheManager;
+    public RedisCacheConfiguration defaultCacheConfig() {
+        // 配置默认缓存策略
     }
     
     @Bean
-    public CacheManager redisCacheManager(RedisConnectionFactory redisConnectionFactory) {
-        RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig()
-            .entryTtl(Duration.ofHours(1))
-            .serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()))
-            .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(new Jackson2JsonRedisSerializer<>(Object.class)));
-            
-        // 不同缓存项的TTL配置
-        Map<String, RedisCacheConfiguration> configMap = new HashMap<>();
-        configMap.put("metadata", config.entryTtl(Duration.ofHours(24)));
-        configMap.put("queryResults", config.entryTtl(Duration.ofMinutes(10)));
-        
-        return RedisCacheManager.builder(redisConnectionFactory)
-            .cacheDefaults(config)
-            .withInitialCacheConfigurations(configMap)
-            .build();
-    }
-    
-    @Bean
-    public KeyGenerator customKeyGenerator() {
-        return (target, method, params) -> {
-            StringBuilder sb = new StringBuilder();
-            sb.append(target.getClass().getSimpleName()).append(":");
-            sb.append(method.getName()).append(":");
-            for (Object param : params) {
-                sb.append(param.toString()).append(":");
-            }
-            return sb.toString();
-        };
+    public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory factory) {
+        // 配置RedisTemplate
     }
 }
-```
 
-### 8.2 缓存使用示例
-
-**元数据缓存**：
-```java
 @Service
-public class MetadataServiceImpl implements MetadataService {
+public class RedisCacheService implements CacheService {
     
     @Autowired
-    private TableInfoRepository tableInfoRepository;
+    private RedisTemplate<String, Object> redisTemplate;
     
-    @Cacheable(value = "metadata", key = "'tables:' + #schemaId")
     @Override
-    public List<TableInfo> getTables(String schemaId) {
-        return tableInfoRepository.findBySchemaId(schemaId);
+    public <T> T get(String key, Class<T> type) {
+        // 从Redis获取缓存
     }
     
-    @Cacheable(value = "metadata", key = "'columns:' + #tableId")
     @Override
-    public List<ColumnInfo> getColumns(String tableId) {
-        return columnInfoRepository.findByTableId(tableId);
+    public <T> void put(String key, T value, Duration ttl) {
+        // 添加缓存到Redis
     }
     
-    @CacheEvict(value = "metadata", key = "'tables:' + #schemaId")
     @Override
-    public void refreshTables(String schemaId) {
-        // 刷新表缓存的逻辑
+    public boolean remove(String key) {
+        // 移除缓存
+    }
+    
+    @Override
+    public void clear(String pattern) {
+        // 清除匹配模式的缓存
     }
 }
 ```
 
-**查询结果缓存**：
-```java
-@Service
-public class QueryServiceImpl implements QueryService {
-    
-    @Autowired
-    private QueryExecutor queryExecutor;
-    
-    @Cacheable(
-        value = "queryResults", 
-        key = "#queryId + ':' + #parameters.hashCode()",
-        condition = "#result != null && #result.rowCount < 1000",
-        unless = "#result.containsLargeObjects"
-    )
-    @Override
-    public QueryResult executeQuery(String queryId, Map<String, Object> parameters) {
-        SavedQuery query = getQuery(queryId);
-        return queryExecutor.execute(query.getSqlText(), parameters, query.getDataSourceId());
-    }
-    
-    @CacheEvict(value = "queryResults", allEntries = true)
-    @Scheduled(fixedRateString = "${cache.query-results.evict-rate:600000}")
-    public void clearQueryResultsCache() {
-        // 定期清除查询结果缓存
-    }
-}
-```
+## 7. 性能优化
 
-## 9. 监控与日志
+### 7.1 查询执行优化
 
-### 9.1 日志配置
+- 实现超时控制，默认30秒
+- 使用连接池管理数据源连接
+- 分析并优化SQL执行计划
+- 长时间查询异步执行
+- 查询结果流式处理
 
-**实现方式**：
-- 使用SLF4J + Logback框架
-- MDC支持上下文信息
-- 结构化日志格式(JSON)
-- 日志分级和分类
-- 日志轮转策略
+### 7.2 数据库访问优化
 
-**配置示例**：
-```xml
-<configuration>
-    <!-- 控制台输出 -->
-    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
-        <encoder>
-            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} [%X{userId},%X{requestId}] - %msg%n</pattern>
-        </encoder>
-    </appender>
-    
-    <!-- 文件输出 -->
-    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>logs/datascope.log</file>
-        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>logs/datascope-%d{yyyy-MM-dd}.log</fileNamePattern>
-            <maxHistory>30</maxHistory>
-        </rollingPolicy>
-        <encoder class="net.logstash.logback.encoder.LogstashEncoder" />
-    </appender>
-    
-    <!-- 异步处理 -->
-    <appender name="ASYNC" class="ch.qos.logback.classic.AsyncAppender">
-        <appender-ref ref="FILE" />
-        <queueSize>512</queueSize>
-        <discardingThreshold>0</discardingThreshold>
-    </appender>
-    
-    <!-- 审计日志 -->
-    <appender name="AUDIT" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>logs/audit.log</file>
-        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>logs/audit-%d{yyyy-MM-dd}.log</fileNamePattern>
-            <maxHistory>90</maxHistory>
-        </rollingPolicy>
-        <encoder class="net.logstash.logback.encoder.LogstashEncoder" />
-    </appender>
-    
-    <!-- 审计日志记录器 -->
-    <logger name="com.audit" level="INFO" additivity="false">
-        <appender-ref ref="AUDIT" />
-    </logger>
-    
-    <!-- 根日志记录器 -->
-    <root level="INFO">
-        <appender-ref ref="CONSOLE" />
-        <appender-ref ref="ASYNC" />
-    </root>
-</configuration>
-```
+- 使用MyBatis作为ORM框架
+- 动态SQL构建以优化查询
+- 使用批处理提高大批量操作性能
+- 适当使用存储过程处理复杂查询
 
-### 9.2 监控指标
+### 7.3 应用性能监控
 
-**实现方式**：
-- Spring Boot Actuator提供基础监控端点
-- Micrometer收集详细指标
-- 定制指标收集关键业务数据
-- 健康检查确认系统状态
-- 预警阈值设置
+- 收集关键性能指标
+- 使用Micrometer + Prometheus监控
+- 性能日志和警报系统
+- 定期性能分析和优化
 
-**配置示例**：
-```java
-@Configuration
-public class MetricsConfig {
-    
-    @Bean
-    MeterRegistryCustomizer<MeterRegistry> metricsCommonTags() {
-        return registry -> registry.config().commonTags("application", "datascope");
-    }
-    
-    @Bean
-    public TimedAspect timedAspect(MeterRegistry registry) {
-        return new TimedAspect(registry);
-    }
-    
-    @Bean
-    public CountedAspect countedAspect(MeterRegistry registry) {
-        return new CountedAspect(registry);
-    }
-}
-```
+## 8. 国际化与本地化
 
-**指标收集示例**：
-```java
-@Service
-public class QueryServiceImpl implements QueryService {
-    
-    private final MeterRegistry meterRegistry;
-    
-    @Autowired
-    public QueryServiceImpl(MeterRegistry meterRegistry) {
-        this.meterRegistry = meterRegistry;
-    }
-    
-    @Timed(value = "query.execution.time", description = "Time taken to execute a query")
-    @Counted(value = "query.execution.count", description = "Number of query executions")
-    @Override
-    public QueryResult executeQuery(String queryId, Map<String, Object> parameters) {
-        // 记录查询开始
-        Timer.Sample sample = Timer.start(meterRegistry);
-        
-        try {
-            // 执行查询
-            QueryResult result = doExecuteQuery(queryId, parameters);
-            
-            // 记录查询结果大小
-            meterRegistry.gauge("query.result.size", Tags.of("queryId", queryId), result.getRowCount());
-            
-            return result;
-        } catch (Exception e) {
-            // 记录查询错误
-            meterRegistry.counter("query.execution.error", "queryId", queryId, "error", e.getClass().getSimpleName()).increment();
-            throw e;
-        } finally {
-            // 记录查询耗时
-            sample.stop(meterRegistry.timer("query.execution.time", "queryId", queryId));
-        }
-    }
-    
-    // ...
-}
-```
+- 支持中英文界面
+- 错误消息和提示的国际化
+- 日期时间格式本地化
+- 数字和货币格式本地化
 
-## 10. 测试策略
+## 9. 测试策略
 
-### 10.1 单元测试
+### 9.1 单元测试
 
-**实现方式**：
-- JUnit 5作为测试框架
-- Mockito用于模拟依赖
-- AssertJ用于流畅的断言
+- 使用JUnit 5和Mockito
 - 测试覆盖率目标：80%
-- 领域层和应用层重点测试
+- 测试领域服务和应用服务
+- 测试数据库仓储实现
 
-**测试示例**：
-```java
-@ExtendWith(MockitoExtension.class)
-public class DataSourceServiceTest {
-    
-    @Mock
-    private DataSourceRepository dataSourceRepository;
-    
-    @Mock
-    private CredentialEncryptionService encryptionService;
-    
-    @InjectMocks
-    private DataSourceServiceImpl dataSourceService;
-    
-    @Test
-    public void testCreateDataSource() {
-        // 准备测试数据
-        DataSourceDTO dto = new DataSourceDTO();
-        dto.setName("Test DB");
-        dto.setType(DataSourceType.MYSQL);
-        dto.setHost("localhost");
-        dto.setPort(3306);
-        dto.setUsername("user");
-        dto.setPassword("password");
-        
-        // 模拟加密服务
-        EncryptedCredential encryptedCredential = new EncryptedCredential("encrypted".getBytes(), "salt".getBytes());
-        when(encryptionService.encrypt(dto.getPassword())).thenReturn(encryptedCredential);
-        
-        // 模拟仓储保存
-        DataSource dataSource = new DataSource();
-        dataSource.setId(UUID.randomUUID().toString());
-        dataSource.setName(dto.getName());
-        when(dataSourceRepository.save(any(DataSource.class))).thenReturn(dataSource);
-        
-        // 执行被测方法
-        DataSource result = dataSourceService.createDataSource(dto);
-        
-        // 验证结果
-        assertThat(result).isNotNull();
-        assertThat(result.getName()).isEqualTo(dto.getName());
-        
-        // 验证交互
-        verify(encryptionService).encrypt(dto.getPassword());
-        verify(dataSourceRepository).save(any(DataSource.class));
-    }
-    
-    // ...
-}
-```
+### 9.2 集成测试
 
-### 10.2 集成测试
+- 测试模块间集成
+- 使用测试容器进行数据库测试
+- API端到端测试
+- 使用模拟外部服务进行集成测试
 
-**实现方式**：
-- Spring Boot Test支持
-- Testcontainers用于数据库集成测试
-- WireMock模拟外部API
-- 分层测试策略
-- 自动化集成测试套件
+### 9.3 性能测试
 
-**测试示例**：
-```java
-@SpringBootTest
-@Testcontainers
-public class DataSourceIntegrationTest {
-    
-    @Container
-    private static final MySQLContainer<?> mysql = new MySQLContainer<>("mysql:8.0")
-        .withDatabaseName("testdb")
-        .withUsername("test")
-        .withPassword("test");
-    
-    @DynamicPropertySource
-    static void registerMySqlProperties(DynamicPropertyRegistry registry) {
-        registry.add("spring.datasource.url", mysql::getJdbcUrl);
-        registry.add("spring.datasource.username", mysql::getUsername);
-        registry.add("spring.datasource.password", mysql::getPassword);
-    }
-    
-    @Autowired
-    private DataSourceService dataSourceService;
-    
-    @Autowired
-    private DataSourceRepository dataSourceRepository;
-    
-    @Test
-    public void testDataSourceCRUD() {
-        // 创建数据源
-        DataSourceDTO dto = new DataSourceDTO();
-        dto.setName("Test MySQL");
-        dto.setType(DataSourceType.MYSQL);
-        dto.setHost(mysql.getHost());
-        dto.setPort(mysql.getFirstMappedPort());
-        dto.setDatabase(mysql.getDatabaseName());
-        dto.setUsername(mysql.getUsername());
-        dto.setPassword(mysql.getPassword());
-        
-        DataSource created = dataSourceService.createDataSource(dto);
-        assertThat(created).isNotNull();
-        assertThat(created.getId()).isNotNull();
-        
-        // 测试连接
-        ConnectionTestResult testResult = dataSourceService.testConnection(created.getId());
-        assertThat(testResult.isSuccess()).isTrue();
-        
-        // 更新数据源
-        dto.setName("Updated MySQL");
-        DataSource updated = dataSourceService.updateDataSource(created.getId(), dto);
-        assertThat(updated.getName()).isEqualTo("Updated MySQL");
-        
-        // 删除数据源
-        dataSourceService.deleteDataSource(created.getId());
-        assertThat(dataSourceRepository.findById(created.getId())).isEmpty();
-    }
-    
-    // ...
-}
-```
+- 负载测试验证系统容量
+- 压力测试识别系统瓶颈
+- 耐久测试验证长期稳定性
+- 模拟真实用户负载的性能基线测试
 
-### 10.3 性能测试
+## 10. 监控与运维
 
-**实现方式**：
-- JMeter测试脚本
-- 测试不同规模的数据集
-- 模拟多用户并发场景
-- 监控系统资源使用
-- 性能基准和回归测试
+### 10.1 监控指标
 
-**测试场景**：
-1. 数据源连接和元数据提取性能
-2. 查询构建和执行性能
-3. 自然语言处理性能
-4. 大数据量导出性能
-5. 缓存命中率和效果测试
+- API响应时间和吞吐量
+- 数据源连接状态
+- 查询执行时间
+- 缓存命中率
+- JVM指标(内存、GC等)
+- 系统资源使用率
 
-## 11. 部署规范
+### 10.2 日志策略
 
-### 11.1 应用打包
+- 使用SLF4J + Logback
+- 日志分级：ERROR, WARN, INFO, DEBUG, TRACE
+- 按日期和大小进行日志轮换
+- 结构化日志记录关键操作
+- 异常堆栈完整记录
 
-**实现方式**：
-- 使用Maven构建可执行JAR
-- 多环境配置支持
-- 外部化配置管理
-- 版本号管理
-- 依赖清单
+### 10.3 健康检查
 
-**Maven配置示例**：
-```xml
-<build>
-    <finalName>datascope-${project.version}</finalName>
-    <plugins>
-        <plugin>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-maven-plugin</artifactId>
-            <configuration>
-                <excludes>
-                    <exclude>
-                        <groupId>org.projectlombok</groupId>
-                        <artifactId>lombok</artifactId>
-                    </exclude>
-                </excludes>
-                <layers>
-                    <enabled>true</enabled>
-                </layers>
-            </configuration>
-        </plugin>
-        <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-resources-plugin</artifactId>
-            <executions>
-                <execution>
-                    <id>copy-resources</id>
-                    <phase>process-resources</phase>
-                    <goals>
-                        <goal>copy-resources</goal>
-                    </goals>
-                    <configuration>
-                        <outputDirectory>${basedir}/target/classes/public</outputDirectory>
-                        <resources>
-                            <resource>
-                                <directory>frontend/dist</directory>
-                                <filtering>false</filtering>
-                            </resource>
-                        </resources>
-                    </configuration>
-                </execution>
-            </executions>
-        </plugin>
-    </plugins>
-</build>
-```
+- 提供系统健康检查端点
+- 数据源连接状态监控
+- Redis连接状态监控
+- 查询执行状态监控
+- 系统资源监控
 
-### 11.2 Docker容器化
+## 11. 部署策略
 
-**实现方式**：
-- 多阶段构建优化镜像大小
-- 非root用户运行提高安全性
-- 健康检查支持
-- 环境变量配置
-- 数据卷管理
+### 11.1 本地部署
 
-**Dockerfile示例**：
-```dockerfile
-# 构建阶段
-FROM maven:3.8-openjdk-17 AS build
-WORKDIR /app
-COPY pom.xml .
-RUN mvn dependency:go-offline
-COPY src/ /app/src/
-RUN mvn package -DskipTests
+- 支持jar包部署
+- 支持war包部署到Tomcat等容器
+- 提供完整安装和配置指南
+- 支持数据库迁移脚本
 
-# 运行阶段
-FROM openjdk:17-slim
-WORKDIR /app
-COPY --from=build /app/target/datascope-*.jar app.jar
+### 11.2 容器化部署
 
-# 创建非root用户
-RUN useradd -m datascope
-USER datascope
+- 提供Docker镜像和Dockerfile
+- Docker Compose配置一键部署
+- Kubernetes部署配置
+- 支持水平扩展
+- 持久化存储配置
 
-# 设置数据卷
-VOLUME /app/logs
-VOLUME /app/config
+### 11.3 CI/CD集成
 
-# 环境变量
-ENV JAVA_OPTS="-Xms512m -Xmx1g"
-ENV SPRING_PROFILES_ACTIVE="prod"
-
-# 健康检查
-HEALTHCHECK --interval=30s --timeout=3s --retries=3 \
-  CMD curl -f http://localhost:8080/actuator/health || exit 1
-
-# 启动命令
-ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]
-```
-
-### 11.3 Kubernetes部署
-
-**实现方式**：
-- Deployment管理应用实例
-- Service提供稳定网络访问
-- ConfigMap管理配置
-- Secret管理敏感信息
-- PersistentVolume管理持久数据
-
-**Deployment示例**：
-```yaml
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: datascope
-  labels:
-    app: datascope
-spec:
-  replicas: 2
-  selector:
-    matchLabels:
-      app: datascope
-  strategy:
-    type: RollingUpdate
-    rollingUpdate:
-      maxUnavailable: 1
-      maxSurge: 1
-  template:
-    metadata:
-      labels:
-        app: datascope
-    spec:
-      containers:
-        - name: datascope
-          image: datascope:latest
-          imagePullPolicy: Always
-          ports:
-            - containerPort: 8080
-          env:
-            - name: SPRING_PROFILES_ACTIVE
-              value: "prod"
-            - name: SPRING_DATASOURCE_URL
-              valueFrom:
-                secretKeyRef:
-                  name: datascope-db-credentials
-                  key: url
-            - name: SPRING_DATASOURCE_USERNAME
-              valueFrom:
-                secretKeyRef:
-                  name: datascope-db-credentials
-                  key: username
-            - name: SPRING_DATASOURCE_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: datascope-db-credentials
-                  key: password
-            - name: SPRING_REDIS_HOST
-              value: redis-service
-          volumeMounts:
-            - name: config-volume
-              mountPath: /app/config
-            - name: logs-volume
-              mountPath: /app/logs
-          resources:
-            requests:
-              memory: "1Gi"
-              cpu: "500m"
-            limits:
-              memory: "2Gi"
-              cpu: "1000m"
-          livenessProbe:
-            httpGet:
-              path: /actuator/health/liveness
-              port: 8080
-            initialDelaySeconds: 60
-            periodSeconds: 30
-          readinessProbe:
-            httpGet:
-              path: /actuator/health/readiness
-              port: 8080
-            initialDelaySeconds: 30
-            periodSeconds: 10
-      volumes:
-        - name: config-volume
-          configMap:
-            name: datascope-config
-        - name: logs-volume
-          persistentVolumeClaim:
-            claimName: datascope-logs-pvc
-```
-
-## 12. 技术成功标准
-
-系统实施的技术成功将通过以下标准评估：
-
-1. **性能指标**：
-   - 页面加载时间 < 3秒
-   - 简单查询响应时间 < 5秒
-   - 复杂查询响应时间 < 30秒
-   - API响应时间 < 1秒（不包括查询执行时间）
-
-2. **安全指标**：
-   - 所有数据源凭证使用AES-256加密存储
-   - 零SQL注入漏洞
-   - 所有API请求要经过身份验证和授权
-   - 敏感数据成功掩码处理
-
-3. **可靠性指标**：
-   - 系统可用性 > 99%
-   - 所有查询都有超时保护
-   - 数据源连接异常自动重试和恢复
-   - 优雅降级策略成功应对依赖故障
-
-4. **代码质量指标**：
-   - 单元测试覆盖率 > 80%
-   - 代码静态分析无严重或高风险问题
-   - 符合阿里巴巴Java编码规范
-   - 文档完整性 > 90%
-
-5. **用户体验指标**：
-   - 自然语言查询转换准确率 > 80%
-   - 查询构建交互响应时间 < 300ms
-   - 移动设备兼容性评分 > 90%
-   - 无阻塞用户界面交互
-
-6. **扩展性指标**：
-   - 支持100个以上数据源
-   - 单个数据源100个以上表
-   - 单表最大1000万记录查询支持
-   - 同时支持20个以上并发用户
-
-## 13. 总结
-
-DataScope系统的技术规范提供了详细的实施指南，包括技术栈选择、系统分层架构、模块划分、实施阶段、核心组件规范、风险缓解策略、安全实现、缓存策略、监控与日志、测试策略和部署规范。
-
-系统实施将遵循DDD的四层架构设计，确保清晰的职责分离和高内聚低耦合。同时，通过模块化设计和标准化接口，为未来的扩展和演进提供了良好的基础。
-
-技术成功标准明确了系统性能、安全、可靠性、代码质量、用户体验和扩展性的具体指标，为项目交付提供了明确的评估依据。
+- Maven构建配置
+- 自动化测试集成
+- 镜像构建流程
+- 基于环境的配置管理
+- 自动化部署脚本
