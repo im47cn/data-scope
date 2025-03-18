@@ -39,12 +39,12 @@ For more details, see [Architecture Documentation](docs/architecture.md).
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/Insight Data.git
+   git clone https://github.com/im47cn/data-scope.git
    cd Insight Data
    ```
 
 2. Configure the database:
-    - Create a database named `Insight Data`
+    - Create a database named `datainsight`
     - Update database configuration in `src/main/resources/application.yml`
 
 3. Build the project:
@@ -54,7 +54,7 @@ For more details, see [Architecture Documentation](docs/architecture.md).
 
 4. Run the application:
    ```bash
-   java -jar target/Insight Data.jar
+   java -jar target/datainsight.jar
    ```
 
 5. Access the web interface at `http://localhost:8080`
