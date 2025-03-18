@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
@@ -56,16 +57,19 @@ public class TableInfo {
     /**
      * 列信息列表
      */
+    @Builder.Default
     private List<ColumnInfo> columns = new ArrayList<>();
     
     /**
      * 索引信息列表
      */
+    @Builder.Default
     private List<IndexInfo> indexes = new ArrayList<>();
     
     /**
      * 外键信息列表
      */
+    @Builder.Default
     private List<ForeignKeyInfo> foreignKeys = new ArrayList<>();
     
     /**

@@ -1,7 +1,7 @@
 package com.facade.rest.dto;
 
 import com.common.enums.SyncType;
-import jakarta.validation.constraints.NotNull;
+import javax.validation.constraints.NotNull;
 
 /**
  * 创建元数据同步作业请求DTO

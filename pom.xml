@@ -76,12 +76,6 @@
             <version>${mybatis.spring.boot.version}</version>
         </dependency>
 
-        <!-- Jakarta Validation -->
-        <dependency>
-            <groupId>jakarta.validation</groupId>
-            <artifactId>jakarta.validation-api</artifactId>
-        </dependency>
-
         <!-- 中文分词 -->
         <dependency>
             <groupId>com.hankcs</groupId>

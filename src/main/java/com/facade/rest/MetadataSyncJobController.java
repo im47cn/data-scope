@@ -5,12 +5,12 @@ import com.common.enums.SyncStatus;
 import com.domain.model.metadata.MetadataSyncJob;
 import com.facade.rest.dto.CreateMetadataSyncJobRequest;
 import com.facade.rest.dto.MetadataSyncJobDTO;
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 import java.util.stream.Collectors;
 

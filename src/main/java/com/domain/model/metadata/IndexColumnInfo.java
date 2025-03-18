@@ -1,6 +1,7 @@
 package com.domain.model.metadata;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
@@ -37,6 +38,7 @@ public class IndexColumnInfo {
     /**
      * 是否升序排序
      */
+    @Builder.Default
     private boolean ascending = true;
     
     /**
