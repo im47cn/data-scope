@@ -68,10 +68,6 @@ git commit -m "Initial project structure"
     </dependency>
     <dependency>
         <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-data-jpa</artifactId>
-    </dependency>
-    <dependency>
-        <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-websocket</artifactId>
     </dependency>
     <dependency>
@@ -164,9 +160,6 @@ spring:
     name: datascope-lowcode
   datasource:
     driver-class-name: org.postgresql.Driver
-  jpa:
-    hibernate:
-      ddl-auto: validate
   flyway:
     enabled: true
     baseline-on-migrate: true

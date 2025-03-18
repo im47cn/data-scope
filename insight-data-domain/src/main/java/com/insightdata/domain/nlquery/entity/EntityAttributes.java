@@ -8,122 +8,168 @@ import lombok.NoArgsConstructor;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * 实体属性类
+ * 用于存储实体的额外属性信息
+ */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class EntityAttributes {
-    
+
     /**
-     * 实体文本
+     * 原始文本
      */
-    private String text;
-    
+    private String originalText;
+
     /**
-     * 在原文中的起始位置
+     * 规范化后的文本
+     */
+    private String normalizedText;
+
+    /**
+     * 开始位置
      */
     private int startOffset;
-    
+
     /**
-     * 在原文中的结束位置
+     * 结束位置
      */
     private int endOffset;
-    
+
+    /**
+     * 在文本中的顺序
+     */
+    private int position;
+
     /**
      * 词性标注
      */
     private String posTag;
-    
+
     /**
-    
-    /**
-     * 是否唯一键
+     * 依存关系
      */
-    private Boolean uniqueKey;
-    
+    private String dependencyLabel;
+
     /**
-     * 是否外键
+     * 语义角色
      */
-    private Boolean foreignKey;
-    
+    private String semanticRole;
+
     /**
-     * 是否自增
+     * 置信度
      */
-    private Boolean autoIncrement;
-    
+    private double confidence;
+
     /**
-     * 长度
-     */
-    private Integer length;
-    
-    /**
-     * 精度
-     */
-    private Integer precision;
-    
-    /**
-     * 小数位数
-     */
-    private Integer scale;
-    
-    /**
-     * 字符集
-     */
-    private String characterSet;
-    
-    /**
-     * 排序规则
-     */
-    private String collation;
-    
-    /**
-     * 扩展属性
+     * 其他属性
      */
     @Builder.Default
-    private Map<String, Object> extensions = new HashMap<>();
-    
+    private Map<String, Object> properties = new HashMap<>();
+
     /**
-     * 添加扩展属性
+     * 创建基础属性
+     *
+     * @param text 原始文本
+     * @param start 开始位置
+     * @param end 结束位置
+     * @return 实体属性
      */
-    public EntityAttributes addExtension(String key, Object value) {
-        extensions.put(key, value);
-        return this;
+    public static EntityAttributes basic(String text, int start, int end) {
+        return builder()
+                .originalText(text)
+                .startOffset(start)
+                .endOffset(end)
+                .confidence(1.0)
+                .build();
     }
-    
+
     /**
-     * 获取扩展属性
+     * 创建带有规范化文本的属性
+     *
+     * @param text 原始文本
+     * @param normalizedText 规范化文本
+     * @param start 开始位置
+     * @param end 结束位置
+     * @return 实体属性
      */
-    public Object getExtension(String key) {
-        return extensions.get(key);
+    public static EntityAttributes normalized(String text, String normalizedText, int start, int end) {
+        return builder()
+                .originalText(text)
+                .normalizedText(normalizedText)
+                .startOffset(start)
+                .endOffset(end)
+                .confidence(1.0)
+                .build();
     }
-    
+
     /**
-     * 获取扩展属性，带默认值
+     * 创建带有位置信息的属性
+     *
+     * @param text 原始文本
+     * @param start 开始位置
+     * @param end 结束位置
+     * @param position 在文本中的位置
+     * @return 实体属性
      */
-    public Object getExtension(String key, Object defaultValue) {
-        return extensions.getOrDefault(key, defaultValue);
+    public static EntityAttributes withPosition(String text, int start, int end, int position) {
+        return builder()
+                .originalText(text)
+                .startOffset(start)
+                .endOffset(end)
+                .position(position)
+                .confidence(1.0)
+                .build();
     }
-    
+
     /**
-     * 是否包含扩展属性
+     * 创建带有语言特征的属性
+     *
+     * @param text 原始文本
+     * @param posTag 词性标注
+     * @param dependencyLabel 依存关系
+     * @param semanticRole 语义角色
+     * @return 实体属性
      */
-    public boolean hasExtension(String key) {
-        return extensions.containsKey(key);
+    public static EntityAttributes withLinguisticFeatures(String text, String posTag, 
+            String dependencyLabel, String semanticRole) {
+        return builder()
+                .originalText(text)
+                .posTag(posTag)
+                .dependencyLabel(dependencyLabel)
+                .semanticRole(semanticRole)
+                .confidence(1.0)
+                .build();
     }
-    
+
     /**
-     * 移除扩展属性
+     * 创建带有置信度的属性
+     *
+     * @param text 原始文本
+     * @param confidence 置信度
+     * @return 实体属性
      */
-    public EntityAttributes removeExtension(String key) {
-        extensions.remove(key);
-        return this;
+    public static EntityAttributes withConfidence(String text, double confidence) {
+        return builder()
+                .originalText(text)
+                .confidence(confidence)
+                .build();
     }
-    
+
     /**
-     * 清空扩展属性
+     * 创建带有额外属性的实体属性
+     *
+     * @param text 原始文本
+     * @param properties 额外属性
+     * @return 实体属性
      */
-    public EntityAttributes clearExtensions() {
-        extensions.clear();
-        return this;
+    public static EntityAttributes withProperties(String text, Map<String, Object> properties) {
+        return builder()
+                .originalText(text)
+                .properties(properties)
+                .confidence(1.0)
+                .build();
     }
 }
