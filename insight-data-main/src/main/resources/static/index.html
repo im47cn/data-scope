@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InsightData - 智能数据查询平台</title>
+    
+    <!-- 图标 -->
+    <link rel="icon" href="img/logo.png">
+    
+    <!-- Ant Design Vue CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/ant-design-vue@1.7.8/dist/antd.min.css">
+    
+    <!-- CodeMirror CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/idea.min.css">
+    
+    <!-- 自定义样式 -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/query-builder.css">
+    <link rel="stylesheet" href="css/query-workspace.css">
+    <link rel="stylesheet" href="css/query-template.css">
+    <link rel="stylesheet" href="css/parameter-input.css">
+    <link rel="stylesheet" href="css/sql-highlight.css">
+    
+    <!-- 字体 -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap">
+</head>
+<body>
+    <div id="app">
+        <a-config-provider :locale="locale">
+            <!-- 应用布局 -->
+            <a-layout class="app-layout">
+                <!-- 侧边栏 -->
+                <a-layout-sider
+                    v-model="collapsed"
+                    :trigger="null"
+                    collapsible
+                    class="app-sider"
+                >
+                    <div class="logo">
+                        <img src="img/logo.png" alt="Logo">
+                        <h1 v-show="!collapsed">InsightData</h1>
+                    </div>
+                    <a-menu
+                        theme="dark"
+                        mode="inline"
+                        v-model="selectedKeys"
+                    >
+                        <a-menu-item key="datasource">
+                            <router-link to="/datasource">
+                                <a-icon type="database" />
+                                <span>数据源管理</span>
+                            </router-link>
+                        </a-menu-item>
+                        <a-menu-item key="query">
+                            <router-link to="/query">
+                                <a-icon type="code" />
+                                <span>查询构建器</span>
+                            </router-link>
+                        </a-menu-item>
+                        <a-menu-item key="nlquery">
+                            <router-link to="/nlquery">
+                                <a-icon type="message" />
+                                <span>自然语言查询</span>
+                            </router-link>
+                        </a-menu-item>
+                        <a-menu-item key="dashboard">
+                            <router-link to="/dashboard">
+                                <a-icon type="dashboard" />
+                                <span>数据仪表盘</span>
+                            </router-link>
+                        </a-menu-item>
+                    </a-menu>
+                </a-layout-sider>
+
+                <!-- 主体内容 -->
+                <a-layout>
+                    <!-- 头部 -->
+                    <a-layout-header class="app-header">
+                        <a-icon
+                            class="trigger"
+                            :type="collapsed ? 'menu-unfold' : 'menu-fold'"
+                            @click="() => (collapsed = !collapsed)"
+                        />
+                        <div class="header-right">
+                            <a-dropdown>
+                                <a class="ant-dropdown-link">
+                                    主题 <a-icon type="down" />
+                                </a>
+                                <a-menu slot="overlay">
+                                    <a-menu-item key="light" @click="setTheme('light')">
+                                        <a-icon type="sun" />浅色
+                                    </a-menu-item>
+                                    <a-menu-item key="dark" @click="setTheme('dark')">
+                                        <a-icon type="moon" />深色
+                                    </a-menu-item>
+                                </a-menu>
+                            </a-dropdown>
+                            <a-divider type="vertical" />
+                            <a-dropdown>
+                                <a class="ant-dropdown-link">
+                                    用户名 <a-icon type="down" />
+                                </a>
+                                <a-menu slot="overlay">
+                                    <a-menu-item key="profile">
+                                        <a-icon type="user" />个人信息
+                                    </a-menu-item>
+                                    <a-menu-item key="settings">
+                                        <a-icon type="setting" />设置
+                                    </a-menu-item>
+                                    <a-menu-divider />
+                                    <a-menu-item key="logout">
+                                        <a-icon type="logout" />退出登录
+                                    </a-menu-item>
+                                </a-menu>
+                            </a-dropdown>
+                        </div>
+                    </a-layout-header>
+
+                    <!-- 内容区域 -->
+                    <a-layout-content class="app-content">
+                        <router-view></router-view>
+                    </a-layout-content>
+                </a-layout>
+            </a-layout>
+        </a-config-provider>
+    </div>
+
+    <!-- Vue -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.7.14/dist/vue.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue-router@3.6.5/dist/vue-router.min.js"></script>
+    
+    <!-- Ant Design Vue -->
+    <script src="https://unpkg.com/ant-design-vue@1.7.8/dist/antd.min.js"></script>
+    <script src="https://unpkg.com/moment@2.29.4/min/moment-with-locales.min.js"></script>
+    
+    <!-- CodeMirror -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/sql/sql.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/hint/show-hint.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/hint/sql-hint.min.js"></script>
+    
+    <!-- 应用脚本 -->
+    <script type="module">
+        import router from './js/router.js';
+        import zhCN from 'https://unpkg.com/ant-design-vue@1.7.8/lib/locale-provider/zh_CN';
+        
+        // 初始化应用
+        new Vue({
+            el: '#app',
+            router,
+            data: {
+                collapsed: false,
+                selectedKeys: [],
+                locale: zhCN,
+                theme: localStorage.getItem('theme') || 'light'
+            },
+            
+            created() {
+                // 设置初始主题
+                this.applyTheme(this.theme);
+                
+                // 根据路由设置选中菜单
+                this.selectedKeys = [this.$route.path.split('/')[1] || 'datasource'];
+            },
+            
+            methods: {
+                setTheme(theme) {
+                    this.theme = theme;
+                    localStorage.setItem('theme', theme);
+                    this.applyTheme(theme);
+                },
+                
+                applyTheme(theme) {
+                    document.body.className = theme === 'dark' ? 'dark-theme' : '';
+                }
+            },
+            
+            watch: {
+                $route(to) {
+                    this.selectedKeys = [to.path.split('/')[1] || 'datasource'];
+                }
+            }
+        });
+    </script>
+</body>
+</html>

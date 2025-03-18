@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.infrastructure.persistence.mapper.DataSourceMapper">
+
+    <!-- 结果映射 -->
+    <resultMap id="BaseResultMap" type="com.domain.model.metadata.DataSource">
+        <id property="id" column="id" jdbcType="VARCHAR"/>
+        <result property="name" column="name" jdbcType="VARCHAR"/>
+        <result property="type" column="type" jdbcType="VARCHAR" 
+                typeHandler="org.apache.ibatis.type.EnumTypeHandler"/>
+        <result property="host" column="host" jdbcType="VARCHAR"/>
+        <result property="port" column="port" jdbcType="INTEGER"/>
+        <result property="databaseName" column="database_name" jdbcType="VARCHAR"/>
+        <result property="username" column="username" jdbcType="VARCHAR"/>
+        <result property="encryptedPassword" column="encrypted_password" jdbcType="VARCHAR"/>
+        <result property="encryptionSalt" column="encryption_salt" jdbcType="VARCHAR"/>
+        <result property="enabled" column="active" jdbcType="BOOLEAN"/>
+        <result property="description" column="description" jdbcType="VARCHAR"/>
+        <result property="lastSyncTime" column="last_sync_time" jdbcType="TIMESTAMP"/>
+        <result property="createdAt" column="created_at" jdbcType="TIMESTAMP"/>
+        <result property="updatedAt" column="updated_at" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <!-- 基础列 -->
+    <sql id="Base_Column_List">
+        id, name, type, host, port, database_name, username, encrypted_password, 
+        encryption_salt, connection_properties, last_sync_time, active, description, 
+        created_at, updated_at
+    </sql>
+
+    <!-- 插入数据源 -->
+    <insert id="insert" parameterType="com.domain.model.metadata.DataSource">
+        INSERT INTO data_source (
+            id, name, type, host, port, database_name, username, encrypted_password, 
+            encryption_salt, connection_properties, active, description, 
+            created_at, updated_at
+        ) VALUES (
+            #{id,jdbcType=VARCHAR}, 
+            #{name,jdbcType=VARCHAR}, 
+            #{type,jdbcType=VARCHAR,typeHandler=org.apache.ibatis.type.EnumTypeHandler}, 
+            #{host,jdbcType=VARCHAR}, 
+            #{port,jdbcType=INTEGER}, 
+            #{databaseName,jdbcType=VARCHAR}, 
+            #{username,jdbcType=VARCHAR}, 
+            #{encryptedPassword,jdbcType=VARCHAR}, 
+            #{encryptionSalt,jdbcType=VARCHAR}, 
+            #{connectionProperties,jdbcType=VARCHAR,typeHandler=com.infrastructure.persistence.handler.JsonTypeHandler}, 
+            #{enabled,jdbcType=BOOLEAN}, 
+            #{description,jdbcType=VARCHAR}, 
+            #{createdAt,jdbcType=TIMESTAMP}, 
+            #{updatedAt,jdbcType=TIMESTAMP}
+        )
+    </insert>
+
+    <!-- 更新数据源 -->
+    <update id="update" parameterType="com.domain.model.metadata.DataSource">
+        UPDATE data_source
+        <set>
+            <if test="name != null">name = #{name,jdbcType=VARCHAR},</if>
+            <if test="type != null">type = #{type,jdbcType=VARCHAR,typeHandler=org.apache.ibatis.type.EnumTypeHandler},</if>
+            <if test="host != null">host = #{host,jdbcType=VARCHAR},</if>
+            <if test="port != null">port = #{port,jdbcType=INTEGER},</if>
+            <if test="databaseName != null">database_name = #{databaseName,jdbcType=VARCHAR},</if>
+            <if test="username != null">username = #{username,jdbcType=VARCHAR},</if>
+            <if test="encryptedPassword != null">encrypted_password = #{encryptedPassword,jdbcType=VARCHAR},</if>
+            <if test="encryptionSalt != null">encryption_salt = #{encryptionSalt,jdbcType=VARCHAR},</if>
+            <if test="connectionProperties != null">connection_properties = #{connectionProperties,jdbcType=VARCHAR,typeHandler=com.infrastructure.persistence.handler.JsonTypeHandler},</if>
+            <if test="enabled != null">active = #{enabled,jdbcType=BOOLEAN},</if>
+            <if test="description != null">description = #{description,jdbcType=VARCHAR},</if>
+            <if test="lastSyncTime != null">last_sync_time = #{lastSyncTime,jdbcType=TIMESTAMP},</if>
+            updated_at = NOW()
+        </set>
+        WHERE id = #{id,jdbcType=VARCHAR}
+    </update>
+
+    <!-- 根据ID查询数据源 -->
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM data_source
+        WHERE id = #{id,jdbcType=VARCHAR}
+    </select>
+
+    <!-- 根据名称查询数据源 -->
+    <select id="selectByName" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM data_source
+        WHERE name = #{name,jdbcType=VARCHAR}
+    </select>
+
+    <!-- 查询所有数据源 -->
+    <select id="selectAll" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM data_source
+        ORDER BY name
+    </select>
+
+    <!-- 根据类型查询数据源 -->
+    <select id="selectByType" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM data_source
+        WHERE type = #{type,jdbcType=VARCHAR,typeHandler=org.apache.ibatis.type.EnumTypeHandler}
+        ORDER BY name
+    </select>
+
+    <!-- 根据活跃状态查询数据源 -->
+    <select id="selectByActive" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM data_source
+        WHERE active = #{active,jdbcType=BOOLEAN}
+        ORDER BY name
+    </select>
+
+    <!-- 根据ID删除数据源 -->
+    <delete id="deleteById">
+        DELETE FROM data_source
+        WHERE id = #{id,jdbcType=VARCHAR}
+    </delete>
+
+    <!-- 根据名称统计数量 -->
+    <select id="countByName" resultType="int">
+        SELECT COUNT(1)
+        FROM data_source
+        WHERE name = #{name,jdbcType=VARCHAR}
+    </select>
+</mapper>

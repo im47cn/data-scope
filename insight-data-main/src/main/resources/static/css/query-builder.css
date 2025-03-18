@@ -1,0 +1,251 @@
+/**
+ * 查询构建器主样式
+ * 整合所有查询构建器相关样式
+ */
+
+/* 查询构建器页面布局 */
+.query-builder-page {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    background-color: #f0f2f5;
+}
+
+.dark-theme .query-builder-page {
+    background-color: #21252b;
+}
+
+/* 头部工具栏 */
+.query-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 24px;
+    background-color: #fff;
+    box-shadow: 0 1px 4px rgba(0, 21, 41, 0.08);
+    z-index: 100;
+}
+
+.dark-theme .query-header {
+    background-color: #282c34;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+}
+
+.header-left h2 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 500;
+    color: #333;
+}
+
+.dark-theme .header-left h2 {
+    color: #abb2bf;
+}
+
+/* 主体区域 */
+.query-main {
+    flex: 1;
+    display: flex;
+    padding: 16px;
+    overflow: hidden;
+}
+
+/* 左侧面板 */
+.left-panel {
+    width: 300px;
+    margin-right: 16px;
+    background-color: #fff;
+    border-radius: 4px;
+    box-shadow: 0 1px 4px rgba(0, 21, 41, 0.08);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.dark-theme .left-panel {
+    background-color: #282c34;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* 右侧面板 */
+.right-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background-color: #fff;
+    border-radius: 4px;
+    box-shadow: 0 1px 4px rgba(0, 21, 41, 0.08);
+    overflow: hidden;
+}
+
+.dark-theme .right-panel {
+    background-color: #282c34;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* 分隔条 */
+.resize-handle {
+    height: 4px;
+    background-color: #f0f2f5;
+    cursor: row-resize;
+    position: relative;
+}
+
+.dark-theme .resize-handle {
+    background-color: #21252b;
+}
+
+.resize-handle::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 30px;
+    height: 2px;
+    background-color: #d9d9d9;
+    border-radius: 1px;
+}
+
+.dark-theme .resize-handle::after {
+    background-color: #3e4451;
+}
+
+/* 预览面板 */
+.preview-panel {
+    flex: 1;
+    min-height: 200px;
+    overflow: hidden;
+    position: relative;
+}
+
+/* 状态栏 */
+.query-status-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 16px;
+    background-color: #fafafa;
+    border-top: 1px solid #f0f0f0;
+}
+
+.dark-theme .query-status-bar {
+    background-color: #21252b;
+    border-top-color: #3e4451;
+}
+
+.status-left {
+    display: flex;
+    align-items: center;
+}
+
+.status-left .anticon {
+    margin-right: 8px;
+}
+
+.error-message {
+    color: #ff4d4f;
+}
+
+.dark-theme .error-message {
+    color: #e06c75;
+}
+
+/* 加载状态 */
+.loading-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(255, 255, 255, 0.7);
+    z-index: 100;
+}
+
+.dark-theme .loading-container {
+    background-color: rgba(40, 44, 52, 0.7);
+}
+
+/* 全屏模式 */
+.fullscreen {
+    position: fixed !important;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1000;
+}
+
+/* 响应式布局 */
+@media (max-width: 768px) {
+    .query-header {
+        padding: 12px 16px;
+    }
+
+    .header-left h2 {
+        font-size: 16px;
+    }
+
+    .query-main {
+        padding: 8px;
+        flex-direction: column;
+    }
+
+    .left-panel {
+        width: 100%;
+        margin-right: 0;
+        margin-bottom: 8px;
+        max-height: 300px;
+    }
+
+    .right-panel {
+        height: calc(100vh - 400px);
+    }
+}
+
+/* 动画效果 */
+.fade-enter-active, .fade-leave-active {
+    transition: opacity 0.3s ease;
+}
+
+.fade-enter, .fade-leave-to {
+    opacity: 0;
+}
+
+.slide-enter-active, .slide-leave-active {
+    transition: transform 0.3s ease;
+}
+
+.slide-enter, .slide-leave-to {
+    transform: translateX(-100%);
+}
+
+/* 辅助类 */
+.text-ellipsis {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.cursor-pointer {
+    cursor: pointer;
+}
+
+.position-relative {
+    position: relative;
+}
+
+.overflow-hidden {
+    overflow: hidden;
+}
+
+.flex-grow {
+    flex-grow: 1;
+}
+
+.z-index-top {
+    z-index: 1000;
+}

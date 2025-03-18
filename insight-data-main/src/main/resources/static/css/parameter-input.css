@@ -1,0 +1,210 @@
+/**
+ * 查询参数输入组件样式
+ */
+
+.parameter-input {
+    padding: 16px;
+    background-color: #ffffff;
+    border-radius: 4px;
+}
+
+.dark-theme .parameter-input {
+    background-color: #282c34;
+}
+
+/* 表单项样式 */
+.parameter-input .ant-form-item {
+    margin-bottom: 16px;
+}
+
+.parameter-input .ant-form-item:last-child {
+    margin-bottom: 0;
+}
+
+/* 标签样式 */
+.parameter-input .ant-form-item-label {
+    padding-bottom: 4px;
+}
+
+.parameter-input .ant-form-item-label > label {
+    color: #333333;
+    font-size: 14px;
+}
+
+.dark-theme .parameter-input .ant-form-item-label > label {
+    color: #abb2bf;
+}
+
+/* 必填标记 */
+.parameter-input .ant-form-item-required::before {
+    display: inline-block;
+    margin-right: 4px;
+    color: #ff4d4f;
+    font-size: 14px;
+    line-height: 1;
+    content: '*';
+}
+
+/* 输入框样式 */
+.parameter-input .ant-input {
+    border-radius: 4px;
+}
+
+.parameter-input .ant-input:hover {
+    border-color: #40a9ff;
+}
+
+.parameter-input .ant-input:focus {
+    border-color: #40a9ff;
+    box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+}
+
+.dark-theme .parameter-input .ant-input {
+    background-color: #1c1e24;
+    border-color: #3e4451;
+    color: #abb2bf;
+}
+
+.dark-theme .parameter-input .ant-input:hover {
+    border-color: #61afef;
+}
+
+.dark-theme .parameter-input .ant-input:focus {
+    border-color: #61afef;
+    box-shadow: 0 0 0 2px rgba(97, 175, 239, 0.2);
+}
+
+/* 数字输入框样式 */
+.parameter-input .ant-input-number {
+    width: 100%;
+    border-radius: 4px;
+}
+
+.dark-theme .parameter-input .ant-input-number {
+    background-color: #1c1e24;
+    border-color: #3e4451;
+    color: #abb2bf;
+}
+
+.dark-theme .parameter-input .ant-input-number-handler-wrap {
+    background-color: #2c313a;
+    border-color: #3e4451;
+}
+
+/* 日期选择器样式 */
+.parameter-input .ant-calendar-picker {
+    width: 100%;
+}
+
+.dark-theme .parameter-input .ant-calendar-picker-input {
+    background-color: #1c1e24;
+    border-color: #3e4451;
+    color: #abb2bf;
+}
+
+/* 开关样式 */
+.parameter-input .ant-switch {
+    background-color: rgba(0, 0, 0, 0.25);
+}
+
+.parameter-input .ant-switch-checked {
+    background-color: #1890ff;
+}
+
+.dark-theme .parameter-input .ant-switch {
+    background-color: #4b5363;
+}
+
+.dark-theme .parameter-input .ant-switch-checked {
+    background-color: #61afef;
+}
+
+/* 下拉选择器样式 */
+.parameter-input .ant-select {
+    width: 100%;
+}
+
+.dark-theme .parameter-input .ant-select-selection {
+    background-color: #1c1e24;
+    border-color: #3e4451;
+    color: #abb2bf;
+}
+
+/* 建议列表样式 */
+.parameter-suggestions {
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.parameter-suggestions .ant-select-dropdown-menu-item {
+    padding: 8px 12px;
+}
+
+.dark-theme .parameter-suggestions .ant-select-dropdown-menu-item {
+    background-color: #1c1e24;
+    color: #abb2bf;
+}
+
+.parameter-suggestions .ant-select-dropdown-menu-item:hover {
+    background-color: #f5f5f5;
+}
+
+.dark-theme .parameter-suggestions .ant-select-dropdown-menu-item:hover {
+    background-color: #2c313a;
+}
+
+/* 验证错误样式 */
+.parameter-input .ant-form-item-has-error .ant-input,
+.parameter-input .ant-form-item-has-error .ant-input-number,
+.parameter-input .ant-form-item-has-error .ant-calendar-picker-input,
+.parameter-input .ant-form-item-has-error .ant-select-selection {
+    border-color: #ff4d4f;
+}
+
+.parameter-input .ant-form-item-has-error .ant-form-item-explain {
+    color: #ff4d4f;
+}
+
+.dark-theme .parameter-input .ant-form-item-has-error .ant-form-item-explain {
+    color: #e06c75;
+}
+
+/* 清除按钮样式 */
+.parameter-input .ant-input-clear-icon {
+    color: rgba(0, 0, 0, 0.25);
+}
+
+.dark-theme .parameter-input .ant-input-clear-icon {
+    color: rgba(171, 178, 191, 0.3);
+}
+
+.parameter-input .ant-input-clear-icon:hover {
+    color: rgba(0, 0, 0, 0.45);
+}
+
+.dark-theme .parameter-input .ant-input-clear-icon:hover {
+    color: rgba(171, 178, 191, 0.5);
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+    .parameter-input {
+        padding: 12px;
+    }
+
+    .parameter-input .ant-form-item {
+        margin-bottom: 12px;
+    }
+
+    .parameter-input .ant-form-item-label > label {
+        font-size: 13px;
+    }
+}
+
+/* 加载状态样式 */
+.parameter-input .ant-spin {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100px;
+}

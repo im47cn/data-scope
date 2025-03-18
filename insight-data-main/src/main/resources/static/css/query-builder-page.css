@@ -1,0 +1,306 @@
+/* 查询构建器页面样式 */
+.query-builder-page {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    background-color: #f0f2f5;
+}
+
+/* 头部工具栏 */
+.query-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 24px;
+    background-color: #fff;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+    z-index: 10;
+}
+
+.header-left h2 {
+    margin: 0;
+    color: #000000d9;
+    font-weight: 500;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* 主体内容 */
+.query-main {
+    flex: 1;
+    display: flex;
+    overflow: hidden;
+    padding: 16px;
+    gap: 16px;
+}
+
+/* 左侧面板 */
+.left-panel {
+    display: flex;
+    flex-direction: column;
+    width: 50%;
+    min-width: 400px;
+    background-color: #fff;
+    border-radius: 4px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+}
+
+.left-panel .ant-tabs {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.left-panel .ant-tabs-content {
+    flex: 1;
+    overflow: auto;
+}
+
+/* 右侧面板 */
+.right-panel {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: 400px;
+    gap: 16px;
+}
+
+/* 参数面板 */
+.right-panel .ant-collapse {
+    background-color: #fff;
+    border-radius: 4px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* SQL预览区域 */
+.right-panel .sql-preview {
+    flex: 1;
+    min-height: 200px;
+    background-color: #fff;
+    border-radius: 4px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* 分隔条 */
+.resize-handle {
+    height: 4px;
+    background-color: #f0f2f5;
+    cursor: row-resize;
+    transition: background-color 0.3s;
+    margin: 0 -16px;
+}
+
+.resize-handle:hover,
+.resize-handle:active {
+    background-color: #1890ff;
+}
+
+/* 预览面板 */
+.preview-panel {
+    background-color: #fff;
+    border-radius: 4px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+.preview-panel .ant-tabs {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.preview-panel .ant-tabs-content {
+    flex: 1;
+    overflow: auto;
+}
+
+/* 状态栏 */
+.query-status-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 24px;
+    background-color: #fff;
+    border-top: 1px solid #e8e8e8;
+}
+
+.status-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #00000073;
+}
+
+.status-left .error-message {
+    color: #ff4d4f;
+}
+
+.status-left .anticon {
+    font-size: 14px;
+}
+
+.status-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+/* 动画效果 */
+.query-builder-page .ant-collapse {
+    transition: all 0.3s;
+}
+
+.query-builder-page .preview-panel {
+    transition: height 0.3s;
+}
+
+/* 响应式布局 */
+@media (max-width: 1200px) {
+    .query-main {
+        flex-direction: column;
+    }
+
+    .left-panel,
+    .right-panel {
+        width: 100%;
+    }
+
+    .resize-handle {
+        display: none;
+    }
+
+    .preview-panel {
+        height: 400px !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .query-header {
+        flex-direction: column;
+        gap: 16px;
+        padding: 12px;
+    }
+
+    .header-right {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .query-main {
+        padding: 8px;
+        gap: 8px;
+    }
+
+    .left-panel,
+    .right-panel {
+        min-width: unset;
+    }
+
+    .preview-panel {
+        height: 300px !important;
+    }
+
+    .query-status-bar {
+        flex-direction: column;
+        gap: 8px;
+        padding: 8px 12px;
+    }
+
+    .status-right {
+        width: 100%;
+        justify-content: space-between;
+    }
+}
+
+/* 暗色主题支持 */
+@media (prefers-color-scheme: dark) {
+    .query-builder-page {
+        background-color: #141414;
+    }
+
+    .query-header {
+        background-color: #1f1f1f;
+        border-bottom-color: #434343;
+    }
+
+    .header-left h2 {
+        color: rgba(255, 255, 255, 0.85);
+    }
+
+    .left-panel,
+    .right-panel .ant-collapse,
+    .right-panel .sql-preview,
+    .preview-panel {
+        background-color: #1f1f1f;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    .resize-handle {
+        background-color: #141414;
+    }
+
+    .resize-handle:hover,
+    .resize-handle:active {
+        background-color: #177ddc;
+    }
+
+    .query-status-bar {
+        background-color: #1f1f1f;
+        border-top-color: #434343;
+    }
+
+    .status-left {
+        color: rgba(255, 255, 255, 0.45);
+    }
+
+    .status-left .error-message {
+        color: #ff4d4f;
+    }
+}
+
+/* 滚动条样式 */
+.query-builder-page ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+.query-builder-page ::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+.query-builder-page ::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 3px;
+}
+
+.query-builder-page ::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+/* 加载状态 */
+.query-builder-page .loading-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(255, 255, 255, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+}
+
+/* 工具提示 */
+.query-builder-page .ant-tooltip {
+    max-width: 300px;
+}
+
+.query-builder-page .ant-tooltip-inner {
+    word-wrap: break-word;
+}
