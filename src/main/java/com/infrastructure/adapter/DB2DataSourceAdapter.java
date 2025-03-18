@@ -1,7 +1,7 @@
 package com.infrastructure.adapter;
 
 import com.common.exception.DataSourceException;
-import com.domain.model.DataSource;
+import com.domain.model.metadata.DataSource;
 import com.domain.model.metadata.*;
 import com.nlquery.executor.QueryResult;
 import lombok.extern.slf4j.Slf4j;

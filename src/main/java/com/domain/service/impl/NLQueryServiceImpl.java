@@ -1,6 +1,6 @@
 package com.domain.service.impl;
 
-import com.domain.model.DataSource;
+import com.domain.model.metadata.DataSource;
 import com.domain.model.metadata.SchemaInfo;
 import com.domain.model.query.QueryHistory;
 import com.domain.model.query.SavedQuery;

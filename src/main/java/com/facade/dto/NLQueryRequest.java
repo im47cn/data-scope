@@ -1,5 +1,6 @@
 package com.facade.dto;
 
+import java.util.List;
 import java.util.Map;
 
 import lombok.AllArgsConstructor;
@@ -54,7 +55,7 @@ public class NLQueryRequest {
     /**
      * 标签
      */
-    private String[] tags;
+    private List<String> tags;
     
     /**
      * 是否保存为常用查询

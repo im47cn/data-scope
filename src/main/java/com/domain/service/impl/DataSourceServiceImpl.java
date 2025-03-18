@@ -2,7 +2,7 @@ package com.domain.service.impl;
 
 import com.common.enums.DataSourceType;
 import com.common.exception.DataSourceException;
-import com.domain.model.DataSource;
+import com.domain.model.metadata.DataSource;
 import com.domain.model.metadata.SchemaInfo;
 import com.domain.model.metadata.TableInfo;
 import com.domain.repository.DataSourceRepository;

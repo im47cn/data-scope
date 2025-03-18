@@ -1,6 +1,7 @@
 package com.facade.dto;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 
 import lombok.AllArgsConstructor;
@@ -95,5 +96,5 @@ public class QueryHistoryDTO {
     /**
      * 标签
      */
-    private String[] tags;
+    private List<String> tags;
 }

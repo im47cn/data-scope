@@ -1,57 +1,41 @@
 package com.domain.repository;
 
-import com.domain.model.query.SavedQuery;
-
 import java.util.List;
-import java.util.Optional;
 
-/**
- * 保存的查询仓储接口
- */
+import com.domain.model.query.SavedQuery;
+import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+
+@Mapper
 public interface SavedQueryRepository {
     
-    /**
-     * 保存查询
-     */
-    SavedQuery save(SavedQuery savedQuery);
+    SavedQuery selectById(@Param("id") String id);
     
-    /**
-     * 根据ID查询
-     */
-    Optional<SavedQuery> findById(String id);
+    List<SavedQuery> selectByDataSourceId(@Param("dataSourceId") String dataSourceId);
     
-    /**
-     * 根据数据源ID查询
-     */
-    List<SavedQuery> findByDataSourceId(String dataSourceId);
+    void insert(SavedQuery savedQuery);
     
-    /**
-     * 根据ID删除
-     */
-    void deleteById(String id);
+    void update(SavedQuery savedQuery);
     
-    /**
-     * 根据数据源ID删除
-     */
-    void deleteByDataSourceId(String dataSourceId);
+    void deleteById(@Param("id") String id);
     
-    /**
-     * 根据名称模糊查询
-     */
-    List<SavedQuery> findByNameLike(String name);
+    void deleteByDataSourceId(@Param("dataSourceId") String dataSourceId);
     
-    /**
-     * 根据标签查询
-     */
-    List<SavedQuery> findByTags(List<String> tags);
+    List<SavedQuery> selectByNameLike(@Param("name") String name);
     
-    /**
-     * 根据是否公开查询
-     */
-    List<SavedQuery> findByIsPublic(Boolean isPublic);
+    List<SavedQuery> selectByTags(@Param("tags") List<String> tags);
     
-    /**
-     * 根据数据源ID和是否公开查询
-     */
-    List<SavedQuery> findByDataSourceIdAndIsPublic(String dataSourceId, Boolean isPublic);
+    List<SavedQuery> selectByIsPublic(@Param("isPublic") Boolean isPublic);
+    
+    List<SavedQuery> selectByDataSourceIdAndIsPublic(
+        @Param("dataSourceId") String dataSourceId,
+        @Param("isPublic") Boolean isPublic
+    );
+    
+    void incrementUsageCount(@Param("id") String id);
+    
+    void updateExecutionStats(
+        @Param("id") String id,
+        @Param("executionTime") long executionTime
+    );
 }

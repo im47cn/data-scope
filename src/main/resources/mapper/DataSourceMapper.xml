@@ -3,7 +3,7 @@
 <mapper namespace="com.infrastructure.persistence.mapper.DataSourceMapper">
 
     <!-- 结果映射 -->
-    <resultMap id="BaseResultMap" type="com.domain.model.DataSource">
+    <resultMap id="BaseResultMap" type="com.domain.model.metadata.DataSource">
         <id property="id" column="id" jdbcType="VARCHAR"/>
         <result property="name" column="name" jdbcType="VARCHAR"/>
         <result property="type" column="type" jdbcType="VARCHAR" 
@@ -29,7 +29,7 @@
     </sql>
 
     <!-- 插入数据源 -->
-    <insert id="insert" parameterType="com.domain.model.DataSource">
+    <insert id="insert" parameterType="com.domain.model.metadata.DataSource">
         INSERT INTO data_source (
             id, name, type, host, port, database_name, username, encrypted_password, 
             encryption_salt, connection_properties, active, description, 
@@ -53,7 +53,7 @@
     </insert>
 
     <!-- 更新数据源 -->
-    <update id="update" parameterType="com.domain.model.DataSource">
+    <update id="update" parameterType="com.domain.model.metadata.DataSource">
         UPDATE data_source
         <set>
             <if test="name != null">name = #{name,jdbcType=VARCHAR},</if>

@@ -1,74 +1,106 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.infrastructure.persistence.mapper.SavedQueryMapper">
-
-    <resultMap id="savedQueryMap" type="com.domain.model.query.SavedQuery">
-        <id property="id" column="id"/>
-        <result property="name" column="name"/>
-        <result property="description" column="description"/>
-        <result property="dataSourceId" column="data_source_id"/>
-        <result property="naturalLanguageQuery" column="natural_language_query"/>
-        <result property="generatedSql" column="generated_sql"/>
-        <result property="parameters" column="parameters" 
+<mapper namespace="com.domain.repository.SavedQueryRepository">
+    
+    <resultMap id="savedQueryMap" type="com.domain.model.SavedQuery">
+        <id column="id" property="id"/>
+        <result column="data_source_id" property="dataSourceId"/>
+        <result column="name" property="name"/>
+        <result column="description" property="description"/>
+        <result column="sql" property="sql"/>
+        <result column="parameters" property="parameters" 
+                typeHandler="com.infrastructure.persistence.typehandler.JsonListTypeHandler"/>
+        <result column="default_values" property="defaultValues" 
                 typeHandler="com.infrastructure.persistence.typehandler.JsonMapTypeHandler"/>
-        <result property="isPublic" column="is_public"/>
-        <result property="createdBy" column="created_by"/>
-        <result property="createdAt" column="created_at"/>
-        <result property="updatedAt" column="updated_at"/>
+        <result column="tags" property="tags" 
+                typeHandler="com.infrastructure.persistence.typehandler.JsonListTypeHandler"/>
+        <result column="is_public" property="isPublic"/>
+        <result column="created_by" property="createdBy"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="updated_at" property="updatedAt"/>
+        <result column="usage_count" property="usageCount"/>
+        <result column="average_execution_time" property="averageExecutionTime"/>
+        <result column="last_executed_at" property="lastExecutedAt"/>
     </resultMap>
-
-    <insert id="insert" parameterType="com.domain.model.query.SavedQuery"
-            useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO saved_query (
-            name, description, data_source_id, natural_language_query, 
-            generated_sql, parameters, is_public, created_by, created_at, updated_at
-        ) VALUES (
-            #{name}, #{description}, #{dataSourceId}, #{naturalLanguageQuery},
-            #{generatedSql}, #{parameters, typeHandler=com.infrastructure.persistence.typehandler.JsonMapTypeHandler},
-            #{isPublic}, #{createdBy}, #{createdAt}, #{updatedAt}
-        )
-    </insert>
-
-    <update id="update" parameterType="com.domain.model.query.SavedQuery">
-        UPDATE saved_query
-        SET name = #{name},
-            description = #{description},
-            data_source_id = #{dataSourceId},
-            natural_language_query = #{naturalLanguageQuery},
-            generated_sql = #{generatedSql},
-            parameters = #{parameters, typeHandler=com.infrastructure.persistence.typehandler.JsonMapTypeHandler},
-            is_public = #{isPublic},
-            updated_at = #{updatedAt}
-        WHERE id = #{id}
-    </update>
 
     <select id="selectById" resultMap="savedQueryMap">
         SELECT * FROM saved_query WHERE id = #{id}
     </select>
 
-    <select id="selectAll" resultMap="savedQueryMap">
-        SELECT * FROM saved_query ORDER BY updated_at DESC
+    <select id="selectByDataSourceId" resultMap="savedQueryMap">
+        SELECT * FROM saved_query WHERE data_source_id = #{dataSourceId}
     </select>
+
+    <insert id="insert" parameterType="com.domain.model.SavedQuery">
+        INSERT INTO saved_query (
+            id, data_source_id, name, description, sql, parameters,
+            default_values, tags, is_public, created_by, created_at,
+            updated_at, usage_count, average_execution_time, last_executed_at
+        ) VALUES (
+            #{id}, #{dataSourceId}, #{name}, #{description}, #{sql},
+            #{parameters,typeHandler=com.infrastructure.persistence.typehandler.JsonListTypeHandler},
+            #{defaultValues,typeHandler=com.infrastructure.persistence.typehandler.JsonMapTypeHandler},
+            #{tags,typeHandler=com.infrastructure.persistence.typehandler.JsonListTypeHandler},
+            #{isPublic}, #{createdBy}, #{createdAt}, #{updatedAt},
+            #{usageCount}, #{averageExecutionTime}, #{lastExecutedAt}
+        )
+    </insert>
+
+    <update id="update" parameterType="com.domain.model.SavedQuery">
+        UPDATE saved_query
+        SET data_source_id = #{dataSourceId},
+            name = #{name},
+            description = #{description},
+            sql = #{sql},
+            parameters = #{parameters,typeHandler=com.infrastructure.persistence.typehandler.JsonListTypeHandler},
+            default_values = #{defaultValues,typeHandler=com.infrastructure.persistence.typehandler.JsonMapTypeHandler},
+            tags = #{tags,typeHandler=com.infrastructure.persistence.typehandler.JsonListTypeHandler},
+            is_public = #{isPublic},
+            updated_at = #{updatedAt}
+        WHERE id = #{id}
+    </update>
 
     <delete id="deleteById">
         DELETE FROM saved_query WHERE id = #{id}
     </delete>
 
-    <select id="selectByDataSourceIdOrderByUpdatedAtDesc" resultMap="savedQueryMap">
+    <delete id="deleteByDataSourceId">
+        DELETE FROM saved_query WHERE data_source_id = #{dataSourceId}
+    </delete>
+
+    <select id="selectByNameLike" resultMap="savedQueryMap">
+        SELECT * FROM saved_query WHERE name LIKE CONCAT('%', #{name}, '%')
+    </select>
+
+    <select id="selectByTags" resultMap="savedQueryMap">
+        SELECT * FROM saved_query 
+        WHERE tags @> #{tags,typeHandler=com.infrastructure.persistence.typehandler.JsonListTypeHandler}::jsonb
+    </select>
+
+    <select id="selectByIsPublic" resultMap="savedQueryMap">
+        SELECT * FROM saved_query WHERE is_public = #{isPublic}
+    </select>
+
+    <select id="selectByDataSourceIdAndIsPublic" resultMap="savedQueryMap">
         SELECT * FROM saved_query 
         WHERE data_source_id = #{dataSourceId}
-        ORDER BY updated_at DESC
+          AND is_public = #{isPublic}
     </select>
 
-    <select id="selectByName" resultMap="savedQueryMap">
-        SELECT * FROM saved_query WHERE name = #{name} LIMIT 1
-    </select>
+    <update id="incrementUsageCount">
+        UPDATE saved_query 
+        SET usage_count = usage_count + 1,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = #{id}
+    </update>
 
-    <select id="selectByDataSourceIdAndIsPublicOrderByUpdatedAtDesc" resultMap="savedQueryMap">
-        SELECT * FROM saved_query 
-        WHERE data_source_id = #{dataSourceId}
-        AND is_public = #{isPublic}
-        ORDER BY updated_at DESC
-    </select>
-
+    <update id="updateExecutionStats">
+        UPDATE saved_query 
+        SET average_execution_time = (
+                (average_execution_time * usage_count + #{executionTime}) / (usage_count + 1)
+            ),
+            last_executed_at = CURRENT_TIMESTAMP,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = #{id}
+    </update>
 </mapper>

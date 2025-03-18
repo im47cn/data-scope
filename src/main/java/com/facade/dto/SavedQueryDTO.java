@@ -1,109 +1,90 @@
 package com.facade.dto;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+import lombok.Data;
+
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
 /**
- * 保存的查询DTO
+ * 查询模板DTO
  */
 @Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
 public class SavedQueryDTO {
-    
-    /**
-     * 查询ID
-     */
+
     private String id;
-    
-    /**
-     * 数据源ID
-     */
+
+    @NotNull(message = "数据源ID不能为空")
     private String dataSourceId;
-    
-    /**
-     * 数据源名称
-     */
-    private String dataSourceName;
-    
-    /**
-     * 查询名称
-     */
+
+    @NotBlank(message = "查询名称不能为空")
+    @Size(max = 100, message = "查询名称长度不能超过100个字符")
     private String name;
-    
-    /**
-     * 查询描述
-     */
+
+    @Size(max = 500, message = "描述长度不能超过500个字符")
     private String description;
-    
-    /**
-     * SQL语句
-     */
+
+    @NotBlank(message = "查询语句不能为空")
     private String sql;
-    
-    /**
-     * 参数定义
-     */
-    private Map<String, Object> parameterDefinitions;
-    
-    /**
-     * 默认参数值
-     */
-    private Map<String, Object> defaultParameters;
-    
-    /**
-     * 文件夹路径
-     */
-    private String folderPath;
-    
-    /**
-     * 是否共享
-     */
-    private Boolean isShared;
-    
-    /**
-     * 显示顺序
-     */
-    private Integer displayOrder;
-    
-    /**
-     * 创建者ID
-     */
-    private String createdById;
-    
-    /**
-     * 创建者名称
-     */
-    private String createdByName;
-    
-    /**
-     * 创建时间
-     */
+
+    private List<ParameterDTO> parameters;
+
+    private Map<String, Object> defaultValues;
+
+    private List<String> tags;
+
+    private boolean isPublic;
+
+    private String createdBy;
+
     private LocalDateTime createdAt;
-    
-    /**
-     * 更新时间
-     */
+
     private LocalDateTime updatedAt;
-    
-    /**
-     * 最后执行时间
-     */
+
+    private int usageCount;
+
+    private long averageExecutionTime;
+
     private LocalDateTime lastExecutedAt;
+}
+
+/**
+ * 查询参数DTO
+ */
+@Data
+class ParameterDTO {
     
-    /**
-     * 执行次数
-     */
-    private Long executionCount;
-    
-    /**
-     * 标签
-     */
-    private String[] tags;
+    @NotBlank(message = "参数名不能为空")
+    private String name;
+
+    @NotBlank(message = "参数类型不能为空")
+    private String type;
+
+    private String description;
+
+    private boolean required;
+
+    private Map<String, Object> validation;
+
+    private List<ParameterOptionDTO> options;
+
+    private Object defaultValue;
+}
+
+/**
+ * 参数选项DTO
+ */
+@Data
+class ParameterOptionDTO {
+
+    @NotNull(message = "选项值不能为空")
+    private Object value;
+
+    @NotBlank(message = "选项标签不能为空")
+    private String label;
+
+    private String description;
 }

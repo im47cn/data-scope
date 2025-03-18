@@ -1,6 +1,6 @@
 package com.infrastructure.adapter;
 
-import com.domain.model.DataSource;
+import com.domain.model.metadata.DataSource;
 import com.domain.model.metadata.*;
 import com.nlquery.executor.QueryResult;
 

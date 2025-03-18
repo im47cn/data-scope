@@ -1,7 +1,7 @@
 package com.domain.repository;
 
 import com.common.enums.DataSourceType;
-import com.domain.model.DataSource;
+import com.domain.model.metadata.DataSource;
 
 import java.util.List;
 import java.util.Optional;

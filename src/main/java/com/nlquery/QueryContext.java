@@ -1,6 +1,6 @@
 package com.nlquery;
 
-import com.domain.model.DataSource;
+import com.domain.model.metadata.DataSource;
 import com.nlquery.entity.EntityExtractionContext;
 import com.nlquery.intent.IntentRecognitionContext;
 

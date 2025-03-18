@@ -3,6 +3,7 @@ package com.application.service.impl;
 import com.application.service.MetadataSyncJobService;
 import com.application.service.MetadataSyncService;
 import com.common.enums.SyncType;
+import com.domain.model.metadata.DataSource;
 import com.domain.model.metadata.MetadataSyncJob;
 import com.domain.model.metadata.SchemaInfo;
 import com.domain.model.metadata.TableInfo;
@@ -64,7 +65,7 @@ public class MetadataSyncServiceImpl implements MetadataSyncService {
 
         try {
             // 获取数据源实体
-            com.domain.model.DataSource dataSourceEntity = dataSourceRepository.findById(dataSourceId)
+            DataSource dataSourceEntity = dataSourceRepository.findById(dataSourceId)
                     .orElseThrow(() -> new RuntimeException("数据源不存在"));
 
             // 获取数据源适配器
@@ -86,7 +87,7 @@ public class MetadataSyncServiceImpl implements MetadataSyncService {
         }
     }
 
-    private void syncSchemas(DataSourceAdapter dataSourceAdapter, com.domain.model.DataSource dataSource, MetadataSyncJob syncJob)
+    private void syncSchemas(DataSourceAdapter dataSourceAdapter, DataSource dataSource, MetadataSyncJob syncJob)
             throws SQLException {
         log.info("开始同步schema信息");
 
@@ -102,7 +103,7 @@ public class MetadataSyncServiceImpl implements MetadataSyncService {
         }
     }
 
-    private void syncTables(DataSourceAdapter dataSourceAdapter, com.domain.model.DataSource dataSource, SchemaInfo schemaInfo, MetadataSyncJob syncJob)
+    private void syncTables(DataSourceAdapter dataSourceAdapter, DataSource dataSource, SchemaInfo schemaInfo, MetadataSyncJob syncJob)
             throws SQLException {
         log.info("开始同步表信息: schema={}", schemaInfo.getName());
 

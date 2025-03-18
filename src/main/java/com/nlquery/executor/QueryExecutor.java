@@ -1,6 +1,6 @@
 package com.nlquery.executor;
 
-import com.domain.model.DataSource;
+import com.domain.model.metadata.DataSource;
 
 /**
  * 查询执行器接口

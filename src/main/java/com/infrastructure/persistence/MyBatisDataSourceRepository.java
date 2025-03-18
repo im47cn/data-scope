@@ -10,7 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.common.enums.DataSourceType;
-import com.domain.model.DataSource;
+import com.domain.model.metadata.DataSource;
 import com.domain.repository.DataSourceRepository;
 import com.infrastructure.persistence.mapper.DataSourceMapper;
 

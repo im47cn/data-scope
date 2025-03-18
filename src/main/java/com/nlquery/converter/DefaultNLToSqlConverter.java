@@ -12,17 +12,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
-import com.domain.model.DataSource;
+import com.domain.model.metadata.DataSource;
 import com.domain.service.DataSourceService;
 import com.nlquery.NLQueryRequest;
-import com.nlquery.QueryContext;
 import com.nlquery.entity.EntityExtractor;
 import com.nlquery.entity.EntityTag;
 import com.nlquery.intent.IntentRecognizer;
 import com.nlquery.intent.QueryIntent;
 import com.nlquery.preprocess.TextPreprocessor;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j

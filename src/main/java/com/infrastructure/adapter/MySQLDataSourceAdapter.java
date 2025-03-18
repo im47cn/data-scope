@@ -1,7 +1,7 @@
 package com.infrastructure.adapter;
 
 import com.common.exception.DataSourceException;
-import com.domain.model.DataSource;
+import com.domain.model.metadata.DataSource;
 import com.domain.model.metadata.*;
 import com.nlquery.executor.QueryResult;
 import org.slf4j.Logger;
@@ -182,10 +182,10 @@ public class MySQLDataSourceAdapter implements DataSourceAdapter {
                     ColumnInfo column = ColumnInfo.builder()
                             .name(columnName)
                             .dataType(dataType)
-                            .ordinalPosition(ordinalPosition)
+                            .position(ordinalPosition)
                             .length(columnSize)
-                            .numericPrecision(columnSize)
-                            .numericScale(decimalDigits)
+                            .precision(columnSize)
+                            .scale(decimalDigits)
                             .nullable(nullable)
                             .defaultValue(defaultValue)
                             .description(remarks)
@@ -225,14 +225,14 @@ public class MySQLDataSourceAdapter implements DataSourceAdapter {
                             IndexInfo.builder()
                                     .name(indexName)
                                     .type("BTREE")
-                                    .unique(!nonUnique)
+                                    .isUnique(!nonUnique)
                                     .columns(new ArrayList<>())
                                     .build()
                     );
 
                     IndexColumnInfo indexColumn = IndexColumnInfo.builder()
                             .columnName(columnName)
-                            .ordinalPosition(ordinalPosition)
+                            .position(ordinalPosition)
                             .sortOrder(ascOrDesc)
                             .build();
 
@@ -265,7 +265,7 @@ public class MySQLDataSourceAdapter implements DataSourceAdapter {
                     ForeignKeyInfo foreignKey = foreignKeyMap.computeIfAbsent(fkName, k ->
                             ForeignKeyInfo.builder()
                                     .name(fkName)
-                                    .sourceTableName(tableName)
+                                    .tableName(tableName)
                                     .targetTableName(pkTableName)
                                     .updateRule(getForeignKeyRuleName(updateRule))
                                     .deleteRule(getForeignKeyRuleName(deleteRule))

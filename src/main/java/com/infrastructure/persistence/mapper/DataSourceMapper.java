@@ -6,7 +6,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import com.common.enums.DataSourceType;
-import com.domain.model.DataSource;
+import com.domain.model.metadata.DataSource;
 
 /**
  * 数据源Mapper接口

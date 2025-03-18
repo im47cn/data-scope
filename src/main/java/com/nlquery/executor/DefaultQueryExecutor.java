@@ -1,6 +1,6 @@
 package com.nlquery.executor;
 
-import com.domain.model.DataSource;
+import com.domain.model.metadata.DataSource;
 import com.infrastructure.adapter.DataSourceAdapter;
 import com.infrastructure.adapter.DataSourceAdapterFactory;
 import org.slf4j.Logger;

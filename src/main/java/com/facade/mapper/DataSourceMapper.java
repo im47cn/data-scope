@@ -9,7 +9,7 @@ import java.util.stream.Stream;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Component;
 
-import com.domain.model.DataSource;
+import com.domain.model.metadata.DataSource;
 import com.facade.dto.DataSourceDTO;
 import com.facade.dto.DataSourceListDTO;
 

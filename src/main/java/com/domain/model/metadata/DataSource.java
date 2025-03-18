@@ -1,4 +1,4 @@
-package com.domain.model;
+package com.domain.model.metadata;
 
 import java.time.LocalDateTime;
 import java.util.Map;

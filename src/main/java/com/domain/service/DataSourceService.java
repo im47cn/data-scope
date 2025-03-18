@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import com.common.enums.DataSourceType;
-import com.domain.model.DataSource;
+import com.domain.model.metadata.DataSource;
 import com.domain.model.metadata.SchemaInfo;
 import com.domain.model.metadata.TableInfo;
 import org.springframework.transaction.annotation.Transactional;

@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.common.enums.DataSourceType;
-import com.domain.model.DataSource;
+import com.domain.model.metadata.DataSource;
 import com.domain.service.DataSourceService;
 import com.facade.dto.ConnectionTestResult;
 import com.facade.dto.DataSourceDTO;

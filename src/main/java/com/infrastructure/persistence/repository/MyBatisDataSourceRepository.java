@@ -1,7 +1,7 @@
 package com.infrastructure.persistence.repository;
 
 import com.common.enums.DataSourceType;
-import com.domain.model.DataSource;
+import com.domain.model.metadata.DataSource;
 import com.domain.repository.DataSourceRepository;
 import com.infrastructure.persistence.mapper.DataSourceMapper;
 import lombok.extern.slf4j.Slf4j;
