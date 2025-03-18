@@ -72,6 +72,14 @@
             <scope>test</scope>
         </dependency>
 
+        <!-- 中文分词 -->
+        <!-- Jakarta Validation -->
+        <dependency>
+            <groupId>com.hankcs</groupId>
+            <artifactId>hanlp</artifactId>
+            <version>portable-1.8.4</version>
+        </dependency>
+
         <!-- Tools -->
         <dependency>
             <groupId>org.projectlombok</groupId>
