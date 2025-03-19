@@ -2280,6 +2280,13 @@ public class ContextManager {
 
 ## 5. 接口设计
 
+### 5.0 接口演进
+
+#### 5.0.1 版本 1.1 (2025-03-19)
+- **更改**: 添加了新的`convert`方法到`NLToSqlConverter`接口，以支持更灵活的调用方式，同时保持向后兼容性。
+- **理由**: 原始的`convert(NLQueryRequest request)`方法在某些情况下不够灵活，例如当调用者已经拥有自然语言查询和数据源ID时，不需要构建完整的`NLQueryRequest`对象。新的`convert`方法允许直接传入这些参数。
+- **兼容性**: 通过使用Java的`default`关键字为新方法提供默认实现，确保了现有的实现类不需要修改即可兼容新的接口。默认实现会将新的方法调用委托给原始的`convert(NLQueryRequest request)`方法。
+
 ### 5.1 REST API
 
 #### 5.1.1 自然语言查询API
@@ -2432,6 +2439,30 @@ interface NL2SQLService {
    * @returns 处理结果
    */
   processQuery(request: QueryRequest): Promise<QueryResponse>;
+
+  /**
+    * 转换自然语言查询为SQL
+    * @param request 包含自然语言查询的请求对象
+    * @returns 转换结果，包含生成的SQL
+    */
+  convert(request: NLQueryRequest): SqlConversionResult;
+
+  /**
+    * 转换自然语言查询为SQL（兼容性方法）
+    * @param naturalLanguageQuery 自然语言查询
+    * @param dataSourceId 数据源ID
+    * @returns 生成的SQL
+    */
+  convert(naturalLanguageQuery: string, dataSourceId: Long): string;
+
+  /**
+    * 转换自然语言查询为SQL（兼容性方法，带上下文）
+    * @param naturalLanguageQuery 自然语言查询
+    * @param dataSourceId 数据源ID
+    * @param context 查询上下文
+    * @returns 生成的SQL
+    */
+  convert(naturalLanguageQuery: string, dataSourceId: Long, context: QueryContext): string;
   
   /**
    * 验证和解释SQL查询

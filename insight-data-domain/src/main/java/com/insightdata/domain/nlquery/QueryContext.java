@@ -8,6 +8,7 @@ import lombok.Data;
 public class QueryContext {
     private String dataSourceId;
     private String nlQuery; // The preprocessed natural language query
+    private String contextId;
     // Other fields as needed, like intent, entities, etc.
 
     public String getNlQuery(){
@@ -17,11 +18,19 @@ public class QueryContext {
         return this.dataSourceId;
     }
 
+    public String getContextId() {
+        return this.contextId;
+    }
+
     public void setDataSourceId(String dataSourceId) {
         this.dataSourceId = dataSourceId;
     }
 
     public void setNlQuery(String nlQuery) {
         this.nlQuery = nlQuery;
+    }
+
+    public void setContextId(String contextId) {
+        this.contextId = contextId;
     }
 }

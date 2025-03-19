@@ -26,53 +26,26 @@
  * 定义所有数据库类型必须实现的统一操作
  */
 public interface DataSourceAdapter {
-    /**
-     * 获取适配器类型
-     */
-    DataSourceType getType();
-    
-    /**
-     * 测试连接
-     */
-    ConnectionTestResult testConnection(DataSourceConnectionInfo connectionInfo);
-    
-    /**
-     * 获取连接
-     */
-    Connection getConnection(DataSourceConnectionInfo connectionInfo);
-    
-    /**
-     * 释放连接
-     */
-    void releaseConnection(Connection connection);
-    
-    /**
-     * 关闭连接池
-     */
-    void closeConnectionPool(Long dataSourceId);
-    
-    /**
-     * 执行查询并返回结果集
-     */
-    QueryResult executeQuery(String sql, Map<String, Object> parameters, 
-                            QueryOptions options, DataSourceConnectionInfo connectionInfo);
-    
-    /**
-     * 执行更新操作并返回影响行数
-     */
-    int executeUpdate(String sql, Map<String, Object> parameters, 
-                     DataSourceConnectionInfo connectionInfo);
-    
-    /**
-     * 提取数据库元数据
-     */
-    MetadataResult extractMetadata(DataSourceConnectionInfo connectionInfo, 
-                                  MetadataExtractionOptions options);
-    
-    /**
-     * 获取数据库特定功能
-     */
-    <T> T getDatabaseSpecificFeature(Class<T> featureClass);
+
+    void connect(DataSource config) throws Exception;
+
+    void disconnect() throws Exception;
+
+    boolean testConnection(DataSource config) throws Exception;
+
+    List<String> getCatalogs() throws Exception;
+
+    List<String> getSchemas(String catalog) throws Exception;
+
+    List<TableInfo> getTables(String catalog, String schema) throws Exception;
+
+    List<ColumnInfo> getColumns(String catalog, String schema, String table) throws Exception;
+
+    Map<String, Long> getTableSizes(String catalog, String schema) throws Exception;
+
+    String getDataSourceType();
+
+    Connection getConnection();
 }
 ```
 

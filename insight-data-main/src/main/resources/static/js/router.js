@@ -135,7 +135,7 @@ const router = new VueRouter({
 // 全局前置守卫
 router.beforeEach((to, from, next) => {
     // 设置页面标题
-    const title = to.meta.title || 'InsightData';
+    const title = to.meta.title || 'DataScope';
     document.title = title;
 
     // 检查权限

@@ -1,10 +1,10 @@
-# Insight Data
+# Data Scope
 
-Insight Data is an open-source data quality platform designed to help organizations monitor, validate, and improve their data quality across various data sources.
+Data Scope is an open-source data quality platform designed to help organizations monitor, validate, and improve their data quality across various data sources.
 
 ## Overview
 
-Insight Data provides a comprehensive solution for data quality management with features including:
+Data Scope provides a comprehensive solution for data quality management with features including:
 
 - Data quality monitoring and validation
 - Customizable data quality rules
@@ -16,7 +16,7 @@ Insight Data provides a comprehensive solution for data quality management with 
 
 ## Architecture
 
-Insight Data follows a modular architecture with the following key components:
+Data Scope follows a modular architecture with the following key components:
 
 - **Web UI**: User interface for configuring rules, viewing results, and managing data quality
 - **API Layer**: RESTful APIs for interacting with the platform
@@ -40,7 +40,7 @@ For more details, see [Architecture Documentation](docs/architecture.md).
 1. Clone the repository:
    ```bash
    git clone https://github.com/im47cn/data-scope.git
-   cd Insight Data
+   cd Data Scope
    ```
 
 2. Configure the database:
@@ -63,7 +63,7 @@ For more details, see [Architecture Documentation](docs/architecture.md).
 
 ### Data Quality Rules
 
-Insight Data supports various types of data quality rules:
+Data Scope supports various types of data quality rules:
 
 - Completeness checks
 - Uniqueness validation
@@ -103,7 +103,7 @@ See [Project Plan](docs/project-plan.md) for more details.
 
 ## Contributing
 
-We welcome contributions to Insight Data! Please see our [Contributing Guidelines](CONTRIBUTING.md) for more information.
+We welcome contributions to Data Scope! Please see our [Contributing Guidelines](CONTRIBUTING.md) for more information.
 
 ## License
 

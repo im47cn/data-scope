@@ -15,6 +15,18 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class EntityTag {
 
+    public String getValue() {
+        return value;
+    }
+
+    public EntityType getType() {
+        return type;
+    }
+
+    public double getConfidence() {
+        return confidence;
+    }
+
     /**
      * 实体值
      */

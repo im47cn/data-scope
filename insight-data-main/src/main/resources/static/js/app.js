@@ -92,7 +92,7 @@ const app = new Vue({
             >
                 <div class="logo">
                     <img src="/static/img/logo.png" alt="Logo" />
-                    <h1 v-if="!collapsed">InsightData</h1>
+                    <h1 v-if="!collapsed">DataScope</h1>
                 </div>
                 <a-menu
                     theme="dark"
@@ -126,7 +126,7 @@ const app = new Vue({
                 </a-layout-content>
                 
                 <a-layout-footer style="text-align: center">
-                    InsightData &copy; 2025 Created by YeeWorks
+                    DataScope &copy; 2025 Created by YeeWorks
                 </a-layout-footer>
             </a-layout>
         </a-layout>

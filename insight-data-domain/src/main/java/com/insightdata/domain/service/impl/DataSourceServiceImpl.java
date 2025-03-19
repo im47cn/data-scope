@@ -1,5 +1,20 @@
 package com.insightdata.domain.service.impl;
 
+import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.insightdata.domain.adapter.DataSourceAdapter;
+import com.insightdata.domain.adapter.DataSourceAdapterFactory;
+import com.insightdata.domain.adapter.DataSourceAdapterHelper;
+import com.insightdata.domain.adapter.EnhancedDataSourceAdapter;
 import com.insightdata.domain.exception.DataSourceException;
 import com.insightdata.domain.metadata.enums.DataSourceType;
 import com.insightdata.domain.metadata.model.DataSource;
@@ -8,19 +23,8 @@ import com.insightdata.domain.metadata.model.TableInfo;
 import com.insightdata.domain.repository.DataSourceRepository;
 import com.insightdata.domain.service.CredentialEncryptionService;
 import com.insightdata.domain.service.DataSourceService;
-import com.insightdata.domain.adapter.DataSourceAdapter;
-import com.insightdata.domain.adapter.DataSourceAdapterFactory;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.stream.Collectors;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 数据源服务实现类
@@ -147,12 +151,12 @@ public class DataSourceServiceImpl implements DataSourceService {
     public boolean testConnection(DataSource dataSource) {
         try {
             // 获取适配器
-            DataSourceAdapter adapter = adapterFactory.getAdapter(dataSource.getType());
+            DataSourceAdapter adapter = adapterFactory.getAdapter(DataSourceAdapterHelper.getType(dataSource));
             
             // 测试连接
             return adapter.testConnection(dataSource);
         } catch (Exception e) {
-            log.error("Failed to test connection to data source: {}", dataSource.getName(), e);
+            log.error("Failed to test connection to data source: {}", DataSourceAdapterHelper.getName(dataSource), e);
             return false;
         }
     }
@@ -160,42 +164,57 @@ public class DataSourceServiceImpl implements DataSourceService {
     @Override
     @Transactional(readOnly = true)
     public List<SchemaInfo> getSchemas(String dataSourceId) {
-        // 获取数据源
-        DataSource dataSource = dataSourceRepository.findById(dataSourceId)
-                .orElseThrow(() -> DataSourceException.notFound("Data source with ID " + dataSourceId + " not found"));
-        
-        // 获取适配器
-        DataSourceAdapter adapter = adapterFactory.getAdapter(dataSource.getType());
-        
-        // 获取模式列表
-        return adapter.getSchemas(dataSource);
+        try {
+            // 获取数据源
+            DataSource dataSource = dataSourceRepository.findById(dataSourceId)
+                    .orElseThrow(() -> DataSourceException.notFound("Data source with ID " + dataSourceId + " not found"));
+            
+            // 获取增强型适配器
+            EnhancedDataSourceAdapter adapter = adapterFactory.getEnhancedAdapter(DataSourceAdapterHelper.getType(dataSource));
+            
+            // 获取模式列表
+            return adapter.getSchemas(dataSource);
+        } catch (Exception e) {
+            log.error("Failed to get schemas for data source: {}", dataSourceId, e);
+            throw new DataSourceException("Failed to get schemas: " + e.getMessage(), e);
+        }
     }
 
     @Override
     public SchemaInfo getSchemaInfo(String dataSourceId, String schemaName) {
-        // 获取数据源
-        DataSource dataSource = dataSourceRepository.findById(dataSourceId)
-                .orElseThrow(() -> DataSourceException.notFound("Data source with ID " + dataSourceId + " not found"));
+        try {
+            // 获取数据源
+            DataSource dataSource = dataSourceRepository.findById(dataSourceId)
+                    .orElseThrow(() -> DataSourceException.notFound("Data source with ID " + dataSourceId + " not found"));
 
-        // 获取适配器
-        DataSourceAdapter adapter = adapterFactory.getAdapter(dataSource.getType());
+            // 获取增强型适配器
+            EnhancedDataSourceAdapter adapter = adapterFactory.getEnhancedAdapter(DataSourceAdapterHelper.getType(dataSource));
 
-        // 获取模式列表
-        return adapter.getSchema(dataSource, schemaName);
+            // 获取模式详情
+            return adapter.getSchema(dataSource, schemaName);
+        } catch (Exception e) {
+            log.error("Failed to get schema info for data source: {}, schema: {}", dataSourceId, schemaName, e);
+            throw new DataSourceException("Failed to get schema info: " + e.getMessage(), e);
+        }
     }
 
     @Transactional(readOnly = true)
     @Override
     public List<TableInfo> getTables(String dataSourceId, String schemaName) {
-        // 获取数据源
-        DataSource dataSource = dataSourceRepository.findById(dataSourceId)
-                .orElseThrow(() -> DataSourceException.notFound("Data source with ID " + dataSourceId + " not found"));
-        
-        // 获取适配器
-        DataSourceAdapter adapter = adapterFactory.getAdapter(dataSource.getType());
-        
-        // 获取表列表
-        return adapter.getTables(dataSource, schemaName);
+        try {
+            // 获取数据源
+            DataSource dataSource = dataSourceRepository.findById(dataSourceId)
+                    .orElseThrow(() -> DataSourceException.notFound("Data source with ID " + dataSourceId + " not found"));
+            
+            // 获取增强型适配器
+            EnhancedDataSourceAdapter adapter = adapterFactory.getEnhancedAdapter(DataSourceAdapterHelper.getType(dataSource));
+            
+            // 获取表列表
+            return adapter.getTables(dataSource, schemaName);
+        } catch (Exception e) {
+            log.error("Failed to get tables for data source: {}, schema: {}", dataSourceId, schemaName, e);
+            throw new DataSourceException("Failed to get tables: " + e.getMessage(), e);
+        }
     }
     
     @Override

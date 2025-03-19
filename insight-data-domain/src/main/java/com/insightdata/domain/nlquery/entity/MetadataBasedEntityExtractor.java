@@ -1,17 +1,20 @@
 package com.insightdata.domain.nlquery.entity;
 
-import com.insightdata.domain.metadata.model.ColumnInfo;
-import com.insightdata.domain.metadata.model.SchemaInfo;
-import com.insightdata.domain.metadata.model.TableInfo;
-import com.insightdata.domain.nlquery.preprocess.PreprocessedText;
-import com.insightdata.domain.service.DataSourceService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import com.insightdata.domain.metadata.model.ColumnInfo;
+import com.insightdata.domain.metadata.model.SchemaInfo;
+import com.insightdata.domain.metadata.model.TableInfo;
+import com.insightdata.domain.nlquery.QueryContext;
+import com.insightdata.domain.nlquery.preprocess.PreprocessedText;
+import com.insightdata.domain.service.DataSourceService;
 
 @Component
 public class MetadataBasedEntityExtractor implements EntityExtractor {
@@ -106,6 +109,58 @@ public class MetadataBasedEntityExtractor implements EntityExtractor {
         }
 
         return entities;
+    }
+
+    @Override
+    public List<EntityTag> extract(PreprocessedText preprocessedText) {
+        // 创建默认上下文
+        EntityExtractionContext defaultContext = EntityExtractionContext.builder()
+                .useFuzzyMatching(true)
+                .minConfidence(0.7)
+                .build();
+
+        // 调用已实现的方法
+        return extract(preprocessedText, defaultContext);
+    }
+
+    @Override
+    public List<EntityTag> validate(List<EntityTag> entities, QueryContext context) {
+        if (entities == null || entities.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        // 过滤掉置信度低于阈值的实体
+        return entities.stream()
+                .filter(entity -> entity.getConfidence() >= 0.5) // 默认阈值
+                .collect(Collectors.toList());
+
+        // 注意：在实际实现中，可能需要更复杂的验证逻辑
+        // 例如，检查实体是否存在于数据源的元数据中
+    }
+
+    @Override
+    public List<EntityTag> merge(List<EntityTag> entities) {
+        if (entities == null || entities.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        // 使用Map按实体类型和值分组，然后合并
+        Map<String, EntityTag> mergedEntities = new HashMap<>();
+
+        for (EntityTag entity : entities) {
+            String key = entity.getType() + ":" + entity.getValue();
+            if (mergedEntities.containsKey(key)) {
+                // 如果已存在相同实体，选择置信度更高的一个
+                EntityTag existing = mergedEntities.get(key);
+                if (entity.getConfidence() > existing.getConfidence()) {
+                    mergedEntities.put(key, entity);
+                }
+            } else {
+                mergedEntities.put(key, entity);
+            }
+        }
+
+        return new ArrayList<>(mergedEntities.values());
     }
 
     // Dummy implementation for now

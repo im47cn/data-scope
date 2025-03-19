@@ -20,6 +20,10 @@ import java.util.stream.Collectors;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PreprocessedText {
+
+    public List<String> getTokens() {
+        return tokens;
+    }
     
     /**
      * 原始文本
