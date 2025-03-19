@@ -2,15 +2,15 @@ package com.insightdata.application.service.impl;
 
 import com.insightdata.domain.exception.InsightDataException;
 import com.insightdata.domain.query.model.QueryResult;
-import com.insightdata.domain.service.NLQueryService;
+import com.insightdata.application.service.NLQueryApplicationService;
 import com.insightdata.domain.nlquery.NLQueryRequest;
 import com.insightdata.domain.nlquery.QueryContext;
 import com.insightdata.domain.nlquery.converter.NLToSqlConverter;
 import com.insightdata.domain.nlquery.executor.QueryExecutor;
 import com.insightdata.domain.nlquery.intent.IntentDetector;
 import com.insightdata.domain.nlquery.preprocess.TextPreprocessor;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -18,13 +18,19 @@ import java.util.Map;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
-public class NLQueryApplicationServiceImpl implements NLQueryService {
-    
-    private final NLToSqlConverter nlToSqlConverter;
-    private final IntentDetector intentDetector;
-    private final TextPreprocessor textPreprocessor;
-    private final QueryExecutor queryExecutor;
+public class NLQueryApplicationServiceImpl implements NLQueryApplicationService {
+
+    @Autowired
+    private NLToSqlConverter nlToSqlConverter;
+
+    @Autowired
+    private IntentDetector intentDetector;
+
+    @Autowired
+    private TextPreprocessor textPreprocessor;
+
+    @Autowired
+    private QueryExecutor queryExecutor;
 
     @Override
     public QueryResult executeNLQuery(String dataSourceId, NLQueryRequest request) {

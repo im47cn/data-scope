@@ -8,35 +8,35 @@ import java.util.regex.Pattern;
  * 专门用于处理SQL查询相关的文本
  */
 public class SqlQueryTextNormalizer extends DefaultTextNormalizer {
-    
+
     // SQL关键字正则表达式
     private static final Pattern SQL_KEYWORD_PATTERN = Pattern.compile(
             "\\b(select|from|where|group|by|having|order|limit|join|on|and|or|not|in|between|like|is|null|as)\\b",
             Pattern.CASE_INSENSITIVE);
-    
+
     // SQL函数正则表达式
     private static final Pattern SQL_FUNCTION_PATTERN = Pattern.compile(
             "\\b(count|sum|avg|min|max|concat|substring|date|now|year|month|day)\\b",
             Pattern.CASE_INSENSITIVE);
-    
+
     @Override
     public String normalize(String text) {
         if (text == null || text.isEmpty()) {
             return text;
         }
-        
+
         // 1. 基本标准化
         String result = super.normalize(text);
-        
+
         // 2. 保留SQL关键字
         result = preserveSqlKeywords(result);
-        
+
         // 3. 保留SQL函数
         result = preserveSqlFunctions(result);
-        
+
         return result;
     }
-    
+
     /**
      * 保留SQL关键字
      *
@@ -52,7 +52,7 @@ public class SqlQueryTextNormalizer extends DefaultTextNormalizer {
         matcher.appendTail(sb);
         return sb.toString();
     }
-    
+
     /**
      * 保留SQL函数
      *
@@ -68,18 +68,5 @@ public class SqlQueryTextNormalizer extends DefaultTextNormalizer {
         matcher.appendTail(sb);
         return sb.toString();
     }
-    
-    @Override
-    protected String handlePunctuation(String text) {
-        // 保留SQL中常用的标点符号
-        return text.replace(",", " , ")
-                .replace(".", " . ")
-                .replace("(", " ( ")
-                .replace(")", " ) ")
-                .replace("=", " = ")
-                .replace("<", " < ")
-                .replace(">", " > ")
-                .replace(", ", " ! ")
-                .replace(";", " ; ");
-    }
+
 }

@@ -1,4 +1,4 @@
-package com.insightdata.domain.service;
+package com.insightdata.domain.service.impl;
 
 import com.insightdata.domain.service.CredentialEncryptionService;
 import org.springframework.beans.factory.annotation.Value;

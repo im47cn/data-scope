@@ -2,7 +2,7 @@ package com.insightdata.application.controller;
 
 import java.util.List;
 
-import com.insightdata.domain.service.NLQueryService;
+import com.insightdata.application.service.NLQueryApplicationService;
 import com.insightdata.facade.nlquery.NLQueryRequest;
 import com.insightdata.facade.nlquery.NLQueryResponse;
 import com.insightdata.facade.query.QueryHistoryDTO;
@@ -31,7 +31,7 @@ import lombok.extern.slf4j.Slf4j;
 public class NLQueryController {
     
     @Autowired
-    private NLQueryService nlQueryService;
+    private NLQueryApplicationService nlQueryApplicationService;
     
     /**
      * 执行自然语言查询
@@ -42,7 +42,7 @@ public class NLQueryController {
     @PostMapping("/execute")
     public ResponseEntity<NLQueryResponse> executeQuery(@RequestBody NLQueryRequest request) {
         log.info("接收到自然语言查询请求: {}", request.getQuery());
-        NLQueryResponse response = nlQueryService.executeQuery(request);
+        NLQueryResponse response = nlQueryApplicationService.executeQuery(request);
         return ResponseEntity.ok(response);
     }
     
@@ -59,7 +59,7 @@ public class NLQueryController {
             @RequestParam String dataSourceId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
-        List<QueryHistoryDTO> history = nlQueryService.getQueryHistory(dataSourceId, page, size);
+        List<QueryHistoryDTO> history = nlQueryApplicationService.getQueryHistory(dataSourceId, page, size);
         return ResponseEntity.ok(history);
     }
     
@@ -71,7 +71,7 @@ public class NLQueryController {
      */
     @GetMapping("/history/{id}")
     public ResponseEntity<QueryHistoryDTO> getQueryHistoryById(@PathVariable String id) {
-        QueryHistoryDTO history = nlQueryService.getQueryHistoryById(id);
+        QueryHistoryDTO history = nlQueryApplicationService.getQueryHistoryById(id);
         if (history == null) {
             return ResponseEntity.notFound().build();
         }
@@ -86,7 +86,7 @@ public class NLQueryController {
      */
     @PostMapping("/rerun/{id}")
     public ResponseEntity<NLQueryResponse> rerunQuery(@PathVariable String id) {
-        NLQueryResponse response = nlQueryService.rerunQuery(id);
+        NLQueryResponse response = nlQueryApplicationService.rerunQuery(id);
         return ResponseEntity.ok(response);
     }
     
@@ -101,7 +101,7 @@ public class NLQueryController {
     public ResponseEntity<String> saveQuery(
             @PathVariable String id,
             @RequestBody SavedQueryDTO savedQuery) {
-        String savedId = nlQueryService.saveQuery(id, savedQuery);
+        String savedId = nlQueryApplicationService.saveQuery(id, savedQuery);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedId);
     }
     
@@ -113,7 +113,7 @@ public class NLQueryController {
      */
     @GetMapping("/saved")
     public ResponseEntity<List<SavedQueryDTO>> getSavedQueries(@RequestParam String dataSourceId) {
-        List<SavedQueryDTO> queries = nlQueryService.getSavedQueries(dataSourceId);
+        List<SavedQueryDTO> queries = nlQueryApplicationService.getSavedQueries(dataSourceId);
         return ResponseEntity.ok(queries);
     }
     
@@ -125,7 +125,7 @@ public class NLQueryController {
      */
     @GetMapping("/saved/{id}")
     public ResponseEntity<SavedQueryDTO> getSavedQuery(@PathVariable String id) {
-        SavedQueryDTO query = nlQueryService.getSavedQuery(id);
+        SavedQueryDTO query = nlQueryApplicationService.getSavedQuery(id);
         if (query == null) {
             return ResponseEntity.notFound().build();
         }
@@ -143,7 +143,7 @@ public class NLQueryController {
     public ResponseEntity<SavedQueryDTO> updateSavedQuery(
             @PathVariable String id,
             @RequestBody SavedQueryDTO savedQuery) {
-        SavedQueryDTO updated = nlQueryService.updateSavedQuery(id, savedQuery);
+        SavedQueryDTO updated = nlQueryApplicationService.updateSavedQuery(id, savedQuery);
         return ResponseEntity.ok(updated);
     }
     
@@ -155,7 +155,7 @@ public class NLQueryController {
      */
     @DeleteMapping("/saved/{id}")
     public ResponseEntity<Void> deleteSavedQuery(@PathVariable String id) {
-        nlQueryService.deleteSavedQuery(id);
+        nlQueryApplicationService.deleteSavedQuery(id);
         return ResponseEntity.noContent().build();
     }
     
@@ -170,7 +170,7 @@ public class NLQueryController {
     public ResponseEntity<NLQueryResponse> executeSavedQuery(
             @PathVariable String id,
             @RequestBody(required = false) Object parameters) {
-        NLQueryResponse response = nlQueryService.executeSavedQuery(id, parameters);
+        NLQueryResponse response = nlQueryApplicationService.executeSavedQuery(id, parameters);
         return ResponseEntity.ok(response);
     }
     
@@ -182,7 +182,7 @@ public class NLQueryController {
      */
     @PostMapping("/explain")
     public ResponseEntity<String> explainSql(@RequestBody String sql) {
-        String explanation = nlQueryService.explainSql(sql);
+        String explanation = nlQueryApplicationService.explainSql(sql);
         return ResponseEntity.ok(explanation);
     }
 }

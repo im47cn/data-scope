@@ -1,4 +1,4 @@
-package com.insightdata.domain.service;
+package com.insightdata.domain.service.impl;
 
 import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
