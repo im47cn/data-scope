@@ -1,7 +1,7 @@
 package com.insightdata.infrastructure.persistence.repository;
 
 import com.insightdata.domain.lowcode.model.App;
-import com.insightdata.domain.repository.AppRepository;
+import com.insightdata.domain.lowcode.repository.AppRepository;
 import com.insightdata.infrastructure.persistence.entity.AppEntity;
 import com.insightdata.infrastructure.persistence.mapper.AppMapper;
 import org.springframework.beans.factory.annotation.Autowired;

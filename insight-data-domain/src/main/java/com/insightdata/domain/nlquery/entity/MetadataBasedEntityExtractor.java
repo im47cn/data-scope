@@ -14,7 +14,7 @@ import com.insightdata.domain.metadata.model.SchemaInfo;
 import com.insightdata.domain.metadata.model.TableInfo;
 import com.insightdata.domain.nlquery.QueryContext;
 import com.insightdata.domain.nlquery.preprocess.PreprocessedText;
-import com.insightdata.domain.service.DataSourceService;
+import com.insightdata.domain.metadata.service.DataSourceService;
 
 @Component
 public class MetadataBasedEntityExtractor implements EntityExtractor {

@@ -22,7 +22,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
         <!-- MyBatis -->
-        <mybatis-spring-boot.version>3.0.3</mybatis-spring-boot.version>
+        <mybatis-spring-boot.version>2.3.2</mybatis-spring-boot.version>
 
         <!-- Database -->
         <mysql-connector.version>8.3.0</mysql-connector.version>
@@ -171,6 +171,9 @@
                                 <version>0.23.1</version>
                             </path>
                         </annotationProcessorPaths>
+                        <compilerArgs>
+                            <arg>-parameters</arg>
+                        </compilerArgs>
                     </configuration>
                 </plugin>
             </plugins>

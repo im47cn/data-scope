@@ -123,10 +123,11 @@
             <plugin>
                 <groupId>org.flywaydb</groupId>
                 <artifactId>flyway-maven-plugin</artifactId>
+                <version>${flyway.version}</version>
                 <configuration>
-                    <url>${spring.datasource.url}</url>
-                    <user>${spring.datasource.username}</user>
-                    <password>${spring.datasource.password}</password>
+                    <url>jdbc:mysql://localhost:3306/datainsight</url>
+                    <user>test</user>
+                    <password>test</password>
                     <locations>
                         <location>classpath:db/migration</location>
                     </locations>

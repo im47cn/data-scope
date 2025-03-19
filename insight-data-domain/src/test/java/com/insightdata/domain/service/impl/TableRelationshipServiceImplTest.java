@@ -1,7 +1,8 @@
 package com.insightdata.domain.service.impl;
 
 import com.insightdata.domain.metadata.model.*;
-import com.insightdata.domain.repository.TableRelationshipRepository;
+import com.insightdata.domain.metadata.service.impl.TableRelationshipServiceImpl;
+import com.insightdata.domain.metadata.repository.TableRelationshipRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

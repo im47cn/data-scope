@@ -141,10 +141,12 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/hint/show-hint.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/hint/sql-hint.min.js"></script>
     
+    <!-- Ant Design Vue 中文语言包 -->
+    <script src="https://unpkg.com/ant-design-vue@1.7.8/lib/locale-provider/zh_CN.js"></script>
+    
     <!-- 应用脚本 -->
     <script type="module">
         import router from './js/router.js';
-        import zhCN from 'https://unpkg.com/ant-design-vue@1.7.8/lib/locale-provider/zh_CN';
         
         // 初始化应用
         new Vue({
@@ -153,7 +155,7 @@
             data: {
                 collapsed: false,
                 selectedKeys: [],
-                locale: zhCN,
+                locale: window.antd.locales.zh_CN,
                 theme: localStorage.getItem('theme') || 'light'
             },
             

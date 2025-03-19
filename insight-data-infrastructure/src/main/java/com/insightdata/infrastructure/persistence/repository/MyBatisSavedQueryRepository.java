@@ -1,7 +1,7 @@
 package com.insightdata.infrastructure.persistence.repository;
 
 import com.insightdata.domain.query.model.SavedQuery;
-import com.insightdata.domain.repository.SavedQueryRepository;
+import com.insightdata.domain.metadata.repository.SavedQueryRepository;
 import com.insightdata.infrastructure.persistence.mapper.SavedQueryMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;

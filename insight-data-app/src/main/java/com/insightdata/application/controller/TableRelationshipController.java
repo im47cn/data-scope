@@ -6,9 +6,9 @@ import java.util.List;
 import com.insightdata.domain.metadata.model.TableRelationship;
 import com.insightdata.domain.metadata.model.SchemaInfo;
 import com.insightdata.domain.query.model.QueryHistory;
-import com.insightdata.domain.service.TableRelationshipService;
+import com.insightdata.domain.metadata.service.TableRelationshipService;
 import com.insightdata.facade.metadata.TableRelationshipDTO;
-import com.insightdata.application.mapper.TableRelationshipMapper;
+import com.insightdata.application.convertor.TableRelationshipConvertor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -25,7 +25,7 @@ public class TableRelationshipController {
     private TableRelationshipService tableRelationshipService;
 
     @Autowired
-    private TableRelationshipMapper tableRelationshipMapper;
+    private TableRelationshipConvertor tableRelationshipMapper;
 
     @PostMapping
     public ResponseEntity<TableRelationshipDTO> createRelationship(

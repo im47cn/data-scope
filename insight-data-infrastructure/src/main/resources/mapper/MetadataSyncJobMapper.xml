@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.infrastructure.persistence.mapper.MetadataSyncJobMapper">
+<mapper namespace="com.insightdata.infrastructure.persistence.mapper.MetadataSyncJobMapper">
 
     <!-- 结果映射 -->
-    <resultMap id="BaseResultMap" type="com.infrastructure.persistence.entity.MetadataSyncJobEntity">
+    <resultMap id="BaseResultMap" type="com.insightdata.infrastructure.persistence.entity.MetadataSyncJobEntity">
         <id column="id" property="id" />
         <result column="data_source_id" property="dataSourceId" />
         <result column="type" property="type" typeHandler="org.apache.ibatis.type.EnumTypeHandler" />
@@ -13,7 +13,7 @@
         <result column="progress" property="progress" />
         <result column="total_items" property="totalItems" />
         <result column="processed_items" property="processedItems" />
-        <result column="parameters" property="parameters" typeHandler="com.infrastructure.persistence.typehandler.JsonMapTypeHandler" />
+        <result column="parameters" property="parameters" typeHandler="com.insightdata.infrastructure.persistence.typehandler.JsonMapTypeHandler" />
         <result column="error_message" property="errorMessage" />
         <result column="created_at" property="createdAt" />
         <result column="updated_at" property="updatedAt" />
@@ -26,7 +26,7 @@
     </sql>
 
     <!-- 插入 -->
-    <insert id="insert" parameterType="com.infrastructure.persistence.entity.MetadataSyncJobEntity">
+    <insert id="insert" parameterType="com.insightdata.infrastructure.persistence.entity.MetadataSyncJobEntity">
         INSERT INTO metadata_sync_job (
             id, data_source_id, type, status, start_time, end_time, progress, total_items, 
             processed_items, parameters, error_message, created_at, updated_at
@@ -40,7 +40,7 @@
             #{progress}, 
             #{totalItems}, 
             #{processedItems}, 
-            #{parameters, typeHandler=com.infrastructure.persistence.typehandler.JsonMapTypeHandler},
+            #{parameters, typeHandler=com.insightdata.infrastructure.persistence.typehandler.JsonMapTypeHandler},
             #{errorMessage}, 
             #{createdAt}, 
             #{updatedAt}
@@ -48,7 +48,7 @@
     </insert>
 
     <!-- 更新 -->
-    <update id="update" parameterType="com.infrastructure.persistence.entity.MetadataSyncJobEntity">
+    <update id="update" parameterType="com.insightdata.infrastructure.persistence.entity.MetadataSyncJobEntity">
         UPDATE metadata_sync_job
         <set>
             <if test="dataSourceId != null">data_source_id = #{dataSourceId},</if>
@@ -59,7 +59,7 @@
             <if test="progress != null">progress = #{progress},</if>
             <if test="totalItems != null">total_items = #{totalItems},</if>
             <if test="processedItems != null">processed_items = #{processedItems},</if>
-            <if test="parameters != null">parameters = #{parameters, typeHandler=com.infrastructure.persistence.typehandler.JsonMapTypeHandler},</if>
+            <if test="parameters != null">parameters = #{parameters, typeHandler=com.insightdata.infrastructure.persistence.typehandler.JsonMapTypeHandler},</if>
             <if test="errorMessage != null">error_message = #{errorMessage},</if>
             <if test="updatedAt != null">updated_at = #{updatedAt}</if>
         </set>

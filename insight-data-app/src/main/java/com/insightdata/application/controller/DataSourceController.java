@@ -5,11 +5,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.insightdata.application.convertor.DataSourceConvertor;
 import com.insightdata.domain.metadata.model.DataSource;
-import com.insightdata.domain.service.DataSourceService;
+import com.insightdata.domain.metadata.service.DataSourceService;
 import com.insightdata.facade.metadata.*;
 import com.insightdata.facade.metadata.enums.DataSourceType;
-import com.insightdata.application.mapper.DataSourceMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,10 +31,10 @@ import org.springframework.web.bind.annotation.RestController;
 public class DataSourceController {
 
     private final DataSourceService dataSourceService;
-    private final DataSourceMapper dataSourceMapper;
+    private final DataSourceConvertor dataSourceMapper;
 
     @Autowired
-    public DataSourceController(DataSourceService dataSourceService, DataSourceMapper dataSourceMapper) {
+    public DataSourceController(DataSourceService dataSourceService, DataSourceConvertor dataSourceMapper) {
         this.dataSourceService = dataSourceService;
         this.dataSourceMapper = dataSourceMapper;
     }
