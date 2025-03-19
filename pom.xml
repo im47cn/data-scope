@@ -30,7 +30,7 @@
 
         <!-- Jackson -->
         <jackson.version>2.16.1</jackson.version>
-        <springdoc.version>2.3.0</springdoc.version>
+        <springdoc.version>1.7.0</springdoc.version>
 
         <!-- Lombok -->
         <jmh.version>1.33</jmh.version>
@@ -93,6 +93,11 @@
             <!-- Jackson -->
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-annotations</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-core</artifactId>
                 <version>${jackson.version}</version>
             </dependency>
@@ -110,7 +115,7 @@
             <!-- SpringDoc OpenAPI -->
             <dependency>
                 <groupId>org.springdoc</groupId>
-                <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+                <artifactId>springdoc-openapi-ui</artifactId>
                 <version>${springdoc.version}</version>
             </dependency>
 

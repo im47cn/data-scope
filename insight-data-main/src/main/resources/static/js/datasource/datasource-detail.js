@@ -435,9 +435,5 @@ const DataSourceDetail = {
     `
 };
 
-// 导入依赖
-import DataSourceService from '../services/datasource-service.js';
-import UtilService from '../services/util-service.js';
-
 // 注册组件
 Vue.component('datasource-detail', DataSourceDetail);

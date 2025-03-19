@@ -150,4 +150,4 @@ springdoc:
     path: /swagger-ui.html
     operations-sorter: method
     tags-sorter: alpha
-  packages-to-scan: com.facade.rest
+  packages-to-scan: com.insightdata.controller

@@ -98,9 +98,31 @@ const DataSourceList = {
     mounted() {
         this.fetchSupportedTypes();
         this.fetchDataSources();
+        
+        // 创建防抖函数
+        this.handleSearchDebounced = this.debounce(function() {
+            this.pagination.current = 1;
+            this.fetchDataSources();
+        }, 300);
     },
 
     methods: {
+        // 自定义防抖函数，不依赖UtilService
+        debounce(func, wait = 300, immediate = false) {
+            let timeout;
+            return function executedFunction(...args) {
+                const context = this;
+                const later = () => {
+                    timeout = null;
+                    if (!immediate) func.apply(context, args);
+                };
+                const callNow = immediate && !timeout;
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+                if (callNow) func.apply(context, args);
+            };
+        },
+        
         async fetchSupportedTypes() {
             try {
                 const response = await DataSourceService.getSupportedTypes();
@@ -160,10 +182,9 @@ const DataSourceList = {
             this.fetchDataSources();
         },
 
-        handleSearch: UtilService.debounce(function() {
-            this.pagination.current = 1;
-            this.fetchDataSources();
-        }, 300),
+        handleSearch() {
+            this.handleSearchDebounced();
+        },
 
         handleAdd() {
             this.$router.push('/datasource/add');
@@ -242,6 +263,25 @@ const DataSourceList = {
                     }
                 }
             });
+        },
+        
+        // 格式化日期时间的辅助方法
+        formatDateTime(dateTime) {
+            if (!dateTime) return '';
+            
+            const d = new Date(dateTime);
+            if (isNaN(d.getTime())) return '';
+
+            const pad = (num) => String(num).padStart(2, '0');
+            
+            const year = d.getFullYear();
+            const month = pad(d.getMonth() + 1);
+            const day = pad(d.getDate());
+            const hours = pad(d.getHours());
+            const minutes = pad(d.getMinutes());
+            const seconds = pad(d.getSeconds());
+            
+            return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
         }
     },
 
@@ -307,7 +347,7 @@ const DataSourceList = {
                 </template>
                 
                 <template slot="updatedAt" slot-scope="text">
-                    {{ UtilService.formatDateTime(text) }}
+                    {{ formatDateTime(text) }}
                 </template>
                 
                 <template slot="action" slot-scope="text, record">
@@ -352,10 +392,6 @@ const DataSourceList = {
         </div>
     `
 };
-
-// 导入依赖
-import DataSourceService from '../services/datasource-service.js';
-import UtilService from '../services/util-service.js';
 
 // 注册组件
 Vue.component('datasource-list', DataSourceList);

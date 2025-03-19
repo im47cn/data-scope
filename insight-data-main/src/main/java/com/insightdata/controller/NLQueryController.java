@@ -1,4 +1,4 @@
-package com.insightdata.application.controller;
+package com.insightdata.controller;
 
 import java.util.List;
 

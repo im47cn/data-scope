@@ -1,4 +1,4 @@
-package com.insightdata.application.controller;
+package com.insightdata.controller;
 
 import com.insightdata.application.service.MetadataSyncJobApplicationService;
 import com.insightdata.domain.metadata.model.MetadataSyncJob;

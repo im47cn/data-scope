@@ -239,4 +239,5 @@ const UtilService = {
     }
 };
 
-export default UtilService;
+// 使UtilService成为全局变量
+window.UtilService = UtilService;

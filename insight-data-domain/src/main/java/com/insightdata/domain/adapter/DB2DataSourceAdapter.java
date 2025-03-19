@@ -1,8 +1,6 @@
 package com.insightdata.domain.adapter;
 
-import java.sql.Connection;
 import java.sql.DatabaseMetaData;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -10,14 +8,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 import org.springframework.stereotype.Component;
 
 import com.insightdata.domain.exception.DataSourceException;
 import com.insightdata.domain.metadata.model.ColumnInfo;
-import com.insightdata.domain.metadata.model.DataSource;
-import com.insightdata.domain.metadata.model.SchemaInfo;
 import com.insightdata.domain.metadata.model.TableInfo;
 import com.insightdata.domain.nlquery.executor.QueryResult;
 
@@ -25,55 +20,18 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * DB2数据源适配器
+ * 
+ * 继承AbstractDataSourceAdapter以确保架构一致性
  */
 @Slf4j
 @Component
-public class DB2DataSourceAdapter implements DataSourceAdapter {
+public class DB2DataSourceAdapter extends AbstractDataSourceAdapter {
     
-    private Connection connection;
-    private DataSource currentDataSource;
-    
-    @Override
-    public void connect(DataSource config) throws Exception {
-        try {
-            // 加载驱动
-            Class.forName(config.getDriverClassName());
-            
-            // 设置连接属性
-            Properties props = new Properties();
-            props.setProperty("user", config.getUsername());
-            props.setProperty("password", config.getPassword()); // 使用普通密码，非加密
-            
-            // 添加自定义连接属性
-            if (config.getConnectionProperties() != null) {
-                config.getConnectionProperties().forEach(props::setProperty);
-            }
-            
-            // 获取连接
-            connection = DriverManager.getConnection(config.getJdbcUrl(), props);
-            currentDataSource = config;
-        } catch (SQLException | ClassNotFoundException e) {
-            log.error("Failed to connect to DB2 database: {}", config.getName(), e);
-            throw new DataSourceException("Failed to connect to DB2 database: " + e.getMessage(), e);
-        }
-    }
-    
-    @Override
-    public void disconnect() throws Exception {
-        if (connection != null && !connection.isClosed()) {
-            connection.close();
-            connection = null;
-        }
-    }
-    
-    @Override
-    public boolean testConnection(DataSource config) throws Exception {
-        try (Connection conn = getTestConnection(config)) {
-            return conn != null && !conn.isClosed();
-        } catch (Exception e) {
-            log.error("Failed to test connection to DB2 database: {}", config.getName(), e);
-            throw e;
-        }
+    /**
+     * 构造函数
+     */
+    public DB2DataSourceAdapter() {
+        // 无需额外初始化
     }
     
     @Override
@@ -181,138 +139,13 @@ public class DB2DataSourceAdapter implements DataSourceAdapter {
         return "DB2";
     }
     
-    @Override
-    public Connection getConnection() {
-        return connection;
-    }
-    
     /**
-     * 实现EnhancedDataSourceAdapter接口的方法
+     * 执行SQL查询并返回结果
+     * 
+     * @param sql SQL查询语句
+     * @return 查询结果
+     * @throws SQLException 如果查询执行失败
      */
-    public List<SchemaInfo> getSchemas(DataSource dataSource) throws Exception {
-        if (currentDataSource == null || !dataSource.getId().equals(currentDataSource.getId())) {
-            connect(dataSource);
-        }
-        
-        List<SchemaInfo> schemas = new ArrayList<>();
-        List<String> schemaNames = getSchemas(dataSource.getDatabaseName());
-        
-        for (String schemaName : schemaNames) {
-            SchemaInfo schema = new SchemaInfo();
-            schema.setName(schemaName);
-            schema.setDataSourceId(dataSource.getId());
-            schemas.add(schema);
-        }
-        
-        return schemas;
-    }
-    
-    public SchemaInfo getSchema(DataSource dataSource, String schemaName) throws Exception {
-        if (currentDataSource == null || !dataSource.getId().equals(currentDataSource.getId())) {
-            connect(dataSource);
-        }
-        
-        SchemaInfo schema = new SchemaInfo();
-        schema.setName(schemaName);
-        schema.setDataSourceId(dataSource.getId());
-        
-        // 获取此schema的表信息
-        List<TableInfo> tables = getTables(dataSource.getDatabaseName(), schemaName);
-        schema.setTables(tables);
-        
-        return schema;
-    }
-    
-    public List<TableInfo> getTables(DataSource dataSource, String schema) throws Exception {
-        if (currentDataSource == null || !dataSource.getId().equals(currentDataSource.getId())) {
-            connect(dataSource);
-        }
-        
-        return getTables(dataSource.getDatabaseName(), schema);
-    }
-    
-    // 私有辅助方法
-    
-    private Connection getTestConnection(DataSource dataSource) throws SQLException, ClassNotFoundException {
-        // 加载驱动
-        Class.forName(dataSource.getDriverClassName());
-        
-        // 设置连接属性
-        Properties props = new Properties();
-        props.setProperty("user", dataSource.getUsername());
-        props.setProperty("password", dataSource.getPassword());
-        
-        // 添加自定义连接属性
-        if (dataSource.getConnectionProperties() != null) {
-            dataSource.getConnectionProperties().forEach(props::setProperty);
-        }
-        
-        // 获取连接
-        return DriverManager.getConnection(dataSource.getJdbcUrl(), props);
-    }
-    
-    private void checkConnection() throws DataSourceException {
-        try {
-            if (connection == null || connection.isClosed()) {
-                throw new DataSourceException("Database connection is not established or has been closed");
-            }
-        } catch (SQLException e) {
-            throw new DataSourceException("Error checking database connection status", e);
-        }
-    }
-    
-    private long getRowCountInternal(String schemaName, String tableName) {
-        String sql = "SELECT COUNT(*) FROM " + schemaName + "." + tableName;
-        
-        try (PreparedStatement stmt = connection.prepareStatement(sql);
-             ResultSet rs = stmt.executeQuery()) {
-            
-            if (rs.next()) {
-                return rs.getLong(1);
-            }
-            return 0;
-        } catch (SQLException e) {
-            log.warn("Failed to get row count for table {}.{}: {}", schemaName, tableName, e.getMessage());
-            return -1;
-        }
-    }
-    
-    private long getDataSizeInternal(String schemaName, String tableName) {
-        String sql = "SELECT SUM(DATA_OBJECT_P_SIZE) FROM TABLE(SYSPROC.ADMIN_GET_TAB_INFO(?, ?))";
-        
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setString(1, schemaName);
-            stmt.setString(2, tableName);
-            
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    return rs.getLong(1);
-                }
-            }
-            return 0;
-        } catch (SQLException e) {
-            log.warn("Failed to get data size for table {}.{}: {}", schemaName, tableName, e.getMessage());
-            return -1;
-        }
-    }
-    
-    private boolean isPrimaryKey(String catalog, String schema, String table, String column) {
-        try (ResultSet rs = connection.getMetaData().getPrimaryKeys(catalog, schema, table)) {
-            while (rs.next()) {
-                if (column.equals(rs.getString("COLUMN_NAME"))) {
-                    return true;
-                }
-            }
-            return false;
-        } catch (SQLException e) {
-            log.warn("Failed to check if column is primary key: {}.{}.{}: {}",
-                    schema, table, column, e.getMessage());
-            return false;
-        }
-    }
-    
-    // 以下是辅助方法，用于支持原有功能
-
     public QueryResult executeQuery(String sql) throws SQLException {
         checkConnection();
         
@@ -343,13 +176,100 @@ public class DB2DataSourceAdapter implements DataSourceAdapter {
         }
     }
     
+    /**
+     * 获取数据库版本信息
+     * 
+     * @return 数据库版本字符串
+     * @throws SQLException 如果获取失败
+     */
     public String getDatabaseVersion() throws SQLException {
         checkConnection();
         return connection.getMetaData().getDatabaseProductVersion();
     }
     
+    /**
+     * 获取驱动版本信息
+     * 
+     * @return 驱动版本字符串
+     * @throws SQLException 如果获取失败
+     */
     public String getDriverVersion() throws SQLException {
         checkConnection();
         return connection.getMetaData().getDriverVersion();
+    }
+    
+    // 私有辅助方法
+    
+    /**
+     * 获取表的行数
+     * 
+     * @param schemaName 模式名
+     * @param tableName 表名
+     * @return 表的行数，如果获取失败则返回-1
+     */
+    private long getRowCountInternal(String schemaName, String tableName) {
+        String sql = "SELECT COUNT(*) FROM " + schemaName + "." + tableName;
+        
+        try (PreparedStatement stmt = connection.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+            
+            if (rs.next()) {
+                return rs.getLong(1);
+            }
+            return 0;
+        } catch (SQLException e) {
+            log.warn("Failed to get row count for table {}.{}: {}", schemaName, tableName, e.getMessage());
+            return -1;
+        }
+    }
+    
+    /**
+     * 获取表的数据大小
+     * 
+     * @param schemaName 模式名
+     * @param tableName 表名
+     * @return 表的数据大小（字节），如果获取失败则返回-1
+     */
+    private long getDataSizeInternal(String schemaName, String tableName) {
+        String sql = "SELECT SUM(DATA_OBJECT_P_SIZE) FROM TABLE(SYSPROC.ADMIN_GET_TAB_INFO(?, ?))";
+        
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setString(1, schemaName);
+            stmt.setString(2, tableName);
+            
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getLong(1);
+                }
+            }
+            return 0;
+        } catch (SQLException e) {
+            log.warn("Failed to get data size for table {}.{}: {}", schemaName, tableName, e.getMessage());
+            return -1;
+        }
+    }
+    
+    /**
+     * 检查列是否为主键
+     * 
+     * @param catalog 目录名
+     * @param schema 模式名
+     * @param table 表名
+     * @param column 列名
+     * @return 如果列是主键则返回true，否则返回false
+     */
+    private boolean isPrimaryKey(String catalog, String schema, String table, String column) {
+        try (ResultSet rs = connection.getMetaData().getPrimaryKeys(catalog, schema, table)) {
+            while (rs.next()) {
+                if (column.equals(rs.getString("COLUMN_NAME"))) {
+                    return true;
+                }
+            }
+            return false;
+        } catch (SQLException e) {
+            log.warn("Failed to check if column is primary key: {}.{}.{}: {}",
+                    schema, table, column, e.getMessage());
+            return false;
+        }
     }
 }
