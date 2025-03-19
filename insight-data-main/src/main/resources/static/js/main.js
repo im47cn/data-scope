@@ -17,7 +17,7 @@ const AppLayout = {
         <div class="sidebar-header">
           <div class="logo">
             <img src="/img/logo.png" alt="Logo" class="logo-img">
-            <h1 v-if="!sidebarCollapsed" class="logo-text">InsightData</h1>
+            <h1 v-if="!sidebarCollapsed" class="logo-text">Data Scope</h1>
           </div>
           <button class="collapse-button" @click="toggleSidebar">
             <i :class="sidebarCollapsed ? 'fas fa-angle-right' : 'fas fa-angle-left'"></i>

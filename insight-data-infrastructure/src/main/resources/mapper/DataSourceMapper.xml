@@ -14,7 +14,7 @@
         <result property="username" column="username" jdbcType="VARCHAR"/>
         <result property="encryptedPassword" column="encrypted_password" jdbcType="VARCHAR"/>
         <result property="encryptionSalt" column="encryption_salt" jdbcType="VARCHAR"/>
-        <result property="enabled" column="active" jdbcType="BOOLEAN"/>
+        <result property="active" column="active" jdbcType="BOOLEAN"/>
         <result property="description" column="description" jdbcType="VARCHAR"/>
         <result property="lastSyncTime" column="last_sync_time" jdbcType="TIMESTAMP"/>
         <result property="createdAt" column="created_at" jdbcType="TIMESTAMP"/>
@@ -29,7 +29,7 @@
     </sql>
 
     <!-- 插入数据源 -->
-    <insert id="insert" parameterType="com.insightdata.domain.metadata.model.DataSource">
+    <insert id="insert" parameterType="DataSourceEntity">
         INSERT INTO data_source (
             id, name, type, host, port, database_name, username, encrypted_password, 
             encryption_salt, connection_properties, active, description, 
@@ -45,7 +45,7 @@
             #{encryptedPassword,jdbcType=VARCHAR}, 
             #{encryptionSalt,jdbcType=VARCHAR}, 
             #{connectionProperties,jdbcType=VARCHAR,typeHandler=com.insightdata.infrastructure.persistence.typehandler.JsonTypeHandler},
-            #{enabled,jdbcType=BOOLEAN}, 
+            #{active,jdbcType=BOOLEAN}, 
             #{description,jdbcType=VARCHAR}, 
             #{createdAt,jdbcType=TIMESTAMP}, 
             #{updatedAt,jdbcType=TIMESTAMP}
@@ -53,7 +53,7 @@
     </insert>
 
     <!-- 更新数据源 -->
-    <update id="update" parameterType="com.insightdata.domain.metadata.model.DataSource">
+    <update id="update" parameterType="DataSourceEntity">
         UPDATE data_source
         <set>
             <if test="name != null">name = #{name,jdbcType=VARCHAR},</if>
@@ -65,7 +65,7 @@
             <if test="encryptedPassword != null">encrypted_password = #{encryptedPassword,jdbcType=VARCHAR},</if>
             <if test="encryptionSalt != null">encryption_salt = #{encryptionSalt,jdbcType=VARCHAR},</if>
             <if test="connectionProperties != null">connection_properties = #{connectionProperties,jdbcType=VARCHAR,typeHandler=com.insightdata.infrastructure.persistence.typehandler.JsonTypeHandler},</if>
-            <if test="enabled != null">active = #{enabled,jdbcType=BOOLEAN},</if>
+            <if test="active != null">active = #{active,jdbcType=BOOLEAN},</if>
             <if test="description != null">description = #{description,jdbcType=VARCHAR},</if>
             <if test="lastSyncTime != null">last_sync_time = #{lastSyncTime,jdbcType=TIMESTAMP},</if>
             updated_at = NOW()

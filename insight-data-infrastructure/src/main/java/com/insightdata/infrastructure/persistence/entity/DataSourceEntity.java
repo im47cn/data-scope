@@ -78,7 +78,7 @@ public class DataSourceEntity {
     /**
      * 是否启用
      */
-    private Boolean enabled;
+    private Boolean active;
     
     /**
      * 描述

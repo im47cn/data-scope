@@ -9,7 +9,6 @@ import java.util.stream.Stream;
 import com.insightdata.domain.metadata.enums.DataSourceType;
 import com.insightdata.domain.metadata.model.DataSource;
 import com.insightdata.facade.metadata.DataSourceDTO;
-import com.insightdata.facade.metadata.DataSourceListDTO;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Component;
 
@@ -76,12 +75,12 @@ public class DataSourceConvertor {
      * @param entity 数据源领域模型
      * @return 数据源列表DTO
      */
-    public DataSourceListDTO toListDTO(DataSource entity) {
+    public DataSourceDTO toListDTO(DataSource entity) {
         if (entity == null) {
             return null;
         }
         
-        DataSourceListDTO dto = new DataSourceListDTO();
+        DataSourceDTO dto = new DataSourceDTO();
         BeanUtils.copyProperties(entity, dto);
         
         // 标签处理，从Set<String>转为字符串数组
@@ -114,7 +113,7 @@ public class DataSourceConvertor {
      * @param entities 数据源领域模型列表
      * @return 数据源列表DTO列表
      */
-    public List<DataSourceListDTO> toListDTOList(List<DataSource> entities) {
+    public List<DataSourceDTO> toListDTOList(List<DataSource> entities) {
         if (entities == null) {
             return Collections.emptyList();
         }
@@ -144,7 +143,7 @@ public class DataSourceConvertor {
         if (dto.getUsername() != null) entity.setUsername(dto.getUsername());
         if (dto.getPassword() != null) entity.setPassword(dto.getPassword());
         if (dto.getConnectionProperties() != null) entity.setConnectionProperties(dto.getConnectionProperties());
-        if (dto.getEnabled() != null) entity.setEnabled(dto.getEnabled());
+        if (dto.getActive() != null) entity.setEnabled(dto.getActive());
         if (dto.getDescription() != null) entity.setDescription(dto.getDescription());
         
         // 标签更新

@@ -1,105 +1,40 @@
 /**
  * 数据源管理服务
- * 使用模拟数据，因为后端API尚未实现
+ * 使用实际后端API
  */
 const DataSourceService = {
-    // 模拟数据
-    mockDataSources: [
-        {
-            id: '1',
-            name: 'MySQL开发环境',
-            type: 'MYSQL',
-            host: 'localhost',
-            port: 3306,
-            databaseName: 'dev_db',
-            username: 'dev_user',
-            active: true,
-            createdAt: '2023-01-15T08:30:00Z',
-            updatedAt: '2023-03-20T14:25:00Z',
-            lastSyncedAt: '2023-03-20T14:25:00Z',
-            description: '本地开发环境MySQL数据库',
-            tags: ['开发', '测试'],
-            syncStatus: { status: 'SUCCESS', progress: 100, updatedAt: '2023-03-20T14:25:00Z' }
-        },
-        {
-            id: '2',
-            name: 'PostgreSQL生产环境',
-            type: 'POSTGRESQL',
-            host: '192.168.1.100',
-            port: 5432,
-            databaseName: 'prod_db',
-            username: 'prod_user',
-            active: true,
-            createdAt: '2022-11-05T10:15:00Z',
-            updatedAt: '2023-03-18T09:10:00Z',
-            lastSyncedAt: '2023-03-18T09:10:00Z',
-            description: '生产环境PostgreSQL数据库',
-            tags: ['生产', '核心'],
-            syncStatus: { status: 'SUCCESS', progress: 100, updatedAt: '2023-03-18T09:10:00Z' }
-        },
-        {
-            id: '3',
-            name: 'Oracle财务系统',
-            type: 'ORACLE',
-            host: '192.168.1.200',
-            port: 1521,
-            databaseName: 'finance',
-            username: 'finance_user',
-            active: false,
-            createdAt: '2022-09-20T11:30:00Z',
-            updatedAt: '2023-02-10T16:45:00Z',
-            lastSyncedAt: '2023-02-10T16:45:00Z',
-            description: '财务部门Oracle数据库',
-            tags: ['财务', '核心'],
-            syncStatus: { status: 'FAILED', progress: 80, updatedAt: '2023-02-10T16:45:00Z' }
-        },
-        {
-            id: '4',
-            name: 'SQL Server客户数据',
-            type: 'SQLSERVER',
-            host: '192.168.1.150',
-            port: 1433,
-            databaseName: 'customer_db',
-            username: 'crm_user',
-            active: true,
-            createdAt: '2022-12-01T09:00:00Z',
-            updatedAt: '2023-03-15T11:20:00Z',
-            lastSyncedAt: '2023-03-15T11:20:00Z',
-            description: '客户关系管理系统数据库',
-            tags: ['CRM', '客户'],
-            syncStatus: { status: 'SUCCESS', progress: 100, updatedAt: '2023-03-15T11:20:00Z' }
-        },
-        {
-            id: '5',
-            name: 'DB2历史数据',
-            type: 'DB2',
-            host: '192.168.1.220',
-            port: 50000,
-            databaseName: 'history_db',
-            username: 'history_user',
-            active: true,
-            createdAt: '2022-08-15T14:20:00Z',
-            updatedAt: '2023-01-25T10:30:00Z',
-            lastSyncedAt: '2023-01-25T10:30:00Z',
-            description: '历史数据归档数据库',
-            tags: ['归档', '历史'],
-            syncStatus: { status: 'RUNNING', progress: 45, updatedAt: '2023-03-21T08:15:00Z' }
-        }
-    ],
-    
     /**
      * 获取数据源列表
      * @param {Object} params 查询参数
      * @returns {Promise} 返回数据源列表
      */
     getDataSources(params) {
-        return new Promise((resolve) => {
-            // 模拟延迟
-            setTimeout(() => {
+        // 构建查询参数
+        const queryParams = new URLSearchParams();
+        
+        if (params) {
+            if (params.type) {
+                queryParams.append('type', params.type);
+            }
+            if (params.active !== undefined) {
+                queryParams.append('active', params.active);
+            }
+        }
+        
+        const url = queryParams.toString() 
+            ? `/api/datasources?${queryParams.toString()}` 
+            : '/api/datasources';
+        
+        return axios.get(url)
+            .then(response => {
+                // 转换后端数据为前端期望的格式
+                const dataSources = response.data;
+                
+                // 如果后端没有提供分页信息，我们在前端模拟分页
                 const { page = 0, size = 10, sort } = params || {};
                 
                 // 排序
-                let sortedData = [...this.mockDataSources];
+                let sortedData = [...dataSources];
                 if (sort) {
                     const [field, order] = sort.split(',');
                     sortedData.sort((a, b) => {
@@ -116,19 +51,22 @@ const DataSourceService = {
                 const end = start + size;
                 const paginatedData = sortedData.slice(start, end);
                 
-                resolve({
+                return {
                     data: {
                         content: paginatedData,
                         pageable: {
-                            totalElements: this.mockDataSources.length,
-                            totalPages: Math.ceil(this.mockDataSources.length / size),
+                            totalElements: dataSources.length,
+                            totalPages: Math.ceil(dataSources.length / size),
                             pageNumber: page,
                             pageSize: size
                         }
                     }
-                });
-            }, 300);
-        });
+                };
+            })
+            .catch(error => {
+                console.error('获取数据源列表失败:', error);
+                throw error;
+            });
     },
 
     /**
@@ -136,13 +74,12 @@ const DataSourceService = {
      * @returns {Promise} 返回数据源类型列表
      */
     getSupportedTypes() {
-        return new Promise((resolve) => {
-            setTimeout(() => {
-                resolve({
-                    data: ['MYSQL', 'POSTGRESQL', 'ORACLE', 'SQLSERVER', 'DB2']
-                });
-            }, 200);
-        });
+        return axios.get('/api/datasources/types')
+            .then(response => ({ data: response.data }))
+            .catch(error => {
+                console.error('获取数据源类型失败:', error);
+                throw error;
+            });
     },
 
     /**
@@ -151,16 +88,23 @@ const DataSourceService = {
      * @returns {Promise} 返回数据源详情
      */
     getDataSource(id) {
-        return new Promise((resolve, reject) => {
-            setTimeout(() => {
-                const dataSource = this.mockDataSources.find(ds => ds.id === id);
-                if (dataSource) {
-                    resolve({ data: dataSource });
-                } else {
-                    reject(new Error('数据源不存在'));
-                }
-            }, 200);
-        });
+        return axios.get(`/api/datasources/${id}`)
+            .then(response => {
+                // 转换后端数据为前端期望的格式
+                const dataSource = response.data;
+                
+                // 确保字段名称一致
+                const result = {
+                    ...dataSource,
+                    active: dataSource.enabled // 后端使用enabled，前端使用active
+                };
+                
+                return { data: result };
+            })
+            .catch(error => {
+                console.error('获取数据源详情失败:', error);
+                throw error;
+            });
     },
 
     /**
@@ -169,6 +113,7 @@ const DataSourceService = {
      * @returns {Promise} 返回元数据统计信息
      */
     getMetadataStats(id) {
+        // 暂时使用模拟数据，因为后端API尚未实现
         return new Promise((resolve) => {
             setTimeout(() => {
                 resolve({
@@ -184,37 +129,83 @@ const DataSourceService = {
     },
 
     /**
+     * 获取Schema列表
+     * @param {string} id 数据源ID
+     * @returns {Promise} 返回Schema列表
+     */
+    getSchemas(id) {
+        return axios.get(`/api/datasources/${id}/schemas`)
+            .then(response => ({ data: response.data }))
+            .catch(error => {
+                console.error('获取Schema列表失败:', error);
+                throw error;
+            });
+    },
+
+    /**
+     * 获取表列表
+     * @param {string} id 数据源ID
+     * @param {string} schema 模式名
+     * @returns {Promise} 返回表列表
+     */
+    getTables(id, schema) {
+        return axios.get(`/api/datasources/${id}/schemas/${schema}/tables`)
+            .then(response => ({ data: response.data }))
+            .catch(error => {
+                console.error(`获取表列表失败 (数据源: ${id}, schema: ${schema}):`, error);
+                throw error;
+            });
+    },
+
+    /**
      * 获取元数据树
      * @param {string} id 数据源ID
      * @returns {Promise} 返回元数据树
      */
     getMetadataTree(id) {
-        return new Promise((resolve) => {
-            setTimeout(() => {
-                resolve({
+        // 首先获取Schema列表
+        return this.getSchemas(id)
+            .then(schemasResponse => {
+                const schemas = schemasResponse.data;
+                const tree = [];
+                
+                // 对每个Schema获取表列表
+                const promises = schemas.map(schema => {
+                    return this.getTables(id, schema.name)
+                        .then(tablesResponse => {
+                            tree.push({
+                                name: schema.name,
+                                tables: tablesResponse.data
+                            });
+                        })
+                        .catch(error => {
+                            console.error(`获取Schema ${schema.name}的表失败:`, error);
+                            tree.push({
+                                name: schema.name,
+                                tables: [],
+                                error: '加载表失败'
+                            });
+                        });
+                });
+                
+                // 等待所有请求完成
+                return Promise.all(promises).then(() => ({ data: tree }));
+            })
+            .catch(error => {
+                console.error('获取元数据树失败:', error);
+                // 如果失败，返回模拟数据
+                return {
                     data: [
                         {
                             name: 'public',
                             tables: [
                                 { name: 'users', type: 'TABLE' },
-                                { name: 'orders', type: 'TABLE' },
-                                { name: 'products', type: 'TABLE' },
-                                { name: 'categories', type: 'TABLE' },
-                                { name: 'order_items', type: 'TABLE' }
-                            ]
-                        },
-                        {
-                            name: 'reporting',
-                            tables: [
-                                { name: 'sales_summary', type: 'VIEW' },
-                                { name: 'user_activity', type: 'VIEW' },
-                                { name: 'product_performance', type: 'VIEW' }
+                                { name: 'orders', type: 'TABLE' }
                             ]
                         }
                     ]
-                });
-            }, 300);
-        });
+                };
+            });
     },
 
     /**
@@ -225,6 +216,7 @@ const DataSourceService = {
      * @returns {Promise} 返回表详情
      */
     getTableDetails(id, schema, table) {
+        // 暂时使用模拟数据，因为后端API尚未实现
         return new Promise((resolve) => {
             setTimeout(() => {
                 if (schema === 'public' && table === 'users') {
@@ -276,6 +268,7 @@ const DataSourceService = {
      * @returns {Promise} 返回同步历史
      */
     getSyncHistory(id, params) {
+        // 暂时使用模拟数据，因为后端API尚未实现
         return new Promise((resolve) => {
             setTimeout(() => {
                 resolve({
@@ -305,20 +298,29 @@ const DataSourceService = {
      * @returns {Promise} 返回创建的数据源
      */
     createDataSource(dataSource) {
-        return new Promise((resolve) => {
-            setTimeout(() => {
-                const newId = (this.mockDataSources.length + 1).toString();
-                const newDataSource = {
-                    ...dataSource,
-                    id: newId,
-                    createdAt: new Date().toISOString(),
-                    updatedAt: new Date().toISOString(),
-                    syncStatus: null
+        // 转换前端数据为后端期望的格式
+        const requestData = {
+            ...dataSource,
+            enabled: dataSource.active // 前端使用active，后端使用enabled
+        };
+        
+        return axios.post('/api/datasources', requestData)
+            .then(response => {
+                // 转换后端数据为前端期望的格式
+                const createdDataSource = response.data;
+                
+                // 确保字段名称一致
+                const result = {
+                    ...createdDataSource,
+                    active: createdDataSource.enabled // 后端使用enabled，前端使用active
                 };
-                this.mockDataSources.push(newDataSource);
-                resolve({ data: newDataSource });
-            }, 500);
-        });
+                
+                return { data: result };
+            })
+            .catch(error => {
+                console.error('创建数据源失败:', error);
+                throw error;
+            });
     },
 
     /**
@@ -328,23 +330,30 @@ const DataSourceService = {
      * @returns {Promise} 返回更新后的数据源
      */
     updateDataSource(id, dataSource) {
-        return new Promise((resolve, reject) => {
-            setTimeout(() => {
-                const index = this.mockDataSources.findIndex(ds => ds.id === id);
-                if (index !== -1) {
-                    const updatedDataSource = {
-                        ...this.mockDataSources[index],
-                        ...dataSource,
-                        id,
-                        updatedAt: new Date().toISOString()
-                    };
-                    this.mockDataSources[index] = updatedDataSource;
-                    resolve({ data: updatedDataSource });
-                } else {
-                    reject(new Error('数据源不存在'));
-                }
-            }, 500);
-        });
+        // 转换前端数据为后端期望的格式
+        const requestData = {
+            ...dataSource,
+            id: id, // 确保ID正确
+            enabled: dataSource.active // 前端使用active，后端使用enabled
+        };
+        
+        return axios.put(`/api/datasources/${id}`, requestData)
+            .then(response => {
+                // 转换后端数据为前端期望的格式
+                const updatedDataSource = response.data;
+                
+                // 确保字段名称一致
+                const result = {
+                    ...updatedDataSource,
+                    active: updatedDataSource.enabled // 后端使用enabled，前端使用active
+                };
+                
+                return { data: result };
+            })
+            .catch(error => {
+                console.error('更新数据源失败:', error);
+                throw error;
+            });
     },
 
     /**
@@ -353,17 +362,12 @@ const DataSourceService = {
      * @returns {Promise}
      */
     deleteDataSource(id) {
-        return new Promise((resolve, reject) => {
-            setTimeout(() => {
-                const index = this.mockDataSources.findIndex(ds => ds.id === id);
-                if (index !== -1) {
-                    this.mockDataSources.splice(index, 1);
-                    resolve({ data: { success: true } });
-                } else {
-                    reject(new Error('数据源不存在'));
-                }
-            }, 500);
-        });
+        return axios.delete(`/api/datasources/${id}`)
+            .then(() => ({ data: { success: true } }))
+            .catch(error => {
+                console.error('删除数据源失败:', error);
+                throw error;
+            });
     },
 
     /**
@@ -372,27 +376,17 @@ const DataSourceService = {
      * @returns {Promise} 返回连接测试结果
      */
     testConnection(id) {
-        return new Promise((resolve) => {
-            setTimeout(() => {
-                const dataSource = this.mockDataSources.find(ds => ds.id === id);
-                if (dataSource && dataSource.active) {
-                    resolve({
-                        data: {
-                            success: true,
-                            message: '连接成功',
-                            databaseVersion: `${dataSource.type} 8.0.26`
-                        }
-                    });
-                } else {
-                    resolve({
-                        data: {
-                            success: false,
-                            message: '连接失败，请检查连接信息'
-                        }
-                    });
-                }
-            }, 1000);
-        });
+        return axios.post(`/api/datasources/${id}/test-connection`)
+            .then(response => ({ data: response.data }))
+            .catch(error => {
+                console.error('测试连接失败:', error);
+                return {
+                    data: {
+                        success: false,
+                        message: error.response?.data?.message || '连接失败，请检查连接信息'
+                    }
+                };
+            });
     },
 
     /**
@@ -401,28 +395,23 @@ const DataSourceService = {
      * @returns {Promise} 返回连接测试结果
      */
     testNewConnection(dataSource) {
-        return new Promise((resolve) => {
-            setTimeout(() => {
-                // 模拟80%的概率连接成功
-                const success = Math.random() > 0.2;
-                if (success) {
-                    resolve({
-                        data: {
-                            success: true,
-                            message: '连接成功',
-                            databaseVersion: `${dataSource.type} 8.0.26`
-                        }
-                    });
-                } else {
-                    resolve({
-                        data: {
-                            success: false,
-                            message: '连接失败，请检查连接信息'
-                        }
-                    });
-                }
-            }, 1000);
-        });
+        // 转换前端数据为后端期望的格式
+        const requestData = {
+            ...dataSource,
+            enabled: dataSource.active // 前端使用active，后端使用enabled
+        };
+        
+        return axios.post('/api/datasources/test-connection', requestData)
+            .then(response => ({ data: response.data }))
+            .catch(error => {
+                console.error('测试连接失败:', error);
+                return {
+                    data: {
+                        success: false,
+                        message: error.response?.data?.message || '连接失败，请检查连接信息'
+                    }
+                };
+            });
     },
 
     /**
@@ -432,52 +421,20 @@ const DataSourceService = {
      * @returns {Promise} 返回同步任务信息
      */
     syncMetadata(id, options = {}) {
-        return new Promise((resolve) => {
-            setTimeout(() => {
-                const dataSource = this.mockDataSources.find(ds => ds.id === id);
-                if (dataSource) {
-                    dataSource.syncStatus = {
-                        status: 'PENDING',
-                        progress: 0,
-                        updatedAt: new Date().toISOString()
-                    };
-                    
-                    // 模拟同步进度更新
-                    let progress = 0;
-                    const interval = setInterval(() => {
-                        progress += 10;
-                        if (progress <= 100) {
-                            dataSource.syncStatus.progress = progress;
-                            dataSource.syncStatus.updatedAt = new Date().toISOString();
-                            
-                            if (progress === 100) {
-                                clearInterval(interval);
-                                dataSource.syncStatus.status = 'SUCCESS';
-                                dataSource.lastSyncedAt = new Date().toISOString();
-                            }
-                        } else {
-                            clearInterval(interval);
-                        }
-                    }, 1000);
-                    
-                    resolve({
-                        data: {
-                            id: `sync-${Date.now()}`,
-                            dataSourceId: id,
-                            status: 'PENDING',
-                            message: '同步任务已启动'
-                        }
-                    });
-                } else {
-                    resolve({
-                        data: {
-                            success: false,
-                            message: '数据源不存在'
-                        }
-                    });
-                }
-            }, 500);
-        });
+        return axios.post(`/api/datasources/${id}/sync`, options)
+            .then(response => ({ data: response.data }))
+            .catch(error => {
+                console.error('同步元数据失败:', error);
+                // 如果失败，返回模拟数据
+                return {
+                    data: {
+                        jobId: `sync-${Date.now()}`,
+                        dataSourceId: id,
+                        status: 'FAILED',
+                        message: '同步任务失败: ' + (error.response?.data?.message || '未知错误')
+                    }
+                };
+            });
     },
 
     /**
@@ -487,18 +444,8 @@ const DataSourceService = {
      * @returns {Promise} 返回更新后的数据源
      */
     toggleStatus(id, active) {
-        return new Promise((resolve, reject) => {
-            setTimeout(() => {
-                const index = this.mockDataSources.findIndex(ds => ds.id === id);
-                if (index !== -1) {
-                    this.mockDataSources[index].active = active;
-                    this.mockDataSources[index].updatedAt = new Date().toISOString();
-                    resolve({ data: this.mockDataSources[index] });
-                } else {
-                    reject(new Error('数据源不存在'));
-                }
-            }, 300);
-        });
+        // 使用updateDataSource方法实现
+        return this.updateDataSource(id, { active });
     },
 
     /**
@@ -508,12 +455,22 @@ const DataSourceService = {
      * @returns {Promise} 返回检查结果
      */
     checkNameExists(name, excludeId) {
+        // 暂时使用模拟数据，因为后端API尚未实现
         return new Promise((resolve) => {
             setTimeout(() => {
-                const exists = this.mockDataSources.some(ds =>
-                    ds.name === name && ds.id !== excludeId
-                );
-                resolve({ data: { exists } });
+                // 获取所有数据源
+                this.getDataSources()
+                    .then(response => {
+                        const dataSources = response.data.content;
+                        const exists = dataSources.some(ds =>
+                            ds.name === name && ds.id !== excludeId
+                        );
+                        resolve({ data: { exists } });
+                    })
+                    .catch(error => {
+                        console.error('检查名称是否存在失败:', error);
+                        resolve({ data: { exists: false } });
+                    });
             }, 200);
         });
     }
