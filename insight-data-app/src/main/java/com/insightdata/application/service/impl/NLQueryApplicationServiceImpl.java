@@ -6,12 +6,10 @@ import java.util.List;
 import java.util.Map;
 
 import com.insightdata.domain.exception.InsightDataException;
-import com.insightdata.domain.nlquery.converter.SqlConversionResult;
 import com.insightdata.domain.nlquery.executor.QueryResult;
-import com.insightdata.domain.query.model.NLQueryResult;
 import com.insightdata.domain.query.model.QueryHistory;
 import com.insightdata.domain.query.model.SavedQuery;
-import com.insightdata.domain.service.NLQueryService;
+import com.insightdata.domain.nlquery.service.NLQueryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

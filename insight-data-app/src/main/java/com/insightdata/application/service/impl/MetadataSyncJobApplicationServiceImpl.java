@@ -4,7 +4,7 @@ import com.insightdata.application.service.MetadataSyncJobApplicationService;
 import com.insightdata.application.util.EnumConverter;
 import com.insightdata.domain.exception.InsightDataException;
 import com.insightdata.domain.metadata.model.MetadataSyncJob;
-import com.insightdata.domain.repository.MetadataSyncJobRepository;
+import com.insightdata.domain.metadata.repository.MetadataSyncJobRepository;
 import com.insightdata.facade.metadata.enums.SyncStatus;
 import com.insightdata.facade.metadata.enums.SyncType;
 import lombok.extern.slf4j.Slf4j;

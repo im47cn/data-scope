@@ -2,18 +2,18 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.domain.repository.SavedQueryRepository">
     
-    <resultMap id="savedQueryMap" type="com.domain.model.SavedQuery">
+    <resultMap id="savedQueryMap" type="com.insightdata.infrastructure.persistence.entity.SavedQueryEntity">
         <id column="id" property="id"/>
         <result column="data_source_id" property="dataSourceId"/>
         <result column="name" property="name"/>
         <result column="description" property="description"/>
         <result column="sql" property="sql"/>
         <result column="parameters" property="parameters" 
-                typeHandler="com.infrastructure.persistence.typehandler.JsonListTypeHandler"/>
+                typeHandler="com.insightdata.infrastructure.persistence.typehandler.JsonListTypeHandler"/>
         <result column="default_values" property="defaultValues" 
-                typeHandler="com.infrastructure.persistence.typehandler.JsonMapTypeHandler"/>
+                typeHandler="com.insightdata.infrastructure.persistence.typehandler.JsonMapTypeHandler"/>
         <result column="tags" property="tags" 
-                typeHandler="com.infrastructure.persistence.typehandler.JsonListTypeHandler"/>
+                typeHandler="com.insightdata.infrastructure.persistence.typehandler.JsonListTypeHandler"/>
         <result column="is_public" property="isPublic"/>
         <result column="created_by" property="createdBy"/>
         <result column="created_at" property="createdAt"/>
@@ -31,30 +31,30 @@
         SELECT * FROM tbl_saved_query WHERE data_source_id = #{dataSourceId}
     </select>
 
-    <insert id="insert" parameterType="com.domain.model.SavedQuery">
+    <insert id="insert" parameterType="com.insightdata.domain.model.SavedQuery">
         INSERT INTO tbl_saved_query (
             id, data_source_id, name, description, sql, parameters,
             default_values, tags, is_public, created_by, created_at,
             updated_at, usage_count, average_execution_time, last_executed_at
         ) VALUES (
             #{id}, #{dataSourceId}, #{name}, #{description}, #{sql},
-            #{parameters,typeHandler=com.infrastructure.persistence.typehandler.JsonListTypeHandler},
-            #{defaultValues,typeHandler=com.infrastructure.persistence.typehandler.JsonMapTypeHandler},
-            #{tags,typeHandler=com.infrastructure.persistence.typehandler.JsonListTypeHandler},
+            #{parameters,typeHandler=com.insightdata.infrastructure.persistence.typehandler.JsonListTypeHandler},
+            #{defaultValues,typeHandler=com.insightdata.infrastructure.persistence.typehandler.JsonMapTypeHandler},
+            #{tags,typeHandler=com.insightdata.infrastructure.persistence.typehandler.JsonListTypeHandler},
             #{isPublic}, #{createdBy}, #{createdAt}, #{updatedAt},
             #{usageCount}, #{averageExecutionTime}, #{lastExecutedAt}
         )
     </insert>
 
-    <update id="update" parameterType="com.domain.model.SavedQuery">
+    <update id="update" parameterType="com.insightdata.domain.model.SavedQuery">
         UPDATE saved_query
         SET data_source_id = #{dataSourceId},
             name = #{name},
             description = #{description},
             sql = #{sql},
-            parameters = #{parameters,typeHandler=com.infrastructure.persistence.typehandler.JsonListTypeHandler},
-            default_values = #{defaultValues,typeHandler=com.infrastructure.persistence.typehandler.JsonMapTypeHandler},
-            tags = #{tags,typeHandler=com.infrastructure.persistence.typehandler.JsonListTypeHandler},
+            parameters = #{parameters,typeHandler=com.insightdata.infrastructure.persistence.typehandler.JsonListTypeHandler},
+            default_values = #{defaultValues,typeHandler=com.insightdata.infrastructure.persistence.typehandler.JsonMapTypeHandler},
+            tags = #{tags,typeHandler=com.insightdata.infrastructure.persistence.typehandler.JsonListTypeHandler},
             is_public = #{isPublic},
             updated_at = #{updatedAt}
         WHERE id = #{id}
@@ -74,7 +74,7 @@
 
     <select id="selectByTags" resultMap="savedQueryMap">
         SELECT * FROM tbl_saved_query
-        WHERE tags @> #{tags,typeHandler=com.infrastructure.persistence.typehandler.JsonListTypeHandler}::jsonb
+        WHERE tags @> #{tags,typeHandler=com.insightdata.infrastructure.persistence.typehandler.JsonListTypeHandler}::jsonb
     </select>
 
     <select id="selectByIsPublic" resultMap="savedQueryMap">

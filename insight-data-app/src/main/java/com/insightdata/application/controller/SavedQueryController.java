@@ -1,6 +1,6 @@
 package com.insightdata.application.controller;
 
-import com.insightdata.application.mapper.SavedQueryMapper;
+import com.insightdata.application.convertor.SavedQueryConvertor;
 import com.insightdata.application.service.impl.SavedQueryService;
 import com.insightdata.domain.query.model.SavedQuery;
 import com.insightdata.facade.query.SavedQueryDTO;
@@ -20,7 +20,7 @@ import java.util.List;
 public class SavedQueryController {
 
     private final SavedQueryService savedQueryService;
-    private final SavedQueryMapper savedQueryMapper;
+    private final SavedQueryConvertor savedQueryMapper;
 
     /**
      * 创建查询模板

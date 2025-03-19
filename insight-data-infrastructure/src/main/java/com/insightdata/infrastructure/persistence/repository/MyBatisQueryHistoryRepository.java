@@ -3,7 +3,7 @@ package com.insightdata.infrastructure.persistence.repository;
 import java.util.List;
 import java.util.Optional;
 
-import com.insightdata.domain.repository.QueryHistoryRepository;
+import com.insightdata.domain.metadata.repository.QueryHistoryRepository;
 import com.insightdata.infrastructure.persistence.mapper.QueryHistoryMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;

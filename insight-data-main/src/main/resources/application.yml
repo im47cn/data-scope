@@ -64,12 +64,13 @@ spring:
 # MyBatis配置
 mybatis:
   mapper-locations: classpath:mapper/**/*.xml
-  type-aliases-package: com.infrastructure.persistence.entity
+  type-aliases-package: com.insightdata.infrastructure.persistence.entity
   configuration:
     map-underscore-to-camel-case: true
     default-fetch-size: 100
     default-statement-timeout: 30
     cache-enabled: true
+  type-handlers-package: com.insightdata.infrastructure.persistence.typehandler
 
 # 服务器配置
 server:

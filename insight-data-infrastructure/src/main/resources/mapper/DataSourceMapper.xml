@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.infrastructure.persistence.mapper.DataSourceMapper">
+<mapper namespace="com.insightdata.infrastructure.persistence.mapper.DataSourceMapper">
 
     <!-- 结果映射 -->
-    <resultMap id="BaseResultMap" type="com.domain.model.metadata.DataSource">
+    <resultMap id="BaseResultMap" type="com.insightdata.infrastructure.persistence.entity.DataSourceEntity">
         <id property="id" column="id" jdbcType="VARCHAR"/>
         <result property="name" column="name" jdbcType="VARCHAR"/>
         <result property="type" column="type" jdbcType="VARCHAR" 
@@ -29,7 +29,7 @@
     </sql>
 
     <!-- 插入数据源 -->
-    <insert id="insert" parameterType="com.domain.model.metadata.DataSource">
+    <insert id="insert" parameterType="com.insightdata.domain.metadata.model.DataSource">
         INSERT INTO data_source (
             id, name, type, host, port, database_name, username, encrypted_password, 
             encryption_salt, connection_properties, active, description, 
@@ -44,7 +44,7 @@
             #{username,jdbcType=VARCHAR}, 
             #{encryptedPassword,jdbcType=VARCHAR}, 
             #{encryptionSalt,jdbcType=VARCHAR}, 
-            #{connectionProperties,jdbcType=VARCHAR,typeHandler=com.infrastructure.persistence.handler.JsonTypeHandler}, 
+            #{connectionProperties,jdbcType=VARCHAR,typeHandler=com.insightdata.infrastructure.persistence.typehandler.JsonTypeHandler},
             #{enabled,jdbcType=BOOLEAN}, 
             #{description,jdbcType=VARCHAR}, 
             #{createdAt,jdbcType=TIMESTAMP}, 
@@ -53,7 +53,7 @@
     </insert>
 
     <!-- 更新数据源 -->
-    <update id="update" parameterType="com.domain.model.metadata.DataSource">
+    <update id="update" parameterType="com.insightdata.domain.metadata.model.DataSource">
         UPDATE data_source
         <set>
             <if test="name != null">name = #{name,jdbcType=VARCHAR},</if>
@@ -64,7 +64,7 @@
             <if test="username != null">username = #{username,jdbcType=VARCHAR},</if>
             <if test="encryptedPassword != null">encrypted_password = #{encryptedPassword,jdbcType=VARCHAR},</if>
             <if test="encryptionSalt != null">encryption_salt = #{encryptionSalt,jdbcType=VARCHAR},</if>
-            <if test="connectionProperties != null">connection_properties = #{connectionProperties,jdbcType=VARCHAR,typeHandler=com.infrastructure.persistence.handler.JsonTypeHandler},</if>
+            <if test="connectionProperties != null">connection_properties = #{connectionProperties,jdbcType=VARCHAR,typeHandler=com.insightdata.infrastructure.persistence.typehandler.JsonTypeHandler},</if>
             <if test="enabled != null">active = #{enabled,jdbcType=BOOLEAN},</if>
             <if test="description != null">description = #{description,jdbcType=VARCHAR},</if>
             <if test="lastSyncTime != null">last_sync_time = #{lastSyncTime,jdbcType=TIMESTAMP},</if>

@@ -1,7 +1,7 @@
 package com.insightdata.application.service.impl;
 
 import com.insightdata.domain.query.model.SavedQuery;
-import com.insightdata.domain.repository.SavedQueryRepository;
+import com.insightdata.domain.metadata.repository.SavedQueryRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

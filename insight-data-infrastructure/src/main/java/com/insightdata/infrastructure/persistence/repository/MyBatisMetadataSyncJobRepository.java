@@ -2,7 +2,7 @@ package com.insightdata.infrastructure.persistence.repository;
 
 import com.insightdata.domain.metadata.enums.SyncStatus;
 import com.insightdata.domain.metadata.model.MetadataSyncJob;
-import com.insightdata.domain.repository.MetadataSyncJobRepository;
+import com.insightdata.domain.metadata.repository.MetadataSyncJobRepository;
 import com.insightdata.infrastructure.persistence.entity.MetadataSyncJobEntity;
 import com.insightdata.infrastructure.persistence.mapper.MetadataSyncJobMapper;
 import org.springframework.beans.factory.annotation.Autowired;

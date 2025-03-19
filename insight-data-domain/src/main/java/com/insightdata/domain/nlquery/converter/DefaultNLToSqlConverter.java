@@ -12,7 +12,7 @@ import com.insightdata.domain.nlquery.intent.QueryIntent;
 import com.insightdata.domain.nlquery.preprocess.PreprocessedText;
 import com.insightdata.domain.nlquery.preprocess.TextPreprocessor;
 import com.insightdata.domain.nlquery.sql.SqlGenerator;
-import com.insightdata.domain.service.DataSourceService;
+import com.insightdata.domain.metadata.service.DataSourceService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;

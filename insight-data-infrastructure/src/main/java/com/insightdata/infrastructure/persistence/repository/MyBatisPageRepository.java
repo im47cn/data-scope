@@ -1,7 +1,7 @@
 package com.insightdata.infrastructure.persistence.repository;
 
 import com.insightdata.domain.lowcode.model.Page;
-import com.insightdata.domain.repository.PageRepository;
+import com.insightdata.domain.lowcode.repository.PageRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;

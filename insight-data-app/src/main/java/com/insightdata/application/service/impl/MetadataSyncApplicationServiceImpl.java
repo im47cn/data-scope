@@ -1,7 +1,16 @@
 package com.insightdata.application.service.impl;
 
-import com.insightdata.application.service.MetadataSyncJobApplicationService;
+import java.lang.reflect.Field;
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.insightdata.application.service.MetadataSyncApplicationService;
+import com.insightdata.application.service.MetadataSyncJobApplicationService;
 import com.insightdata.domain.adapter.DataSourceAdapterFactory;
 import com.insightdata.domain.adapter.EnhancedDataSourceAdapter;
 import com.insightdata.domain.metadata.enums.DataSourceType;
@@ -9,25 +18,17 @@ import com.insightdata.domain.metadata.model.DataSource;
 import com.insightdata.domain.metadata.model.MetadataSyncJob;
 import com.insightdata.domain.metadata.model.SchemaInfo;
 import com.insightdata.domain.metadata.model.TableInfo;
-import com.insightdata.domain.repository.DataSourceRepository;
-import com.insightdata.domain.repository.SchemaInfoRepository;
-import com.insightdata.domain.repository.TableInfoRepository;
+import com.insightdata.domain.metadata.repository.DataSourceRepository;
+import com.insightdata.domain.metadata.repository.SchemaInfoRepository;
+import com.insightdata.domain.metadata.repository.TableInfoRepository;
 import com.insightdata.facade.metadata.enums.SyncType;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.lang.reflect.Field;
-import java.sql.SQLException;
-import java.time.LocalDateTime;
-import java.util.List;
-
-@Slf4j
 @Service
 public class MetadataSyncApplicationServiceImpl implements MetadataSyncApplicationService {
     
-    private final MetadataSyncJobApplicationService metadataSyncJobApplicationService;
+    private static final Logger log = LoggerFactory.getLogger(MetadataSyncApplicationServiceImpl.class);
+    
+    private final MetadataSyncJobApplicationService metadataSyncJobService;
     private final DataSourceAdapterFactory dataSourceAdapterFactory;
     private final DataSourceRepository dataSourceRepository;
     private final SchemaInfoRepository schemaInfoRepository;
@@ -35,12 +36,12 @@ public class MetadataSyncApplicationServiceImpl implements MetadataSyncApplicati
 
     @Autowired
     public MetadataSyncApplicationServiceImpl(
-            MetadataSyncJobApplicationService metadataSyncJobApplicationService,
+            MetadataSyncJobApplicationService metadataSyncJobService,
             DataSourceAdapterFactory dataSourceAdapterFactory,
             DataSourceRepository dataSourceRepository,
             SchemaInfoRepository schemaInfoRepository,
             TableInfoRepository tableInfoRepository) {
-        this.metadataSyncJobApplicationService = metadataSyncJobApplicationService;
+        this.metadataSyncJobService = metadataSyncJobService;
         this.dataSourceAdapterFactory = dataSourceAdapterFactory;
         this.dataSourceRepository = dataSourceRepository;
         this.schemaInfoRepository = schemaInfoRepository;
@@ -53,11 +54,11 @@ public class MetadataSyncApplicationServiceImpl implements MetadataSyncApplicati
         log.info("开始同步元数据: dataSourceId={}", dataSourceId);
 
         // 创建同步作业
-        MetadataSyncJob syncJob = metadataSyncJobApplicationService.createSyncJob(dataSourceId, SyncType.FULL);
+        MetadataSyncJob syncJob = metadataSyncJobService.createSyncJob(dataSourceId, SyncType.FULL);
         
         // 使用反射获取ID
         String jobId = getFieldValue(syncJob, "id");
-        metadataSyncJobApplicationService.startSyncJob(jobId);
+        metadataSyncJobService.startSyncJob(jobId);
 
         try {
             // 获取数据源实体
@@ -75,12 +76,12 @@ public class MetadataSyncApplicationServiceImpl implements MetadataSyncApplicati
             syncSchemas(dataSourceAdapter, dataSourceEntity, syncJob);
 
             // 更新同步状态
-            metadataSyncJobApplicationService.updateProgress(jobId, 100, "元数据同步完成");
-            metadataSyncJobApplicationService.completeSyncJob(jobId);
+            metadataSyncJobService.updateProgress(jobId, 100, "元数据同步完成");
+            metadataSyncJobService.completeSyncJob(jobId);
         } catch (Exception e) {
             log.error("元数据同步失败", e);
             // 使用已定义的jobId变量
-            metadataSyncJobApplicationService.failSyncJob(jobId, e.getMessage());
+            metadataSyncJobService.failSyncJob(jobId, e.getMessage());
             throw new RuntimeException("元数据同步失败", e);
         }
     }

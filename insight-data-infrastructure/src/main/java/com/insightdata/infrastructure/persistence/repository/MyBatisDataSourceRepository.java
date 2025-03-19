@@ -6,7 +6,7 @@ import java.util.Optional;
 
 import com.insightdata.domain.metadata.enums.DataSourceType;
 import com.insightdata.domain.metadata.model.DataSource;
-import com.insightdata.domain.repository.DataSourceRepository;
+import com.insightdata.domain.metadata.repository.DataSourceRepository;
 import com.insightdata.infrastructure.persistence.mapper.DataSourceMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
