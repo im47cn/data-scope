@@ -37,6 +37,8 @@ spring:
     redis:
       time-to-live: 3600000
       cache-null-values: false
+    # 允许在Redis不可用时使用内存缓存作为回退选项
+    cache-names: metadata,query-result
   
   # Flyway配置
   flyway:
