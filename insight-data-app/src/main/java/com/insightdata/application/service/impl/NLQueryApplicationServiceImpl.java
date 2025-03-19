@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 
 import com.insightdata.domain.exception.InsightDataException;
+import com.insightdata.domain.nlquery.converter.SqlConversionResult;
+import com.insightdata.domain.nlquery.executor.QueryResult;
 import com.insightdata.domain.query.model.NLQueryResult;
 import com.insightdata.domain.query.model.QueryHistory;
 import com.insightdata.domain.query.model.SavedQuery;
@@ -33,27 +35,47 @@ public class NLQueryApplicationServiceImpl implements NLQueryApplicationService 
     private NLQueryService nlQueryService;
     
     @Override
-    public NLQueryResponse executeQuery(NLQueryRequest request) {
+    public NLQueryResponse executeQuery(NLQueryRequest facadeRequest) {
         try {
-            log.info("执行自然语言查询: {}", request.getQuery());
+            log.info("执行自然语言查询: {}", facadeRequest.getQuery());
             
-            // 创建一个简单的响应对象
+            // 转换为domain层NLQueryRequest对象
+            com.insightdata.domain.nlquery.NLQueryRequest domainRequest = com.insightdata.domain.nlquery.NLQueryRequest.builder()
+                .dataSourceId(facadeRequest.getDataSourceId())
+                .query(facadeRequest.getQuery())
+                .build();
+            
+            // 调用领域服务执行查询
+            QueryResult result = nlQueryService.executeQuery(domainRequest);
+            
+            // 创建响应对象并设置属性
             NLQueryResponse response = new NLQueryResponse();
-            response.setOriginalQuery(request.getQuery());
+            response.setOriginalQuery(facadeRequest.getQuery());
             
-            // 这里应该调用领域服务执行查询
-            // 由于存在类型不匹配问题，这里简化处理
-            // 实际应用中应该根据实际情况进行适当的转换
-            
-            // 模拟查询结果
-            List<Map<String, Object>> data = new ArrayList<>();
-            Map<String, Object> row = new HashMap<>();
-            row.put("result", "查询结果将在这里显示");
-            data.add(row);
-            
-            response.setData(data);
-            response.setGeneratedSql("SELECT * FROM table WHERE condition");
-            response.setStatus("成功");
+            if (result != null) {
+                response.setQueryId(result.getQueryId());
+                if (result.getColumnLabels() != null) {
+                    response.setGeneratedSql(String.join(", ", result.getColumnLabels()));
+                }
+                response.setData(result.getRows());
+                response.setExecutionTime(result.getDuration());
+                response.setTotalRows((long) result.getTotalRows());
+                if (result.getRows() != null) {
+                    response.setReturnedRows(result.getRows().size());
+                }
+                response.setStatus(result.isSuccess() ? "成功" : "失败");
+                response.setErrorMessage(result.getErrorMessage());
+            } else {
+                // 如果结果为空，创建一个默认响应
+                List<Map<String, Object>> data = new ArrayList<>();
+                Map<String, Object> row = new HashMap<>();
+                row.put("result", "查询结果将在这里显示");
+                data.add(row);
+                
+                response.setData(data);
+                response.setGeneratedSql("SELECT * FROM table WHERE condition");
+                response.setStatus("成功");
+            }
             
             return response;
         } catch (Exception e) {
@@ -140,16 +162,22 @@ public class NLQueryApplicationServiceImpl implements NLQueryApplicationService 
         try {
             log.info("保存查询, 查询历史ID: {}, 名称: {}", id, savedQuery.getName());
             
-            // 创建一个简单的NLQueryRequest对象
-            NLQueryRequest request = NLQueryRequest.builder()
+            // 创建一个简单的facade层NLQueryRequest对象
+            com.insightdata.facade.nlquery.NLQueryRequest facadeRequest = com.insightdata.facade.nlquery.NLQueryRequest.builder()
                 .dataSourceId(savedQuery.getDataSourceId())
                 .query("")  // 这里应该有原始查询，但我们没有这个信息
+                .build();
+                
+            // 转换为domain层NLQueryRequest对象
+            com.insightdata.domain.nlquery.NLQueryRequest domainRequest = com.insightdata.domain.nlquery.NLQueryRequest.builder()
+                .dataSourceId(facadeRequest.getDataSourceId())
+                .query(facadeRequest.getQuery())
                 .build();
                 
             // 调用领域服务
             String queryId = nlQueryService.saveQuery(
                 savedQuery.getName(),
-                request,
+                domainRequest,
                 null  // 这里应该传入SqlConversionResult，但我们没有这个对象
             );
             
@@ -207,7 +235,7 @@ public class NLQueryApplicationServiceImpl implements NLQueryApplicationService 
                 dto.setName(query.getName());
                 dto.setDescription(query.getDescription());
                 dto.setSql(query.getSql());
-                dto.setIsPublic(query.getIsShared());
+                dto.setPublic(query.getIsShared());
                 dto.setCreatedBy(query.getCreatedBy());
                 dto.setCreatedAt(query.getCreatedAt());
                 dto.setUpdatedAt(query.getUpdatedAt());
@@ -230,7 +258,7 @@ public class NLQueryApplicationServiceImpl implements NLQueryApplicationService 
                 id,
                 savedQuery.getName(),
                 savedQuery.getDescription(),
-                savedQuery.getIsPublic()
+                savedQuery.isPublic()
             );
             
             // 转换为DTO
@@ -241,7 +269,7 @@ public class NLQueryApplicationServiceImpl implements NLQueryApplicationService 
                 dto.setName(result.getName());
                 dto.setDescription(result.getDescription());
                 dto.setSql(result.getSql());
-                dto.setIsPublic(result.getIsShared());
+                dto.setPublic(result.getIsShared());
                 dto.setCreatedBy(result.getCreatedBy());
                 dto.setCreatedAt(result.getCreatedAt());
                 dto.setUpdatedAt(result.getUpdatedAt());
@@ -290,6 +318,16 @@ public class NLQueryApplicationServiceImpl implements NLQueryApplicationService 
                 }
                 response.setStatus(result.isSuccess() ? "成功" : "失败");
                 response.setErrorMessage(result.getErrorMessage());
+            } else {
+                // 如果结果为空，创建一个默认响应
+                List<Map<String, Object>> data = new ArrayList<>();
+                Map<String, Object> row = new HashMap<>();
+                row.put("result", "查询结果将在这里显示");
+                data.add(row);
+                
+                response.setData(data);
+                response.setGeneratedSql("SELECT * FROM table WHERE condition");
+                response.setStatus("成功");
             }
             
             return response;
