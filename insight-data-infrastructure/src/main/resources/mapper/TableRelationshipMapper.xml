@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.infrastructure.persistence.mapper.TableRelationshipMapper">
+<mapper namespace="com.insightdata.infrastructure.persistence.mapper.TableRelationshipMapper">
     
     <!-- 结果映射 -->
-    <resultMap id="BaseResultMap" type="com.infrastructure.persistence.entity.TableRelationshipEntity">
+    <resultMap id="BaseResultMap" type="com.insightdata.infrastructure.persistence.entity.TableRelationshipEntity">
         <id column="id" property="id"/>
         <result column="data_source_id" property="dataSourceId"/>
         <result column="source_table" property="sourceTable"/>
@@ -19,7 +19,7 @@
     </resultMap>
 
     <!-- 插入表关系 -->
-    <insert id="insert" parameterType="com.infrastructure.persistence.entity.TableRelationshipEntity"
+    <insert id="insert" parameterType="com.insightdata.infrastructure.persistence.entity.TableRelationshipEntity"
             useGeneratedKeys="true" keyProperty="id">
         INSERT INTO tbl_table_relationship (
             data_source_id, source_table, source_column, target_table, target_column,
@@ -65,8 +65,8 @@
     </update>
 
     <!-- 更新表关系 -->
-    <update id="update" parameterType="com.infrastructure.persistence.entity.TableRelationshipEntity">
-        UPDATE table_relationship
+    <update id="update" parameterType="com.insightdata.infrastructure.persistence.entity.TableRelationshipEntity">
+        UPDATE tbl_table_relationship
         SET data_source_id = #{dataSourceId},
             source_table = #{sourceTable},
             source_column = #{sourceColumn},

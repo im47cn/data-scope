@@ -2,125 +2,104 @@ package com.insightdata.facade.metadata;
 
 import com.insightdata.facade.metadata.enums.SyncStatus;
 import com.insightdata.facade.metadata.enums.SyncType;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
+import java.lang.reflect.InvocationTargetException;
 import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.Map;
 
-/**
- * 元数据同步作业DTO
- */
 @Data
-@Builder
+@Builder(toBuilder = true)
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString
-public class MetadataSyncJobDTO {
-    
-    /**
-     * 作业ID
-     */
+public class MetadataSyncJobDTO implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
     private String id;
-    
-    /**
-     * 数据源ID
-     */
     private String dataSourceId;
-    
-    /**
-     * 同步类型
-     */
     private SyncType type;
-    
-    /**
-     * 同步状态
-     */
     private SyncStatus status;
-    
-    /**
-     * 进度（0-100）
-     */
     private Integer progress;
-    
-    /**
-     * 开始时间
-     */
+    private Integer totalItems;
+    private Integer processedItems;
+    private Map<String, Object> parameters;
     private LocalDateTime startTime;
-    
-    /**
-     * 结束时间
-     */
     private LocalDateTime endTime;
-    
-    /**
-     * 错误信息
-     */
     private String errorMessage;
-    
-    /**
-     * 创建时间
-     */
     private LocalDateTime createdAt;
-    
-    /**
-     * 更新时间
-     */
     private LocalDateTime updatedAt;
-    
-    /**
-     * 同步类型显示名称
-     */
     private String typeDisplayName;
-    
-    /**
-     * 同步状态显示名称
-     */
     private String statusDisplayName;
-    
-    /**
-     * 执行时长（毫秒）
-     */
     private Long executionDuration;
-    
-    /**
-     * 从领域模型创建DTO
-     * 
-     * @param syncJob 元数据同步作业
-     * @return DTO对象
-     */
-    public static MetadataSyncJobDTO fromDomain(MetadataSyncJob syncJob) {
+
+    public Map<String, Object> getParameters() {
+        return parameters != null ? Collections.unmodifiableMap(parameters) : null;
+    }
+
+    @SuppressWarnings("unchecked")
+    public static MetadataSyncJobDTO fromDomain(Object syncJob) {
         if (syncJob == null) {
             return null;
         }
-        
-        MetadataSyncJobDTO dto = new MetadataSyncJobDTO();
-        dto.setId(syncJob.getId());
-        dto.setDataSourceId(syncJob.getDataSourceId());
-        dto.setType(syncJob.getType());
-        dto.setStatus(syncJob.getStatus());
-        dto.setProgress(syncJob.getProgress());
-        dto.setStartTime(syncJob.getStartTime());
-        dto.setEndTime(syncJob.getEndTime());
-        dto.setErrorMessage(syncJob.getErrorMessage());
-        dto.setCreatedAt(syncJob.getCreatedAt());
-        dto.setUpdatedAt(syncJob.getUpdatedAt());
-        
-        // 设置显示名称
-        if (syncJob.getType() != null) {
-            dto.setTypeDisplayName(syncJob.getType().getDisplayName());
+
+        try {
+
+            // Use reflection to access properties of the domain object
+            MetadataSyncJobDTO defaultDTO = new MetadataSyncJobDTO();
+            MetadataSyncJobDTOBuilder builder = defaultDTO.toBuilder();
+
+            String idVal = invokeGetter(syncJob, "getId", String.class);
+            String dataSourceIdVal = invokeGetter(syncJob, "getDataSourceId", String.class);
+            SyncType typeVal = (SyncType) invokeGetter(syncJob, "getType", SyncType.class);
+            SyncStatus statusVal = invokeGetter(syncJob, "getStatus", SyncStatus.class);
+            Integer progressVal = invokeGetter(syncJob, "getProgress", Integer.class);
+            Integer totalItemsVal = invokeGetter(syncJob, "getTotalItems", Integer.class);
+            Integer processedItemsVal = invokeGetter(syncJob, "getProcessedItems", Integer.class);
+            Map<String, Object> parametersVal = (Map<String, Object>) invokeGetter(syncJob, "getParameters", Map.class);
+            LocalDateTime startTimeVal = invokeGetter(syncJob, "getStartTime", LocalDateTime.class);
+            LocalDateTime endTimeVal = invokeGetter(syncJob, "getEndTime", LocalDateTime.class);
+            String errorMessageVal = invokeGetter(syncJob, "getErrorMessage", String.class);
+            LocalDateTime createdAtVal = invokeGetter(syncJob, "getCreatedAt", LocalDateTime.class);
+            LocalDateTime updatedAtVal = invokeGetter(syncJob, "getUpdatedAt", LocalDateTime.class);
+            String typeDisplayNameVal = invokeGetter(syncJob, "getTypeDisplayName", String.class);
+            String statusDisplayNameVal = invokeGetter(syncJob, "getStatusDisplayName", String.class);
+            Long executionDurationVal = invokeGetter(syncJob, "getExecutionDuration", Long.class);
+
+           return builder.id(idVal)
+                    .dataSourceId(dataSourceIdVal)
+                    .type(typeVal)
+                    .status(statusVal)
+                    .progress(progressVal)
+                    .totalItems(totalItemsVal)
+                    .processedItems(processedItemsVal)
+                    .parameters(parametersVal)
+                    .startTime(startTimeVal)
+                    .endTime(endTimeVal)
+                    .errorMessage(errorMessageVal)
+                    .createdAt(createdAtVal)
+                    .updatedAt(updatedAtVal)
+                    .typeDisplayName(typeDisplayNameVal)
+                    .statusDisplayName(statusDisplayNameVal)
+                    .executionDuration(executionDurationVal)
+                    .build();
+        } catch (Exception e) {
+            System.err.println("Error converting domain object to DTO: " + e.getMessage());
+            return null;
         }
-        if (syncJob.getStatus() != null) {
-            dto.setStatusDisplayName(syncJob.getStatus().getDisplayName());
-        }
-        
-        // 计算执行时长
-        if (syncJob.getStartTime() != null) {
-            LocalDateTime endTimeForCalc = syncJob.getEndTime() != null ? 
-                    syncJob.getEndTime() : LocalDateTime.now();
-            long durationMillis = java.time.Duration.between(syncJob.getStartTime(), endTimeForCalc).toMillis();
-            dto.setExecutionDuration(durationMillis);
-        }
-        
-        return dto;
     }
 
+    private static <T> T invokeGetter(Object obj, String methodName, Class<T> returnType) {
+        try {
+            return (T) obj.getClass().getMethod(methodName).invoke(obj);
+        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+            System.err.println("Error invoking getter " + methodName + ": " + e.getMessage());
+            return null;
+        }
+    }
 }

@@ -58,6 +58,8 @@ public class PreprocessedText {
     @Builder.Default
     private List<CorrectionSuggestion> corrections = new ArrayList<>();
 
+    // 使用Lombok自动生成全参数构造函数，不需要手动实现
+
     /**
      * 获取指定类型的纠正建议文本
      *

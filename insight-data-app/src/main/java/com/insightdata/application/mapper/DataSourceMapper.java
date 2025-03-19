@@ -6,6 +6,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.insightdata.domain.metadata.enums.DataSourceType;
 import com.insightdata.domain.metadata.model.DataSource;
 import com.insightdata.facade.metadata.DataSourceDTO;
 import com.insightdata.facade.metadata.DataSourceListDTO;
@@ -136,7 +137,7 @@ public class DataSourceMapper {
         
         // 只复制非null字段
         if (dto.getName() != null) entity.setName(dto.getName());
-        if (dto.getType() != null) entity.setType(dto.getType());
+        if (dto.getType() != null) entity.setType(DataSourceType.valueOf(dto.getType().name()));
         if (dto.getHost() != null) entity.setHost(dto.getHost());
         if (dto.getPort() != null) entity.setPort(dto.getPort());
         if (dto.getDatabaseName() != null) entity.setDatabaseName(dto.getDatabaseName());

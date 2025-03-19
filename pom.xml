@@ -33,9 +33,10 @@
         <springdoc.version>2.3.0</springdoc.version>
 
         <!-- Lombok -->
-        <lombok.version>1.18.30</lombok.version>
-        <mapstruct.version>1.5.5.Final</mapstruct.version>
-        <lombok-mapstruct-binding.version>0.2.0</lombok-mapstruct-binding.version>
+        <jmh.version>1.33</jmh.version>
+        <lombok.version>1.18.36</lombok.version>
+        <mapstruct.version>1.6.0.Beta2</mapstruct.version>
+        <mapstruct-lombok.version>0.2.0</mapstruct-lombok.version>
     </properties>
 
     <modules>
@@ -126,6 +127,11 @@
                 <artifactId>mapstruct</artifactId>
                 <version>${mapstruct.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok-mapstruct-binding</artifactId>
+                <version>${mapstruct-lombok.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -140,19 +146,29 @@
                         <target>${java.version}</target>
                         <annotationProcessorPaths>
                             <path>
-                                <groupId>org.projectlombok</groupId>
-                                <artifactId>lombok</artifactId>
-                                <version>${lombok.version}</version>
-                            </path>
-                            <path>
                                 <groupId>org.mapstruct</groupId>
                                 <artifactId>mapstruct-processor</artifactId>
                                 <version>${mapstruct.version}</version>
                             </path>
                             <path>
                                 <groupId>org.projectlombok</groupId>
+                                <artifactId>lombok</artifactId>
+                                <version>${lombok.version}</version>
+                            </path>
+                            <path>
+                                <groupId>org.projectlombok</groupId>
                                 <artifactId>lombok-mapstruct-binding</artifactId>
-                                <version>${lombok-mapstruct-binding.version}</version>
+                                <version>${mapstruct-lombok.version}</version>
+                            </path>
+                            <path>
+                                <groupId>org.openjdk.jmh</groupId>
+                                <artifactId>jmh-generator-annprocess</artifactId>
+                                <version>${jmh.version}</version>
+                            </path>
+                            <path>
+                                <groupId>com.tngtech.archunit</groupId>
+                                <artifactId>archunit-junit4</artifactId>
+                                <version>0.23.1</version>
                             </path>
                         </annotationProcessorPaths>
                     </configuration>

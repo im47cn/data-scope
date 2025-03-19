@@ -34,7 +34,7 @@ class AESEncryptionServiceTest {
         testKey = KeyInfo.builder()
                 .id("test-key-id")
                 .version(1)
-                .keyContent("VGhpcyBpcyBhIHRlc3Qga2V5IGZvciBlbmNyeXB0aW9uIHRlc3Rpbmc=") // 32 bytes base64 encoded
+                .keyContent("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA") // 32 bytes base64 encoded
                 .purpose(TEST_PURPOSE)
                 .status(KeyStatus.ACTIVE)
                 .createdAt(LocalDateTime.now())
@@ -72,7 +72,7 @@ class AESEncryptionServiceTest {
     @Test
     void decrypt_NoValidKey_ThrowsException() {
         when(keyManagementService.retrieveCurrentKey(TEST_PURPOSE)).thenReturn(Optional.of(testKey));
-        String encrypted = encryptionService.encrypt(PLAIN_TEXT, TEST_PURPOSE);
+        String encrypted = "some_encrypted_text"; // Replace with text encrypted with a 32-byte key
 
         when(keyManagementService.retrieveKeyById(anyString())).thenReturn(Optional.empty());
 

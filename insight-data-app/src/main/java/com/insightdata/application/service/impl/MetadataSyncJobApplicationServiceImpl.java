@@ -1,13 +1,13 @@
 package com.insightdata.application.service.impl;
 
 import com.insightdata.application.service.MetadataSyncJobApplicationService;
+import com.insightdata.application.util.EnumConverter;
 import com.insightdata.domain.exception.InsightDataException;
 import com.insightdata.domain.metadata.model.MetadataSyncJob;
 import com.insightdata.domain.repository.MetadataSyncJobRepository;
 import com.insightdata.facade.metadata.enums.SyncStatus;
 import com.insightdata.facade.metadata.enums.SyncType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,10 +20,9 @@ import java.util.UUID;
 /**
  * 元数据同步作业服务实现
  */
+@Slf4j
 @Service
 public class MetadataSyncJobApplicationServiceImpl implements MetadataSyncJobApplicationService {
-    
-    private static final Logger logger = LoggerFactory.getLogger(MetadataSyncJobApplicationServiceImpl.class);
     
     private final MetadataSyncJobRepository metadataSyncJobRepository;
     
@@ -35,53 +34,66 @@ public class MetadataSyncJobApplicationServiceImpl implements MetadataSyncJobApp
     @Override
     @Transactional
     public MetadataSyncJob createSyncJob(String dataSourceId, SyncType type) {
-        logger.info("创建同步作业: dataSourceId={}, type={}", dataSourceId, type);
+        log.info("创建同步作业: dataSourceId={}, type={}", dataSourceId, type);
         
         // 检查是否已存在进行中的同步作业
-        Optional<MetadataSyncJob> inProgressJob = metadataSyncJobRepository.findByDataSourceIdAndStatus(dataSourceId, SyncStatus.RUNNING)
-                .stream().findFirst();
+        Optional<MetadataSyncJob> inProgressJob = metadataSyncJobRepository.findByDataSourceIdAndStatus(
+                dataSourceId,
+                EnumConverter.toDomainSyncStatus(SyncStatus.RUNNING)
+            ).stream().findFirst();
+            
         if (inProgressJob.isPresent()) {
             throw new InsightDataException("该数据源已有进行中的同步作业，请等待完成或取消");
         }
         
-        MetadataSyncJob syncJob = new MetadataSyncJob();
-        syncJob.setId(UUID.randomUUID().toString());
-        syncJob.setDataSourceId(dataSourceId);
-        syncJob.setType(type);
-        syncJob.setStatus(SyncStatus.PENDING);
-        syncJob.setProgress(0);
-        syncJob.setCreatedAt(LocalDateTime.now());
-        syncJob.setUpdatedAt(LocalDateTime.now());
+        // 创建领域模型对象
+        com.insightdata.domain.metadata.model.MetadataSyncJob domainSyncJob = new com.insightdata.domain.metadata.model.MetadataSyncJob();
+        domainSyncJob.setId(UUID.randomUUID().toString());
+        domainSyncJob.setDataSourceId(dataSourceId);
+        domainSyncJob.setType(EnumConverter.toDomainSyncType(type));
+        domainSyncJob.setStatus(EnumConverter.toDomainSyncStatus(SyncStatus.PENDING));
+        domainSyncJob.setProgress(0);
+        domainSyncJob.setCreatedAt(LocalDateTime.now());
+        domainSyncJob.setUpdatedAt(LocalDateTime.now());
         
-        return metadataSyncJobRepository.save(syncJob);
+        // 保存并转换回Facade模型
+        com.insightdata.domain.metadata.model.MetadataSyncJob savedDomainJob = metadataSyncJobRepository.save(domainSyncJob);
+        return EnumConverter.toFacadeMetadataSyncJob(savedDomainJob);
     }
     
     @Override
     @Transactional
     public MetadataSyncJob startSyncJob(String jobId) {
-        logger.info("启动同步作业: jobId={}", jobId);
+        log.info("启动同步作业: jobId={}", jobId);
         
-        MetadataSyncJob syncJob = getAndValidateJob(jobId);
+        // 获取并验证领域模型
+        com.insightdata.domain.metadata.model.MetadataSyncJob domainSyncJob = getAndValidateDomainJob(jobId);
         
-        if (syncJob.getStatus() != SyncStatus.PENDING) {
+        // 检查状态
+        if (domainSyncJob.getStatus() != com.insightdata.domain.metadata.enums.SyncStatus.PENDING) {
             throw new InsightDataException("只有'待处理'状态的同步作业可以启动");
         }
         
-        syncJob.setStatus(SyncStatus.RUNNING);
-        syncJob.setStartTime(LocalDateTime.now());
-        syncJob.setUpdatedAt(LocalDateTime.now());
+        // 更新状态
+        domainSyncJob.setStatus(com.insightdata.domain.metadata.enums.SyncStatus.RUNNING);
+        domainSyncJob.setStartTime(LocalDateTime.now());
+        domainSyncJob.setUpdatedAt(LocalDateTime.now());
         
-        return metadataSyncJobRepository.save(syncJob);
+        // 保存并转换回Facade模型
+        com.insightdata.domain.metadata.model.MetadataSyncJob savedDomainJob = metadataSyncJobRepository.save(domainSyncJob);
+        return EnumConverter.toFacadeMetadataSyncJob(savedDomainJob);
     }
     
     @Override
     @Transactional
     public MetadataSyncJob updateProgress(String jobId, int progress, String message) {
-        logger.info("更新同步作业进度: jobId={}, progress={}, message={}", jobId, progress, message);
+        log.info("更新同步作业进度: jobId={}, progress={}, message={}", jobId, progress, message);
         
-        MetadataSyncJob syncJob = getAndValidateJob(jobId);
+        // 获取并验证领域模型
+        com.insightdata.domain.metadata.model.MetadataSyncJob domainSyncJob = getAndValidateDomainJob(jobId);
         
-        if (syncJob.getStatus() != SyncStatus.RUNNING) {
+        // 检查状态
+        if (domainSyncJob.getStatus() != com.insightdata.domain.metadata.enums.SyncStatus.RUNNING) {
             throw new InsightDataException("只有'运行中'状态的同步作业可以更新进度");
         }
         
@@ -89,110 +101,159 @@ public class MetadataSyncJobApplicationServiceImpl implements MetadataSyncJobApp
             throw new InsightDataException("进度值必须在0-100之间");
         }
         
-        syncJob.setProgress(progress);
+        // 更新进度
+        domainSyncJob.setProgress(progress);
         if (message != null && !message.trim().isEmpty()) {
-            syncJob.setErrorMessage(message); // 重用errorMessage字段存储进度消息
+            domainSyncJob.setErrorMessage(message); // 重用errorMessage字段存储进度消息
         }
-        syncJob.setUpdatedAt(LocalDateTime.now());
+        domainSyncJob.setUpdatedAt(LocalDateTime.now());
         
-        return metadataSyncJobRepository.save(syncJob);
+        // 保存并转换回Facade模型
+        com.insightdata.domain.metadata.model.MetadataSyncJob savedDomainJob = metadataSyncJobRepository.save(domainSyncJob);
+        return EnumConverter.toFacadeMetadataSyncJob(savedDomainJob);
     }
     
     @Override
     @Transactional
     public MetadataSyncJob completeSyncJob(String jobId) {
-        logger.info("完成同步作业: jobId={}", jobId);
+        log.info("完成同步作业: jobId={}", jobId);
         
-        MetadataSyncJob syncJob = getAndValidateJob(jobId);
+        // 获取并验证领域模型
+        com.insightdata.domain.metadata.model.MetadataSyncJob domainSyncJob = getAndValidateDomainJob(jobId);
         
-        if (syncJob.getStatus() != SyncStatus.RUNNING) {
+        // 检查状态
+        if (domainSyncJob.getStatus() != com.insightdata.domain.metadata.enums.SyncStatus.RUNNING) {
             throw new InsightDataException("只有'运行中'状态的同步作业可以标记为完成");
         }
         
-        syncJob.setStatus(SyncStatus.COMPLETED);
-        syncJob.setProgress(100);
-        syncJob.setEndTime(LocalDateTime.now());
-        syncJob.setUpdatedAt(LocalDateTime.now());
+        // 更新状态
+        domainSyncJob.setStatus(com.insightdata.domain.metadata.enums.SyncStatus.COMPLETED);
+        domainSyncJob.setProgress(100);
+        domainSyncJob.setEndTime(LocalDateTime.now());
+        domainSyncJob.setUpdatedAt(LocalDateTime.now());
         
-        return metadataSyncJobRepository.save(syncJob);
+        // 保存并转换回Facade模型
+        com.insightdata.domain.metadata.model.MetadataSyncJob savedDomainJob = metadataSyncJobRepository.save(domainSyncJob);
+        return EnumConverter.toFacadeMetadataSyncJob(savedDomainJob);
     }
     
     @Override
     @Transactional
     public MetadataSyncJob failSyncJob(String jobId, String errorMessage) {
-        logger.info("标记同步作业失败: jobId={}, errorMessage={}", jobId, errorMessage);
+        log.info("标记同步作业失败: jobId={}, errorMessage={}", jobId, errorMessage);
         
-        MetadataSyncJob syncJob = getAndValidateJob(jobId);
+        // 获取并验证领域模型
+        com.insightdata.domain.metadata.model.MetadataSyncJob domainSyncJob = getAndValidateDomainJob(jobId);
         
-        if (syncJob.getStatus() != SyncStatus.RUNNING && syncJob.getStatus() != SyncStatus.PENDING) {
+        // 检查状态
+        if (domainSyncJob.getStatus() != com.insightdata.domain.metadata.enums.SyncStatus.RUNNING &&
+            domainSyncJob.getStatus() != com.insightdata.domain.metadata.enums.SyncStatus.PENDING) {
             throw new InsightDataException("只有'运行中'或'待处理'状态的同步作业可以标记为失败");
         }
         
-        syncJob.setStatus(SyncStatus.FAILED);
-        syncJob.setErrorMessage(errorMessage);
-        syncJob.setEndTime(LocalDateTime.now());
-        syncJob.setUpdatedAt(LocalDateTime.now());
+        // 更新状态
+        domainSyncJob.setStatus(com.insightdata.domain.metadata.enums.SyncStatus.FAILED);
+        domainSyncJob.setErrorMessage(errorMessage);
+        domainSyncJob.setEndTime(LocalDateTime.now());
+        domainSyncJob.setUpdatedAt(LocalDateTime.now());
         
-        return metadataSyncJobRepository.save(syncJob);
+        // 保存并转换回Facade模型
+        com.insightdata.domain.metadata.model.MetadataSyncJob savedDomainJob = metadataSyncJobRepository.save(domainSyncJob);
+        return EnumConverter.toFacadeMetadataSyncJob(savedDomainJob);
     }
     
     @Override
     @Transactional
     public MetadataSyncJob cancelSyncJob(String jobId) {
-        logger.info("取消同步作业: jobId={}", jobId);
+        log.info("取消同步作业: jobId={}", jobId);
         
-        MetadataSyncJob syncJob = getAndValidateJob(jobId);
+        // 获取并验证领域模型
+        com.insightdata.domain.metadata.model.MetadataSyncJob domainSyncJob = getAndValidateDomainJob(jobId);
         
-        if (syncJob.getStatus() != SyncStatus.RUNNING && syncJob.getStatus() != SyncStatus.PENDING) {
+        // 检查状态
+        if (domainSyncJob.getStatus() != com.insightdata.domain.metadata.enums.SyncStatus.RUNNING &&
+            domainSyncJob.getStatus() != com.insightdata.domain.metadata.enums.SyncStatus.PENDING) {
             throw new InsightDataException("只有'运行中'或'待处理'状态的同步作业可以取消");
         }
         
-        syncJob.setStatus(SyncStatus.CANCELLED);
-        syncJob.setEndTime(LocalDateTime.now());
-        syncJob.setUpdatedAt(LocalDateTime.now());
+        // 更新状态
+        domainSyncJob.setStatus(com.insightdata.domain.metadata.enums.SyncStatus.CANCELLED);
+        domainSyncJob.setEndTime(LocalDateTime.now());
+        domainSyncJob.setUpdatedAt(LocalDateTime.now());
         
-        return metadataSyncJobRepository.save(syncJob);
+        // 保存并转换回Facade模型
+        com.insightdata.domain.metadata.model.MetadataSyncJob savedDomainJob = metadataSyncJobRepository.save(domainSyncJob);
+        return EnumConverter.toFacadeMetadataSyncJob(savedDomainJob);
     }
     
     @Override
     public Optional<MetadataSyncJob> getSyncJob(String jobId) {
-        logger.debug("获取同步作业: jobId={}", jobId);
+        log.debug("获取同步作业: jobId={}", jobId);
         return metadataSyncJobRepository.findById(jobId);
     }
     
     @Override
     public List<MetadataSyncJob> getSyncJobsByDataSource(String dataSourceId) {
-        logger.debug("获取数据源同步作业列表: dataSourceId={}", dataSourceId);
+        log.debug("获取数据源同步作业列表: dataSourceId={}", dataSourceId);
         return metadataSyncJobRepository.findByDataSourceId(dataSourceId);
     }
     
     @Override
     public Optional<MetadataSyncJob> getLatestSyncJob(String dataSourceId) {
-        logger.debug("获取数据源最新同步作业: dataSourceId={}", dataSourceId);
+        log.debug("获取数据源最新同步作业: dataSourceId={}", dataSourceId);
         return metadataSyncJobRepository.findLatestByDataSourceId(dataSourceId);
     }
     
     @Override
     public List<MetadataSyncJob> getSyncJobsByStatus(SyncStatus status) {
-        logger.debug("获取指定状态同步作业列表: status={}", status);
-        return metadataSyncJobRepository.findByStatus(status);
+        log.debug("获取指定状态同步作业列表: status={}", status);
+        
+        // 转换枚举类型
+        com.insightdata.domain.metadata.enums.SyncStatus domainStatus = EnumConverter.toDomainSyncStatus(status);
+        
+        // 查询并转换结果
+        List<com.insightdata.domain.metadata.model.MetadataSyncJob> domainJobs = metadataSyncJobRepository.findByStatus(domainStatus);
+        return domainJobs.stream()
+                .map(EnumConverter::toFacadeMetadataSyncJob)
+                .collect(java.util.stream.Collectors.toList());
     }
     
     @Override
     public List<MetadataSyncJob> getInProgressSyncJobs() {
-        logger.debug("获取进行中同步作业列表");
-        return metadataSyncJobRepository.findByStatus(SyncStatus.RUNNING);
+        log.debug("获取进行中同步作业列表");
+        
+        // 转换枚举类型
+        com.insightdata.domain.metadata.enums.SyncStatus domainStatus =
+                EnumConverter.toDomainSyncStatus(SyncStatus.RUNNING);
+        
+        // 查询并转换结果
+        List<com.insightdata.domain.metadata.model.MetadataSyncJob> domainJobs = metadataSyncJobRepository.findByStatus(domainStatus);
+        return domainJobs.stream()
+                .map(EnumConverter::toFacadeMetadataSyncJob)
+                .collect(java.util.stream.Collectors.toList());
     }
     
     /**
-     * 获取并验证同步作业是否存在
-     * 
+     * 获取并验证同步作业是否存在（领域模型）
+     *
      * @param jobId 同步作业ID
-     * @return 同步作业
+     * @return 领域模型同步作业
+     * @throws InsightDataException 如果同步作业不存在
+     */
+    private com.insightdata.domain.metadata.model.MetadataSyncJob getAndValidateDomainJob(String jobId) {
+        return metadataSyncJobRepository.findById(jobId)
+                .orElseThrow(() -> new InsightDataException("同步作业不存在: " + jobId));
+    }
+    
+    /**
+     * 获取并验证同步作业是否存在（Facade模型）
+     *
+     * @param jobId 同步作业ID
+     * @return Facade模型同步作业
      * @throws InsightDataException 如果同步作业不存在
      */
     private MetadataSyncJob getAndValidateJob(String jobId) {
-        return metadataSyncJobRepository.findById(jobId)
-                .orElseThrow(() -> new InsightDataException("同步作业不存在: " + jobId));
+        com.insightdata.domain.metadata.model.MetadataSyncJob domainJob = getAndValidateDomainJob(jobId);
+        return EnumConverter.toFacadeMetadataSyncJob(domainJob);
     }
 }

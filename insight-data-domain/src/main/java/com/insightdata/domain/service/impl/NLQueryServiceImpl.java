@@ -2,8 +2,7 @@ package com.insightdata.domain.service.impl;
 
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import com.insightdata.domain.metadata.model.DataSource;
@@ -26,10 +25,9 @@ import com.insightdata.domain.service.NLQueryService;
  * 注意：由于项目中存在类设计不一致的问题，本实现中许多方法仅提供最基本的骨架
  * 实际使用时应根据完整的项目情况进行调整
  */
+@Slf4j
 @Service
 public class NLQueryServiceImpl implements NLQueryService {
-
-    private static final Logger log = LoggerFactory.getLogger(NLQueryServiceImpl.class);
 
     private final DataSourceService dataSourceService;
     private final TextPreprocessor textPreprocessor;

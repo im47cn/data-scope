@@ -31,7 +31,7 @@ import lombok.extern.slf4j.Slf4j;
 public class NLQueryController {
     
     @Autowired
-    private NLQueryApplicationService nlQueryApplicationService;
+    private NLQueryApplicationService nlQueryFacadeService;
     
     /**
      * 执行自然语言查询
@@ -42,7 +42,7 @@ public class NLQueryController {
     @PostMapping("/execute")
     public ResponseEntity<NLQueryResponse> executeQuery(@RequestBody NLQueryRequest request) {
         log.info("接收到自然语言查询请求: {}", request.getQuery());
-        NLQueryResponse response = nlQueryApplicationService.executeQuery(request);
+        NLQueryResponse response = nlQueryFacadeService.executeQuery(request);
         return ResponseEntity.ok(response);
     }
     
@@ -59,7 +59,7 @@ public class NLQueryController {
             @RequestParam String dataSourceId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
-        List<QueryHistoryDTO> history = nlQueryApplicationService.getQueryHistory(dataSourceId, page, size);
+        List<QueryHistoryDTO> history = nlQueryFacadeService.getQueryHistory(dataSourceId, page, size);
         return ResponseEntity.ok(history);
     }
     
@@ -71,7 +71,7 @@ public class NLQueryController {
      */
     @GetMapping("/history/{id}")
     public ResponseEntity<QueryHistoryDTO> getQueryHistoryById(@PathVariable String id) {
-        QueryHistoryDTO history = nlQueryApplicationService.getQueryHistoryById(id);
+        QueryHistoryDTO history = nlQueryFacadeService.getQueryHistoryById(id);
         if (history == null) {
             return ResponseEntity.notFound().build();
         }
@@ -86,7 +86,7 @@ public class NLQueryController {
      */
     @PostMapping("/rerun/{id}")
     public ResponseEntity<NLQueryResponse> rerunQuery(@PathVariable String id) {
-        NLQueryResponse response = nlQueryApplicationService.rerunQuery(id);
+        NLQueryResponse response = nlQueryFacadeService.rerunQuery(id);
         return ResponseEntity.ok(response);
     }
     
@@ -101,7 +101,7 @@ public class NLQueryController {
     public ResponseEntity<String> saveQuery(
             @PathVariable String id,
             @RequestBody SavedQueryDTO savedQuery) {
-        String savedId = nlQueryApplicationService.saveQuery(id, savedQuery);
+        String savedId = nlQueryFacadeService.saveQuery(id, savedQuery);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedId);
     }
     
@@ -113,7 +113,7 @@ public class NLQueryController {
      */
     @GetMapping("/saved")
     public ResponseEntity<List<SavedQueryDTO>> getSavedQueries(@RequestParam String dataSourceId) {
-        List<SavedQueryDTO> queries = nlQueryApplicationService.getSavedQueries(dataSourceId);
+        List<SavedQueryDTO> queries = nlQueryFacadeService.getSavedQueries(dataSourceId);
         return ResponseEntity.ok(queries);
     }
     
@@ -125,7 +125,7 @@ public class NLQueryController {
      */
     @GetMapping("/saved/{id}")
     public ResponseEntity<SavedQueryDTO> getSavedQuery(@PathVariable String id) {
-        SavedQueryDTO query = nlQueryApplicationService.getSavedQuery(id);
+        SavedQueryDTO query = nlQueryFacadeService.getSavedQuery(id);
         if (query == null) {
             return ResponseEntity.notFound().build();
         }
@@ -143,7 +143,7 @@ public class NLQueryController {
     public ResponseEntity<SavedQueryDTO> updateSavedQuery(
             @PathVariable String id,
             @RequestBody SavedQueryDTO savedQuery) {
-        SavedQueryDTO updated = nlQueryApplicationService.updateSavedQuery(id, savedQuery);
+        SavedQueryDTO updated = nlQueryFacadeService.updateSavedQuery(id, savedQuery);
         return ResponseEntity.ok(updated);
     }
     
@@ -155,7 +155,7 @@ public class NLQueryController {
      */
     @DeleteMapping("/saved/{id}")
     public ResponseEntity<Void> deleteSavedQuery(@PathVariable String id) {
-        nlQueryApplicationService.deleteSavedQuery(id);
+        nlQueryFacadeService.deleteSavedQuery(id);
         return ResponseEntity.noContent().build();
     }
     
@@ -170,7 +170,7 @@ public class NLQueryController {
     public ResponseEntity<NLQueryResponse> executeSavedQuery(
             @PathVariable String id,
             @RequestBody(required = false) Object parameters) {
-        NLQueryResponse response = nlQueryApplicationService.executeSavedQuery(id, parameters);
+        NLQueryResponse response = nlQueryFacadeService.executeSavedQuery(id, parameters);
         return ResponseEntity.ok(response);
     }
     
@@ -182,7 +182,7 @@ public class NLQueryController {
      */
     @PostMapping("/explain")
     public ResponseEntity<String> explainSql(@RequestBody String sql) {
-        String explanation = nlQueryApplicationService.explainSql(sql);
+        String explanation = nlQueryFacadeService.explainSql(sql);
         return ResponseEntity.ok(explanation);
     }
 }

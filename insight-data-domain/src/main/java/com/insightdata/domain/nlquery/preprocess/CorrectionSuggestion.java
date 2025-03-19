@@ -55,6 +55,38 @@ public class CorrectionSuggestion {
      */
     private int endOffset;
 
+    public String getOriginalText() {
+        return originalText;
+    }
+
+    public String getSuggestedText() {
+        return suggestedText;
+    }
+
+    public CorrectionType getType() {
+        return type;
+    }
+
+    public CorrectionLevel getLevel() {
+        return level;
+    }
+
+    public String getReason() {
+        return reason;
+    }
+
+    public double getConfidence() {
+        return confidence;
+    }
+
+    public int getStartOffset() {
+        return startOffset;
+    }
+
+    public int getEndOffset() {
+        return endOffset;
+    }
+
     /**
      * 创建拼写纠正建议
      *

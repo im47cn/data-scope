@@ -1,5 +1,6 @@
 package com.insightdata.facade.nlquery;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -9,31 +10,31 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * 自然语言转SQL查询结果DTO
+ * SQL转换结果DTO
+ * 自然语言转SQL的结果对象
  */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class SqlConversionResult {
-    
     /**
-     * 转换后的SQL语句
+     * 生成的SQL语句
      */
     private String sql;
     
     /**
-     * SQL参数
+     * SQL参数映射
      */
     private Map<String, Object> parameters;
     
     /**
-     * 置信度，值范围0-1
+     * 转换置信度（0-1之间的值）
      */
     private Double confidence;
     
     /**
-     * SQL解释说明
+     * SQL的解释信息
      */
     private List<String> explanations;
     
@@ -48,22 +49,39 @@ public class SqlConversionResult {
     private boolean success;
     
     /**
-     * 错误信息
+     * 错误信息（如果转换失败）
      */
     private String errorMessage;
     
     /**
-     * 提取的实体
-     */
-    private List<EntityTag> extractedEntities;
-    
-    /**
-     * 查询意图
-     */
-    private QueryIntent queryIntent;
-    
-    /**
-     * 执行耗时（毫秒）
+     * 执行时间（毫秒）
      */
     private Long executionTime;
+    
+    /**
+     * 获取不可变的参数Map
+     * 
+     * @return 不可变Map视图，或null（如果原始值为null）
+     */
+    public Map<String, Object> getParameters() {
+        return parameters != null ? Collections.unmodifiableMap(parameters) : null;
+    }
+    
+    /**
+     * 获取不可变的解释列表
+     * 
+     * @return 不可变List视图，或null（如果原始值为null）
+     */
+    public List<String> getExplanations() {
+        return explanations != null ? Collections.unmodifiableList(explanations) : null;
+    }
+    
+    /**
+     * 获取不可变的备选SQL列表
+     * 
+     * @return 不可变List视图，或null（如果原始值为null）
+     */
+    public List<String> getAlternativeSqls() {
+        return alternativeSqls != null ? Collections.unmodifiableList(alternativeSqls) : null;
+    }
 }

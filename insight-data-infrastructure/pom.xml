@@ -91,7 +91,7 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <optional>true</optional>
+            <scope>provided</scope>
         </dependency>
 
         <!-- Test Dependencies -->
@@ -119,11 +119,6 @@
 
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-            </plugin>
-
             <!-- Flyway Maven Plugin -->
             <plugin>
                 <groupId>org.flywaydb</groupId>

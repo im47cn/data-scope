@@ -2,10 +2,10 @@ package com.insightdata.domain.adapter;
 
 import java.lang.reflect.Field;
 import java.util.Map;
-import java.util.logging.Logger;
 
 import com.insightdata.domain.metadata.enums.DataSourceType;
 import com.insightdata.domain.metadata.model.DataSource;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 数据源适配器帮助类
@@ -13,9 +13,8 @@ import com.insightdata.domain.metadata.model.DataSource;
  * 由于IDE可能无法正确识别Lombok生成的getter/setter方法，
  * 这个辅助类通过反射访问字段提供必要的访问方法。
  */
+@Slf4j
 public class DataSourceAdapterHelper {
-    
-    private static final Logger LOGGER = Logger.getLogger(DataSourceAdapterHelper.class.getName());
 
     /**
      * 获取数据源类型
@@ -107,7 +106,7 @@ public class DataSourceAdapterHelper {
             field.setAccessible(true);
             return field.get(obj);
         } catch (Exception e) {
-            LOGGER.warning("Failed to get field " + fieldName + " from " + obj.getClass().getName() + ": " + e.getMessage());
+            log.warn("Failed to get field " + fieldName + " from " + obj.getClass().getName() + ": " + e.getMessage());
             return null;
         }
     }

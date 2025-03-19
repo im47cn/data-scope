@@ -1,9 +1,9 @@
-package com.insightdata.application.service;
+package com.insightdata.application.service.impl;
 
 import com.insightdata.domain.query.model.SavedQuery;
 import com.insightdata.domain.repository.SavedQueryRepository;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,10 +14,10 @@ import java.util.UUID;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
 public class SavedQueryService {
 
-    private final SavedQueryRepository savedQueryRepository;
+    @Autowired
+    private SavedQueryRepository savedQueryRepository;
 
     /**
      * 创建查询模板
@@ -96,11 +96,31 @@ public class SavedQueryService {
      * 使用模板
      */
     @Transactional
-    public void recordTemplateUsage(String id, long executionTime) {
+    public void useTemplate(String id, long executionTime) {
         savedQueryRepository.updateUsageStats(id, executionTime);
         log.info("Updated template usage stats: {}", id);
     }
+    
+    /**
+     * 记录模板使用
+     */
+    @Transactional
+    public void recordTemplateUsage(String id, long executionTime) {
+        useTemplate(id, executionTime);
+    }
 
+    /**
+     * 检查用户是否有权限访问模板
+     */
+    public boolean hasAccess(String id, String userId) {
+        Optional<SavedQuery> template = savedQueryRepository.findById(id);
+        return template.filter(t -> 
+                (t.getIsShared() || t.getCreatedBy().equals(userId))).isPresent();
+    }
+    
+    /**
+     * 根据ID查找模板
+     */
     public Optional<SavedQuery> findTemplateById(String id, String userId) {
         Optional<SavedQuery> template = savedQueryRepository.findById(id);
         return template.filter(t -> 

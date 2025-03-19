@@ -1,7 +1,6 @@
 package com.insightdata.domain.adapter;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -11,19 +10,15 @@ import com.insightdata.domain.metadata.model.DataSource;
 /**
  * 数据源适配器工厂
  */
+@Slf4j
 @Component
 public class DataSourceAdapterFactory {
-    
-    private static final Logger LOGGER = LoggerFactory.getLogger(DataSourceAdapterFactory.class);
-    private final DB2DataSourceAdapter db2DataSourceAdapter;
-    private final MySQLDataSourceAdapter mysqlDataSourceAdapter;
-    
+
     @Autowired
-    public DataSourceAdapterFactory(DB2DataSourceAdapter db2DataSourceAdapter,
-            MySQLDataSourceAdapter mysqlDataSourceAdapter) {
-        this.db2DataSourceAdapter = db2DataSourceAdapter;
-        this.mysqlDataSourceAdapter = mysqlDataSourceAdapter;
-    }
+    private DB2DataSourceAdapter db2DataSourceAdapter;
+
+    @Autowired
+    private MySQLDataSourceAdapter mysqlDataSourceAdapter;
     
     /**
      * 获取数据源适配器
@@ -35,7 +30,7 @@ public class DataSourceAdapterFactory {
             throw new IllegalArgumentException("数据源类型不能为空");
         }
         
-        LOGGER.debug("Getting adapter for data source type: {}", type);
+        log.debug("Getting adapter for data source type: {}", type);
         
         switch (type) {
             case MYSQL:
