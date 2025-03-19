@@ -83,45 +83,14 @@ const routes = [
     },
     {
         path: '/dashboard',
-        component: () => ({
-            component: new Promise(resolve => {
-                import('./dashboard/dashboard-page.js').then(() => {
-                    resolve(Vue.component('dashboard-page'));
-                });
-            })
-        }),
-        children: [
-            {
-                path: 'create',
-                component: () => ({
-                    component: new Promise(resolve => {
-                        import('./dashboard/dashboard-editor.js').then(() => {
-                            resolve(Vue.component('dashboard-editor'));
-                        });
-                    })
-                })
-            },
-            {
-                path: 'edit/:id',
-                component: () => ({
-                    component: new Promise(resolve => {
-                        import('./dashboard/dashboard-editor.js').then(() => {
-                            resolve(Vue.component('dashboard-editor'));
-                        });
-                    })
-                })
-            },
-            {
-                path: 'view/:id',
-                component: () => ({
-                    component: new Promise(resolve => {
-                        import('./dashboard/dashboard-viewer.js').then(() => {
-                            resolve(Vue.component('dashboard-viewer'));
-                        });
-                    })
-                })
-            }
-        ]
+        component: {
+            template: `
+                <div class="dashboard-placeholder">
+                    <h2>仪表盘功能正在开发中</h2>
+                    <p>敬请期待！</p>
+                </div>
+            `
+        }
     }
 ];
 

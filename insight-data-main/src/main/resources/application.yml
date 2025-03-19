@@ -33,11 +33,13 @@ spring:
   
   # 缓存配置
   cache:
+    # 缓存类型: redis或simple
+    # 如果Redis服务器不可用，可以将此值改为simple
     type: redis
     redis:
       time-to-live: 3600000
       cache-null-values: false
-    # 允许在Redis不可用时使用内存缓存作为回退选项
+    # 预定义的缓存名称
     cache-names: metadata,query-result
   
   # Flyway配置
