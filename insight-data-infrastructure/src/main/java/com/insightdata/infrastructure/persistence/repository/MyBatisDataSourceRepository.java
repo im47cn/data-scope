@@ -8,26 +8,19 @@ import com.insightdata.domain.metadata.enums.DataSourceType;
 import com.insightdata.domain.metadata.model.DataSource;
 import com.insightdata.domain.repository.DataSourceRepository;
 import com.insightdata.infrastructure.persistence.mapper.DataSourceMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
-
-
 
 /**
  * 数据源仓储MyBatis实现类
  */
+@Slf4j
 @Repository
 public class MyBatisDataSourceRepository implements DataSourceRepository {
 
-    private static final Logger logger = LoggerFactory.getLogger(MyBatisDataSourceRepository.class);
-    private final DataSourceMapper dataSourceMapper;
-
     @Autowired
-    public MyBatisDataSourceRepository(DataSourceMapper dataSourceMapper) {
-        this.dataSourceMapper = dataSourceMapper;
-    }
+    private DataSourceMapper dataSourceMapper;
 
     @Override
     public DataSource save(DataSource dataSource) {
@@ -103,7 +96,7 @@ public class MyBatisDataSourceRepository implements DataSourceRepository {
             field.setAccessible(true);
             return (T) field.get(obj);
         } catch (Exception e) {
-            logger.error("反射获取字段值失败: " + fieldName, e);
+            log.error("反射获取字段值失败: " + fieldName, e);
             return null;
         }
     }

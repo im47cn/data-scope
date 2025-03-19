@@ -13,8 +13,7 @@ import com.insightdata.domain.nlquery.preprocess.PreprocessedText;
 import com.insightdata.domain.nlquery.preprocess.TextPreprocessor;
 import com.insightdata.domain.nlquery.sql.SqlGenerator;
 import com.insightdata.domain.service.DataSourceService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
@@ -22,10 +21,9 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @Component
 public class DefaultNLToSqlConverter implements NLToSqlConverter {
-
-    private static final Logger logger = LoggerFactory.getLogger(DefaultNLToSqlConverter.class);
 
     @Qualifier("metadataBasedEntityExtractor")
     @Autowired
@@ -46,7 +44,7 @@ public class DefaultNLToSqlConverter implements NLToSqlConverter {
     @Override
     public SqlConversionResult convert(NLQueryRequest request) {
         try {
-            logger.info("开始转换自然语言查询: {}", request.getQuery());
+            log.info("开始转换自然语言查询: {}", request.getQuery());
 
             // 1. 获取数据源
             DataSource dataSource = dataSourceService.getDataSourceById(request.getDataSourceId())
@@ -76,11 +74,11 @@ public class DefaultNLToSqlConverter implements NLToSqlConverter {
                 .success(true).build();
 
 
-            logger.info("SQL转换成功: {}", result.getSql());
+            log.info("SQL转换成功: {}", result.getSql());
             return result;
 
         } catch (Exception e) {
-            logger.error("SQL转换失败", e);
+            log.error("SQL转换失败", e);
 
             List<String> explanations = new ArrayList<>();
             explanations.add("转换失败原因: " + e.getMessage());

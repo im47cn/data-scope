@@ -1,75 +1,40 @@
 package com.insightdata.domain.nlquery.executor;
 
-import lombok.AllArgsConstructor;
+import java.util.Map;
+
 import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
-import java.util.List;
-
+/**
+ * 查询元数据
+ * 
+ * 包含查询的附加信息和配置
+ */
 @Data
 @Builder
-@NoArgsConstructor
-@AllArgsConstructor
 public class QueryMetadata {
+    /**
+     * 查询的超时时间（毫秒）
+     */
+    private long timeout;
     
     /**
-     * 列名列表
+     * 最大返回行数
      */
-    private List<String> columnLabels;
+    private int maxRows;
     
     /**
-     * 列类型列表
+     * 查询标签
      */
-    private List<String> columnTypes;
+    private String tag;
     
     /**
-     * 表名列表
+     * 查询的来源（例如：用户交互、定时任务等）
      */
-    private List<String> tableNames;
+    private String source;
     
     /**
-     * 是否是只读查询
+     * 查询的附加参数
      */
-    private boolean readOnly;
-    
-    /**
-     * 是否包含聚合函数
-     */
-    private boolean hasAggregation;
-    
-    /**
-     * 是否包含分组
-     */
-    private boolean hasGrouping;
-    
-    /**
-     * 是否包含排序
-     */
-    private boolean hasOrdering;
-    
-    /**
-     * 是否包含子查询
-     */
-    private boolean hasSubquery;
-    
-    /**
-     * 是否包含连接
-     */
-    private boolean hasJoin;
-    
-    /**
-     * 查询类型(SELECT/INSERT/UPDATE/DELETE等)
-     */
-    private String queryType;
-    
-    /**
-     * 预计影响行数
-     */
-    private Long estimatedRows;
-    
-    /**
-     * 执行计划
-     */
-    private String executionPlan;
+    private Map<String, Object> parameters;
 }

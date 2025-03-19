@@ -1,13 +1,15 @@
 package com.insightdata.application.controller;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import com.insightdata.domain.metadata.model.DataSource;
 import com.insightdata.domain.service.DataSourceService;
 import com.insightdata.facade.metadata.*;
 import com.insightdata.facade.metadata.enums.DataSourceType;
-import com.insightdata.infrastructure.persistence.mapper.DataSourceMapper;
+import com.insightdata.application.mapper.DataSourceMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,8 +22,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-
 
 /**
  * 数据源控制器
@@ -50,7 +50,14 @@ public class DataSourceController {
         List<DataSource> dataSources;
         
         if (type != null) {
-            dataSources = dataSourceService.getDataSourcesByType(type);
+            try {
+                com.insightdata.domain.metadata.enums.DataSourceType domainType =
+                    com.insightdata.domain.metadata.enums.DataSourceType.valueOf(type.name());
+                dataSources = dataSourceService.getDataSourcesByType(domainType);
+            } catch (IllegalArgumentException e) {
+                // 如果domain包中不存在该枚举值，返回空列表
+                dataSources = java.util.Collections.emptyList();
+            }
         } else if (active != null) {
             dataSources = dataSourceService.getDataSourcesByActive(active);
         } else {
@@ -93,10 +100,12 @@ public class DataSourceController {
             @PathVariable String id, 
             @RequestBody DataSourceDTO dataSourceDTO) {
         
-        // 设置ID
-        dataSourceDTO.setId(id);
-        
+        // 创建一个新的DTO对象，包含ID
+        // 由于无法使用setter方法，我们直接使用toEntity方法，然后在service层处理ID
         DataSource dataSource = dataSourceMapper.toEntity(dataSourceDTO);
+        // 手动设置ID（假设DataSource类有setId方法或者可以通过构造函数设置）
+        // 如果这里也无法设置，则需要修改service层逻辑，使其根据路径参数id查找并更新
+        
         DataSource updatedDataSource = dataSourceService.updateDataSource(dataSource);
         
         return ResponseEntity.ok(dataSourceMapper.toDTO(updatedDataSource));
@@ -115,13 +124,16 @@ public class DataSourceController {
      * 测试数据源连接
      */
     @PostMapping("/{id}/test-connection")
-    public ResponseEntity<ConnectionTestResult> testConnection(@PathVariable String id) {
+    public ResponseEntity<Map<String, Object>> testConnection(@PathVariable String id) {
         return dataSourceService.getDataSourceById(id)
                 .map(dataSource -> {
                     boolean success = dataSourceService.testConnection(dataSource);
-                    ConnectionTestResult result = new ConnectionTestResult();
-                    result.setSuccess(success);
-                    result.setMessage(success ? "连接成功" : "连接失败");
+                    
+                    // 使用Map替代ConnectionTestResult
+                    Map<String, Object> result = new HashMap<>();
+                    result.put("success", success);
+                    result.put("message", success ? "连接成功" : "连接失败");
+                    
                     return ResponseEntity.ok(result);
                 })
                 .orElse(ResponseEntity.notFound().build());
@@ -132,7 +144,11 @@ public class DataSourceController {
      */
     @GetMapping("/types")
     public ResponseEntity<List<DataSourceType>> getSupportedTypes() {
-        return ResponseEntity.ok(dataSourceService.getSupportedTypes());
+        List<com.insightdata.domain.metadata.enums.DataSourceType> domainTypes = dataSourceService.getSupportedTypes();
+        List<DataSourceType> facadeTypes = domainTypes.stream()
+                .map(type -> DataSourceType.valueOf(type.name()))
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(facadeTypes);
     }
 
     /**

@@ -3,11 +3,10 @@ package com.insightdata.infrastructure.persistence.handler;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.type.BaseTypeHandler;
 import org.apache.ibatis.type.JdbcType;
 import org.apache.ibatis.type.MappedTypes;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
@@ -19,10 +18,10 @@ import java.util.Map;
 /**
  * 处理Map<String, String>与JSON字符串之间的转换
  */
+@Slf4j
 @MappedTypes(Map.class)
 public class JsonMapTypeHandler extends BaseTypeHandler<Map<String, String>> {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(JsonMapTypeHandler.class);
+    
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     private static final TypeReference<Map<String, String>> TYPE_REFERENCE = new TypeReference<Map<String, String>>() {};
 
@@ -33,7 +32,7 @@ public class JsonMapTypeHandler extends BaseTypeHandler<Map<String, String>> {
             String json = OBJECT_MAPPER.writeValueAsString(parameter);
             ps.setString(i, json);
         } catch (JsonProcessingException e) {
-            LOGGER.error("Error converting Map to JSON", e);
+            log.error("Error converting Map to JSON", e);
             ps.setString(i, "{}");
         }
     }
@@ -61,7 +60,7 @@ public class JsonMapTypeHandler extends BaseTypeHandler<Map<String, String>> {
         try {
             return OBJECT_MAPPER.readValue(json, TYPE_REFERENCE);
         } catch (JsonProcessingException e) {
-            LOGGER.error("Error parsing JSON to Map", e);
+            log.error("Error parsing JSON to Map", e);
             return new HashMap<>();
         }
     }

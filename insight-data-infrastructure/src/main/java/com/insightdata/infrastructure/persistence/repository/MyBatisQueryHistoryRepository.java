@@ -33,37 +33,7 @@ public class MyBatisQueryHistoryRepository implements QueryHistoryRepository {
     }
 
     @Override
-    public List<QueryHistory> findByDataSourceId(String dataSourceId) {
-        return queryHistoryMapper.selectByDataSourceId(dataSourceId);
-    }
-
-    @Override
     public List<QueryHistory> findByDataSourceIdOrderByCreatedAtDesc(String dataSourceId) {
         return queryHistoryMapper.selectByDataSourceIdOrderByCreatedAtDesc(dataSourceId);
-    }
-
-    @Override
-    public void deleteById(String id) {
-        queryHistoryMapper.deleteById(id);
-    }
-
-    @Override
-    public void deleteByDataSourceId(String dataSourceId) {
-        queryHistoryMapper.deleteByDataSourceId(dataSourceId);
-    }
-
-    @Override
-    public List<QueryHistory> findByDataSourceIdAndTimeRange(String dataSourceId, String startTime, String endTime) {
-        return queryHistoryMapper.selectByDataSourceIdAndTimeRange(dataSourceId, startTime, endTime);
-    }
-
-    @Override
-    public List<QueryHistory> findByDataSourceIdAndSqlPattern(String dataSourceId, String sqlPattern) {
-        return queryHistoryMapper.selectByDataSourceIdAndSqlPattern(dataSourceId, sqlPattern);
-    }
-
-    @Override
-    public List<QueryHistory> findByDataSourceIdAndSuccess(String dataSourceId, Boolean success) {
-        return queryHistoryMapper.selectByDataSourceIdAndSuccess(dataSourceId, success);
     }
 }

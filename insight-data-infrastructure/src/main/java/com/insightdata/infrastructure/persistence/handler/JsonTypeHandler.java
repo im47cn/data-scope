@@ -7,11 +7,10 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.type.BaseTypeHandler;
 import org.apache.ibatis.type.JdbcType;
 import org.apache.ibatis.type.MappedTypes;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -20,10 +19,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 /**
  * JSON类型处理器，用于处理数据库JSON类型与Java Map类型的转换
  */
+@Slf4j
 @MappedTypes(Map.class)
 public class JsonTypeHandler extends BaseTypeHandler<Map<String, String>> {
 
-    private static final Logger logger = LoggerFactory.getLogger(JsonTypeHandler.class);
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     private static final TypeReference<Map<String, String>> TYPE_REFERENCE = 
             new TypeReference<Map<String, String>>() {};
@@ -35,7 +34,7 @@ public class JsonTypeHandler extends BaseTypeHandler<Map<String, String>> {
             String json = OBJECT_MAPPER.writeValueAsString(parameter);
             ps.setString(i, json);
         } catch (JsonProcessingException e) {
-            logger.error("将Map转换为JSON字符串时发生错误", e);
+            log.error("将Map转换为JSON字符串时发生错误", e);
             throw new SQLException("将Map转换为JSON字符串时发生错误", e);
         }
     }
@@ -63,7 +62,7 @@ public class JsonTypeHandler extends BaseTypeHandler<Map<String, String>> {
         try {
             return OBJECT_MAPPER.readValue(json, TYPE_REFERENCE);
         } catch (JsonProcessingException e) {
-            logger.error("解析JSON字符串为Map时发生错误: {}", json, e);
+            log.error("解析JSON字符串为Map时发生错误: {}", json, e);
             return new HashMap<>();
         }
     }

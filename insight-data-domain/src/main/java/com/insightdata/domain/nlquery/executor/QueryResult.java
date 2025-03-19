@@ -1,81 +1,61 @@
 package com.insightdata.domain.nlquery.executor;
 
-import lombok.Builder;
-import lombok.Data;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import lombok.Builder;
+import lombok.Data;
+
+/**
+ * 查询结果
+ * 
+ * 封装了SQL查询执行结果的数据结构
+ */
 @Data
 @Builder
 public class QueryResult {
-
     /**
-     * 列名列表
-     */
-    @Builder.Default
-    private List<String> columnLabels = new ArrayList<>();
-
-    /**
-     * 列类型列表
-     */
-    @Builder.Default
-    private List<String> columnTypes = new ArrayList<>();
-
-    /**
-     * 查询结果数据
-     */
-    @Builder.Default
-    private List<Map<String, Object>> rows = new ArrayList<>();
-
-    /**
-     * 总行数
-     */
-    private Long totalRows;
-
-    /**
-     * 执行时长(毫秒)
-     */
-    private Long duration;
-
-    /**
-     * 是否成功
+     * 查询是否成功执行
      */
     private boolean success;
-
+    
     /**
-     * 错误信息
+     * 错误信息（如果查询失败）
      */
     private String errorMessage;
-
+    
     /**
-     * 查询元数据
+     * 查询执行持续时间（毫秒）
      */
-    private QueryMetadata metadata;
-
+    private long duration;
+    
     /**
-     *
+     * 影响的行数
      */
     private int affectedRows;
-
+    
     /**
-     * 是否有更多数据
+     * 总行数（用于分页）
      */
-    private boolean hasMore;
-
+    private int totalRows;
+    
     /**
-     * 下一页标记
+     * 列标签数组
      */
-    private String nextPageToken;
-
+    private List<String> columnLabels;
+    
     /**
-     * 是否来自缓存
+     * 列数据类型数组
      */
-    private boolean fromCache;
-
+    private List<String> columnTypes;
+    
     /**
-     * 缓存过期时间
+     * 结果行数据，每行表示为一个Map
      */
-    private Long cacheExpireTime;
+    private List<Map<String, Object>> rows;
+    
+    /**
+     * 查询ID，用于跟踪和取消查询
+     */
+    private String queryId;
 }

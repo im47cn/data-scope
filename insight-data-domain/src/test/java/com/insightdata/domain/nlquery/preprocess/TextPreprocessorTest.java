@@ -77,7 +77,7 @@ public class TextPreprocessorTest {
         context.setSessionId("test-session");
         context.setDomain("user");
         
-        PreprocessedText result = preprocessor.preprocess(text, context);
+        PreprocessedText result = preprocessor.preprocess(text);
         
         System.out.println("原始文本: " + result.getOriginalText());
         System.out.println("标准化文本: " + result.getNormalizedText());

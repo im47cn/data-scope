@@ -1,38 +1,36 @@
 package com.insightdata.domain.adapter;
 
-import com.insightdata.domain.metadata.enums.DataSourceType;
-import com.insightdata.domain.metadata.model.DataSource;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import com.insightdata.domain.metadata.enums.DataSourceType;
+import com.insightdata.domain.metadata.model.DataSource;
 
 /**
  * 数据源适配器工厂
  */
+@Slf4j
 @Component
 public class DataSourceAdapterFactory {
-    
-    private static final Logger LOGGER = LoggerFactory.getLogger(DataSourceAdapterFactory.class);
-    private final DB2DataSourceAdapter db2DataSourceAdapter;
-    private final MySQLDataSourceAdapter mysqlDataSourceAdapter;
-    
+
     @Autowired
-    public DataSourceAdapterFactory(DB2DataSourceAdapter db2DataSourceAdapter, 
-            MySQLDataSourceAdapter mysqlDataSourceAdapter) {
-        this.db2DataSourceAdapter = db2DataSourceAdapter;
-        this.mysqlDataSourceAdapter = mysqlDataSourceAdapter;
-    }
+    private DB2DataSourceAdapter db2DataSourceAdapter;
+
+    @Autowired
+    private MySQLDataSourceAdapter mysqlDataSourceAdapter;
     
     /**
      * 获取数据源适配器
+     * @param type 数据源类型
+     * @return 基本数据源适配器
      */
     public DataSourceAdapter getAdapter(DataSourceType type) {
         if (type == null) {
             throw new IllegalArgumentException("数据源类型不能为空");
         }
         
-        LOGGER.debug("Getting adapter for data source type: {}", type);
+        log.debug("Getting adapter for data source type: {}", type);
         
         switch (type) {
             case MYSQL:
@@ -52,12 +50,39 @@ public class DataSourceAdapterFactory {
     
     /**
      * 获取数据源适配器
+     * @param dataSource 数据源
+     * @return 基本数据源适配器
      */
     public DataSourceAdapter getAdapter(DataSource dataSource) {
         if (dataSource == null) {
             throw new IllegalArgumentException("数据源不能为空");
         }
-        return getAdapter(dataSource.getType());
+        return getAdapter(DataSourceAdapterHelper.getType(dataSource));
+    }
+    
+    /**
+     * 获取增强型数据源适配器
+     * @param type 数据源类型
+     * @return 增强型数据源适配器
+     */
+    public EnhancedDataSourceAdapter getEnhancedAdapter(DataSourceType type) {
+        DataSourceAdapter adapter = getAdapter(type);
+        if (adapter instanceof EnhancedDataSourceAdapter) {
+            return (EnhancedDataSourceAdapter) adapter;
+        }
+        throw new UnsupportedOperationException("不支持的增强型数据源适配器: " + type);
+    }
+    
+    /**
+     * 获取增强型数据源适配器
+     * @param dataSource 数据源
+     * @return 增强型数据源适配器
+     */
+    public EnhancedDataSourceAdapter getEnhancedAdapter(DataSource dataSource) {
+        if (dataSource == null) {
+            throw new IllegalArgumentException("数据源不能为空");
+        }
+        return getEnhancedAdapter(DataSourceAdapterHelper.getType(dataSource));
     }
     
     /**

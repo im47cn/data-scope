@@ -1,7 +1,7 @@
 package com.insightdata.application.controller;
 
 import com.insightdata.application.mapper.SavedQueryMapper;
-import com.insightdata.application.service.SavedQueryService;
+import com.insightdata.application.service.impl.SavedQueryService;
 import com.insightdata.domain.query.model.SavedQuery;
 import com.insightdata.facade.query.SavedQueryDTO;
 import com.insightdata.facade.query.UpdateSavedQueryDTO;

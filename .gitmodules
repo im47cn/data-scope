@@ -1,0 +1,3 @@
+[submodule "docs/specifications"]
+	path = docs/specifications
+	url = git@github.com:im47cn/roo-specifications.git

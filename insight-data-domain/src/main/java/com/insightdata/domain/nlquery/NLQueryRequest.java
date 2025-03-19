@@ -1,6 +1,7 @@
 package com.insightdata.domain.nlquery;
 
 import lombok.Builder;
+import lombok.Builder;
 import lombok.Data;
 
 import java.util.HashMap;
@@ -14,6 +15,8 @@ public class NLQueryRequest {
     private String dataSourceId;
     private Map<String, Object> parameters;
     private List<String> tags; // Assuming tags are relevant here.
+    @Builder.Default
+    private String contextId = "";
 
    public String getQuery(){
        return this.query;
@@ -39,7 +42,7 @@ public class NLQueryRequest {
     }
 
     public String getContextId(){
-        return "";
+        return this.contextId;
     }
 
     public Boolean getIncludeSqlExplanation(){
