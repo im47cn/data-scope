@@ -31,7 +31,7 @@
         SELECT * FROM tbl_saved_query WHERE data_source_id = #{dataSourceId}
     </select>
 
-    <insert id="insert" parameterType="com.insightdata.domain.model.SavedQuery">
+    <insert id="insert" parameterType="com.insightdata.infrastructure.persistence.entity.SavedQueryEntity">
         INSERT INTO tbl_saved_query (
             id, data_source_id, name, description, sql, parameters,
             default_values, tags, is_public, created_by, created_at,
@@ -46,7 +46,7 @@
         )
     </insert>
 
-    <update id="update" parameterType="com.insightdata.domain.model.SavedQuery">
+    <update id="update" parameterType="com.insightdata.infrastructure.persistence.entity.SavedQueryEntity">
         UPDATE saved_query
         SET data_source_id = #{dataSourceId},
             name = #{name},
