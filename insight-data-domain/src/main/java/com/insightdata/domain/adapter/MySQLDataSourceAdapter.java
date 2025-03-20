@@ -1,17 +1,19 @@
 package com.insightdata.domain.adapter;
 
-import com.insightdata.domain.adapter.DataSourceAdapter;
-import com.insightdata.domain.metadata.model.ColumnInfo;
-import com.insightdata.domain.metadata.model.DataSource;
-import com.insightdata.domain.metadata.model.SchemaInfo;
-import com.insightdata.domain.metadata.model.TableInfo;
-
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.springframework.stereotype.Component;
+
+import com.insightdata.domain.metadata.model.ColumnInfo;
+import com.insightdata.domain.metadata.model.DataSource;
+import com.insightdata.domain.metadata.model.TableInfo;
 
 @Component
 public class MySQLDataSourceAdapter implements DataSourceAdapter {
@@ -20,7 +22,7 @@ public class MySQLDataSourceAdapter implements DataSourceAdapter {
 
     @Override
     public void connect(DataSource config) throws Exception {
-        String url = "jdbc:mysql://" + config.getHost() + ":" + config.getPort() + "/" + config.getDatabaseName();
+        String url = "jdbc:mysql://" + config.getHost() + ":" + config.getPort() + "/" + config.getDatabaseName() + "?useSSL=false&serverTimezone=UTC";
         this.connection = DriverManager.getConnection(url, config.getUsername(), config.getPassword());
     }
 
@@ -56,17 +58,52 @@ public class MySQLDataSourceAdapter implements DataSourceAdapter {
 
     @Override
     public List<String> getSchemas(String catalog) throws Exception {
-        throw new UnsupportedOperationException("getSchemas() is not yet implemented for MySQL.");
+        List<String> schemas = new java.util.ArrayList<>();
+        try (Connection conn = this.connection;
+             PreparedStatement stmt = conn.prepareStatement("SELECT schema_name FROM information_schema.SCHEMATA WHERE schema_name NOT IN ('mysql', 'information_schema', 'performance_schema', 'sys')");
+             ResultSet rs = stmt.executeQuery()) {
+            while (rs.next()) {
+                schemas.add(rs.getString("schema_name"));
+            }
+        }
+        return schemas;
     }
 
     @Override
     public List<TableInfo> getTables(String catalog, String schema) throws Exception {
-        throw new UnsupportedOperationException("getTables() is not yet implemented for MySQL.");
+        List<TableInfo> tables = new java.util.ArrayList<>();
+        try (Connection conn = this.connection;
+             PreparedStatement stmt = conn.prepareStatement("SELECT table_name FROM information_schema.TABLES WHERE table_schema = ?")) {
+            stmt.setString(1, schema);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    TableInfo tableInfo = new TableInfo();
+                    tableInfo.setName(rs.getString("table_name"));
+                    tables.add(tableInfo);
+                }
+            }
+        }
+        return tables;
     }
 
     @Override
     public List<ColumnInfo> getColumns(String catalog, String schema, String table) throws Exception {
-        throw new UnsupportedOperationException("getColumns() is not yet implemented for MySQL.");
+        List<ColumnInfo> columns = new java.util.ArrayList<>();
+        try (Connection conn = this.connection;
+             PreparedStatement stmt = conn.prepareStatement("SELECT column_name, data_type FROM information_schema.COLUMNS WHERE table_schema = ? AND table_name = ?")) {
+            stmt.setString(1, schema);
+            stmt.setString(2, table);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    ColumnInfo columnInfo = ColumnInfo.builder()
+                            .name(rs.getString("column_name"))
+                            .dataType(rs.getString("data_type"))
+                            .build();
+                    columns.add(columnInfo);
+                }
+            }
+        }
+        return columns;
     }
 
     @Override
@@ -88,7 +125,7 @@ public class MySQLDataSourceAdapter implements DataSourceAdapter {
             }
         } catch (SQLException e) {
             // 修复错误的日志信息
-            throw new Exception("Failed to get table sizes for MySQL database", e);
+            throw new DataSourceException("Failed to get table sizes for MySQL database", e);
         }
         return tableSizes;
     }

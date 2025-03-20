@@ -1,8 +1,9 @@
 package com.insightdata.domain.metadata.service.impl;
 
-import com.insightdata.domain.metadata.service.CredentialEncryptionService;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
+import java.nio.charset.StandardCharsets;
+import java.security.SecureRandom;
+import java.security.spec.KeySpec;
+import java.util.Base64;
 
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
@@ -10,10 +11,11 @@ import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
-import java.nio.charset.StandardCharsets;
-import java.security.SecureRandom;
-import java.security.spec.KeySpec;
-import java.util.Base64;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+import com.insightdata.domain.metadata.service.CredentialEncryptionService;
 
 /**
  * AES加密实现的凭证加密服务
@@ -28,6 +30,8 @@ public class AESCredentialEncryptionService implements CredentialEncryptionServi
     private static final int IV_LENGTH = 16;
     
     @Value("${insight.security.encryption.secret-key:your-secret-key-here}")
+    // TODO: 实际应用中应该使用更安全的密钥存储方式（如数据库或KMS），并实现密钥轮换机制
+
     private String secretKey;
     
     @Override

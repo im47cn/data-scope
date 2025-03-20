@@ -1,17 +1,24 @@
 package com.insightdata.security.impl;
 
+import java.security.NoSuchAlgorithmException;
+import java.time.LocalDateTime;
+import java.util.Base64;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
+
+import org.springframework.stereotype.Service;
+
 import com.insightdata.security.KeyInfo;
 import com.insightdata.security.KeyManagementException;
 import com.insightdata.security.KeyManagementService;
 import com.insightdata.security.KeyStatus;
-import org.springframework.stereotype.Service;
-
-import javax.crypto.KeyGenerator;
-import javax.crypto.SecretKey;
-import java.security.NoSuchAlgorithmException;
-import java.time.LocalDateTime;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 默认密钥管理服务实现
@@ -22,6 +29,8 @@ public class DefaultKeyManagementService implements KeyManagementService {
     private static final String KEY_ALGORITHM = "AES";
     private static final int KEY_SIZE = 256;
     
+    // TODO: 实际应用中应该使用数据库或KMS存储，而不是内存
+
     // 内存中存储密钥，实际应用中应该使用数据库或KMS存储
     private final Map<String, KeyInfo> keyStore;
     private final Map<String, String> currentKeys;
