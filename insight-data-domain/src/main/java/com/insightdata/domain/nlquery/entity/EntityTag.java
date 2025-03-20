@@ -6,7 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * Entity tag class that represents an identified entity in text
+ * Entity tag for text preprocessing
  */
 @Data
 @Builder
@@ -25,12 +25,12 @@ public class EntityTag {
     private String value;
 
     /**
-     * Start offset in text
+     * Start offset in original text
      */
     private int startOffset;
 
     /**
-     * End offset in text
+     * End offset in original text
      */
     private int endOffset;
 
@@ -40,44 +40,50 @@ public class EntityTag {
     private double confidence;
 
     /**
-     * Entity source
+     * Create a new entity tag
      */
-    private EntitySource source;
-
-    /**
-     * Additional metadata
-     */
-    private String metadata;
-
-    /**
-     * Entity type enum
-     */
-    public enum EntityType {
-        TABLE,          // 表名
-        COLUMN,         // 列名
-        VALUE,          // 值
-        FUNCTION,       // 函数
-        OPERATOR,       // 运算符
-        CONDITION,      // 条件
-        ORDER,          // 排序
-        LIMIT,          // 限制
-        GROUP,          // 分组
-        DATETIME,       // 日期时间
-        NUMBER,         // 数字
-        STRING,         // 字符串
-        BOOLEAN,        // 布尔值
-        UNKNOWN         // 未知类型
+    public static EntityTag of(EntityType type, String value) {
+        return EntityTag.builder()
+                .type(type)
+                .value(value)
+                .confidence(1.0)
+                .build();
     }
 
     /**
-     * Entity source enum
+     * Create a new entity tag with confidence
      */
-    public enum EntitySource {
-        METADATA,           // 元数据
-        RULE,              // 规则
-        DICTIONARY,        // 字典
-        MACHINE_LEARNING,  // 机器学习
-        USER_FEEDBACK,     // 用户反馈
-        UNKNOWN           // 未知来源
+    public static EntityTag of(EntityType type, String value, double confidence) {
+        return EntityTag.builder()
+                .type(type)
+                .value(value)
+                .confidence(confidence)
+                .build();
+    }
+
+    /**
+     * Create a new entity tag with offsets
+     */
+    public static EntityTag of(EntityType type, String value, int startOffset, int endOffset) {
+        return EntityTag.builder()
+                .type(type)
+                .value(value)
+                .startOffset(startOffset)
+                .endOffset(endOffset)
+                .confidence(1.0)
+                .build();
+    }
+
+    /**
+     * Create a new entity tag with all fields
+     */
+    public static EntityTag of(EntityType type, String value, int startOffset, int endOffset, double confidence) {
+        return EntityTag.builder()
+                .type(type)
+                .value(value)
+                .startOffset(startOffset)
+                .endOffset(endOffset)
+                .confidence(confidence)
+                .build();
     }
 }

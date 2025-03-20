@@ -6,107 +6,111 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * 词法特征
+ * Lexical features of a token
+ */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class TokenFeature {
+public class LexicalFeature {
 
     /**
-     * 词元特征
+     * Part of speech tag
      */
-    private LexicalFeature lexical;
+    private String posTag;
 
     /**
-     * 语法特征
+     * Detailed part of speech tag
      */
-    private GrammaticalFeature grammatical;
+    private String detailedPosTag;
 
     /**
-     * 语义特征
+     * Lemma (base/dictionary form)
      */
-    private SemanticFeature semantic;
+    private String lemma;
 
     /**
-     * 词元特征
+     * Stem (root form)
      */
-    @Data
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class LexicalFeature {
-        /**
-         * 词元
-         */
-        private String lemma;
-
-        /**
-         * 词性
-         */
-        private String pos;
-
-        /**
-         * 词根
-         */
-        private String stem;
-
-        /**
-         * 是否停用词
-         */
-        private Boolean isStopWord;
-    }
+    private String stem;
 
     /**
-     * 语法特征
+     * Original token text
      */
-    @Data
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class GrammaticalFeature {
-        /**
-         * 依存关系
-         */
-        private String dependency;
-
-        /**
-         * 句法成分
-         */
-        private String syntacticComponent;
-
-        /**
-         * 语法功能
-         */
-        private String grammaticalFunction;
-    }
+    private String text;
 
     /**
-     * 语义特征
+     * Normalized form
      */
-    @Data
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class SemanticFeature {
-        /**
-         * 实体类型
-         */
-        private String entityType;
+    private String normalizedForm;
 
-        /**
-         * 语义角色
-         */
-        private String semanticRole;
+    /**
+     * Character length
+     */
+    private Integer length;
 
-        /**
-         * 语义类别
-         */
-        private String semanticCategory;
+    /**
+     * Is punctuation
+     */
+    private Boolean isPunctuation;
 
-        /**
-         * 语义关系
-         */
-        private String semanticRelation;
-    }
+    /**
+     * Is stop word
+     */
+    private Boolean isStopWord;
+
+    /**
+     * Is digit
+     */
+    private Boolean isDigit;
+
+    /**
+     * Is alphabetic
+     */
+    private Boolean isAlphabetic;
+
+    /**
+     * Is title case
+     */
+    private Boolean isTitleCase;
+
+    /**
+     * Is upper case
+     */
+    private Boolean isUpperCase;
+
+    /**
+     * Is lower case
+     */
+    private Boolean isLowerCase;
+
+    /**
+     * Contains digits
+     */
+    private Boolean containsDigits;
+
+    /**
+     * Contains punctuation
+     */
+    private Boolean containsPunctuation;
+
+    /**
+     * Contains special characters
+     */
+    private Boolean containsSpecialChars;
+
+    /**
+     * Word shape (e.g., Xxxxx, XXX, 999)
+     */
+    private String wordShape;
+
+    /**
+     * Prefix (first n characters)
+     */
+    private String prefix;
+
+    /**
+     * Suffix (last n characters)
+     */
+    private String suffix;
 }

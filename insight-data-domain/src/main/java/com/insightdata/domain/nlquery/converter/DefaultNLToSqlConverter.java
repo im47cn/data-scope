@@ -1,7 +1,15 @@
 package com.insightdata.domain.nlquery.converter;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Component;
+
 import com.insightdata.domain.metadata.model.DataSource;
 import com.insightdata.domain.metadata.model.SchemaInfo;
+import com.insightdata.domain.metadata.service.DataSourceService;
 import com.insightdata.domain.nlquery.NLQueryRequest;
 import com.insightdata.domain.nlquery.entity.EntityExtractionContext;
 import com.insightdata.domain.nlquery.entity.EntityExtractor;
@@ -12,16 +20,12 @@ import com.insightdata.domain.nlquery.intent.QueryIntent;
 import com.insightdata.domain.nlquery.preprocess.PreprocessedText;
 import com.insightdata.domain.nlquery.preprocess.TextPreprocessor;
 import com.insightdata.domain.nlquery.sql.SqlGenerator;
-import com.insightdata.domain.metadata.service.DataSourceService;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.List;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
+@RequiredArgsConstructor
 @Component
 public class DefaultNLToSqlConverter implements NLToSqlConverter {
 

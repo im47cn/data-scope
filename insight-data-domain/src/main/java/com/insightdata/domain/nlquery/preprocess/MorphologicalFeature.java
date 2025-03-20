@@ -6,119 +6,190 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * 分词特征
+ * Morphological features for text preprocessing
  */
 @Data
 @Builder
-     * 词性
-     */
-    private String pos;
+@NoArgsConstructor
+@AllArgsConstructor
+public class MorphologicalFeature {
 
     /**
-     * 词形
+     * Word root
      */
-    private String lemma;
+    private String root;
 
     /**
-     * 词根
+     * Word prefix
      */
-    private String stem;
+    private String prefix;
 
     /**
-     * 词频
+     * Word suffix
      */
-    private int frequency;
+    private String suffix;
 
     /**
-     * 词长
+     * Word tense
      */
-    private int length;
+    private Tense tense;
 
     /**
-     * 词的位置
+     * Word number
      */
-    private int position;
+    private Number number;
 
     /**
-     * 词的语义类型
+     * Word gender
      */
-    private String semanticType;
+    private Gender gender;
 
     /**
-     * 词的依存关系
+     * Word case
      */
-    private String dependency;
+    private Case wordCase;
 
     /**
-     * 词的情感倾向
+     * Word person
      */
-    private double sentiment;
+    private Person person;
 
     /**
-     * 词的语言
+     * Word mood
      */
-    private String language;
+    private Mood mood;
 
     /**
-     * 词的词形变化
+     * Word voice
      */
-    private MorphologicalFeature morphological;
+    private Voice voice;
 
     /**
-     * 词的词法特征
+     * Word aspect
      */
-    private LexicalFeature lexical;
+    private Aspect aspect;
 
     /**
-     * 词的语义特征
+     * Tense enum
      */
-    private SemanticFeature semantic;
-
-    /**
-     * 词形变化特征
-     */
-    @Data
-    @Builder
-    public static class MorphologicalFeature {
-        private String number;
-        private String gender;
-        private String tense;
-        private String aspect;
-        private String mood;
-        private String voice;
-        private String person;
-        private String case_;
+    public enum Tense {
+        PRESENT,
+        PAST,
+        FUTURE,
+        PRESENT_PERFECT,
+        PAST_PERFECT,
+        FUTURE_PERFECT,
+        UNSPECIFIED
     }
 
     /**
-     * 词法特征
+     * Number enum
      */
-    @Data
-    @Builder
-    public static class LexicalFeature {
-        private boolean isStopWord;
-        private boolean isPunctuation;
-        private boolean isDigit;
-        private boolean isAlpha;
-        private boolean isAlphaNumeric;
-        private boolean isTitle;
-        private boolean isUpper;
-        private boolean isLower;
-        private boolean isSpace;
+    public enum Number {
+        SINGULAR,
+        PLURAL,
+        UNSPECIFIED
     }
 
     /**
-     * 语义特征
+     * Gender enum
      */
-    @Data
-    @Builder
-    public static class SemanticFeature {
-        private String wordNet;
-        private String hypernym;
-        private String hyponym;
-        private String synonym;
-        private String antonym;
-        private String meronym;
-        private String holonym;
+    public enum Gender {
+        MASCULINE,
+        FEMININE,
+        NEUTER,
+        UNSPECIFIED
+    }
+
+    /**
+     * Case enum
+     */
+    public enum Case {
+        NOMINATIVE,
+        ACCUSATIVE,
+        DATIVE,
+        GENITIVE,
+        UNSPECIFIED
+    }
+
+    /**
+     * Person enum
+     */
+    public enum Person {
+        FIRST,
+        SECOND,
+        THIRD,
+        UNSPECIFIED
+    }
+
+    /**
+     * Mood enum
+     */
+    public enum Mood {
+        INDICATIVE,
+        SUBJUNCTIVE,
+        IMPERATIVE,
+        UNSPECIFIED
+    }
+
+    /**
+     * Voice enum
+     */
+    public enum Voice {
+        ACTIVE,
+        PASSIVE,
+        MIDDLE,
+        UNSPECIFIED
+    }
+
+    /**
+     * Aspect enum
+     */
+    public enum Aspect {
+        PERFECTIVE,
+        IMPERFECTIVE,
+        PROGRESSIVE,
+        UNSPECIFIED
+    }
+
+    /**
+     * Create a new morphological feature
+     */
+    public static MorphologicalFeature of(String root) {
+        return MorphologicalFeature.builder()
+                .root(root)
+                .build();
+    }
+
+    /**
+     * Create a new morphological feature with prefix and suffix
+     */
+    public static MorphologicalFeature of(String root, String prefix, String suffix) {
+        return MorphologicalFeature.builder()
+                .root(root)
+                .prefix(prefix)
+                .suffix(suffix)
+                .build();
+    }
+
+    /**
+     * Create a new morphological feature with all fields
+     */
+    public static MorphologicalFeature of(String root, String prefix, String suffix,
+            Tense tense, Number number, Gender gender, Case wordCase,
+            Person person, Mood mood, Voice voice, Aspect aspect) {
+        return MorphologicalFeature.builder()
+                .root(root)
+                .prefix(prefix)
+                .suffix(suffix)
+                .tense(tense)
+                .number(number)
+                .gender(gender)
+                .wordCase(wordCase)
+                .person(person)
+                .mood(mood)
+                .voice(voice)
+                .aspect(aspect)
+                .build();
     }
 }

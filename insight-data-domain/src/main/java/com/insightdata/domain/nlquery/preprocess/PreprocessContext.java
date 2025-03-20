@@ -1,78 +1,83 @@
 package com.insightdata.domain.nlquery.preprocess;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import com.insightdata.domain.metadata.model.SchemaInfo;
 
 /**
- * 预处理上下文
+ * Context for text preprocessing
  */
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class PreprocessContext {
 
     /**
-     * 数据源ID
+     * Data source ID
      */
     private Long dataSourceId;
 
     /**
-     * 用户ID
+     * User ID
      */
     private Long userId;
 
     /**
-     * 会话ID
+     * Session ID
      */
     private String sessionId;
 
     /**
-     * 领域
+     * Domain
      */
     private String domain;
 
     /**
-     * 语言
+     * Schema metadata
+     */
+    private SchemaInfo metadata;
+
+    /**
+     * Language
      */
     private String language;
 
     /**
-     * 时区
+     * Enable spelling correction
      */
-    private String timezone;
+    private boolean enableSpellingCorrection;
 
     /**
-     * 创建一个基本的预处理上下文
+     * Enable stop word removal
      */
-    public static PreprocessContext basic(Long dataSourceId, Long userId) {
-        return PreprocessContext.builder()
-                .dataSourceId(dataSourceId)
-                .userId(userId)
-                .build();
-    }
+    private boolean enableStopWordRemoval;
 
     /**
-     * 创建一个带会话信息的预处理上下文
+     * Enable lemmatization
      */
-    public static PreprocessContext withSession(Long dataSourceId, Long userId, String sessionId) {
-        return PreprocessContext.builder()
-                .dataSourceId(dataSourceId)
-                .userId(userId)
-                .sessionId(sessionId)
-                .build();
-    }
+    private boolean enableLemmatization;
 
     /**
-     * 创建一个完整的预处理上下文
+     * Enable stemming
      */
-    public static PreprocessContext complete(Long dataSourceId, Long userId, String sessionId,
-            String domain, String language, String timezone) {
-        return PreprocessContext.builder()
-                .dataSourceId(dataSourceId)
-                .userId(userId)
-                .sessionId(sessionId)
-                .domain(domain)
-                .language(language)
-                .timezone(timezone)
-                .build();
-    }
+    private boolean enableStemming;
+
+    /**
+     * Enable named entity recognition
+     */
+    private boolean enableNER;
+
+    /**
+     * Enable part of speech tagging
+     */
+    private boolean enablePOSTagging;
+
+    /**
+     * Enable dependency parsing
+     */
+    private boolean enableDependencyParsing;
 }

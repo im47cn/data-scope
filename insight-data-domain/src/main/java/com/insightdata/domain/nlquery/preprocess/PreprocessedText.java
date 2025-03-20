@@ -1,49 +1,57 @@
 package com.insightdata.domain.nlquery.preprocess;
 
-import java.util.List;
-import java.util.Map;
-
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 /**
- * Represents preprocessed text with various features and corrections
+ * Preprocessed text result
  */
 @Data
 @Builder
-@NoArgsConstructor
-@AllArgsConstructor
 public class PreprocessedText {
 
+    private String originalText;         // 原始文本
+    private String normalizedText;       // 标准化文本
+    private List<String> tokens;         // 分词结果
+    private List<TokenFeature> features; // 词特征
+    private Language language;           // 语言
+    private double confidence;           // 置信度
+    private List<CorrectionSuggestion> corrections; // 纠错建议
+    
     /**
-     * Original input text
+     * Language type
      */
-    private String originalText;
-
+    public enum Language {
+        CHINESE,    // 中文
+        ENGLISH,    // 英文
+        MIXED,      // 混合语言
+        UNKNOWN     // 未知语言
+    }
+    
     /**
-     * Normalized text after basic preprocessing
+     * Create empty result
      */
-    private String normalizedText;
-
+    public static PreprocessedText empty() {
+        return PreprocessedText.builder()
+                .originalText("")
+                .normalizedText("")
+                .language(Language.UNKNOWN)
+                .confidence(0.0)
+                .build();
+    }
+    
     /**
-     * Tokenized text
+     * Create error result
      */
-    private List<String> tokens;
-
-    /**
-     * Token features including lexical, grammatical and semantic information
-     */
-    private Map<String, TokenFeature> tokenFeatures;
-
-    /**
-     * Suggested corrections for potential errors
-     */
-    private List<CorrectionSuggestion> corrections;
-
-    /**
-     * Confidence score of preprocessing (0-1)
-     */
-    private double confidence;
+    public static PreprocessedText error(String message) {
+        return PreprocessedText.builder()
+                .originalText("")
+                .normalizedText("")
+                .language(Language.UNKNOWN)
+                .confidence(0.0)
+                .corrections(List.of(CorrectionSuggestion.error(message)))
+                .build();
+    }
 }
