@@ -1,11 +1,12 @@
 package com.insightdata.domain.adapter;
 
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.insightdata.domain.metadata.enums.DataSourceType;
 import com.insightdata.domain.metadata.model.DataSource;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 数据源适配器工厂
@@ -34,7 +35,7 @@ public class DataSourceAdapterFactory {
         
         switch (type) {
             case MYSQL:
-                return mysqlDataSourceAdapter;
+                return (DataSourceAdapter) mysqlDataSourceAdapter;
             case DB2:
                 return db2DataSourceAdapter;
             case ORACLE:

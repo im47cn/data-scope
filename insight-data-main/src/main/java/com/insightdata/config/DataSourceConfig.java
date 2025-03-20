@@ -57,9 +57,9 @@ public class DataSourceConfig {
         
         // 连接池配置
         config.setMinimumIdle(5);
-        config.setMaximumPoolSize(15);
+        config.setMaximumPoolSize(30);
         config.setAutoCommit(true);
-        config.setIdleTimeout(30000);
+        config.setIdleTimeout(60000);
         config.setMaxLifetime(1800000);
         config.setConnectionTimeout(30000);
         config.setConnectionTestQuery("SELECT 1");

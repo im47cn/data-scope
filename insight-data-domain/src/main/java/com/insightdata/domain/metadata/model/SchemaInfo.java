@@ -1,23 +1,27 @@
 package com.insightdata.domain.metadata.model;
 
-import lombok.Data;
-
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Data
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+
+@Getter
+@Setter
+@ToString
+@EqualsAndHashCode
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class SchemaInfo {
     private String name;
     private String dataSourceId;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private List<TableInfo> tables;
-
-    public List<TableInfo> getTables() {
-        return this.tables;
-    }
-
-    public String getName() {
-        return name;
-    }
 }

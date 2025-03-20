@@ -1,87 +1,99 @@
 package com.insightdata.domain.nlquery;
 
-import lombok.AllArgsConstructor;
+import com.insightdata.domain.datasource.SchemaInfo;
 import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * 查询上下文
- * 包含查询过程中的所有信息
  */
 @Data
 @Builder
-@NoArgsConstructor
-@AllArgsConstructor
 public class QueryContext {
+
     /**
      * 数据源ID
      */
     private String dataSourceId;
-    
+
     /**
-     * 自然语言查询（预处理后）
+     * 数据源元数据
      */
-    private String nlQuery;
-    
+    private SchemaInfo metadata;
+
     /**
-     * 上下文ID
+     * 用户ID
      */
-    private String contextId;
-    
+    private Long userId;
+
     /**
-     * 检测到的意图
+     * 会话ID
      */
-    private String intent;
-    
+    private String sessionId;
+
     /**
-     * 意图置信度
+     * 创建时间
      */
-    private Double confidence;
-    
+    private Long createTime;
+
     /**
-     * 实体列表
+     * 超时时间(毫秒)
      */
-    @Builder.Default
-    private List<Map<String, Object>> entities = new ArrayList<>();
-    
+    private Long timeout;
+
     /**
-     * 生成的SQL
+     * 是否缓存
      */
-    private String sql;
-    
+    private boolean enableCache;
+
     /**
-     * 查询参数
+     * 最大返回行数
      */
-    @Builder.Default
-    private Map<String, Object> parameters = new HashMap<>();
-    
+    private Integer maxRows;
+
     /**
-     * 查询选项
+     * 创建一个基本的查询上下文
      */
-    @Builder.Default
-    private Map<String, Object> options = new HashMap<>();
-    
+    public static QueryContext basic(String dataSourceId, SchemaInfo metadata) {
+        return QueryContext.builder()
+                .dataSourceId(dataSourceId)
+                .metadata(metadata)
+                .createTime(System.currentTimeMillis())
+                .timeout(30000L)
+                .enableCache(true)
+                .maxRows(1000)
+                .build();
+    }
+
     /**
-     * 查询结果数据
+     * 创建一个带用户信息的查询上下文
      */
-    @Builder.Default
-    private List<Map<String, Object>> data = new ArrayList<>();
-    
+    public static QueryContext withUser(String dataSourceId, SchemaInfo metadata, Long userId) {
+        return QueryContext.builder()
+                .dataSourceId(dataSourceId)
+                .metadata(metadata)
+                .userId(userId)
+                .createTime(System.currentTimeMillis())
+                .timeout(30000L)
+                .enableCache(true)
+                .maxRows(1000)
+                .build();
+    }
+
     /**
-     * 查询结果元数据
+     * 创建一个完整的查询上下文
      */
-    @Builder.Default
-    private Map<String, Object> metadata = new HashMap<>();
-    
-    /**
-     * 建议列表
-     */
-    @Builder.Default
-    private List<String> suggestions = new ArrayList<>();
+    public static QueryContext complete(String dataSourceId, SchemaInfo metadata, Long userId,
+            String sessionId, Long timeout, boolean enableCache, Integer maxRows) {
+        return QueryContext.builder()
+                .dataSourceId(dataSourceId)
+                .metadata(metadata)
+                .userId(userId)
+                .sessionId(sessionId)
+                .createTime(System.currentTimeMillis())
+                .timeout(timeout)
+                .enableCache(enableCache)
+                .maxRows(maxRows)
+                .build();
+    }
 }

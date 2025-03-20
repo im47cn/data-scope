@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.insightdata.security.EncryptionService;
 import org.springframework.stereotype.Component;
 
 import com.insightdata.domain.metadata.model.ColumnInfo;
@@ -16,14 +17,35 @@ import com.insightdata.domain.metadata.model.DataSource;
 import com.insightdata.domain.metadata.model.TableInfo;
 
 @Component
-public class MySQLDataSourceAdapter implements DataSourceAdapter {
+public class MySQLDataSourceAdapter implements EnhancedMySQLDataSourceAdapter {
 
     private Connection connection;
 
     @Override
+    public void connect(DataSource config, String keyId, EncryptionService encryptionService) throws Exception {
+        String url = "jdbc:mysql://" + config.getHost() + ":" + config.getPort() + "/" + config.getDatabaseName() + "?useSSL=false&serverTimezone=UTC";
+        String username = config.getUsername();
+        String password = config.getPassword();
+        
+        // 解密用户名和密码
+        if (keyId != null && encryptionService != null) {
+            username = encryptionService.decrypt(username, "datasource-credentials");
+            password = encryptionService.decrypt(password, "datasource-credentials");
+        }
+        
+        this.connection = DriverManager.getConnection(url, username, password);
+    }
+
+    @Override
     public void connect(DataSource config) throws Exception {
         String url = "jdbc:mysql://" + config.getHost() + ":" + config.getPort() + "/" + config.getDatabaseName() + "?useSSL=false&serverTimezone=UTC";
-        this.connection = DriverManager.getConnection(url, config.getUsername(), config.getPassword());
+        String username = config.getUsername();
+        String password = config.getPassword();
+        
+        // 解密用户名和密码
+        // TODO: 使用EncryptionService解密用户名和密码
+        
+        this.connection = DriverManager.getConnection(url, username, password);
     }
 
     // 修复系统模式检查

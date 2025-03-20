@@ -1,13 +1,23 @@
 package com.insightdata.domain.nlquery.converter;
 
-import lombok.Builder;
-import lombok.Data;
-
 import java.util.List;
 import java.util.Map;
 
-@Data
-@Builder
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+
+@Getter
+@Setter
+@ToString
+@EqualsAndHashCode
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder(toBuilder = true)
 public class SqlConversionResult {
     private String sql;
     private Map<String, Object> parameters;

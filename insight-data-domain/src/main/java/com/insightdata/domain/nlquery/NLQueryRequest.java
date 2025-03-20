@@ -1,51 +1,60 @@
 package com.insightdata.domain.nlquery;
 
-import lombok.Builder;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
+/**
+ * 自然语言查询请求
+ */
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class NLQueryRequest {
-    private String query;
+    /**
+     * 数据源ID
+     */
     private String dataSourceId;
-    private Map<String, Object> parameters;
-    private List<String> tags; // Assuming tags are relevant here.
-    @Builder.Default
-    private String contextId = "";
 
-   public String getQuery(){
-       return this.query;
-   }
+    /**
+     * 查询语句
+     */
+    private String query;
 
-   public String getDataSourceId(){
-       return this.dataSourceId;
-   }
-   public Map<String, Object> getParameters(){
-       return this.parameters;
-   }
+    /**
+     * 最大返回行数
+     */
+    private Integer maxRows;
 
-   public List<String> getTags(){
-       return this.tags;
-   }
+    /**
+     * 超时时间(毫秒)
+     */
+    private Long timeout;
 
-    public Integer getMaxRows() {
-        return 1000;
-    }
+    /**
+     * 是否包含元数据
+     */
+    private Boolean includeMetadata;
 
-    public  Map<String, Object> getOptions(){
-        return new HashMap<>();
-    }
+    /**
+     * 是否包含执行计划
+     */
+    private Boolean includeExecutionPlan;
 
-    public String getContextId(){
-        return this.contextId;
-    }
+    /**
+     * 是否异步执行
+     */
+    private Boolean async;
 
-    public Boolean getIncludeSqlExplanation(){
-        return false;
-    }
+    /**
+     * 是否缓存结果
+     */
+    private Boolean cacheResult;
+
+    /**
+     * 缓存过期时间(秒)
+     */
+    private Long cacheExpiration;
 }

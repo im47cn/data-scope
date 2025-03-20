@@ -9,12 +9,23 @@ spring:
     password: test
     driver-class-name: com.mysql.cj.jdbc.Driver
     hikari:
-      minimum-idle: 5
-      maximum-pool-size: 20
-      idle-timeout: 30000
+      # 连接池基本配置
+      minimum-idle: 10
+      maximum-pool-size: 50
+      idle-timeout: 600000
       max-lifetime: 1800000
       connection-timeout: 30000
       pool-name: InsightDataHikariCP
+      
+      # 连接池优化配置
+      auto-commit: true
+      validation-timeout: 5000
+      keepalive-time: 60000
+      leak-detection-threshold: 60000
+      register-mbeans: true
+      
+      # 连接测试配置
+      connection-test-query: SELECT 1
   
   # Redis配置
   data:
@@ -105,11 +116,33 @@ insight:
   datasource:
     # 连接池配置
     connection-pool:
-      default-max-size: 10
-      default-min-idle: 2
+      # 基本配置
+      default-max-size: 50
+      default-min-idle: 10
       default-idle-timeout: 600000
       default-max-lifetime: 1800000
       default-connection-timeout: 30000
+      
+      # 监控配置
+      metrics:
+        enabled: true
+        reporter: micrometer
+        tags:
+          application: ${spring.application.name}
+      
+      # 健康检查配置
+      health-check:
+        enabled: true
+        interval: 60000
+        timeout: 5000
+        failure-threshold: 3
+      
+      # 告警配置
+      alerts:
+        enabled: true
+        pool-usage-threshold: 80
+        connection-timeout-threshold: 1000
+        leak-detection-threshold: 60000
     
     # 元数据同步配置
     metadata-sync:

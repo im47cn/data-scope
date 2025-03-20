@@ -23,6 +23,8 @@ import com.insightdata.domain.metadata.model.TableInfo;
 import com.insightdata.domain.metadata.repository.DataSourceRepository;
 import com.insightdata.domain.metadata.service.CredentialEncryptionService;
 import com.insightdata.domain.metadata.service.DataSourceService;
+import com.insightdata.domain.security.model.KeyInfo;
+import com.insightdata.domain.security.service.KeyManagementService;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -42,6 +44,10 @@ public class DataSourceServiceImpl implements DataSourceService {
     @Autowired
     private CredentialEncryptionService encryptionService;
 
+    @Autowired
+    private KeyManagementService keyManagementService;
+
+
     @Override
     @Transactional
     public DataSource createDataSource(DataSource dataSource) {
@@ -50,11 +56,19 @@ public class DataSourceServiceImpl implements DataSourceService {
             throw DataSourceException.alreadyExists("Data source with name '" + dataSource.getName() + "' already exists");
         }
 
+        // 创建密钥
+        KeyInfo keyInfo = keyManagementService.createKey("datasource-credentials");
+        dataSource.setKeyId(keyInfo.getId());
+
         // 加密密码
-        if (dataSource.getEncryptedPassword() == null) {
-            CredentialEncryptionService.EncryptionResult result = encryptionService.encrypt(dataSource.getPassword());
+        if (dataSource.getPassword() != null && !dataSource.getPassword().isEmpty()) {
+            CredentialEncryptionService.EncryptionResult result = encryptionService.encrypt(
+                dataSource.getPassword()
+            );
             dataSource.setEncryptedPassword(result.getEncryptedPassword());
             dataSource.setEncryptionSalt(result.getSalt());
+            // 清除明文密码
+            dataSource.setPassword(null);
         }
 
         // 设置创建时间和更新时间
@@ -78,16 +92,33 @@ public class DataSourceServiceImpl implements DataSourceService {
         if (dataSourceWithSameName.isPresent() && !dataSourceWithSameName.get().getId().equals(dataSource.getId())) {
             throw DataSourceException.alreadyExists("Data source with name '" + dataSource.getName() + "' already exists");
         }
+// 如果提供了新密码，则重新加密
+if (dataSource.getPassword() != null && !dataSource.getPassword().isEmpty()) {
+    // 重用现有密钥或创建新密钥
+    String keyId = existingDataSource.getKeyId();
+    if (keyId == null) {
+        KeyInfo keyInfo = keyManagementService.createKey("datasource-credentials");
+        keyId = keyInfo.getId();
+        dataSource.setKeyId(keyId);
+    } else {
+        dataSource.setKeyId(keyId);
+    }
 
-        // 如果提供了新密码，则加密
-        if (dataSource.getPassword() != null && !dataSource.getPassword().isEmpty()) {
-            CredentialEncryptionService.EncryptionResult result = encryptionService.encrypt(dataSource.getPassword());
-            dataSource.setEncryptedPassword(result.getEncryptedPassword());
-            dataSource.setEncryptionSalt(result.getSalt());
-        } else {
-            // 保留原密码
-            dataSource.setEncryptedPassword(existingDataSource.getEncryptedPassword());
-            dataSource.setEncryptionSalt(existingDataSource.getEncryptionSalt());
+    // 使用密钥加密密码
+    CredentialEncryptionService.EncryptionResult result = encryptionService.encrypt(
+        dataSource.getPassword(),
+        keyId
+    );
+    dataSource.setEncryptedPassword(result.getEncryptedPassword());
+    dataSource.setEncryptionSalt(result.getSalt());
+    // 清除明文密码
+    dataSource.setPassword(null);
+} else {
+    // 保留原密码和密钥
+    dataSource.setKeyId(existingDataSource.getKeyId());
+    dataSource.setEncryptedPassword(existingDataSource.getEncryptedPassword());
+    dataSource.setEncryptionSalt(existingDataSource.getEncryptionSalt());
+}
         }
 
         // 设置更新时间
@@ -235,6 +266,7 @@ public class DataSourceServiceImpl implements DataSourceService {
     @Override
     public List<DataSourceType> getSupportedTypes() {
         return Arrays.stream(DataSourceType.values())
+                .filter(type -> adapterFactory.supportsType(type))
                 .collect(Collectors.toList());
     }
 }
