@@ -1,134 +1,89 @@
 package com.insightdata.domain.nlquery.intent;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 查询意图类，用于表示自然语言查询的意图
+ * Query intent class that represents the intent of a natural language query
  */
 @Data
-@Builder(toBuilder = true)
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode
 public class QueryIntent {
 
     /**
-     * 查询类型
+     * Query type (SELECT, COUNT, SUM, etc.)
      */
     private QueryType queryType;
 
     /**
-     * 查询目的
+     * Query purpose (DATA_RETRIEVAL, STATISTICAL_ANALYSIS, etc.)
      */
     private QueryPurpose queryPurpose;
 
     /**
-     * 时间范围
+     * Time range requirement
      */
     private TimeRange timeRange;
 
     /**
-     * 置信度
+     * Sort requirements
      */
-    private double confidence;
+    private List<SortRequirement> sortRequirements;
 
     /**
-     * 排序要求
-     */
-    @Builder.Default
-    private List<SortRequirement> sortRequirements = new ArrayList<>();
-
-    /**
-     * 限制条件
+     * Limit requirement
      */
     private LimitRequirement limitRequirement;
 
     /**
-     * 创建一个简单查询意图
+     * Filter conditions
      */
-    public static QueryIntent simple(QueryType type) {
-        return QueryIntent.builder()
-                .queryType(type)
-                .queryPurpose(QueryPurpose.DATA_RETRIEVAL)
-                .confidence(1.0)
-                .build();
-    }
+    private List<FilterCondition> filterConditions;
 
     /**
-     * 创建一个统计分析查询意图
+     * Group by fields
      */
-    public static QueryIntent statistical(QueryType type) {
-        return QueryIntent.builder()
-                .queryType(type)
-                .queryPurpose(QueryPurpose.STATISTICAL_ANALYSIS)
-                .confidence(1.0)
-                .build();
-    }
+    private List<String> groupByFields;
 
     /**
-     * 创建一个趋势分析查询意图
+     * Having conditions
      */
-    public static QueryIntent trend(QueryType type, TimeRange timeRange) {
-        return QueryIntent.builder()
-                .queryType(type)
-                .queryPurpose(QueryPurpose.TREND_ANALYSIS)
-                .timeRange(timeRange)
-                .confidence(1.0)
-                .build();
-    }
+    private List<FilterCondition> havingConditions;
 
     /**
-     * 创建一个对比分析查询意图
+     * Selected fields
      */
-    public static QueryIntent comparison(QueryType type) {
-        return QueryIntent.builder()
-                .queryType(type)
-                .queryPurpose(QueryPurpose.COMPARISON_ANALYSIS)
-                .confidence(1.0)
-                .build();
-    }
+    private List<String> selectedFields;
 
     /**
-     * 添加排序要求
+     * Confidence score
      */
-    public QueryIntent addSortRequirement(SortRequirement requirement) {
-        sortRequirements.add(requirement);
-        return this;
-    }
+    private double confidence;
 
     /**
-     * 判断是否需要时间范围
+     * Intent source
      */
-    public boolean needsTimeRange() {
-        return queryPurpose != null && queryPurpose.needsTimeRange();
-    }
+    private IntentSource source;
 
     /**
-     * 判断是否需要分组
+     * Additional metadata
      */
-    public boolean needsGrouping() {
-        return (queryPurpose != null && queryPurpose.needsGrouping()) ||
-                (queryType != null && queryType.needsGrouping());
-    }
+    private String metadata;
 
     /**
-     * 判断是否需要排序
+     * Intent source enum
      */
-    public boolean needsSorting() {
-        return (queryPurpose != null && queryPurpose.needsSorting()) ||
-                (queryType != null && queryType.needsSorting()) ||
-                !sortRequirements.isEmpty();
-    }
-
-    /**
-     * 判断是否需要限制
-     */
-    public boolean needsLimit() {
-        return (queryPurpose != null && queryPurpose.needsLimit()) ||
-                (queryType != null && queryType.needsLimit()) ||
-                limitRequirement != null;
+    public enum IntentSource {
+        RULE_BASED,          // Rule-based recognition
+        MACHINE_LEARNING,    // Machine learning model
+        USER_FEEDBACK,       // User feedback
+        HYBRID,             // Hybrid approach
+        UNKNOWN             // Unknown source
     }
 }

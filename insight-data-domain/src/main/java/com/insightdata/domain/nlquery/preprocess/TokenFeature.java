@@ -6,7 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * 分词特征
+ * Features extracted from a token during text preprocessing
  */
 @Data
 @Builder
@@ -15,99 +15,60 @@ import lombok.NoArgsConstructor;
 public class TokenFeature {
 
     /**
-     * 词元特征
+     * Lexical features of the token
      */
     private LexicalFeature lexical;
 
     /**
-     * 语法特征
+     * Grammatical features of the token
      */
     private GrammaticalFeature grammatical;
 
     /**
-     * 语义特征
+     * Semantic features of the token
      */
     private SemanticFeature semantic;
 
     /**
-     * 词元特征
+     * Lexical features like part of speech, lemma etc.
      */
     @Data
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
     public static class LexicalFeature {
-        /**
-         * 词元
-         */
         private String lemma;
-
-        /**
-         * 词性
-         */
         private String pos;
-
-        /**
-         * 词根
-         */
         private String stem;
-
-        /**
-         * 是否停用词
-         */
-        private Boolean isStopWord;
+        private boolean isStopWord;
+        private boolean isNegation;
     }
 
     /**
-     * 语法特征
+     * Grammatical features like dependency relations
      */
     @Data
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
     public static class GrammaticalFeature {
-        /**
-         * 依存关系
-         */
-        private String dependency;
-
-        /**
-         * 句法成分
-         */
-        private String syntacticComponent;
-
-        /**
-         * 语法功能
-         */
-        private String grammaticalFunction;
+        private String dependencyRelation;
+        private String dependencyHead;
+        private String morphology;
+        private String syntacticRole;
     }
 
     /**
-     * 语义特征
+     * Semantic features like named entities, concepts etc.
      */
     @Data
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
     public static class SemanticFeature {
-        /**
-         * 实体类型
-         */
-        private String entityType;
-
-        /**
-         * 语义角色
-         */
-        private String semanticRole;
-
-        /**
-         * 语义类别
-         */
-        private String semanticCategory;
-
-        /**
-         * 语义关系
-         */
-        private String semanticRelation;
+        private String namedEntityType;
+        private String concept;
+        private String domain;
+        private double confidence;
     }
 }

@@ -13,73 +13,67 @@ public interface KeyManagementService {
      *
      * @param purpose 密钥用途
      * @return 新创建的密钥信息
-     * @throws KeyManagementException 创建密钥失败时抛出
      */
-    KeyInfo createKey(String purpose) throws KeyManagementException;
+    KeyInfo createKey(String purpose);
+
+    /**
+     * 获取当前活跃密钥
+     *
+     * @param purpose 密钥用途
+     * @return 当前活跃密钥信息
+     */
+    Optional<KeyInfo> getCurrentKey(String purpose);
 
     /**
      * 根据ID获取密钥
      *
      * @param keyId 密钥ID
-     * @return 密钥信息，如果不存在返回空
+     * @return 密钥信息
      */
     Optional<KeyInfo> retrieveKeyById(String keyId);
-
-    /**
-     * 获取指定用途的当前活跃密钥
-     *
-     * @param purpose 密钥用途
-     * @return 当前活跃的密钥信息，如果不存在返回空
-     */
-    Optional<KeyInfo> retrieveCurrentKey(String purpose);
-
-    /**
-     * 获取指定用途的所有密钥
-     *
-     * @param purpose 密钥用途
-     * @return 密钥列表
-     */
-    List<KeyInfo> listKeys(String purpose);
 
     /**
      * 轮换密钥
      *
      * @param purpose 密钥用途
      * @return 新创建的密钥信息
-     * @throws KeyManagementException 轮换密钥失败时抛出
      */
-    KeyInfo rotateKey(String purpose) throws KeyManagementException;
+    KeyInfo rotateKey(String purpose);
 
     /**
      * 禁用密钥
      *
      * @param keyId 密钥ID
-     * @throws KeyManagementException 禁用密钥失败时抛出
      */
-    void disableKey(String keyId) throws KeyManagementException;
+    void disableKey(String keyId);
 
     /**
      * 启用密钥
      *
      * @param keyId 密钥ID
-     * @throws KeyManagementException 启用密钥失败时抛出
      */
-    void enableKey(String keyId) throws KeyManagementException;
+    void enableKey(String keyId);
 
     /**
      * 删除密钥
      *
      * @param keyId 密钥ID
-     * @throws KeyManagementException 删除密钥失败时抛出
      */
-    void deleteKey(String keyId) throws KeyManagementException;
+    void deleteKey(String keyId);
 
     /**
      * 更新密钥状态
      *
      * @param keyId 密钥ID
      * @param status 新状态
-     * @throws KeyManagementException 更新状态失败时抛出
      */
-    void updateKeyStatus(String keyId, KeyStatus status) throws KeyManagementException;
+    void updateKeyStatus(String keyId, KeyStatus status);
+
+    /**
+     * 列出指定用途的所有密钥
+     *
+     * @param purpose 密钥用途
+     * @return 密钥列表
+     */
+    List<KeyInfo> listKeys(String purpose);
 }

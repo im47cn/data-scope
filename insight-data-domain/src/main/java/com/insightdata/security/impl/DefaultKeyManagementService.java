@@ -1,6 +1,6 @@
 package com.insightdata.security.impl;
 
-import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.Comparator;
@@ -9,66 +9,63 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-
-import javax.crypto.KeyGenerator;
-import javax.crypto.SecretKey;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
 import com.insightdata.security.KeyInfo;
-import com.insightdata.security.KeyManagementException;
 import com.insightdata.security.KeyManagementService;
 import com.insightdata.security.KeyStatus;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 默认密钥管理服务实现
  */
+@Slf4j
 @Service
 public class DefaultKeyManagementService implements KeyManagementService {
 
-    private static final String KEY_ALGORITHM = "AES";
-    private static final int KEY_SIZE = 256;
-    
-    // TODO: 实际应用中应该使用数据库或KMS存储，而不是内存
+    private final Map<String, KeyInfo> keyStore = new ConcurrentHashMap<>();
+    private final Map<String, String> currentKeys = new ConcurrentHashMap<>();
+    private final SecureRandom secureRandom = new SecureRandom();
 
-    // 内存中存储密钥，实际应用中应该使用数据库或KMS存储
-    private final Map<String, KeyInfo> keyStore;
-    private final Map<String, String> currentKeys;
+    @Override
+    public KeyInfo createKey(String purpose) {
+        LocalDateTime now = LocalDateTime.now();
+        int version = getNextVersion(purpose);
 
-    public DefaultKeyManagementService() {
-        this.keyStore = new ConcurrentHashMap<>();
-        this.currentKeys = new ConcurrentHashMap<>();
+        // 生成新的密钥内容
+        byte[] keyBytes = new byte[32]; // 256位密钥
+        secureRandom.nextBytes(keyBytes);
+        String keyContent = Base64.getEncoder().encodeToString(keyBytes);
+
+        // 创建密钥信息
+        KeyInfo keyInfo = KeyInfo.builder()
+                .id(UUID.randomUUID().toString())
+                .version(version)
+                .keyContent(keyContent)
+                .purpose(purpose)
+                .status(KeyStatus.ACTIVE)
+                .createdAt(now)
+                .updatedAt(now)
+                .expiresAt(now.plusYears(1))
+                .build();
+
+        // 保存密钥
+        keyStore.put(keyInfo.getId(), keyInfo);
+        currentKeys.put(purpose, keyInfo.getId());
+
+        return keyInfo;
     }
 
     @Override
-    public KeyInfo createKey(String purpose) throws KeyManagementException {
-        try {
-            KeyGenerator keyGen = KeyGenerator.getInstance(KEY_ALGORITHM);
-            keyGen.init(KEY_SIZE);
-            SecretKey secretKey = keyGen.generateKey();
-            
-            String keyId = UUID.randomUUID().toString();
-            int version = getCurrentVersion(purpose) + 1;
-            
-            KeyInfo keyInfo = KeyInfo.builder()
-                    .id(keyId)
-                    .version(version)
-                    .keyContent(Base64.getEncoder().encodeToString(secretKey.getEncoded()))
-                    .purpose(purpose)
-                    .status(KeyStatus.ACTIVE)
-                    .createdAt(LocalDateTime.now())
-                    .updatedAt(LocalDateTime.now())
-                    .expiresAt(LocalDateTime.now().plusMonths(3)) // 3个月后过期
-                    .build();
-            
-            keyStore.put(keyId, keyInfo);
-            currentKeys.put(purpose, keyId);
-            
-            return keyInfo;
-            
-        } catch (NoSuchAlgorithmException e) {
-            throw new KeyManagementException("Failed to generate key", e);
+    public Optional<KeyInfo> getCurrentKey(String purpose) {
+        String currentKeyId = currentKeys.get(purpose);
+        if (currentKeyId == null) {
+            return Optional.empty();
         }
+        return Optional.ofNullable(keyStore.get(currentKeyId));
     }
 
     @Override
@@ -77,53 +74,45 @@ public class DefaultKeyManagementService implements KeyManagementService {
     }
 
     @Override
-    public Optional<KeyInfo> retrieveCurrentKey(String purpose) {
-        String currentKeyId = currentKeys.get(purpose);
-        return currentKeyId != null ? retrieveKeyById(currentKeyId) : Optional.empty();
-    }
-
-    @Override
-    public List<KeyInfo> listKeys(String purpose) {
-        return keyStore.values().stream()
-                .filter(key -> key.getPurpose().equals(purpose))
-                .sorted(Comparator.comparingInt(KeyInfo::getVersion).reversed())
-                .toList();
-    }
-
-    @Override
-    public KeyInfo rotateKey(String purpose) throws KeyManagementException {
-        Optional<KeyInfo> currentKey = retrieveCurrentKey(purpose);
+    public KeyInfo rotateKey(String purpose) {
+        // 获取当前密钥
+        Optional<KeyInfo> currentKey = getCurrentKey(purpose);
         if (currentKey.isPresent()) {
+            // 将当前密钥设置为仅解密状态
             updateKeyStatus(currentKey.get().getId(), KeyStatus.DECRYPT_ONLY);
         }
+
+        // 创建新密钥
         return createKey(purpose);
     }
 
     @Override
-    public void disableKey(String keyId) throws KeyManagementException {
+    public void disableKey(String keyId) {
         updateKeyStatus(keyId, KeyStatus.DISABLED);
     }
 
     @Override
-    public void enableKey(String keyId) throws KeyManagementException {
+    public void enableKey(String keyId) {
         updateKeyStatus(keyId, KeyStatus.ACTIVE);
     }
 
     @Override
-    public void deleteKey(String keyId) throws KeyManagementException {
-        KeyInfo keyInfo = keyStore.remove(keyId);
+    public void deleteKey(String keyId) {
+        KeyInfo keyInfo = keyStore.get(keyId);
         if (keyInfo != null && keyId.equals(currentKeys.get(keyInfo.getPurpose()))) {
             currentKeys.remove(keyInfo.getPurpose());
         }
+        keyStore.remove(keyId);
     }
 
     @Override
-    public void updateKeyStatus(String keyId, KeyStatus status) throws KeyManagementException {
+    public void updateKeyStatus(String keyId, KeyStatus status) {
         KeyInfo keyInfo = keyStore.get(keyId);
         if (keyInfo == null) {
-            throw new KeyManagementException("Key not found: " + keyId);
+            return;
         }
-        
+
+        // 创建更新后的密钥信息
         KeyInfo updatedKeyInfo = KeyInfo.builder()
                 .id(keyInfo.getId())
                 .version(keyInfo.getVersion())
@@ -134,19 +123,28 @@ public class DefaultKeyManagementService implements KeyManagementService {
                 .updatedAt(LocalDateTime.now())
                 .expiresAt(keyInfo.getExpiresAt())
                 .build();
-        
+
         keyStore.put(keyId, updatedKeyInfo);
-        
+
+        // 如果密钥被禁用且是当前活跃密钥，则移除当前密钥引用
         if (status != KeyStatus.ACTIVE && keyId.equals(currentKeys.get(keyInfo.getPurpose()))) {
             currentKeys.remove(keyInfo.getPurpose());
         }
     }
 
-    private int getCurrentVersion(String purpose) {
+    @Override
+    public List<KeyInfo> listKeys(String purpose) {
+        return keyStore.values().stream()
+                .filter(key -> key.getPurpose().equals(purpose))
+                .sorted(Comparator.comparingInt(KeyInfo::getVersion).reversed())
+                .collect(Collectors.toList());
+    }
+
+    private int getNextVersion(String purpose) {
         return keyStore.values().stream()
                 .filter(key -> key.getPurpose().equals(purpose))
                 .mapToInt(KeyInfo::getVersion)
                 .max()
-                .orElse(0);
+                .orElse(0) + 1;
     }
 }

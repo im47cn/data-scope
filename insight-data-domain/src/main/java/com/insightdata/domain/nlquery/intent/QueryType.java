@@ -1,37 +1,20 @@
 package com.insightdata.domain.nlquery.intent;
 
 /**
- * 查询类型枚举
+ * Query type enum that represents different types of SQL queries
  */
 public enum QueryType {
-    SELECT(false, false, false),
-    COUNT(false, false, true),
-    SUM(true, false, true),
-    AVG(true, false, true),
-    MAX(false, true, true),
-    MIN(false, true, true),
-    GROUP(true, false, false),
-    UNKNOWN(false, false, false);
-
-    private final boolean needsGrouping;
-    private final boolean needsSorting;
-    private final boolean needsLimit;
-
-    QueryType(boolean needsGrouping, boolean needsSorting, boolean needsLimit) {
-        this.needsGrouping = needsGrouping;
-        this.needsSorting = needsSorting;
-        this.needsLimit = needsLimit;
-    }
-
-    public boolean needsGrouping() {
-        return needsGrouping;
-    }
-
-    public boolean needsSorting() {
-        return needsSorting;
-    }
-
-    public boolean needsLimit() {
-        return needsLimit;
-    }
+    SELECT,         // 普通查询
+    COUNT,          // 计数查询
+    SUM,            // 求和查询
+    AVG,            // 平均值查询
+    MAX,            // 最大值查询
+    MIN,            // 最小值查询
+    GROUP,          // 分组查询
+    DISTINCT,       // 去重查询
+    HAVING,         // 分组过滤查询
+    UNION,          // 联合查询
+    INTERSECT,      // 交集查询
+    EXCEPT,         // 差集查询
+    UNKNOWN         // 未知类型
 }

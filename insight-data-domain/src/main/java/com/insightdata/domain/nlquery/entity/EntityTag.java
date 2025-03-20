@@ -1,113 +1,83 @@
 package com.insightdata.domain.nlquery.entity;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
- * 实体标签
+ * Entity tag class that represents an identified entity in text
  */
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class EntityTag {
 
     /**
-     * 实体类型
+     * Entity type
      */
     private EntityType type;
 
     /**
-     * 实体值
+     * Entity value
      */
     private String value;
 
     /**
-     * 置信度
+     * Start offset in text
+     */
+    private int startOffset;
+
+    /**
+     * End offset in text
+     */
+    private int endOffset;
+
+    /**
+     * Confidence score
      */
     private double confidence;
 
     /**
-     * 实体属性
+     * Entity source
      */
-    private EntityAttributes attributes;
+    private EntitySource source;
 
     /**
-     * 创建一个基本的实体标签
+     * Additional metadata
      */
-    public static EntityTag basic(EntityType type, String value) {
-        return EntityTag.builder()
-                .type(type)
-                .value(value)
-                .confidence(1.0)
-                .build();
+    private String metadata;
+
+    /**
+     * Entity type enum
+     */
+    public enum EntityType {
+        TABLE,          // 表名
+        COLUMN,         // 列名
+        VALUE,          // 值
+        FUNCTION,       // 函数
+        OPERATOR,       // 运算符
+        CONDITION,      // 条件
+        ORDER,          // 排序
+        LIMIT,          // 限制
+        GROUP,          // 分组
+        DATETIME,       // 日期时间
+        NUMBER,         // 数字
+        STRING,         // 字符串
+        BOOLEAN,        // 布尔值
+        UNKNOWN         // 未知类型
     }
 
     /**
-     * 创建一个带置信度的实体标签
+     * Entity source enum
      */
-    public static EntityTag withConfidence(EntityType type, String value, double confidence) {
-        return EntityTag.builder()
-                .type(type)
-                .value(value)
-                .confidence(confidence)
-                .build();
-    }
-
-    /**
-     * 创建一个带属性的实体标签
-     */
-    public static EntityTag withAttributes(EntityType type, String value, EntityAttributes attributes) {
-        return EntityTag.builder()
-                .type(type)
-                .value(value)
-                .confidence(1.0)
-                .attributes(attributes)
-                .build();
-    }
-
-    /**
-     * 创建一个完整的实体标签
-     */
-    public static EntityTag complete(EntityType type, String value, double confidence, EntityAttributes attributes) {
-        return EntityTag.builder()
-                .type(type)
-                .value(value)
-                .confidence(confidence)
-                .attributes(attributes)
-                .build();
-    }
-
-    /**
-     * 获取开始位置
-     */
-    public int getStartOffset() {
-        return attributes != null ? attributes.getStartPosition() : -1;
-    }
-
-    /**
-     * 获取结束位置
-     */
-    public int getEndOffset() {
-        return attributes != null ? attributes.getEndPosition() : -1;
-    }
-
-    /**
-     * 获取原始文本
-     */
-    public String getOriginalText() {
-        return attributes != null ? attributes.getOriginalText() : value;
-    }
-
-    /**
-     * 获取标准化文本
-     */
-    public String getNormalizedText() {
-        return attributes != null ? attributes.getNormalizedText() : value;
-    }
-
-    /**
-     * 获取父实体ID
-     */
-    public String getParentId() {
-        return attributes != null ? attributes.getParentId() : null;
+    public enum EntitySource {
+        METADATA,           // 元数据
+        RULE,              // 规则
+        DICTIONARY,        // 字典
+        MACHINE_LEARNING,  // 机器学习
+        USER_FEEDBACK,     // 用户反馈
+        UNKNOWN           // 未知来源
     }
 }

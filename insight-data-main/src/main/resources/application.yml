@@ -184,3 +184,8 @@ springdoc:
     operations-sorter: method
     tags-sorter: alpha
   packages-to-scan: com.insightdata.controller
+# Security Configuration
+security:
+  encryption:
+    master-key: ${ENCRYPTION_MASTER_KEY:default-master-key-do-not-use-in-production}
+    key-rotation-interval: 30d

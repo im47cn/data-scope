@@ -1,131 +1,82 @@
 package com.insightdata.domain.nlquery.preprocess;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
- * 纠错建议
+ * Represents a correction suggestion for text preprocessing
  */
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class CorrectionSuggestion {
 
     /**
-     * 原始文本
+     * Original text that needs correction
      */
     private String originalText;
 
     /**
-     * 建议的修正文本
+     * Suggested correction text
      */
     private String suggestedText;
 
     /**
-     * 开始位置
+     * Type of correction
+     */
+    private CorrectionType type;
+
+    /**
+     * Start position in original text
      */
     private int startPosition;
 
     /**
-     * 结束位置
+     * End position in original text
      */
     private int endPosition;
 
     /**
-     * 置信度
+     * Confidence score of this suggestion (0-1)
      */
     private double confidence;
 
     /**
-     * 错误类型
+     * Factory method for spelling correction
      */
-    private ErrorType errorType;
-
-    /**
-     * 错误原因描述
-     */
-    private String reason;
-
-    /**
-     * 错误类型枚举
-     */
-    public enum ErrorType {
-        /**
-         * 拼写错误
-         */
-        SPELLING,
-
-        /**
-         * 语法错误
-         */
-        GRAMMAR,
-
-        /**
-         * 标点符号错误
-         */
-        PUNCTUATION,
-
-        /**
-         * 大小写错误
-         */
-        CAPITALIZATION,
-
-        /**
-         * 重复错误
-         */
-        REDUNDANCY,
-
-        /**
-         * 缺失错误
-         */
-        MISSING,
-
-        /**
-         * 其他错误
-         */
-        OTHER
-    }
-
-    /**
-     * 创建一个基本的纠错建议
-     */
-    public static CorrectionSuggestion basic(String originalText, String suggestedText) {
+    public static CorrectionSuggestion spelling(String original, String suggested, double confidence) {
         return CorrectionSuggestion.builder()
-                .originalText(originalText)
-                .suggestedText(suggestedText)
-                .confidence(1.0)
-                .errorType(ErrorType.OTHER)
-                .build();
-    }
-
-    /**
-     * 创建一个带位置的纠错建议
-     */
-    public static CorrectionSuggestion withPosition(String originalText, String suggestedText,
-            int startPosition, int endPosition) {
-        return CorrectionSuggestion.builder()
-                .originalText(originalText)
-                .suggestedText(suggestedText)
-                .startPosition(startPosition)
-                .endPosition(endPosition)
-                .confidence(1.0)
-                .errorType(ErrorType.OTHER)
-                .build();
-    }
-
-    /**
-     * 创建一个完整的纠错建议
-     */
-    public static CorrectionSuggestion complete(String originalText, String suggestedText,
-            int startPosition, int endPosition, double confidence,
-            ErrorType errorType, String reason) {
-        return CorrectionSuggestion.builder()
-                .originalText(originalText)
-                .suggestedText(suggestedText)
-                .startPosition(startPosition)
-                .endPosition(endPosition)
+                .originalText(original)
+                .suggestedText(suggested)
+                .type(CorrectionType.SPELLING)
                 .confidence(confidence)
-                .errorType(errorType)
-                .reason(reason)
+                .build();
+    }
+
+    /**
+     * Factory method for grammar correction
+     */
+    public static CorrectionSuggestion grammar(String original, String suggested, double confidence) {
+        return CorrectionSuggestion.builder()
+                .originalText(original)
+                .suggestedText(suggested)
+                .type(CorrectionType.GRAMMAR)
+                .confidence(confidence)
+                .build();
+    }
+
+    /**
+     * Factory method for semantic correction
+     */
+    public static CorrectionSuggestion semantic(String original, String suggested, double confidence) {
+        return CorrectionSuggestion.builder()
+                .originalText(original)
+                .suggestedText(suggested)
+                .type(CorrectionType.SEMANTIC)
+                .confidence(confidence)
                 .build();
     }
 }
