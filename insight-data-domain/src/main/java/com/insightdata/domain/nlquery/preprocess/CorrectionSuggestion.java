@@ -1,69 +1,82 @@
 package com.insightdata.domain.nlquery.preprocess;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
- * Correction suggestion for text preprocessing
+ * Represents a correction suggestion for text preprocessing
  */
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class CorrectionSuggestion {
-    
-    private String originalText;      // 原始文本
-    private String suggestedText;     // 建议文本
-    private CorrectionType type;      // 纠错类型
-    private double confidence;        // 置信度
-    private String description;       // 错误描述
-    
+
+    /**
+     * Original text that needs correction
+     */
+    private String originalText;
+
+    /**
+     * Suggested correction text
+     */
+    private String suggestedText;
+
     /**
      * Type of correction
      */
-    public enum CorrectionType {
-        SPELLING,       // 拼写错误
-        GRAMMAR,        // 语法错误
-        PUNCTUATION,   // 标点错误
-        WORD_CHOICE,   // 用词错误
-        ERROR,         // 其他错误
-        NONE          // 无需纠正
-    }
-    
+    private CorrectionType type;
+
     /**
-     * Create a spelling correction suggestion
+     * Start position in original text
      */
-    public static CorrectionSuggestion spelling(String original, String suggested) {
+    private int startPosition;
+
+    /**
+     * End position in original text
+     */
+    private int endPosition;
+
+    /**
+     * Confidence score of this suggestion (0-1)
+     */
+    private double confidence;
+
+    /**
+     * Factory method for spelling correction
+     */
+    public static CorrectionSuggestion spelling(String original, String suggested, double confidence) {
         return CorrectionSuggestion.builder()
                 .originalText(original)
                 .suggestedText(suggested)
                 .type(CorrectionType.SPELLING)
-                .confidence(0.8)
-                .description("可能存在拼写错误")
+                .confidence(confidence)
                 .build();
     }
-    
+
     /**
-     * Create a grammar correction suggestion
+     * Factory method for grammar correction
      */
-    public static CorrectionSuggestion grammar(String original, String suggested) {
+    public static CorrectionSuggestion grammar(String original, String suggested, double confidence) {
         return CorrectionSuggestion.builder()
                 .originalText(original)
                 .suggestedText(suggested)
                 .type(CorrectionType.GRAMMAR)
-                .confidence(0.7)
-                .description("可能存在语法错误")
+                .confidence(confidence)
                 .build();
     }
-    
+
     /**
-     * Create an error suggestion
+     * Factory method for semantic correction
      */
-    public static CorrectionSuggestion error(String error) {
+    public static CorrectionSuggestion semantic(String original, String suggested, double confidence) {
         return CorrectionSuggestion.builder()
-                .originalText("")
-                .suggestedText("")
-                .type(CorrectionType.ERROR)
-                .confidence(1.0)
-                .description(error)
+                .originalText(original)
+                .suggestedText(suggested)
+                .type(CorrectionType.SEMANTIC)
+                .confidence(confidence)
                 .build();
     }
 }

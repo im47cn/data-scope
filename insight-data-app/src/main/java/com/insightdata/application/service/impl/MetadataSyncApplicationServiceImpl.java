@@ -13,14 +13,10 @@ import com.insightdata.application.service.MetadataSyncApplicationService;
 import com.insightdata.application.service.MetadataSyncJobApplicationService;
 import com.insightdata.domain.adapter.DataSourceAdapterFactory;
 import com.insightdata.domain.adapter.EnhancedDataSourceAdapter;
-import com.insightdata.domain.metadata.enums.DataSourceType;
-import com.insightdata.domain.metadata.model.DataSource;
 import com.insightdata.domain.metadata.model.MetadataSyncJob;
-import com.insightdata.domain.metadata.model.SchemaInfo;
-import com.insightdata.domain.metadata.model.TableInfo;
-import com.insightdata.domain.metadata.repository.DataSourceRepository;
-import com.insightdata.domain.metadata.repository.SchemaInfoRepository;
-import com.insightdata.domain.metadata.repository.TableInfoRepository;
+import com.insightdata.domain.datasource.repository.DataSourceRepository;
+import com.insightdata.domain.datasource.repository.SchemaInfoRepository;
+import com.insightdata.domain.datasource.repository.TableInfoRepository;
 import com.insightdata.facade.metadata.enums.SyncType;
 
 @Service

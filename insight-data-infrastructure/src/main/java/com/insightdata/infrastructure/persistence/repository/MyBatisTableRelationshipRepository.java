@@ -1,7 +1,7 @@
 package com.insightdata.infrastructure.persistence.repository;
 
 import com.insightdata.domain.metadata.model.TableRelationship;
-import com.insightdata.domain.metadata.repository.TableRelationshipRepository;
+import com.insightdata.domain.lowcode.repository.TableRelationshipRepository;
 import com.insightdata.infrastructure.persistence.converter.TableRelationshipConverter;
 import com.insightdata.infrastructure.persistence.mapper.TableRelationshipMapper;
 import org.springframework.beans.factory.annotation.Autowired;

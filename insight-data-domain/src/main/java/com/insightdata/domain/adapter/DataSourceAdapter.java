@@ -1,12 +1,12 @@
 package com.insightdata.domain.adapter;
 
+import com.insightdata.domain.datasource.model.ColumnInfo;
+import com.insightdata.domain.datasource.model.DataSource;
+import com.insightdata.domain.datasource.model.TableInfo;
+
 import java.sql.Connection;
 import java.util.List;
 import java.util.Map;
-
-import com.insightdata.domain.metadata.model.ColumnInfo;
-import com.insightdata.domain.metadata.model.DataSource;
-import com.insightdata.domain.metadata.model.TableInfo;
 
 public interface DataSourceAdapter {
 

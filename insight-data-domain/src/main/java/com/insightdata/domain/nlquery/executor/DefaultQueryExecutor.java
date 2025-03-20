@@ -11,12 +11,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.insightdata.domain.datasource.model.DataSource;
 import org.springframework.stereotype.Component;
 
 import com.insightdata.domain.adapter.DataSourceAdapter;
 import com.insightdata.domain.adapter.DataSourceAdapterFactory;
 import com.insightdata.domain.adapter.DataSourceAdapterHelper;
-import com.insightdata.domain.metadata.model.DataSource;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

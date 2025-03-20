@@ -1,6 +1,6 @@
-package com.insightdata.domain.metadata.repository;
+package com.insightdata.domain.datasource.repository;
 
-import com.insightdata.domain.metadata.model.TableInfo;
+import com.insightdata.domain.datasource.model.TableInfo;
 
 import java.util.List;
 import java.util.Optional;

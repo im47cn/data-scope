@@ -1,61 +1,81 @@
 package com.insightdata.domain.security;
 
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
+import java.util.List;
+import java.util.Optional;
 
-import javax.annotation.PostConstruct;
-import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
-import java.security.SecureRandom;
-import java.util.Base64;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+/**
+ * 密钥管理服务接口
+ */
+public interface KeyManagementService {
 
-@Slf4j
-@Service
-public class KeyManagementService {
+    /**
+     * 创建新密钥
+     *
+     * @param purpose 密钥用途
+     * @return 新创建的密钥信息
+     */
+    KeyInfo createKey(String purpose);
 
-    private static final int KEY_SIZE = 256;
-    private static final String KEY_ALGORITHM = "AES";
-    
-    @Value("${security.encryption.master-key}")
-    private String masterKey;
-    
-    private final Map<String, SecretKey> keyCache = new ConcurrentHashMap<>();
-    private final SecureRandom secureRandom = new SecureRandom();
+    /**
+     * 获取当前活跃密钥
+     *
+     * @param purpose 密钥用途
+     * @return 当前活跃密钥信息
+     */
+    Optional<KeyInfo> getCurrentKey(String purpose);
 
-    @PostConstruct
-    public void init() {
-        if (keyCache.isEmpty()) {
-            generateNewKey();
-        }
-    }
+    /**
+     * 根据ID获取密钥
+     *
+     * @param keyId 密钥ID
+     * @return 密钥信息
+     */
+    Optional<KeyInfo> retrieveKeyById(String keyId);
 
-    public SecretKey getKey(String keyId) {
-        return keyCache.computeIfAbsent(keyId, k -> generateNewKey());
-    }
+    /**
+     * 轮换密钥
+     *
+     * @param purpose 密钥用途
+     * @return 新创建的密钥信息
+     */
+    KeyInfo rotateKey(String purpose);
 
-    private SecretKey generateNewKey() {
-        try {
-            byte[] keyBytes = new byte[KEY_SIZE / 8];
-            secureRandom.nextBytes(keyBytes);
-            String keyId = Base64.getEncoder().encodeToString(keyBytes).substring(0, 8);
-            SecretKey key = new SecretKeySpec(keyBytes, KEY_ALGORITHM);
-            keyCache.put(keyId, key);
-            return key;
-        } catch (Exception e) {
-            log.error("Failed to generate new key", e);
-            throw new SecurityException("Key generation failed", e);
-        }
-    }
+    /**
+     * 禁用密钥
+     *
+     * @param keyId 密钥ID
+     */
+    void disableKey(String keyId);
 
-    public void rotateKey(String keyId) {
-        keyCache.remove(keyId);
-        generateNewKey();
-    }
+    /**
+     * 启用密钥
+     *
+     * @param keyId 密钥ID
+     */
+    void enableKey(String keyId);
 
-    public String getCurrentKeyId() {
-        return keyCache.keySet().iterator().next();
-    }
+    /**
+     * 删除密钥
+     *
+     * @param keyId 密钥ID
+     */
+    void deleteKey(String keyId);
+
+    /**
+     * 更新密钥状态
+     *
+     * @param keyId 密钥ID
+     * @param status 新状态
+     */
+    void updateKeyStatus(String keyId, KeyStatus status);
+
+    /**
+     * 列出指定用途的所有密钥
+     *
+     * @param purpose 密钥用途
+     * @return 密钥列表
+      */
+     List<KeyInfo> listKeys(String purpose);
+
+    String getCurrentKeyId();
 }

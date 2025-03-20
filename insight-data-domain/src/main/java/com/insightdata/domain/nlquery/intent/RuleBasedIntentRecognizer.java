@@ -118,7 +118,7 @@ public class RuleBasedIntentRecognizer implements IntentRecognizer {
         } else if (TREND_PATTERN.matcher(normalizedText).find()) {
             return QueryPurpose.TREND_ANALYSIS;
         } else if (COMPARATIVE_PATTERN.matcher(normalizedText).find()) {
-            return QueryPurpose.COMPARISON_ANALYSIS;
+            return QueryPurpose.COMPARISON;
         } else if (ANOMALY_PATTERN.matcher(normalizedText).find()) {
             return QueryPurpose.ANOMALY_DETECTION;
         } else {

@@ -3,8 +3,8 @@ package com.insightdata.domain.adapter;
 import java.lang.reflect.Field;
 import java.util.Map;
 
-import com.insightdata.domain.metadata.enums.DataSourceType;
-import com.insightdata.domain.metadata.model.DataSource;
+import com.insightdata.domain.datasource.enums.DataSourceType;
+import com.insightdata.domain.datasource.model.DataSource;
 import lombok.extern.slf4j.Slf4j;
 
 /**

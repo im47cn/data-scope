@@ -11,11 +11,11 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
+import com.insightdata.domain.security.KeyStatus;
 import org.springframework.stereotype.Service;
 
-import com.insightdata.security.KeyInfo;
+import com.insightdata.domain.security.model.KeyInfo;
 import com.insightdata.security.KeyManagementService;
-import com.insightdata.security.KeyStatus;
 
 import lombok.extern.slf4j.Slf4j;
 

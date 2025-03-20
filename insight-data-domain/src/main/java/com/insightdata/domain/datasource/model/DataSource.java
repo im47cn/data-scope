@@ -1,8 +1,9 @@
-package com.insightdata.domain.datasource;
+package com.insightdata.domain.datasource.model;
 
 import java.time.LocalDateTime;
 import java.util.Set;
 
+import com.insightdata.domain.datasource.enums.DataSourceType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -106,17 +107,4 @@ public class DataSource {
      */
     private LocalDateTime updatedAt;
 
-    /**
-     * 数据源类型枚举
-     */
-    public enum DataSourceType {
-        MYSQL,
-        POSTGRESQL,
-        ORACLE,
-        SQLSERVER,
-        HIVE,
-        CLICKHOUSE,
-        DORIS,
-        STARROCKS
-    }
 }

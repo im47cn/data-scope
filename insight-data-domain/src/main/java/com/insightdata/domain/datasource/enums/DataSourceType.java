@@ -1,4 +1,4 @@
-package com.insightdata.domain.datasource;
+package com.insightdata.domain.datasource.enums;
 
 /**
  * 数据源类型

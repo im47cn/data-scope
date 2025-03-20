@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.insightdata.application.convertor.DataSourceConvertor;
-import com.insightdata.domain.metadata.model.DataSource;
 import com.insightdata.domain.metadata.service.DataSourceService;
 import com.insightdata.facade.metadata.DataSourceDTO;
 import com.insightdata.facade.metadata.SchemaInfoDTO;

@@ -9,9 +9,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import com.insightdata.domain.metadata.enums.DataSourceType;
-import com.insightdata.domain.metadata.model.DataSource;
-import com.insightdata.domain.metadata.repository.DataSourceRepository;
+import com.insightdata.domain.datasource.repository.DataSourceRepository;
 import com.insightdata.infrastructure.persistence.entity.DataSourceEntity;
 import com.insightdata.infrastructure.persistence.mapper.DataSourceMapper;
 

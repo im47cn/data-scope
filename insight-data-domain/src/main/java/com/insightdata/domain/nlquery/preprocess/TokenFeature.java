@@ -1,67 +1,113 @@
 package com.insightdata.domain.nlquery.preprocess;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
- * Token features for NLP preprocessing
+ * 词法特征
  */
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class TokenFeature {
-    
-    private String token;                // 原始词
-    private String normalizedToken;      // 标准化后的词
-    private LexicalFeature lexical;      // 词法特征
-    private GrammaticalFeature grammar;  // 语法特征
-    private boolean isStopWord;          // 是否是停用词
-    private boolean isCustomDictWord;    // 是否是自定义词典词
-    private double confidence;           // 置信度
-    
+
     /**
-     * Lexical features of a token
+     * 词元特征
+     */
+    private LexicalFeature lexical;
+
+    /**
+     * 语法特征
+     */
+    private GrammaticalDetails grammatical;
+
+    /**
+     * 语义特征
+     */
+    private SemanticFeature semantic;
+
+    /**
+     * 词元特征
      */
     @Data
     @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class LexicalFeature {
-        private String lemma;        // 词元
-        private String stem;         // 词干
-        private String pos;          // 词性
-        private String prefix;       // 前缀
-        private String suffix;       // 后缀
-        private boolean isCapital;   // 是否大写
-        private boolean isNumeric;   // 是否数字
-        private boolean isPunct;     // 是否标点
-        
         /**
-         * Create default lexical feature
+         * 词元
          */
-        public static LexicalFeature createDefault() {
-            return LexicalFeature.builder()
-                    .lemma("")
-                    .stem("")
-                    .pos("")
-                    .prefix("")
-                    .suffix("")
-                    .isCapital(false)
-                    .isNumeric(false)
-                    .isPunct(false)
-                    .build();
-        }
+        private String lemma;
+
+        /**
+         * 词性
+         */
+        private String pos;
+
+        /**
+         * 词根
+         */
+        private String stem;
+
+        /**
+         * 是否停用词
+         */
+        private Boolean isStopWord;
     }
-    
+
     /**
-     * Create default token feature
+     * 语法特征
      */
-    public static TokenFeature createDefault(String token) {
-        return TokenFeature.builder()
-                .token(token)
-                .normalizedToken(token.toLowerCase())
-                .lexical(LexicalFeature.createDefault())
-                .grammar(GrammaticalFeature.createDefault())
-                .isStopWord(false)
-                .isCustomDictWord(false)
-                .confidence(1.0)
-                .build();
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class GrammaticalDetails {
+        /**
+         * 依存关系
+         */
+        private String dependency;
+
+        /**
+         * 句法成分
+         */
+        private String syntacticComponent;
+
+        /**
+         * 语法功能
+         */
+        private String grammaticalFunction;
+    }
+
+    /**
+     * 语义特征
+     */
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class SemanticFeature {
+        /**
+         * 实体类型
+         */
+        private String entityType;
+
+        /**
+         * 语义角色
+         */
+        private String semanticRole;
+
+        /**
+         * 语义类别
+         */
+        private String semanticCategory;
+
+        /**
+         * 语义关系
+         */
+        private String semanticRelation;
     }
 }

@@ -1,6 +1,6 @@
 package com.insightdata.domain.metadata.service;
 
-import com.insightdata.domain.metadata.model.SchemaInfo;
+import com.insightdata.domain.datasource.model.SchemaInfo;
 import com.insightdata.domain.metadata.model.TableRelationship;
 import com.insightdata.domain.query.model.QueryHistory;
 

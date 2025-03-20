@@ -1,4 +1,4 @@
-package com.insightdata.domain.datasource;
+package com.insightdata.domain.datasource.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

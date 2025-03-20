@@ -1,6 +1,6 @@
 package com.insightdata.domain.nlquery.sql;
 
-import com.insightdata.domain.metadata.model.SchemaInfo;
+import com.insightdata.domain.datasource.model.SchemaInfo;
 import com.insightdata.domain.nlquery.entity.EntityTag;
 import com.insightdata.domain.nlquery.intent.QueryIntent;
 import lombok.Builder;

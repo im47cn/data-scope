@@ -6,8 +6,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.insightdata.domain.metadata.enums.DataSourceType;
-import com.insightdata.domain.metadata.model.DataSource;
 import com.insightdata.facade.metadata.DataSourceDTO;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Component;

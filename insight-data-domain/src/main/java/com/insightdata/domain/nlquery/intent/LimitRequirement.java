@@ -11,15 +11,6 @@ import lombok.Data;
 public class LimitRequirement {
 
     /**
-     * 限制类型枚举
-     */
-    public enum LimitType {
-        NONE,       // 无限制
-        TOP_N,      // 前N条
-        PAGINATION  // 分页
-    }
-
-    /**
      * 限制类型
      */
     private LimitType limitType;

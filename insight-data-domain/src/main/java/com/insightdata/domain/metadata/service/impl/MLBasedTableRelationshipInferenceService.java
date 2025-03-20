@@ -1,12 +1,12 @@
 package com.insightdata.domain.metadata.service.impl;
 
-import com.insightdata.domain.metadata.model.ColumnInfo;
-import com.insightdata.domain.metadata.model.SchemaInfo;
-import com.insightdata.domain.metadata.model.TableInfo;
+import com.insightdata.domain.datasource.model.ColumnInfo;
+import com.insightdata.domain.datasource.model.SchemaInfo;
+import com.insightdata.domain.datasource.model.TableInfo;
 import com.insightdata.domain.metadata.model.TableRelationship;
 import com.insightdata.domain.metadata.model.TableRelationship.RelationshipSource;
 import com.insightdata.domain.metadata.model.TableRelationship.RelationshipType;
-import com.insightdata.domain.metadata.repository.TableRelationshipRepository;
+import com.insightdata.domain.lowcode.repository.TableRelationshipRepository;
 import com.insightdata.domain.metadata.service.TableRelationshipInferenceService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

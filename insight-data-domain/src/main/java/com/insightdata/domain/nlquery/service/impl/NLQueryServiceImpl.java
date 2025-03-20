@@ -2,10 +2,10 @@ package com.insightdata.domain.nlquery.service.impl;
 
 import java.util.List;
 
+import com.insightdata.domain.datasource.model.DataSource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import com.insightdata.domain.metadata.model.DataSource;
 import com.insightdata.domain.nlquery.NLQueryRequest;
 import com.insightdata.domain.nlquery.converter.NLToSqlConverter;
 import com.insightdata.domain.nlquery.converter.SqlConversionResult;

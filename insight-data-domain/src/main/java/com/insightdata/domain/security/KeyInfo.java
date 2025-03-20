@@ -1,15 +1,21 @@
 package com.insightdata.domain.security;
 
+import java.time.LocalDateTime;
+
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-
-import java.time.LocalDateTime;
+import lombok.NoArgsConstructor;
+import lombok.experimental.Accessors;
 
 /**
  * 密钥信息
  */
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@Accessors(chain = true)
 public class KeyInfo {
 
     /**

@@ -20,7 +20,7 @@ public interface NLToSqlConverter {
         NLQueryRequest request = NLQueryRequest.builder()
             .query(naturalLanguageQuery)
             .dataSourceId(dataSourceId.toString())
-            .contextId(context.getContextId())
+            .dataSourceId(context.getDataSourceId())
             .build();
         return convert(request).getSql();
     }

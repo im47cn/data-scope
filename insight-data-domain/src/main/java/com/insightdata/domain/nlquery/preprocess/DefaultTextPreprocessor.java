@@ -85,7 +85,7 @@ public class DefaultTextPreprocessor implements TextPreprocessor {
                     .originalText(text)
                     .normalizedText(normalizedText)
                     .tokens(tokens)
-                    .language(language)
+//                    .language(language)
                     .tokenFeatures(features)
                     .corrections(corrections)
                     .build();

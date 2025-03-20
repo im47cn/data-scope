@@ -1,13 +1,14 @@
 package com.insightdata.domain.nlquery.entity;
 
-import com.insightdata.domain.nlquery.QueryContext;
-import com.insightdata.domain.nlquery.preprocess.PreprocessedText;
-import org.springframework.stereotype.Component;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.springframework.stereotype.Component;
+
+import com.insightdata.domain.nlquery.QueryContext;
+import com.insightdata.domain.nlquery.preprocess.PreprocessedText;
 
 /**
  * 基于规则的实体提取器
@@ -129,7 +130,7 @@ public class RuleBasedEntityExtractor implements EntityExtractor {
                 if (startPosition >= 0) {
                     entities.add(EntityTag.builder()
                             .value(token)
-                            .type(EntityType.TABLE)
+                            .type(com.insightdata.domain.nlquery.entity.EntityType.TABLE)
                             .startOffset(startPosition)
                             .endOffset(startPosition + token.length())
                             .confidence(0.8)
@@ -149,7 +150,7 @@ public class RuleBasedEntityExtractor implements EntityExtractor {
                 if (startOffset >= 0) {
                     entities.add(EntityTag.builder()
                             .value(token)
-                            .type(EntityType.COLUMN)
+                            .type(com.insightdata.domain.nlquery.entity.EntityType.COLUMN)
                             .startOffset(startOffset)
                             .endOffset(startOffset + token.length())
                             .confidence(0.8)
@@ -169,7 +170,7 @@ public class RuleBasedEntityExtractor implements EntityExtractor {
                 if (startOffset >= 0) {
                     entities.add(EntityTag.builder()
                             .value(token)
-                            .type(EntityType.VALUE)
+                            .type(com.insightdata.domain.nlquery.entity.EntityType.VALUE)
                             .startOffset(startOffset)
                             .endOffset(startOffset + token.length())
                             .confidence(0.9)
@@ -189,7 +190,7 @@ public class RuleBasedEntityExtractor implements EntityExtractor {
                 if (startPosition >= 0) {
                     entities.add(EntityTag.builder()
                             .value(token)
-                            .type(EntityType.FUNCTION)
+                            .type(com.insightdata.domain.nlquery.entity.EntityType.FUNCTION)
                             .startOffset(startPosition)
                             .endOffset(startPosition + token.length())
                             .confidence(0.9)
@@ -209,7 +210,7 @@ public class RuleBasedEntityExtractor implements EntityExtractor {
                 if (startOffset >= 0) {
                     entities.add(EntityTag.builder()
                             .value(token)
-                            .type(EntityType.OPERATOR)
+                            .type(com.insightdata.domain.nlquery.entity.EntityType.OPERATOR)
                             .startOffset(startOffset)
                             .endOffset(startOffset + token.length())
                             .confidence(0.9)
@@ -229,7 +230,7 @@ public class RuleBasedEntityExtractor implements EntityExtractor {
                 if (startPosition >= 0) {
                     entities.add(EntityTag.builder()
                             .value(token)
-                            .type(EntityType.CONDITION)
+                            .type(com.insightdata.domain.nlquery.entity.EntityType.CONDITION)
                             .startOffset(startPosition)
                             .endOffset(startPosition + token.length())
                             .confidence(0.8)
@@ -249,7 +250,7 @@ public class RuleBasedEntityExtractor implements EntityExtractor {
                 if (startOffset >= 0) {
                     entities.add(EntityTag.builder()
                             .value(token)
-                            .type(EntityType.ORDER)
+                            .type(com.insightdata.domain.nlquery.entity.EntityType.ORDER)
                             .startOffset(startOffset)
                             .endOffset(startOffset + token.length())
                             .confidence(0.9)
@@ -269,7 +270,7 @@ public class RuleBasedEntityExtractor implements EntityExtractor {
                 if (startPosition >= 0) {
                     entities.add(EntityTag.builder()
                             .value(token)
-                            .type(EntityType.LIMIT)
+                            .type(com.insightdata.domain.nlquery.entity.EntityType.LIMIT)
                             .startOffset(startPosition)
                             .endOffset(startPosition + token.length())
                             .confidence(0.9)
@@ -289,7 +290,7 @@ public class RuleBasedEntityExtractor implements EntityExtractor {
                 if (startPosition >= 0) {
                     entities.add(EntityTag.builder()
                             .value(token)
-                            .type(EntityType.GROUP)
+                            .type(com.insightdata.domain.nlquery.entity.EntityType.GROUP)
                             .startOffset(startPosition)
                             .endOffset(startPosition + token.length())
                             .confidence(0.9)
@@ -309,7 +310,7 @@ public class RuleBasedEntityExtractor implements EntityExtractor {
             String dateStr = matcher.group();
             entities.add(EntityTag.builder()
                     .value(dateStr)
-                    .type(EntityType.DATETIME)
+                    .type(com.insightdata.domain.nlquery.entity.EntityType.DATETIME)
                     .startOffset(matcher.start())
                     .endOffset(matcher.end())
                     .confidence(0.9)
@@ -329,7 +330,7 @@ public class RuleBasedEntityExtractor implements EntityExtractor {
                     int endOffset = normalizedText.indexOf(tokens.get(i + 4), startPosition) + tokens.get(i + 4).length();
                     entities.add(EntityTag.builder()
                             .value(dateStr)
-                            .type(EntityType.DATETIME)
+                            .type(com.insightdata.domain.nlquery.entity.EntityType.DATETIME)
                             .startOffset(startPosition)
                             .endOffset(endOffset)
                             .confidence(0.8)
@@ -348,7 +349,7 @@ public class RuleBasedEntityExtractor implements EntityExtractor {
             String numberStr = matcher.group();
             entities.add(EntityTag.builder()
                     .value(numberStr)
-                    .type(EntityType.NUMBER)
+                    .type(com.insightdata.domain.nlquery.entity.EntityType.NUMBER)
                     .startOffset(matcher.start())
                     .endOffset(matcher.end())
                     .confidence(0.9)
@@ -366,7 +367,7 @@ public class RuleBasedEntityExtractor implements EntityExtractor {
             String stringStr = matcher.group();
             entities.add(EntityTag.builder()
                     .value(stringStr)
-                    .type(EntityType.STRING)
+                    .type(com.insightdata.domain.nlquery.entity.EntityType.STRING)
                     .startOffset(matcher.start())
                     .endOffset(matcher.end())
                     .confidence(0.9)
@@ -386,7 +387,7 @@ public class RuleBasedEntityExtractor implements EntityExtractor {
                     int endOffset = normalizedText.indexOf(tokens.get(i + 2), startOffset) + tokens.get(i + 2).length();
                     entities.add(EntityTag.builder()
                             .value(stringStr)
-                            .type(EntityType.STRING)
+                            .type(com.insightdata.domain.nlquery.entity.EntityType.STRING)
                             .startOffset(startOffset)
                             .endOffset(endOffset)
                             .confidence(0.8)
@@ -405,7 +406,7 @@ public class RuleBasedEntityExtractor implements EntityExtractor {
             String booleanStr = matcher.group();
             entities.add(EntityTag.builder()
                     .value(booleanStr)
-                    .type(EntityType.BOOLEAN)
+                    .type(com.insightdata.domain.nlquery.entity.EntityType.BOOLEAN)
                     .startOffset(matcher.start())
                     .endOffset(matcher.end())
                     .confidence(0.9)

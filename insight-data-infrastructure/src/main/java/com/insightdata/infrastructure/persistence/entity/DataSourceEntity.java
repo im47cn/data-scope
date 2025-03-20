@@ -3,8 +3,6 @@ package com.insightdata.infrastructure.persistence.entity;
 import java.time.LocalDateTime;
 import java.util.Map;
 
-import com.insightdata.domain.metadata.enums.DataSourceType;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

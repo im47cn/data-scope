@@ -6,12 +6,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.insightdata.domain.datasource.model.ColumnInfo;
+import com.insightdata.domain.datasource.model.SchemaInfo;
+import com.insightdata.domain.datasource.model.TableInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.insightdata.domain.metadata.model.ColumnInfo;
-import com.insightdata.domain.metadata.model.SchemaInfo;
-import com.insightdata.domain.metadata.model.TableInfo;
 import com.insightdata.domain.metadata.service.DataSourceService;
 import com.insightdata.domain.nlquery.QueryContext;
 import com.insightdata.domain.nlquery.preprocess.PreprocessedText;
@@ -54,7 +54,7 @@ public class MetadataBasedEntityExtractor implements EntityExtractor {
                 TableInfo table = tableMap.get(normalizedToken);
                 entities.add(EntityTag.builder()
                         .value(table.getName()) // Use original case for value
-                        .type(EntityType.TABLE)
+                        .type(EntityType.TABLE) // Use the enum
                         .confidence(1.0) // Metadata-based extraction is high confidence
                         .build());
             } else if (context.isUseFuzzyMatching()) {
@@ -64,7 +64,7 @@ public class MetadataBasedEntityExtractor implements EntityExtractor {
                         TableInfo table = tableMap.get(tableName);
                         entities.add(EntityTag.builder()
                                 .value(table.getName()) // Use original case for value
-                                .type(EntityType.TABLE)
+                                .type(com.insightdata.domain.nlquery.entity.EntityType.TABLE) // Use the enum
                                 .confidence(similarity)
                                 .build());
                     }
@@ -89,7 +89,7 @@ public class MetadataBasedEntityExtractor implements EntityExtractor {
                 ColumnInfo column = columnMap.get(normalizedToken);
                 entities.add(EntityTag.builder()
                         .value(column.getName()) // Use original case for value
-                        .type(EntityType.COLUMN)
+                        .type(EntityType.COLUMN) // Use the enum
                         .confidence(1.0)
                         .build());
             }
@@ -115,9 +115,8 @@ public class MetadataBasedEntityExtractor implements EntityExtractor {
     public List<EntityTag> extract(PreprocessedText preprocessedText) {
         // 创建默认上下文
         EntityExtractionContext defaultContext = EntityExtractionContext.builder()
-                .fuzzyMatchingEnabled(true)
+                .useFuzzyMatching(true)
                 .minConfidence(0.7)
-                .metadataEnabled(true)
                 .build();
 
         // 调用已实现的方法

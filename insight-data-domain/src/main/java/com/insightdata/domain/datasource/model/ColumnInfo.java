@@ -1,4 +1,4 @@
-package com.insightdata.domain.datasource;
+package com.insightdata.domain.datasource.model;
 
 import java.util.List;
 

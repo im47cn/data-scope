@@ -1,7 +1,7 @@
 package com.insightdata.infrastructure.persistence.repository;
 
 import com.insightdata.domain.lowcode.model.DataBinding;
-import com.insightdata.domain.metadata.repository.DataBindingRepository;
+import com.insightdata.domain.lowcode.repository.DataBindingRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;

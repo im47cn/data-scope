@@ -1,7 +1,7 @@
-package com.insightdata.domain.metadata.repository;
+package com.insightdata.domain.datasource.repository;
 
-import com.insightdata.domain.metadata.enums.DataSourceType;
-import com.insightdata.domain.metadata.model.DataSource;
+import com.insightdata.domain.datasource.enums.DataSourceType;
+import com.insightdata.domain.datasource.model.DataSource;
 
 import java.util.List;
 import java.util.Optional;

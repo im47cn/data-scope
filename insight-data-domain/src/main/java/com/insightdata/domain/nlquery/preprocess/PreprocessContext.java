@@ -1,83 +1,78 @@
 package com.insightdata.domain.nlquery.preprocess;
 
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
-
-import com.insightdata.domain.metadata.model.SchemaInfo;
 
 /**
- * Context for text preprocessing
+ * 预处理上下文
  */
 @Data
 @Builder
-@NoArgsConstructor
-@AllArgsConstructor
 public class PreprocessContext {
 
     /**
-     * Data source ID
+     * 数据源ID
      */
     private Long dataSourceId;
 
     /**
-     * User ID
+     * 用户ID
      */
     private Long userId;
 
     /**
-     * Session ID
+     * 会话ID
      */
     private String sessionId;
 
     /**
-     * Domain
+     * 领域
      */
     private String domain;
 
     /**
-     * Schema metadata
-     */
-    private SchemaInfo metadata;
-
-    /**
-     * Language
+     * 语言
      */
     private String language;
 
     /**
-     * Enable spelling correction
+     * 时区
      */
-    private boolean enableSpellingCorrection;
+    private String timezone;
 
     /**
-     * Enable stop word removal
+     * 创建一个基本的预处理上下文
      */
-    private boolean enableStopWordRemoval;
+    public static PreprocessContext basic(Long dataSourceId, Long userId) {
+        return PreprocessContext.builder()
+                .dataSourceId(dataSourceId)
+                .userId(userId)
+                .build();
+    }
 
     /**
-     * Enable lemmatization
+     * 创建一个带会话信息的预处理上下文
      */
-    private boolean enableLemmatization;
+    public static PreprocessContext withSession(Long dataSourceId, Long userId, String sessionId) {
+        return PreprocessContext.builder()
+                .dataSourceId(dataSourceId)
+                .userId(userId)
+                .sessionId(sessionId)
+                .build();
+    }
 
     /**
-     * Enable stemming
+     * 创建一个完整的预处理上下文
      */
-    private boolean enableStemming;
-
-    /**
-     * Enable named entity recognition
-     */
-    private boolean enableNER;
-
-    /**
-     * Enable part of speech tagging
-     */
-    private boolean enablePOSTagging;
-
-    /**
-     * Enable dependency parsing
-     */
-    private boolean enableDependencyParsing;
+    public static PreprocessContext complete(Long dataSourceId, Long userId, String sessionId,
+            String domain, String language, String timezone) {
+        return PreprocessContext.builder()
+                .dataSourceId(dataSourceId)
+                .userId(userId)
+                .sessionId(sessionId)
+                .domain(domain)
+                .language(language)
+                .timezone(timezone)
+                .build();
+    }
 }

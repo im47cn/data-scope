@@ -7,7 +7,7 @@ import com.insightdata.domain.lowcode.model.DataBinding;
 import com.insightdata.domain.lowcode.model.Page;
 import com.insightdata.domain.lowcode.repository.AppRepository;
 import com.insightdata.domain.lowcode.repository.ComponentRepository;
-import com.insightdata.domain.metadata.repository.DataBindingRepository;
+import com.insightdata.domain.lowcode.repository.DataBindingRepository;
 import com.insightdata.domain.lowcode.repository.PageRepository;
 import com.insightdata.domain.lowcode.service.LowCodeService;
 import com.fasterxml.jackson.databind.ObjectMapper;

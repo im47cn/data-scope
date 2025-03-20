@@ -1,10 +1,10 @@
 package com.insightdata.domain.adapter;
 
-import java.util.List;
+import com.insightdata.domain.datasource.model.DataSource;
+import com.insightdata.domain.datasource.model.SchemaInfo;
+import com.insightdata.domain.datasource.model.TableInfo;
 
-import com.insightdata.domain.metadata.model.DataSource;
-import com.insightdata.domain.metadata.model.SchemaInfo;
-import com.insightdata.domain.metadata.model.TableInfo;
+import java.util.List;
 
 /**
  * 增强型数据源适配器接口，提供基于领域对象的高级抽象方法

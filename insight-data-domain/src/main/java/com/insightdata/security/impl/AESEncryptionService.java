@@ -13,7 +13,7 @@ import javax.crypto.spec.SecretKeySpec;
 import org.springframework.stereotype.Service;
 
 import com.insightdata.security.EncryptionService;
-import com.insightdata.security.KeyInfo;
+import com.insightdata.domain.security.model.KeyInfo;
 import com.insightdata.security.KeyManagementService;
 
 import lombok.RequiredArgsConstructor;

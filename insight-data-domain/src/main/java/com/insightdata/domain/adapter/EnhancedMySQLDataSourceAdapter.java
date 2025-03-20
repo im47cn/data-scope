@@ -1,6 +1,6 @@
 package com.insightdata.domain.adapter;
 
-import com.insightdata.domain.datasource.*;
+import com.insightdata.domain.datasource.model.*;
 import com.insightdata.domain.security.encryption.EncryptionService;
 
 import java.util.List;

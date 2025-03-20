@@ -1,9 +1,12 @@
-package com.insightdata.domain.datasource;
+package com.insightdata.domain.datasource.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 外键信息
@@ -82,4 +85,41 @@ public class ForeignKeyInfo {
      * 外键注释
      */
     private String comment;
+
+    /**
+     * 获取源列名列表
+     * @return 源列名列表
+     */
+    public List<String> getSourceColumnNames() {
+        return columns.stream()
+                .map(ForeignKeyColumnInfo::getSourceColumnName)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * 获取目标列名列表
+     * @return 目标列名列表
+     */
+    public List<String> getTargetColumnNames() {
+        return columns.stream()
+                .map(ForeignKeyColumnInfo::getTargetColumnName)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * 获取源列名字符串（逗号分隔）
+     * @return 源列名字符串
+     */
+    public String getSourceColumnNamesAsString() {
+        return String.join(",", getSourceColumnNames());
+    }
+
+    /**
+     * 获取目标列名字符串（逗号分隔）
+     * @return 目标列名字符串
+     */
+    public String getTargetColumnNamesAsString() {
+        return String.join(",", getTargetColumnNames());
+    }
+
 }

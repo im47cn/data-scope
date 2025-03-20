@@ -6,7 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * Entity tag for text preprocessing
+ * Entity tag class that represents an identified entity in text
  */
 @Data
 @Builder
@@ -25,12 +25,12 @@ public class EntityTag {
     private String value;
 
     /**
-     * Start offset in original text
+     * Start offset in text
      */
     private int startOffset;
 
     /**
-     * End offset in original text
+     * End offset in text
      */
     private int endOffset;
 
@@ -40,50 +40,26 @@ public class EntityTag {
     private double confidence;
 
     /**
-     * Create a new entity tag
+     * Entity source
      */
-    public static EntityTag of(EntityType type, String value) {
-        return EntityTag.builder()
-                .type(type)
-                .value(value)
-                .confidence(1.0)
-                .build();
-    }
+    private EntitySource source;
 
     /**
-     * Create a new entity tag with confidence
+     * Additional metadata
      */
-    public static EntityTag of(EntityType type, String value, double confidence) {
-        return EntityTag.builder()
-                .type(type)
-                .value(value)
-                .confidence(confidence)
-                .build();
-    }
+    private String metadata;
 
     /**
-     * Create a new entity tag with offsets
-     */
-    public static EntityTag of(EntityType type, String value, int startOffset, int endOffset) {
-        return EntityTag.builder()
-                .type(type)
-                .value(value)
-                .startOffset(startOffset)
-                .endOffset(endOffset)
-                .confidence(1.0)
-                .build();
-    }
 
     /**
-     * Create a new entity tag with all fields
+     * Entity source enum
      */
-    public static EntityTag of(EntityType type, String value, int startOffset, int endOffset, double confidence) {
-        return EntityTag.builder()
-                .type(type)
-                .value(value)
-                .startOffset(startOffset)
-                .endOffset(endOffset)
-                .confidence(confidence)
-                .build();
+    public enum EntitySource {
+        METADATA,           // 元数据
+        RULE,              // 规则
+        DICTIONARY,        // 字典
+        MACHINE_LEARNING,  // 机器学习
+        USER_FEEDBACK,     // 用户反馈
+        UNKNOWN           // 未知来源
     }
 }

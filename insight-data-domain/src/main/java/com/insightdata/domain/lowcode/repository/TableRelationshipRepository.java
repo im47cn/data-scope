@@ -1,4 +1,4 @@
-package com.insightdata.domain.metadata.repository;
+package com.insightdata.domain.lowcode.repository;
 
 import com.insightdata.domain.metadata.model.TableRelationship;
 

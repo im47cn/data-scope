@@ -8,7 +8,8 @@ import lombok.Data;
 public class TimeRange {
     public enum TimeType {
         ABSOLUTE,  // 绝对时间范围
-        RELATIVE   // 相对时间范围
+        RELATIVE,   // 相对时间范围
+        UNSPECIFIED
     }
 
     public enum TimeUnit {

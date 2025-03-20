@@ -9,11 +9,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.insightdata.domain.datasource.model.ColumnInfo;
+import com.insightdata.domain.datasource.model.TableInfo;
 import org.springframework.stereotype.Component;
 
 import com.insightdata.domain.exception.DataSourceException;
-import com.insightdata.domain.metadata.model.ColumnInfo;
-import com.insightdata.domain.metadata.model.TableInfo;
 import com.insightdata.domain.nlquery.executor.QueryResult;
 
 import lombok.extern.slf4j.Slf4j;

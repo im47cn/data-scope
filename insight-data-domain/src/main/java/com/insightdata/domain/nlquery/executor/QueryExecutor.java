@@ -1,6 +1,6 @@
 package com.insightdata.domain.nlquery.executor;
 
-import com.insightdata.domain.metadata.model.DataSource;
+import com.insightdata.domain.datasource.model.DataSource;
 
 public interface QueryExecutor {
     QueryResult execute(String sql, DataSource dataSource);

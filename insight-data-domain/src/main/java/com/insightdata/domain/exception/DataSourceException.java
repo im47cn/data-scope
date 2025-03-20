@@ -5,17 +5,17 @@ package com.insightdata.domain.exception;
  */
 public class DataSourceException extends RuntimeException {
     
-    public static DataSourceException notFound(String message) {
-        return new DataSourceException(message);
-    }
-
-    public static DataSourceException alreadyExists(String message) {
-        return new DataSourceException(message);
-    }
-
     public DataSourceException(String message) {
         super(message);
     }
+    
+        public static DataSourceException alreadyExists(String message) {
+            return new DataSourceException(message);
+        }
+    
+        public static DataSourceException notFound(String message) {
+            return new DataSourceException(message);
+        }
 
     public DataSourceException(String message, Throwable cause) {
         super(message, cause);

@@ -1,11 +1,11 @@
 package com.insightdata.domain.nlquery.intent;
 
-import java.util.List;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 /**
  * Query intent class that represents the intent of a natural language query
@@ -42,30 +42,48 @@ public class QueryIntent {
     private LimitRequirement limitRequirement;
 
     /**
+     * Filter conditions
+     */
+    private List<FilterCondition> filterConditions;
+
+    /**
+     * Group by fields
+     */
+    private List<String> groupByFields;
+
+    /**
+     * Having conditions
+     */
+    private List<FilterCondition> havingConditions;
+
+    /**
+     * Selected fields
+     */
+    private List<String> selectedFields;
+
+    /**
      * Confidence score
      */
     private double confidence;
 
     /**
-     * Query type enum
+     * Intent source
      */
-    public enum QueryType {
-        SELECT,
-        COUNT,
-        SUM,
-        AVG,
-        MAX,
-        MIN,
-        GROUP
-    }
+    private IntentSource source;
 
     /**
-     * Query purpose enum
+     * Additional metadata
      */
-    public enum QueryPurpose {
-        DATA_RETRIEVAL,
-        STATISTICAL_ANALYSIS,
-        TREND_ANALYSIS,
-        COMPARISON_ANALYSIS
+    private String metadata;
+
+    /**
+     * Intent source enum
+     */
+    public enum IntentSource {
+        RULE_BASED,          // Rule-based recognition
+        MACHINE_LEARNING,    // Machine learning model
+        USER_FEEDBACK,       // User feedback
+        HYBRID,             // Hybrid approach
+        UNKNOWN             // Unknown source
     }
 }

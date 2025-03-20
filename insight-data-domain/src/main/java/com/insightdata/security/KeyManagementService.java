@@ -1,5 +1,8 @@
 package com.insightdata.security;
 
+import com.insightdata.domain.security.KeyStatus;
+import com.insightdata.domain.security.model.KeyInfo;
+
 import java.util.List;
 import java.util.Optional;
 

@@ -1,28 +1,42 @@
 package com.insightdata.domain.nlquery.entity;
 
-import com.insightdata.domain.metadata.model.SchemaInfo;
-
-import lombok.AllArgsConstructor;
+import com.insightdata.domain.datasource.model.SchemaInfo;
 import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Data
 @Builder
-@NoArgsConstructor
-@AllArgsConstructor
 public class EntityExtractionContext {
-    private Boolean fuzzyMatchingEnabled;
-    private Double minConfidence;
-    private Boolean metadataEnabled;
-    private String dataSourceId;
-    private SchemaInfo metadata;
-
-    public boolean isUseFuzzyMatching() {
-        return fuzzyMatchingEnabled != null && fuzzyMatchingEnabled;
-    }
+    private boolean useFuzzyMatching;
+    private double minConfidence;
 
     public boolean isUseMetadata() {
-        return metadataEnabled != null && metadataEnabled;
+        return true;
+    }
+
+    public String getDataSourceId(){
+        return "";
+    }
+    public SchemaInfo getMetadata(){
+        return null;
+    }
+
+    public void setMetadata(SchemaInfo metadata){
+        return;
+    }
+    public boolean isUseFuzzyMatching(){
+        return this.useFuzzyMatching;
+    }
+    public double getMinConfidence(){
+        return this.minConfidence;
+    }
+
+    public EntityExtractionContext(boolean useFuzzyMatching, double minConfidence) {
+        this.useFuzzyMatching = useFuzzyMatching;
+        this.minConfidence = minConfidence;
+    }
+
+    public EntityExtractionContext() {
+
     }
 }

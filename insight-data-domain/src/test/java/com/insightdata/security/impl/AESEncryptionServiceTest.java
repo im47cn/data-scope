@@ -1,9 +1,8 @@
 package com.insightdata.security.impl;
 
 import com.insightdata.security.EncryptionException;
-import com.insightdata.security.KeyInfo;
+import com.insightdata.domain.security.model.KeyInfo;
 import com.insightdata.security.KeyManagementService;
-import com.insightdata.security.KeyStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
