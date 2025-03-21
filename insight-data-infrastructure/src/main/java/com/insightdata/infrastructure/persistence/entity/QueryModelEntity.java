@@ -3,9 +3,13 @@ package com.insightdata.infrastructure.persistence.entity;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.insightdata.domain.querybuilder.model.ModelStatus;
+
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@NoArgsConstructor
 public class QueryModelEntity {
     private String id;
     private String name;
@@ -25,5 +29,5 @@ public class QueryModelEntity {
     private String updatedBy;
     private boolean isPublic;
     private List<String> tags; // Store as JSON string
-    private String status;
+    private ModelStatus status;
 }
