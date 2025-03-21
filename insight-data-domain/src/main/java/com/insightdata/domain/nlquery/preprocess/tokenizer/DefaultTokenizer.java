@@ -1,5 +1,7 @@
 package com.insightdata.domain.nlquery.preprocess.tokenizer;
 
+import org.springframework.stereotype.Component;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -9,6 +11,7 @@ import java.util.regex.Pattern;
  * 默认分词器
  * 实现基本的分词功能
  */
+@Component
 public class DefaultTokenizer implements Tokenizer {
     
     // 分词正则表达式

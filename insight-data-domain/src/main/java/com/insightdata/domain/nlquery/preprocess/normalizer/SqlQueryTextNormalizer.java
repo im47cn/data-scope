@@ -1,5 +1,7 @@
 package com.insightdata.domain.nlquery.preprocess.normalizer;
 
+import org.springframework.stereotype.Component;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -7,6 +9,7 @@ import java.util.regex.Pattern;
  * SQL查询文本标准化器
  * 专门用于处理SQL查询相关的文本
  */
+@Component
 public class SqlQueryTextNormalizer extends DefaultTextNormalizer {
 
     // SQL关键字正则表达式

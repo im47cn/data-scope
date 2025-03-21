@@ -1,7 +1,8 @@
 package com.insightdata.domain.nlquery.preprocess;
 
 import com.insightdata.domain.nlquery.preprocess.normalizer.TextNormalizer;
-import lombok.RequiredArgsConstructor;
+import com.insightdata.domain.nlquery.preprocess.tokenizer.Tokenizer;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -13,11 +14,13 @@ import java.util.Map;
  * 默认文本预处理器实现
  */
 @Component
-@RequiredArgsConstructor
 public class DefaultTextPreprocessor implements TextPreprocessor {
 
-    private final TextNormalizer textNormalizer;
-    private final Tokenizer tokenizer;
+    @Autowired
+    private TextNormalizer textNormalizer;
+
+    @Autowired
+    private Tokenizer tokenizer;
 
     @Override
     public PreprocessedText preprocess(String text) {
