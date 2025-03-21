@@ -1,0 +1,27 @@
+<![CDATA[<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.insightdata.infrastructure.persistence.mapper.QueryModelMapper">
+
+    <resultMap id="BaseResultMap" type="com.insightdata.infrastructure.persistence.entity.QueryModelEntity">
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="description" column="description"/>
+        <result property="dataSources" column="data_sources" typeHandler="org.apache.ibatis.type.StringTypeHandler"/>
+        <result property="tables" column="tables" typeHandler="org.apache.ibatis.type.StringTypeHandler"/>
+        <result property="fields" column="fields" typeHandler="org.apache.ibatis.type.StringTypeHandler"/>
+        <result property="joins" column="joins" typeHandler="org.apache.ibatis.type.StringTypeHandler"/>
+        <result property="rootFilter" column="root_filter" typeHandler="org.apache.ibatis.type.StringTypeHandler"/>
+        <result property="groupBy" column="group_by" typeHandler="org.apache.ibatis.type.StringTypeHandler"/>
+        <result property="orderBy" column="order_by" typeHandler="org.apache.ibatis.type.StringTypeHandler"/>
+        <result property="parameters" column="parameters" typeHandler="org.apache.ibatis.type.StringTypeHandler"/>
+        <result property="options" column="options" typeHandler="org.apache.ibatis.type.StringTypeHandler"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+        <result property="createdBy" column="created_by"/>
+        <result property="updatedBy" column="updated_by"/>
+        <result property="isPublic" column="is_public"/>
+        <result property="tags" column="tags" typeHandler="org.apache.ibatis.type.StringTypeHandler"/>
+        <result property="status" column="status"/>
+    </resultMap>
+</mapper>
+]]>
