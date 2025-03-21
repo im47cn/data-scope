@@ -1,134 +1,64 @@
-/**
- * 主应用程序
- */
-const app = new Vue({
-    router,
-    data: {
-        collapsed: false,
-        menuItems: [
-            {
-                key: 'dashboard',
-                icon: 'dashboard',
-                title: '仪表盘',
-                path: '/dashboard'
-            },
-            {
-                key: 'datasource',
-                icon: 'database',
-                title: '数据源管理',
-                path: '/datasource/list'
-            },
-            {
-                key: 'query-builder',
-                icon: 'build',
-                title: '查询构建器',
-                path: '/query-builder'
-            },
-            {
-                key: 'nl-query',
-                icon: 'robot',
-                title: '自然语言查询',
-                path: '/nl-query'
-            },
-            {
-                key: 'low-code',
-                icon: 'code',
-                title: '低代码集成',
-                path: '/low-code'
-            },
-            {
-                key: 'table-relationships',
-                icon: 'apartment',
-                title: '表关系管理',
-                path: '/table-relationships'
-            },
-            {
-                key: 'settings',
-                icon: 'setting',
-                title: '系统设置',
-                path: '/settings'
-            }
-        ]
+// 定义路由
+const routes = [
+  { path: '/', component: Dashboard },
+  { path: '/dashboard', component: Dashboard },
+  { path: '/datasource', component: Datasource },
+  { path: '/data-browse', component: DataBrowse },
+  { path: '/query-builder', component: QueryBuilder },
+  // 其他路由将在实现相应组件后添加
+]
+
+// 创建路由实例
+const router = VueRouter.createRouter({
+  history: VueRouter.createWebHashHistory(),
+  routes
+})
+
+// 创建Vue应用
+const app = Vue.createApp({
+  data() {
+    return {
+      // 全局状态
+      user: {
+        name: '管理员',
+        avatar: 'https://randomuser.me/api/portraits/men/1.jpg',
+        role: 'admin'
+      },
+      sidebarCollapsed: false,
+      darkMode: false
+    }
+  },
+  methods: {
+    toggleSidebar() {
+      this.sidebarCollapsed = !this.sidebarCollapsed
     },
-    computed: {
-        activeMenuKey() {
-            const path = this.$route.path;
-            
-            // 根据路径确定激活的菜单项
-            if (path.startsWith('/dashboard')) {
-                return 'dashboard';
-            } else if (path.startsWith('/datasource')) {
-                return 'datasource';
-            } else if (path.startsWith('/query-builder')) {
-                return 'query-builder';
-            } else if (path.startsWith('/nl-query')) {
-                return 'nl-query';
-            } else if (path.startsWith('/low-code')) {
-                return 'low-code';
-            } else if (path.startsWith('/table-relationships')) {
-                return 'table-relationships';
-            } else if (path.startsWith('/settings')) {
-                return 'settings';
-            }
-            
-            return 'dashboard';
-        }
-    },
-    methods: {
-        toggleCollapsed() {
-            this.collapsed = !this.collapsed;
-        },
-        handleMenuClick(item) {
-            this.$router.push(item.path);
-        }
-    },
-    template: `
-        <a-layout id="app" style="min-height: 100vh">
-            <a-layout-sider
-                v-model="collapsed"
-                collapsible
-                breakpoint="lg"
-                theme="dark"
-            >
-                <div class="logo">
-                    <img src="/static/img/logo.png" alt="Logo" />
-                    <h1 v-if="!collapsed">DataScope</h1>
-                </div>
-                <a-menu
-                    theme="dark"
-                    mode="inline"
-                    :selectedKeys="[activeMenuKey]"
-                >
-                    <a-menu-item
-                        v-for="item in menuItems"
-                        :key="item.key"
-                        @click="handleMenuClick(item)"
-                    >
-                        <a-icon :type="item.icon" />
-                        <span>{{ item.title }}</span>
-                    </a-menu-item>
-                </a-menu>
-            </a-layout-sider>
-            
-            <a-layout>
-                <a-layout-header style="background: #fff; padding: 0">
-                    <a-icon
-                        class="trigger"
-                        :type="collapsed ? 'menu-unfold' : 'menu-fold'"
-                        @click="toggleCollapsed"
-                    />
-                </a-layout-header>
-                
-                <a-layout-content style="margin: 24px 16px 0">
-                    <div class="content-container">
-                        <router-view></router-view>
-                    </div>
-                </a-layout-content>
-                
-                <a-layout-footer style="text-align: center">
-                    DataScope &copy; 2025 Created by YeeWorks
-                </a-layout-footer>
-            </a-layout>
-        </a-layout>
-    `
-}).$mount('#app');
+    toggleDarkMode() {
+      this.darkMode = !this.darkMode
+      document.documentElement.classList.toggle('dark', this.darkMode)
+    }
+  },
+  mounted() {
+    // 检查本地存储中的暗黑模式设置
+    const savedDarkMode = localStorage.getItem('darkMode') === 'true'
+    if (savedDarkMode) {
+      this.darkMode = true
+      document.documentElement.classList.add('dark')
+    }
+  },
+  watch: {
+    darkMode(newValue) {
+      // 保存暗黑模式设置到本地存储
+      localStorage.setItem('darkMode', newValue)
+    }
+  }
+})
+
+// 注册全局组件
+app.component('Navbar', Navbar)
+app.component('Sidebar', Sidebar)
+
+// 使用路由
+app.use(router)
+
+// 挂载应用
+app.mount('#app')

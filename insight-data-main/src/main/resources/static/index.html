@@ -1,62 +1,48 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>InsightData - 数据洞察平台</title>
-    
-    <!-- 图标 -->
-    <link rel="icon" href="img/logo.png">
-    <!-- 如果logo.png不存在，使用默认图标 -->
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📊</text></svg>">
-    
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="/vanders/font-awesome@6.4.0/css/all.min.css">
-    
-    <!-- CodeMirror CSS -->
-    <link rel="stylesheet" href="/vanders/codemirror@5.65.2/codemirror.min.css">
-    <link rel="stylesheet" href="/vanders/codemirror@5.65.2/theme/idea.min.css">
-    
-    <!-- 自定义样式 -->
-    <link rel="stylesheet" href="/css/style.css">
-    
-    <!-- 字体 -->
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>数据洞察平台</title>
+  
+  <!-- 引入样式 -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="css/styles.css">
+  
+  <!-- 引入Vue和Vue Router -->
+  <script src="https://cdn.jsdelivr.net/npm/vue@3.2.47/dist/vue.global.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vue-router@4.1.6/dist/vue-router.global.js"></script>
 </head>
 <body>
-    <div id="app">
-        <!-- Vue应用将在这里挂载 -->
-        <div class="loading">
-            <div class="spinner"></div>
-            <p>加载中...</p>
+  <div id="app">
+    <div class="main-container">
+      <!-- 顶部导航栏 -->
+      <Navbar></Navbar>
+      
+      <div class="content-container">
+        <!-- 侧边栏 -->
+        <Sidebar :collapsed="sidebarCollapsed" @toggle-collapse="toggleSidebar"></Sidebar>
+        
+        <!-- 主内容区域 -->
+        <div class="page-content">
+          <router-view></router-view>
         </div>
+      </div>
     </div>
-
-    <!-- Vue -->
-    <script src="/vanders/vue@2.7.14/vue.min.js"></script>
-    <script src="/vanders/vue-router@3.6.5/vue-router.min.js"></script>
-    
-    <!-- Axios -->
-    <script src="/vanders/axios@1.6.2/axios.min.js"></script>
-    
-    <!-- CodeMirror -->
-    <script src="/vanders/codemirror@5.65.2/codemirror.min.js"></script>
-    <script src="/vanders/codemirror@5.65.2/mode/sql/sql.min.js"></script>
-    <script src="/vanders/codemirror@5.65.2/addon/hint/show-hint.min.js"></script>
-    <script src="/vanders/codemirror@5.65.2/addon/hint/sql-hint.min.js"></script>
-    
-    <!-- 服务 (添加版本参数避免缓存) -->
-    <script src="js/services/util-service.js?v=1.0.2"></script>
-    <script src="js/services/datasource-service.js?v=1.0.2"></script>
-    
-    <!-- 组件 (确保按正确顺序加载) -->
-    <script src="js/datasource/datasource-list.js?v=1.0.2"></script>
-    <script src="js/datasource/datasource-detail.js?v=1.0.2"></script>
-    <script src="js/datasource/datasource-form.js?v=1.0.2"></script>
-    <script src="js/datasource/datasource.js?v=1.0.2"></script>
-    <script src="js/dashboard/dashboard.js?v=1.0.2"></script>
-    
-    <!-- 主应用 -->
-    <script src="js/main.js?v=1.0.2"></script>
+  </div>
+  
+  <!-- 引入组件 -->
+  <script src="js/components/Navbar.js"></script>
+  <script src="js/components/Sidebar.js"></script>
+  
+  <!-- 引入视图 -->
+  <script src="js/views/Dashboard.js"></script>
+  <script src="js/views/Datasource.js"></script>
+  <script src="js/views/DataBrowse.js"></script>
+  <script src="js/views/QueryBuilder.js"></script>
+  
+  <!-- 引入主应用 -->
+  <script src="js/app.js"></script>
 </body>
 </html>
