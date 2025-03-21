@@ -4,22 +4,34 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>InsightData - 数据洞察平台</title>
-    
+
     <!-- 图标 -->
     <link rel="icon" href="img/logo.png">
     <!-- 如果logo.png不存在，使用默认图标 -->
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📊</text></svg>">
-    
+
     <!-- Font Awesome -->
     <link rel="stylesheet" href="/vanders/font-awesome@6.4.0/css/all.min.css">
-    
+
     <!-- CodeMirror CSS -->
     <link rel="stylesheet" href="/vanders/codemirror@5.65.2/codemirror.min.css">
     <link rel="stylesheet" href="/vanders/codemirror@5.65.2/theme/idea.min.css">
-    
+
     <!-- 自定义样式 -->
-    <link rel="stylesheet" href="/css/style.css">
-    
+    <link rel="stylesheet" href="./css/style.css">
+    <link rel="stylesheet" href="./css/condition-builder.css">
+    <link rel="stylesheet" href="./css/join-panel.css">
+    <link rel="stylesheet" href="./css/parameter-input.css">
+    <link rel="stylesheet" href="./css/query-builder-page.css">
+    <link rel="stylesheet" href="./css/query-builder.css">
+    <link rel="stylesheet" href="./css/query-history.css">
+    <link rel="stylesheet" href="./css/query-plan.css">
+    <link rel="stylesheet" href="./css/query-template.css">
+    <link rel="stylesheet" href="./css/query-workspace.css">
+    <link rel="stylesheet" href="./css/results-preview.css">
+    <link rel="stylesheet" href="./css/sql-highlight.css">
+    <link rel="stylesheet" href="./css/sql-preview.css">
+
     <!-- 字体 -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap">
 </head>
@@ -35,28 +47,28 @@
     <!-- Vue -->
     <script src="/vanders/vue@2.7.14/vue.min.js"></script>
     <script src="/vanders/vue-router@3.6.5/vue-router.min.js"></script>
-    
+
     <!-- Axios -->
     <script src="/vanders/axios@1.6.2/axios.min.js"></script>
-    
+
     <!-- CodeMirror -->
-    <script src="/vanders/codemirror@5.65.2/codemirror.min.js"></script>
-    <script src="/vanders/codemirror@5.65.2/mode/sql/sql.min.js"></script>
-    <script src="/vanders/codemirror@5.65.2/addon/hint/show-hint.min.js"></script>
-    <script src="/vanders/codemirror@5.65.2/addon/hint/sql-hint.min.js"></script>
-    
+    <script type="module" src="/vanders/codemirror@5.65.2/codemirror.min.js"></script>
+    <script type="module" src="/vanders/codemirror@5.65.2/mode/sql/sql.min.js"></script>
+    <script type="module" src="/vanders/codemirror@5.65.2/addon/hint/show-hint.min.js"></script>
+    <script type="module" src="/vanders/codemirror@5.65.2/addon/hint/sql-hint.min.js"></script>
+
     <!-- 服务 (添加版本参数避免缓存) -->
     <script src="js/services/util-service.js?v=1.0.2"></script>
     <script src="js/services/datasource-service.js?v=1.0.2"></script>
-    
+
     <!-- 组件 (确保按正确顺序加载) -->
     <script src="js/datasource/datasource-list.js?v=1.0.2"></script>
     <script src="js/datasource/datasource-detail.js?v=1.0.2"></script>
     <script src="js/datasource/datasource-form.js?v=1.0.2"></script>
     <script src="js/datasource/datasource.js?v=1.0.2"></script>
     <script src="js/dashboard/dashboard.js?v=1.0.2"></script>
-    
+
     <!-- 主应用 -->
-    <script src="js/main.js?v=1.0.2"></script>
+    <script type="module" src="js/main.js?v=1.0.2"></script>
 </body>
 </html>
