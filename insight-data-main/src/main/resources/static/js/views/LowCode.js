@@ -1,5 +1,5 @@
 // 低代码集成页面组件
-const LowCode = {
+export const LowCode = {
   template: `
     <div class="p-6">
       <div class="mb-6">

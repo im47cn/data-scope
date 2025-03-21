@@ -1,5 +1,5 @@
 // 仪表盘页面组件
-const Dashboard = {
+export const Dashboard = {
   template: `
     <div class="p-6">
       <div class="mb-6">

@@ -2,7 +2,7 @@
 const API_BASE_URL = '/api/v1';
 
 // 基础API服务
-const ApiService = {
+export const ApiService = {
   // 通用请求方法
   async request(method, url, data = null, options = {}) {
     const requestOptions = {
@@ -92,7 +92,7 @@ const ApiService = {
 };
 
 // 数据源服务
-const DataSourceService = {
+export const DataSourceService = {
   // 获取所有数据源
   getAllDataSources(params = {}) {
     const queryString = ApiService.buildQueryString(params);
@@ -131,7 +131,7 @@ const DataSourceService = {
 };
 
 // 元数据服务
-const MetadataService = {
+export const MetadataService = {
   // 同步元数据
   syncMetadata(dataSourceId, options = {}) {
     return ApiService.post(`/datasources/${dataSourceId}/metadata/sync`, options);
@@ -182,7 +182,7 @@ const MetadataService = {
 };
 
 // 查询服务
-const QueryService = {
+export const QueryService = {
   // 执行SQL查询
   executeQuery(query) {
     return ApiService.post('/queries/execute', query);
@@ -226,7 +226,7 @@ const QueryService = {
 };
 
 // 自然语言查询服务
-const NLQueryService = {
+export const NLQueryService = {
   // 自然语言转SQL
   translateNLToSQL(dataSourceId, naturalLanguage, context = {}) {
     return ApiService.post('/nl2sql', {
@@ -247,7 +247,7 @@ const NLQueryService = {
 };
 
 // 低代码集成服务
-const LowCodeService = {
+export const LowCodeService = {
   // 创建低代码配置
   createConfig(config) {
     return ApiService.post('/lowcode/configs', config);
@@ -289,14 +289,4 @@ const LowCodeService = {
   deleteConfig(id) {
     return ApiService.delete(`/lowcode/configs/${id}`);
   }
-};
-
-// 导出服务
-export {
-  ApiService,
-  DataSourceService,
-  MetadataService,
-  QueryService,
-  NLQueryService,
-  LowCodeService
 };

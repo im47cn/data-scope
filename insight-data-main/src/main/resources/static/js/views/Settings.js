@@ -1,5 +1,5 @@
 // 系统设置页面组件
-const Settings = {
+export const Settings = {
   template: `
     <div class="p-6">
       <div class="mb-6">

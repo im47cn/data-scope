@@ -1,5 +1,5 @@
 // 查询历史页面组件
-const QueryHistory = {
+export const QueryHistory = {
   template: `
     <div class="p-6">
       <div class="mb-6">

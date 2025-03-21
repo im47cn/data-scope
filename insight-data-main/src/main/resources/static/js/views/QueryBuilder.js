@@ -1,5 +1,5 @@
 // 查询构建器页面组件
-const QueryBuilder = {
+export const QueryBuilder = {
   template: `
     <div class="p-6">
       <div class="mb-6">

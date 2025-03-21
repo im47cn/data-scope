@@ -1,5 +1,5 @@
 // 数据浏览页面组件
-const DataBrowse = {
+export const DataBrowse = {
   template: `
     <div class="flex h-full">
       <!-- 左侧数据源和表格导航 -->

@@ -1,10 +1,10 @@
 // 侧边栏组件
-const Sidebar = {
+export const Sidebar = {
   template: `
     <div class="sidebar" :class="{'collapsed': collapsed}">
       <div class="sidebar-header">
         <div class="logo-container">
-          <img src="https://via.placeholder.com/40" alt="Logo" class="logo">
+          <img src="/images/logo.png" alt="Logo" class="logo">
           <span v-if="!collapsed" class="logo-text">数据洞察平台</span>
         </div>
         <button @click="$emit('toggle-collapse')" class="collapse-btn">

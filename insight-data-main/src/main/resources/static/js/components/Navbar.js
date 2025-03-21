@@ -1,5 +1,5 @@
 // 顶部导航栏组件
-const Navbar = {
+export const Navbar = {
   template: `
     <div class="bg-white border-b border-gray-200 h-16 flex items-center justify-between px-6">
       <!-- 左侧 Logo 和菜单折叠按钮 -->

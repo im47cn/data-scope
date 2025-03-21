@@ -1,5 +1,21 @@
+// 导入 Vue 和 Vue Router
+const { createApp } = Vue
+const { createRouter, createWebHashHistory } = VueRouter
+
 // 导入API服务
 import { ApiService, DataSourceService, MetadataService, QueryService, NLQueryService, LowCodeService } from './services/api.js';
+
+
+import { Navbar } from './components/Navbar.js';
+import { Sidebar } from './components/Sidebar.js';
+import { Dashboard } from './views/Dashboard.js';
+import { Datasource } from './views/Datasource.js';
+import { DataBrowse } from './views/DataBrowse.js';
+import { QueryBuilder } from './views/QueryBuilder.js';
+import { NLQuery } from './views/NLQuery.js';
+import { LowCode } from './views/LowCode.js';
+import { QueryHistory } from './views/QueryHistory.js';
+import { Settings } from './views/Settings.js';
 
 // 定义路由
 const routes = [
@@ -15,13 +31,13 @@ const routes = [
 ]
 
 // 创建路由实例
-const router = VueRouter.createRouter({
-  history: VueRouter.createWebHashHistory(),
+const router = createRouter({
+  history: createWebHashHistory(),
   routes
 })
 
 // 创建Vue应用
-const app = Vue.createApp({
+const app = createApp({
   data() {
     return {
       // 全局状态

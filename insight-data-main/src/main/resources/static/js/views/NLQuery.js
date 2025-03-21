@@ -1,5 +1,5 @@
 // 自然语言查询页面组件
-const NLQuery = {
+export const NLQuery = {
   template: `
     <div class="p-6">
       <div class="mb-6">

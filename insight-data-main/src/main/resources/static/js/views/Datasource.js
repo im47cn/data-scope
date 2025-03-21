@@ -1,5 +1,5 @@
 // 数据源管理页面组件
-const Datasource = {
+export const Datasource = {
   template: `
     <div class="p-6">
       <div class="mb-6">
