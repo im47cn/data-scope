@@ -1,8 +1,8 @@
 package com.insightdata.domain.metadata.service.impl;
 
-import com.insightdata.domain.datasource.model.ColumnInfo;
-import com.insightdata.domain.datasource.model.SchemaInfo;
-import com.insightdata.domain.datasource.model.TableInfo;
+import com.insightdata.domain.metadata.model.ColumnInfo;
+import com.insightdata.domain.metadata.model.SchemaInfo;
+import com.insightdata.domain.metadata.model.TableInfo;
 import com.insightdata.domain.metadata.model.TableRelationship;
 import com.insightdata.domain.metadata.model.TableRelationship.RelationshipSource;
 import com.insightdata.domain.metadata.model.TableRelationship.RelationshipType;
@@ -422,7 +422,7 @@ public class MLBasedTableRelationshipInferenceService implements TableRelationsh
         // 检查列是否是主键
         return table.getColumns().stream()
                 .filter(col -> col.getName().equals(columnName))
-                .anyMatch(ColumnInfo::isPrimaryKey);
+                .anyMatch(ColumnInfo::getPrimaryKey);
     }
 
     private List<ColumnPair> findSimilarColumns(TableInfo sourceTable, TableInfo targetTable) {

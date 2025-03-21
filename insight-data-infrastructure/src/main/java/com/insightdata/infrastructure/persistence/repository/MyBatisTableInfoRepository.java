@@ -1,6 +1,7 @@
 package com.insightdata.infrastructure.persistence.repository;
 
-import com.insightdata.domain.datasource.repository.TableInfoRepository;
+import com.insightdata.domain.metadata.model.TableInfo;
+import com.insightdata.domain.metadata.repository.TableInfoRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;

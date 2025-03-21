@@ -5,8 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.insightdata.domain.datasource.model.ForeignKeyColumnInfo;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -40,17 +38,17 @@ public class ForeignKeyInfo {
     /**
      * 源表名
      */
-    private String sourceTableName;
+    private String sourceTable;
     
     /**
      * 目标表名
      */
-    private String targetTableName;
+    private String targetTable;
     
     /**
      * 外键列信息列表
      */
-    private List<ForeignKeyColumnInfo> columns = new ArrayList<>();
+    private List<ForeignKeyColumnInfo> sourceColumns = new ArrayList<>();
     
     /**
      * 更新规则
@@ -76,10 +74,10 @@ public class ForeignKeyInfo {
      * 获取源列名列表
      */
     public List<String> getSourceColumnNames() {
-        if (columns == null) {
+        if (sourceColumns == null) {
             return new ArrayList<>();
         }
-        return columns.stream()
+        return sourceColumns.stream()
                 .map(ForeignKeyColumnInfo::getSourceColumnName)
                 .collect(Collectors.toList());
     }
@@ -88,10 +86,10 @@ public class ForeignKeyInfo {
      * 获取目标列名列表
      */
     public List<String> getTargetColumnNames() {
-        if (columns == null) {
+        if (sourceColumns == null) {
             return new ArrayList<>();
         }
-        return columns.stream()
+        return sourceColumns.stream()
                 .map(ForeignKeyColumnInfo::getTargetColumnName)
                 .collect(Collectors.toList());
     }
@@ -100,10 +98,10 @@ public class ForeignKeyInfo {
      * 添加外键列信息
      */
     public void addColumn(ForeignKeyColumnInfo column) {
-        if (columns == null) {
-            columns = new ArrayList<>();
+        if (sourceColumns == null) {
+            sourceColumns = new ArrayList<>();
         }
-        columns.add(column);
+        sourceColumns.add(column);
     }
 
     /**

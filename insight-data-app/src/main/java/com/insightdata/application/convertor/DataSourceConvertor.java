@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.insightdata.domain.datasource.enums.DataSourceType;
 import org.springframework.stereotype.Component;
 
 import com.insightdata.domain.datasource.model.DataSource;

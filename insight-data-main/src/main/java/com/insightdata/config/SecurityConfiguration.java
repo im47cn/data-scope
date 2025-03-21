@@ -1,7 +1,7 @@
 package com.insightdata.config;
 
-import com.insightdata.domain.security.CredentialEncryptionService;
-import com.insightdata.domain.security.service.KeyManagementService;
+import com.insightdata.domain.metadata.service.CredentialEncryptionService;
+import com.insightdata.domain.metadata.service.impl.AESCredentialEncryptionService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -22,8 +22,8 @@ public class SecurityConfiguration {
     }
 
     @Bean
-    public CredentialEncryptionService credentialEncryptionService(KeyManagementService keyManagementService) {
-        return new CredentialEncryptionService(keyManagementService);
+    public CredentialEncryptionService credentialEncryptionService() {
+        return new AESCredentialEncryptionService();
     }
 
 }

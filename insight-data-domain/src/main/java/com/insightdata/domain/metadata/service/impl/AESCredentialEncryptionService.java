@@ -79,7 +79,36 @@ public class AESCredentialEncryptionService implements CredentialEncryptionServi
             throw new RuntimeException("Failed to encrypt password", e);
         }
     }
-    
+
+    @Override
+    public String decrypt(String encryptedPassword, String salt) {
+        try {
+            byte[] saltBytes = Base64.getDecoder().decode(salt);
+            byte[] combined = Base64.getDecoder().decode(encryptedPassword);
+
+            // 提取IV
+            byte[] iv = new byte[IV_LENGTH];
+            System.arraycopy(combined, 0, iv, 0, IV_LENGTH);
+
+            // 提取加密数据
+            byte[] encryptedBytes = new byte[combined.length - IV_LENGTH];
+            System.arraycopy(combined, IV_LENGTH, encryptedBytes, 0, encryptedBytes.length);
+
+            // 从密码和盐值生成密钥
+            SecretKey key = generateKey(secretKey, saltBytes);
+
+            // 初始化解密器
+            Cipher cipher = Cipher.getInstance(ALGORITHM);
+            cipher.init(Cipher.DECRYPT_MODE, key, new IvParameterSpec(iv));
+
+            // 解密
+            byte[] decryptedBytes = cipher.doFinal(encryptedBytes);
+            return new String(decryptedBytes, StandardCharsets.UTF_8);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to decrypt password", e);
+        }
+    }
+
     @Override
     public boolean verify(String plainPassword, String encryptedPassword, String salt) {
         try {

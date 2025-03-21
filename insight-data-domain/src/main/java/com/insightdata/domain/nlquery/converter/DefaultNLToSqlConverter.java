@@ -1,7 +1,7 @@
 package com.insightdata.domain.nlquery.converter;
 
 import com.insightdata.domain.datasource.model.DataSource;
-import com.insightdata.domain.datasource.model.SchemaInfo;
+import com.insightdata.domain.metadata.model.SchemaInfo;
 import com.insightdata.domain.nlquery.NLQueryRequest;
 import com.insightdata.domain.nlquery.entity.EntityExtractionContext;
 import com.insightdata.domain.nlquery.entity.EntityExtractor;

@@ -28,7 +28,7 @@ public class SchemaInfo {
     /**
      * 模式名称
      */
-    private String schemaName;
+    private String name;
     
     /**
      * 表信息列表

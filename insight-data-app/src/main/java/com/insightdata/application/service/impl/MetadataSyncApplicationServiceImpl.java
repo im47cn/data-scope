@@ -3,8 +3,10 @@ package com.insightdata.application.service.impl;
 import java.lang.reflect.Field;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.insightdata.domain.datasource.model.DataSource;
+import com.insightdata.domain.metadata.model.SchemaInfo;
+import com.insightdata.domain.metadata.model.TableInfo;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,15 +17,14 @@ import com.insightdata.domain.adapter.DataSourceAdapterFactory;
 import com.insightdata.domain.adapter.EnhancedDataSourceAdapter;
 import com.insightdata.domain.metadata.model.MetadataSyncJob;
 import com.insightdata.domain.datasource.repository.DataSourceRepository;
-import com.insightdata.domain.datasource.repository.SchemaInfoRepository;
-import com.insightdata.domain.datasource.repository.TableInfoRepository;
+import com.insightdata.domain.metadata.repository.SchemaInfoRepository;
+import com.insightdata.domain.metadata.repository.TableInfoRepository;
 import com.insightdata.facade.metadata.enums.SyncType;
 
+@Slf4j
 @Service
 public class MetadataSyncApplicationServiceImpl implements MetadataSyncApplicationService {
-    
-    private static final Logger log = LoggerFactory.getLogger(MetadataSyncApplicationServiceImpl.class);
-    
+
     private final MetadataSyncJobApplicationService metadataSyncJobService;
     private final DataSourceAdapterFactory dataSourceAdapterFactory;
     private final DataSourceRepository dataSourceRepository;
@@ -62,8 +63,7 @@ public class MetadataSyncApplicationServiceImpl implements MetadataSyncApplicati
                     .orElseThrow(() -> new RuntimeException("数据源不存在"));
 
             // 获取数据源适配器
-            DataSourceType dsType = getFieldValue(dataSourceEntity, "type");
-            EnhancedDataSourceAdapter dataSourceAdapter = dataSourceAdapterFactory.getEnhancedAdapter(dsType);
+            EnhancedDataSourceAdapter dataSourceAdapter = dataSourceAdapterFactory.getEnhancedAdapter(dataSourceEntity);
 
             // 测试连接
             dataSourceAdapter.testConnection(dataSourceEntity);

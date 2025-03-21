@@ -1,6 +1,5 @@
 package com.insightdata.application.convertor;
 
-import com.insightdata.facade.querybuilder.QueryModelContract;
 import com.insightdata.domain.querybuilder.model.QueryModel;
 
 import java.util.ArrayList;
@@ -20,7 +19,7 @@ public class QueryModelConvertor {
      * @param contract 查询模型契约对象
      * @return 领域模型对象，如果输入为null则返回null
      */
-    public static QueryModel toDomain(QueryModelContract contract) {
+    public static QueryModel toDomain(QueryModel contract) {
         if (contract == null) {
             return null;
         }
@@ -34,7 +33,7 @@ public class QueryModelConvertor {
      * 复制属性
      * 创建新的集合对象以避免共享引用
      */
-    private static void copyProperties(QueryModelContract source, QueryModel target) {
+    private static void copyProperties(QueryModel source, QueryModel target) {
         if (source == null || target == null) {
             return;
         }

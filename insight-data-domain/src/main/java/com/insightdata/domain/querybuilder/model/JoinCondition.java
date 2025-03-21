@@ -1,7 +1,5 @@
 package com.insightdata.domain.querybuilder.model;
 
-import com.insightdata.domain.querybuilder.api.QueryModelContract;
-
 import lombok.Data;
 
 /**
@@ -33,7 +31,7 @@ public class JoinCondition {
     /**
      * 所属的查询模型
      */
-    private QueryModelContract queryModel;
+    private QueryModel queryModel;
 
     /**
      * 连接描述
@@ -71,7 +69,7 @@ public class JoinCondition {
      * @param queryModel 查询模型
      */
     public JoinCondition(TableReference leftTable, TableReference rightTable, 
-                        String joinType, String condition, QueryModelContract queryModel) {
+                        String joinType, String condition, QueryModel queryModel) {
         this.leftTable = leftTable;
         this.rightTable = rightTable;
         this.joinType = joinType != null ? joinType : "INNER";

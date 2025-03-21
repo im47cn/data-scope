@@ -50,8 +50,68 @@ public class MyBatisQueryModelRepository implements QueryModelRepository {
     }
 
     @Override
-    public boolean existsByName(String name) {
-        return queryModelMapper.existsByName(name);
+    public List<QueryModel> findAll(int page, int size) {
+        return List.of();
+    }
+
+    @Override
+    public long count() {
+        return 0;
+    }
+
+    @Override
+    public List<QueryModel> saveAll(List<QueryModel> models) {
+        return List.of();
+    }
+
+    @Override
+    public void deleteAllById(List<String> ids) {
+
+    }
+
+    @Override
+    public List<QueryModel> findByCreateTimeBetween(long startTime, long endTime) {
+        return List.of();
+    }
+
+    @Override
+    public List<QueryModel> findByUpdateTimeBetween(long startTime, long endTime) {
+        return List.of();
+    }
+
+    @Override
+    public List<QueryModel> findByCreator(String creator) {
+        return List.of();
+    }
+
+    @Override
+    public List<QueryModel> findByTags(List<String> tags) {
+        return List.of();
+    }
+
+    @Override
+    public List<QueryModel> findRecentlyUsed(int limit) {
+        return List.of();
+    }
+
+    @Override
+    public List<QueryModel> findMostUsed(int limit) {
+        return List.of();
+    }
+
+    @Override
+    public void incrementUsageCount(String id) {
+
+    }
+
+    @Override
+    public void updateLastUsedTime(String id, long timestamp) {
+
+    }
+
+    @Override
+    public boolean existsById(String id) {
+        return queryModelMapper.existsById(id);
     }
 
     private QueryModelEntity toEntity(QueryModel model) {
@@ -61,23 +121,23 @@ public class MyBatisQueryModelRepository implements QueryModelRepository {
         QueryModelEntity entity = new QueryModelEntity();
         entity.setId(model.getId());
         entity.setName(model.getName());
-        entity.setDescription(model.getDescription());
-        entity.setDataSources(model.getDataSources() != null ? model.getDataSources().toString() : null); // Placeholder: Convert to JSON string
+        entity.setDescription("");
+//        entity.setDataSources(model.getDataSources() != null ? model.getDataSources().toString() : null); // Placeholder: Convert to JSON string
         entity.setTables(model.getTables() != null ? model.getTables().toString() : null); // Placeholder: Convert to JSON string
         entity.setFields(model.getFields() != null ? model.getFields().toString() : null); // Placeholder: Convert to JSON string
         entity.setJoins(model.getJoins() != null ? model.getJoins().toString() : null); // Placeholder: Convert to JSON string
-        entity.setRootFilter(model.getRootFilter() != null ? model.getRootFilter().toString() : null); // Placeholder: Convert to JSON string
+//        entity.setRootFilter(model.getRootFilter() != null ? model.getRootFilter().toString() : null); // Placeholder: Convert to JSON string
         entity.setGroupBy(model.getGroupBy() != null ? model.getGroupBy().toString() : null); // Placeholder: Convert to JSON string
         entity.setOrderBy(model.getOrderBy() != null ? model.getOrderBy().toString() : null); // Placeholder: Convert to JSON string
         entity.setParameters(model.getParameters() != null ? model.getParameters().toString() : null); // Placeholder: Convert to JSON string
-        entity.setOptions(model.getOptions() != null ? model.getOptions().toString() : null); // Placeholder: Convert to JSON string
-        entity.setCreatedAt(model.getCreatedAt());
-        entity.setUpdatedAt(model.getUpdatedAt());
-        entity.setCreatedBy(model.getCreatedBy());
-        entity.setUpdatedBy(model.getUpdatedBy());
-        entity.setPublic(model.isPublic());
-        entity.setTags(model.getTags() != null ? model.getTags().toString() : null); // Placeholder: Convert to JSON string
-        entity.setStatus(model.getStatus());
+//        entity.setOptions(model.getOptions() != null ? model.getOptions().toString() : null); // Placeholder: Convert to JSON string
+//        entity.setCreatedAt(model.getCreatedAt());
+//        entity.setUpdatedAt(model.getUpdatedAt());
+//        entity.setCreatedBy(model.getCreatedBy());
+//        entity.setUpdatedBy(model.getUpdatedBy());
+//        entity.setPublic(model.isPublic());
+//        entity.setTags(model.getTags() != null ? model.getTags().toString() : null); // Placeholder: Convert to JSON string
+//        entity.setStatus(model.getStatus());
         return entity;
     }
 
@@ -88,7 +148,7 @@ public class MyBatisQueryModelRepository implements QueryModelRepository {
         QueryModel model = new QueryModel();
         model.setId(entity.getId());
         model.setName(entity.getName());
-        model.setDescription(entity.getDescription());
+
         // TODO: Convert JSON strings back to complex objects using a JSON library like Jackson
         // model.setDataSources(convertFromJson(entity.getDataSources(), List.class));
         // ... (Repeat for other fields)

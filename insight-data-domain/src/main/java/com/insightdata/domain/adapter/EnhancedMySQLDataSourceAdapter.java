@@ -4,14 +4,9 @@ import java.util.List;
 import java.util.Map;
 
 import com.insightdata.domain.datasource.model.DataSource;
-import com.insightdata.domain.datasource.model.ForeignKeyInfo;
-import com.insightdata.domain.datasource.model.IndexInfo;
-import com.insightdata.domain.datasource.model.ProcedureInfo;
-import com.insightdata.domain.datasource.model.TableInfo;
-import com.insightdata.domain.datasource.model.TriggerInfo;
-import com.insightdata.domain.datasource.model.ViewInfo;
+import com.insightdata.domain.metadata.model.*;
 import com.insightdata.domain.exception.DataSourceException;
-import com.insightdata.domain.security.encryption.EncryptionService;
+import com.insightdata.domain.metadata.service.CredentialEncryptionService;
 
 /**
  * Enhanced MySQL data source adapter interface that extends the base enhanced adapter
@@ -26,7 +21,7 @@ public interface EnhancedMySQLDataSourceAdapter extends EnhancedDataSourceAdapte
      * @param encryptionService Encryption service
      * @throws DataSourceException if connection fails
      */
-    void connect(DataSource config, String keyId, EncryptionService encryptionService) throws DataSourceException;
+    void connect(DataSource config, String keyId, CredentialEncryptionService encryptionService) throws DataSourceException;
 
     /**
      * Get row count for a table

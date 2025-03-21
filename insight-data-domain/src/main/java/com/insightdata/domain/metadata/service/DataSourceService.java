@@ -5,8 +5,8 @@ import java.util.Optional;
 
 import com.insightdata.domain.datasource.enums.DataSourceType;
 import com.insightdata.domain.datasource.model.DataSource;
-import com.insightdata.domain.datasource.model.SchemaInfo;
-import com.insightdata.domain.datasource.model.TableInfo;
+import com.insightdata.domain.metadata.model.SchemaInfo;
+import com.insightdata.domain.metadata.model.TableInfo;
 import org.springframework.transaction.annotation.Transactional;
 
 /**

@@ -50,4 +50,7 @@ public interface QueryModelMapper {
 
     @Select("SELECT COUNT(*) FROM query_models WHERE name = #{name}")
     boolean existsByName(String name);
+
+    @Select("SELECT COUNT(*) FROM query_models WHERE id = #{id}")
+    boolean existsById(String id);
 }

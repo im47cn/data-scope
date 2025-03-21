@@ -1,6 +1,6 @@
 package com.insightdata.application.service.impl;
 
-import com.insightdata.facade.querybuilder.QueryModelContract;
+import com.insightdata.domain.querybuilder.model.Filter;
 import com.insightdata.domain.querybuilder.model.*;
 import com.insightdata.domain.querybuilder.repository.QueryModelRepository;
 import com.insightdata.application.service.QueryModelApplicationService;
@@ -22,7 +22,7 @@ public class QueryModelApplicationServiceImpl implements QueryModelApplicationSe
 
     @Override
     @Transactional
-    public QueryModelContract create(QueryModelContract model) {
+    public QueryModel create(QueryModel model) {
         if (!validate(model)) {
             throw new IllegalArgumentException("Invalid query model");
         }
@@ -31,7 +31,7 @@ public class QueryModelApplicationServiceImpl implements QueryModelApplicationSe
 
     @Override
     @Transactional
-    public QueryModelContract update(QueryModelContract model) {
+    public QueryModel update(QueryModel model) {
         if (!validate(model)) {
             throw new IllegalArgumentException("Invalid query model");
         }
@@ -43,13 +43,13 @@ public class QueryModelApplicationServiceImpl implements QueryModelApplicationSe
 
     @Override
     @Transactional(readOnly = true)
-    public Optional<QueryModelContract> findById(String id) {
+    public Optional<QueryModel> findById(String id) {
         return repository.findById(id).map(model -> model);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<QueryModelContract> findByName(String name) {
+    public List<QueryModel> findByName(String name) {
         return repository.findByNameContaining(name).stream()
                 .map(model -> model)
                 .collect(Collectors.toList());
@@ -63,14 +63,14 @@ public class QueryModelApplicationServiceImpl implements QueryModelApplicationSe
 
     @Override
     @Transactional(readOnly = true)
-    public List<QueryModelContract> findAll() {
+    public List<QueryModel> findAll() {
         return repository.findAll().stream()
                 .map(model -> model)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public boolean validate(QueryModelContract model) {
+    public boolean validate(QueryModel model) {
         if (model == null) {
             return false;
         }
@@ -104,15 +104,14 @@ public class QueryModelApplicationServiceImpl implements QueryModelApplicationSe
 
     @Override
     @Transactional
-    public QueryModelContract copy(String id, String newName) {
+    public QueryModel copy(String id, String newName) {
         QueryModel original = repository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Query model not found"));
 
-        QueryModel copy = original.copy();
-        copy.setId(null); // 清除ID以创建新记录
-        copy.setName(newName);
+        original.setId(null); // 清除ID以创建新记录
+        original.setName(newName);
 
-        return repository.save(copy);
+        return repository.save(original);
     }
 
     @Override
@@ -141,7 +140,7 @@ public class QueryModelApplicationServiceImpl implements QueryModelApplicationSe
 
     @Override
     @Transactional
-    public QueryModelContract addFilter(String id, Filter filter) {
+    public QueryModel addFilter(String id, Filter filter) {
         QueryModel model = repository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Query model not found"));
 
@@ -155,7 +154,7 @@ public class QueryModelApplicationServiceImpl implements QueryModelApplicationSe
 
     @Override
     @Transactional
-    public QueryModelContract removeFilter(String id, int filterIndex) {
+    public QueryModel removeFilter(String id, int filterIndex) {
         QueryModel model = repository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Query model not found"));
 
@@ -210,7 +209,7 @@ public class QueryModelApplicationServiceImpl implements QueryModelApplicationSe
 
     @Override
     @Transactional(readOnly = true)
-    public List<QueryModelContract> findAll(int page, int size) {
+    public List<QueryModel> findAll(int page, int size) {
         return repository.findAll(page, size).stream()
                 .map(model -> model)
                 .collect(Collectors.toList());

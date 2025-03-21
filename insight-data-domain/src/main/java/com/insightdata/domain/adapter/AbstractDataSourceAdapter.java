@@ -9,10 +9,10 @@ import java.util.Map;
 import java.util.Properties;
 
 import com.insightdata.domain.datasource.model.DataSource;
-import com.insightdata.domain.datasource.model.SchemaInfo;
-import com.insightdata.domain.datasource.model.TableInfo;
 import com.insightdata.domain.exception.DataSourceException;
 
+import com.insightdata.domain.metadata.model.SchemaInfo;
+import com.insightdata.domain.metadata.model.TableInfo;
 import lombok.extern.slf4j.Slf4j;
 
 /**

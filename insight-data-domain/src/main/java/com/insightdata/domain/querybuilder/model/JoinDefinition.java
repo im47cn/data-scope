@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.insightdata.domain.querybuilder.api.QueryModelContract;
-
 import lombok.Data;
 
 /**
@@ -27,7 +25,7 @@ public class JoinDefinition {
     /**
      * 所属的查询模型
      */
-    private QueryModelContract queryModel;
+    private QueryModel queryModel;
 
     /**
      * 连接描述
@@ -61,7 +59,7 @@ public class JoinDefinition {
      * @param queryModel 查询模型
      * @param forceInnerJoin 是否强制使用内连接
      */
-    public JoinDefinition(TableReference primaryTable, QueryModelContract queryModel, 
+    public JoinDefinition(TableReference primaryTable, QueryModel queryModel,
                          boolean forceInnerJoin) {
         this.primaryTable = primaryTable;
         this.queryModel = queryModel;

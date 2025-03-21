@@ -1,6 +1,7 @@
 package com.insightdata.infrastructure.persistence.repository;
 
-import com.insightdata.domain.datasource.repository.SchemaInfoRepository;
+import com.insightdata.domain.metadata.model.SchemaInfo;
+import com.insightdata.domain.metadata.repository.SchemaInfoRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;

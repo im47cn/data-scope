@@ -9,8 +9,8 @@ import java.util.stream.Collectors;
 
 import com.insightdata.domain.datasource.enums.DataSourceType;
 import com.insightdata.domain.datasource.model.DataSource;
-import com.insightdata.domain.datasource.model.SchemaInfo;
-import com.insightdata.domain.datasource.model.TableInfo;
+import com.insightdata.domain.metadata.model.SchemaInfo;
+import com.insightdata.domain.metadata.model.TableInfo;
 import com.insightdata.domain.security.service.KeyManagementService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

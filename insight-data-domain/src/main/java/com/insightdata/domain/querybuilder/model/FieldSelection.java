@@ -1,6 +1,5 @@
 package com.insightdata.domain.querybuilder.model;
 
-import com.insightdata.domain.querybuilder.api.QueryModelContract;
 import lombok.Data;
 
 /**
@@ -27,7 +26,7 @@ public class FieldSelection {
     /**
      * 所属的查询模型
      */
-    private QueryModelContract queryModel;
+    private QueryModel queryModel;
 
     /**
      * 字段描述
@@ -79,7 +78,7 @@ public class FieldSelection {
      * @param queryModel 查询模型
      */
     public FieldSelection(FieldReference field, String alias, 
-                         String aggregateFunction, QueryModelContract queryModel) {
+                         String aggregateFunction, QueryModel queryModel) {
         this.field = field;
         this.alias = alias;
         this.aggregateFunction = aggregateFunction;

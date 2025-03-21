@@ -9,8 +9,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.insightdata.domain.datasource.model.IndexInfo;
-
 /**
  * 表信息
  * 包含数据库表的基本信息和列信息
@@ -49,7 +47,7 @@ public class TableInfo {
     /**
      * 表描述
      */
-    private String description;
+    private String comment;
     
     /**
      * 表的行数（估计值）

@@ -1,17 +1,23 @@
 package com.insightdata.domain.querybuilder.model;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.insightdata.facade.querybuilder.QueryModelContract;
-
 /**
  * 查询模型领域对象
  * 实现 QueryModelContract 接口，用于 Domain 层业务逻辑
  */
-public class QueryModel implements QueryModelContract {
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class QueryModel {
+
     private String id;
     private String name;
     private List<String> tables = new ArrayList<>();
@@ -21,122 +27,6 @@ public class QueryModel implements QueryModelContract {
     private List<String> groupBy = new ArrayList<>();
     private List<String> orderBy = new ArrayList<>();
     private Map<String, Object> parameters = new HashMap<>();
-
-    /**
-     * 创建一个空的查询模型对象
-     */
-    public QueryModel() {
-        // 使用字段初始化器创建空集合
-    }
-
-    /**
-     * 使用现有的 QueryModelContract 创建查询模型对象
-     *
-     * @param contract 查询模型契约对象
-     */
-    public QueryModel(QueryModelContract contract) {
-        if (contract != null) {
-            this.id = contract.getId();
-            this.name = contract.getName();
-            setTables(contract.getTables());
-            setFields(contract.getFields());
-            setJoins(contract.getJoins());
-            this.filter = contract.getFilter();
-            setGroupBy(contract.getGroupBy());
-            setOrderBy(contract.getOrderBy());
-            setParameters(contract.getParameters());
-        }
-    }
-
-    @Override
-    public String getId() {
-        return id;
-    }
-
-    @Override
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    @Override
-    public String getName() {
-        return name;
-    }
-
-    @Override
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    @Override
-    public List<String> getTables() {
-        return tables;
-    }
-
-    @Override
-    public void setTables(List<String> tables) {
-        this.tables = tables != null ? new ArrayList<>(tables) : new ArrayList<>();
-    }
-
-    @Override
-    public List<String> getFields() {
-        return fields;
-    }
-
-    @Override
-    public void setFields(List<String> fields) {
-        this.fields = fields != null ? new ArrayList<>(fields) : new ArrayList<>();
-    }
-
-    @Override
-    public List<String> getJoins() {
-        return joins;
-    }
-
-    @Override
-    public void setJoins(List<String> joins) {
-        this.joins = joins != null ? new ArrayList<>(joins) : new ArrayList<>();
-    }
-
-    @Override
-    public String getFilter() {
-        return filter;
-    }
-
-    @Override
-    public void setFilter(String filter) {
-        this.filter = filter;
-    }
-
-    @Override
-    public List<String> getGroupBy() {
-        return groupBy;
-    }
-
-    @Override
-    public void setGroupBy(List<String> groupBy) {
-        this.groupBy = groupBy != null ? new ArrayList<>(groupBy) : new ArrayList<>();
-    }
-
-    @Override
-    public List<String> getOrderBy() {
-        return orderBy;
-    }
-
-    @Override
-    public void setOrderBy(List<String> orderBy) {
-        this.orderBy = orderBy != null ? new ArrayList<>(orderBy) : new ArrayList<>();
-    }
-
-    @Override
-    public Map<String, Object> getParameters() {
-        return parameters;
-    }
-
-    @Override
-    public void setParameters(Map<String, Object> parameters) {
-        this.parameters = parameters != null ? new HashMap<>(parameters) : new HashMap<>();
-    }
 
     /**
      * 添加查询表
@@ -196,7 +86,7 @@ public class QueryModel implements QueryModelContract {
     /**
      * 添加查询参数
      *
-     * @param key 参数名
+     * @param key   参数名
      * @param value 参数值
      */
     public void addParameter(String key, Object value) {

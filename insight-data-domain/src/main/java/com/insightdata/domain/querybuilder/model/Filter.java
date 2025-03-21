@@ -1,6 +1,5 @@
 package com.insightdata.domain.querybuilder.model;
 
-import com.insightdata.domain.querybuilder.api.QueryModelContract;
 import lombok.Data;
 
 /**
@@ -27,7 +26,7 @@ public class Filter {
     /**
      * 所属的查询模型
      */
-    private QueryModelContract queryModel;
+    private QueryModel queryModel;
 
     /**
      * 过滤条件描述
@@ -61,7 +60,7 @@ public class Filter {
      * @param value 值
      * @param queryModel 查询模型
      */
-    public Filter(String field, String operator, Object value, QueryModelContract queryModel) {
+    public Filter(String field, String operator, Object value, QueryModel queryModel) {
         this.field = field;
         this.operator = operator;
         this.value = value;

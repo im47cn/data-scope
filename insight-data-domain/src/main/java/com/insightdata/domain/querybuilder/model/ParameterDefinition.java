@@ -1,6 +1,5 @@
 package com.insightdata.domain.querybuilder.model;
 
-import com.insightdata.domain.querybuilder.api.QueryModelContract;
 import lombok.Data;
 
 /**
@@ -42,7 +41,7 @@ public class ParameterDefinition {
     /**
      * 所属的查询模型
      */
-    private QueryModelContract queryModel;
+    private QueryModel queryModel;
 
     /**
      * 创建一个空的参数定义
@@ -71,7 +70,7 @@ public class ParameterDefinition {
      * @param queryModel 查询模型
      */
     public ParameterDefinition(String name, String dataType, Object defaultValue, 
-                             boolean required, QueryModelContract queryModel) {
+                             boolean required, QueryModel queryModel) {
         this.name = name;
         this.dataType = dataType;
         this.defaultValue = defaultValue;

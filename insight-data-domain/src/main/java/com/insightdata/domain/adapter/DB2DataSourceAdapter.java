@@ -9,13 +9,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.insightdata.domain.metadata.model.ColumnInfo;
+import com.insightdata.domain.metadata.model.TableInfo;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import com.insightdata.domain.datasource.model.ColumnInfo;
-import com.insightdata.domain.datasource.model.TableInfo;
 import com.insightdata.domain.exception.DataSourceException;
 import com.insightdata.domain.nlquery.executor.QueryResult;
 
@@ -74,7 +72,7 @@ public class DB2DataSourceAdapter extends AbstractDataSourceAdapter {
                 TableInfo table = TableInfo.builder()
                         .name(rs.getString("TABLE_NAME"))
                         .schemaName(schema)
-                        .description(rs.getString("REMARKS"))
+                        .comment(rs.getString("REMARKS"))
                         .rowCount(getRowCountInternal(schema, rs.getString("TABLE_NAME")))
                         .build();
                 
@@ -99,8 +97,8 @@ public class DB2DataSourceAdapter extends AbstractDataSourceAdapter {
                         .nullable(rs.getInt("NULLABLE") == DatabaseMetaData.columnNullable)
                         .primaryKey(isPrimaryKey(catalog, schema, table, rs.getString("COLUMN_NAME")))
                         .comment(rs.getString("REMARKS"))
-                        .length(rs.getLong("COLUMN_SIZE"))
-                        .scale(rs.getInt("DECIMAL_DIGITS"))
+                        .length(rs.getInt("COLUMN_SIZE"))
+                        .numericScale(rs.getInt("DECIMAL_DIGITS"))
                         .autoIncrement("YES".equals(rs.getString("IS_AUTOINCREMENT")))
                         .build();
                 

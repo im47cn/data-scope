@@ -1,6 +1,9 @@
 package com.insightdata.infrastructure.adapter.mysql;
 
 import com.insightdata.domain.adapter.DataSourceAdapter;
+import com.insightdata.domain.datasource.model.DataSource;
+import com.insightdata.domain.metadata.model.ColumnInfo;
+import com.insightdata.domain.metadata.model.TableInfo;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;

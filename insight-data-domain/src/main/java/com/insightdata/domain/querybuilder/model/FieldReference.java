@@ -1,6 +1,5 @@
 package com.insightdata.domain.querybuilder.model;
 
-import com.insightdata.domain.querybuilder.api.QueryModelContract;
 import lombok.Data;
 
 /**
@@ -22,7 +21,7 @@ public class FieldReference {
     /**
      * 所属的查询模型
      */
-    private QueryModelContract queryModel;
+    private QueryModel queryModel;
 
     /**
      * 字段描述
@@ -58,7 +57,7 @@ public class FieldReference {
      * @param fieldName 字段名
      * @param queryModel 查询模型
      */
-    public FieldReference(TableReference table, String fieldName, QueryModelContract queryModel) {
+    public FieldReference(TableReference table, String fieldName, QueryModel queryModel) {
         this.table = table;
         this.fieldName = fieldName;
         this.queryModel = queryModel;

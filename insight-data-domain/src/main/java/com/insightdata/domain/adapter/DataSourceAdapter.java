@@ -1,9 +1,9 @@
 package com.insightdata.domain.adapter;
 
-import com.insightdata.domain.datasource.model.ColumnInfo;
 import com.insightdata.domain.datasource.model.DataSource;
-import com.insightdata.domain.datasource.model.TableInfo;
 import com.insightdata.domain.exception.DataSourceException;
+import com.insightdata.domain.metadata.model.ColumnInfo;
+import com.insightdata.domain.metadata.model.TableInfo;
 
 import java.sql.Connection;
 import java.util.List;

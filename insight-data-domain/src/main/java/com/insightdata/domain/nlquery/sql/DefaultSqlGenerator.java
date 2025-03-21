@@ -1,8 +1,8 @@
 package com.insightdata.domain.nlquery.sql;
 
-import com.insightdata.domain.datasource.model.ColumnInfo;
-import com.insightdata.domain.datasource.model.SchemaInfo;
-import com.insightdata.domain.datasource.model.TableInfo;
+import com.insightdata.domain.metadata.model.ColumnInfo;
+import com.insightdata.domain.metadata.model.SchemaInfo;
+import com.insightdata.domain.metadata.model.TableInfo;
 import com.insightdata.domain.nlquery.entity.EntityTag;
 import com.insightdata.domain.nlquery.entity.EntityType;
 import com.insightdata.domain.nlquery.intent.*;

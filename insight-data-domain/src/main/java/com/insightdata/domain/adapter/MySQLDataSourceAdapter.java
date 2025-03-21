@@ -13,19 +13,12 @@ import java.util.Map;
 import java.util.Properties;
 
 import com.insightdata.domain.datasource.enums.DataSourceType;
+import com.insightdata.domain.metadata.model.*;
+import com.insightdata.domain.metadata.service.CredentialEncryptionService;
 import org.springframework.stereotype.Component;
 
-import com.insightdata.domain.datasource.model.ColumnInfo;
 import com.insightdata.domain.datasource.model.DataSource;
-import com.insightdata.domain.datasource.model.ForeignKeyInfo;
-import com.insightdata.domain.datasource.model.IndexInfo;
-import com.insightdata.domain.datasource.model.ProcedureInfo;
-import com.insightdata.domain.datasource.model.SchemaInfo;
-import com.insightdata.domain.datasource.model.TableInfo;
-import com.insightdata.domain.datasource.model.TriggerInfo;
-import com.insightdata.domain.datasource.model.ViewInfo;
 import com.insightdata.domain.exception.DataSourceException;
-import com.insightdata.domain.security.encryption.EncryptionService;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -71,7 +64,7 @@ public class MySQLDataSourceAdapter implements EnhancedMySQLDataSourceAdapter {
     }
 
     @Override
-    public void connect(DataSource config, String keyId, EncryptionService encryptionService) throws DataSourceException {
+    public void connect(DataSource config, String keyId, CredentialEncryptionService encryptionService) throws DataSourceException {
         try {
             Properties props = new Properties();
             props.setProperty("user", config.getUsername());
@@ -222,7 +215,7 @@ public class MySQLDataSourceAdapter implements EnhancedMySQLDataSourceAdapter {
                 ColumnInfo columnInfo = ColumnInfo.builder()
                     .name(rs.getString("COLUMN_NAME"))
                     .type(rs.getString("TYPE_NAME"))
-                    .length(rs.getLong("COLUMN_SIZE"))
+                    .length(rs.getInt("COLUMN_SIZE"))
                     .nullable(rs.getInt("NULLABLE") == DatabaseMetaData.columnNullable)
                     .defaultValue(rs.getString("COLUMN_DEF"))
                     .comment(rs.getString("REMARKS"))
@@ -336,17 +329,20 @@ public class MySQLDataSourceAdapter implements EnhancedMySQLDataSourceAdapter {
             while (rs.next()) {
                 String[] sourceColumns = {rs.getString("FKCOLUMN_NAME")};
                 String[] targetColumns = {rs.getString("PKCOLUMN_NAME")};
-                
+
+                ForeignKeyColumnInfo foreignKeyColumnInfo = ForeignKeyColumnInfo.builder()
+                        .sourceColumnName(sourceColumns[0])
+                        .targetColumnName(targetColumns[0])
+                        .build();
+
                 ForeignKeyInfo fkInfo = ForeignKeyInfo.builder()
                     .name(rs.getString("FK_NAME"))
-                    .schema(schema)
                     .sourceTable(table)
-                    .sourceColumns(sourceColumns)
                     .targetTable(rs.getString("PKTABLE_NAME"))
-                    .targetColumns(targetColumns)
                     .updateRule(rs.getString("UPDATE_RULE"))
                     .deleteRule(rs.getString("DELETE_RULE"))
                     .build();
+                fkInfo.addColumn(foreignKeyColumnInfo);
                 foreignKeys.add(fkInfo);
             }
             return foreignKeys;

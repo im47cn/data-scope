@@ -152,4 +152,5 @@ public interface QueryModelRepository {
      * @param timestamp 时间戳
      */
     void updateLastUsedTime(String id, long timestamp);
+
 }

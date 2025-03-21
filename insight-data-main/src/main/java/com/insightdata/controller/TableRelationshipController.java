@@ -3,6 +3,7 @@ package com.insightdata.controller;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.insightdata.domain.metadata.model.SchemaInfo;
 import com.insightdata.domain.metadata.model.TableRelationship;
 import com.insightdata.domain.query.model.QueryHistory;
 import com.insightdata.domain.metadata.service.TableRelationshipService;

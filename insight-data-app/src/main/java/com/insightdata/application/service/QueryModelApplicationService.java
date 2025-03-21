@@ -1,8 +1,8 @@
 package com.insightdata.application.service;
 
-import com.insightdata.facade.querybuilder.QueryModelContract;
 import com.insightdata.domain.querybuilder.model.Filter;
 import com.insightdata.domain.querybuilder.model.ParameterDefinition;
+import com.insightdata.domain.querybuilder.model.QueryModel;
 
 import java.util.List;
 import java.util.Map;
@@ -20,7 +20,7 @@ public interface QueryModelApplicationService {
      * @param model 查询模型
      * @return 创建的查询模型
      */
-    QueryModelContract create(QueryModelContract model);
+    QueryModel create(QueryModel model);
 
     /**
      * 更新查询模型
@@ -28,7 +28,7 @@ public interface QueryModelApplicationService {
      * @param model 查询模型
      * @return 更新后的查询模型
      */
-    QueryModelContract update(QueryModelContract model);
+    QueryModel update(QueryModel model);
 
     /**
      * 根据ID查找查询模型
@@ -36,7 +36,7 @@ public interface QueryModelApplicationService {
      * @param id 查询模型ID
      * @return 查询模型（如果存在）
      */
-    Optional<QueryModelContract> findById(String id);
+    Optional<QueryModel> findById(String id);
 
     /**
      * 根据名称查找查询模型
@@ -44,7 +44,7 @@ public interface QueryModelApplicationService {
      * @param name 查询模型名称
      * @return 查询模型列表
      */
-    List<QueryModelContract> findByName(String name);
+    List<QueryModel> findByName(String name);
 
     /**
      * 删除查询模型
@@ -58,7 +58,7 @@ public interface QueryModelApplicationService {
      *
      * @return 查询模型列表
      */
-    List<QueryModelContract> findAll();
+    List<QueryModel> findAll();
 
     /**
      * 验证查询模型
@@ -66,7 +66,7 @@ public interface QueryModelApplicationService {
      * @param model 查询模型
      * @return 验证结果，true表示有效，false表示无效
      */
-    boolean validate(QueryModelContract model);
+    boolean validate(QueryModel model);
 
     /**
      * 复制查询模型
@@ -75,7 +75,7 @@ public interface QueryModelApplicationService {
      * @param newName 新查询模型名称
      * @return 复制的查询模型
      */
-    QueryModelContract copy(String id, String newName);
+    QueryModel copy(String id, String newName);
 
     /**
      * 执行查询模型
@@ -101,7 +101,7 @@ public interface QueryModelApplicationService {
      * @param filter 过滤条件
      * @return 更新后的查询模型
      */
-    QueryModelContract addFilter(String id, Filter filter);
+    QueryModel addFilter(String id, Filter filter);
 
     /**
      * 移除过滤条件
@@ -110,7 +110,7 @@ public interface QueryModelApplicationService {
      * @param filterIndex 过滤条件索引
      * @return 更新后的查询模型
      */
-    QueryModelContract removeFilter(String id, int filterIndex);
+    QueryModel removeFilter(String id, int filterIndex);
 
     /**
      * 验证参数值
@@ -144,7 +144,7 @@ public interface QueryModelApplicationService {
      * @param size 每页大小
      * @return 查询模型列表
      */
-    List<QueryModelContract> findAll(int page, int size);
+    List<QueryModel> findAll(int page, int size);
 
     /**
      * 获取查询模型总数

@@ -1,9 +1,5 @@
 package com.insightdata.domain.metadata.service.impl;
 
-import com.insightdata.domain.datasource.model.ColumnInfo;
-import com.insightdata.domain.datasource.model.ForeignKeyInfo;
-import com.insightdata.domain.datasource.model.SchemaInfo;
-import com.insightdata.domain.datasource.model.TableInfo;
 import com.insightdata.domain.metadata.model.*;
 import com.insightdata.domain.metadata.model.TableRelationship.RelationshipSource;
 import com.insightdata.domain.metadata.model.TableRelationship.RelationshipType;

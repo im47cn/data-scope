@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.insightdata.domain.datasource.model.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -51,8 +52,8 @@ public class DataSourceController {
 
         if (type != null) {
             try {
-                DataSourceType domainType =
-                        DataSourceType.valueOf(type.name());
+                com.insightdata.domain.datasource.enums.DataSourceType domainType =
+                        com.insightdata.domain.datasource.enums.DataSourceType.valueOf(type.name());
                 dataSources = dataSourceService.getDataSourcesByType(domainType);
             } catch (IllegalArgumentException e) {
                 // 如果domain包中不存在该枚举值，返回空列表
@@ -144,7 +145,7 @@ public class DataSourceController {
      */
     @GetMapping("/types")
     public ResponseEntity<List<DataSourceType>> getSupportedTypes() {
-        List<DataSourceType> domainTypes = dataSourceService.getSupportedTypes();
+        List<com.insightdata.domain.datasource.enums.DataSourceType> domainTypes = dataSourceService.getSupportedTypes();
         List<DataSourceType> facadeTypes = domainTypes.stream()
                 .map(type -> DataSourceType.valueOf(type.name()))
                 .collect(Collectors.toList());

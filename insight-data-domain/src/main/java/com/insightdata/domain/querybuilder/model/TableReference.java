@@ -1,6 +1,5 @@
 package com.insightdata.domain.querybuilder.model;
 
-import com.insightdata.domain.querybuilder.api.QueryModelContract;
 import lombok.Data;
 
 /**
@@ -22,7 +21,7 @@ public class TableReference {
     /**
      * 所属的查询模型
      */
-    private QueryModelContract queryModel;
+    private QueryModel queryModel;
 
     /**
      * 表描述
@@ -58,7 +57,7 @@ public class TableReference {
      * @param alias 表别名
      * @param queryModel 查询模型
      */
-    public TableReference(String tableName, String alias, QueryModelContract queryModel) {
+    public TableReference(String tableName, String alias, QueryModel queryModel) {
         this.tableName = tableName;
         this.alias = alias;
         this.queryModel = queryModel;

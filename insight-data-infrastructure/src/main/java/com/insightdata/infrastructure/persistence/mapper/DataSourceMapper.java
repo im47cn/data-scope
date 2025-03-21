@@ -2,6 +2,8 @@ package com.insightdata.infrastructure.persistence.mapper;
 
 import java.util.List;
 
+import com.insightdata.domain.datasource.enums.DataSourceType;
+import com.insightdata.domain.datasource.model.DataSource;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 

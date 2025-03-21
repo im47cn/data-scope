@@ -6,9 +6,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import com.insightdata.domain.datasource.model.ColumnInfo;
-import com.insightdata.domain.datasource.model.SchemaInfo;
-import com.insightdata.domain.datasource.model.TableInfo;
+import com.insightdata.domain.metadata.model.ColumnInfo;
+import com.insightdata.domain.metadata.model.SchemaInfo;
+import com.insightdata.domain.metadata.model.TableInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -43,8 +43,8 @@ public class MetadataBasedEntityExtractor implements EntityExtractor {
         Map<String, TableInfo> tableMap = new HashMap<>();
         for (TableInfo table : metadata.getTables()) {
             tableMap.put(table.getName().toLowerCase(), table);
-            if (table.getDescription() != null && !table.getDescription().isEmpty()) {
-                tableMap.put(table.getDescription().toLowerCase(), table);
+            if (table.getComment() != null && !table.getComment().isEmpty()) {
+                tableMap.put(table.getComment().toLowerCase(), table);
             }
         }
 

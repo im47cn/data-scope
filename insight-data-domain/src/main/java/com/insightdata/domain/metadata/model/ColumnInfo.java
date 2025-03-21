@@ -50,12 +50,12 @@ public class ColumnInfo {
     /**
      * 数据类型
      */
-    private String dataType;
+    private String type;
     
     /**
      * 字符最大长度
      */
-    private Integer characterMaximumLength;
+    private Integer length;
     
     /**
      * 数字精度
@@ -75,32 +75,32 @@ public class ColumnInfo {
     /**
      * 列描述
      */
-    private String description;
+    private String comment;
     
     /**
      * 是否为主键
      */
-    private Boolean isPrimaryKey;
+    private Boolean primaryKey;
     
     /**
      * 是否为外键
      */
-    private Boolean isForeignKey;
+    private Boolean foreignKey;
     
     /**
      * 是否为唯一键
      */
-    private Boolean isUniqueKey;
+    private Boolean uniqueKey;
     
     /**
      * 是否为索引
      */
-    private Boolean isIndexed;
+    private Boolean indexed;
     
     /**
      * 是否自增
      */
-    private Boolean isAutoIncrement;
+    private Boolean autoIncrement;
     
     /**
      * 创建时间
