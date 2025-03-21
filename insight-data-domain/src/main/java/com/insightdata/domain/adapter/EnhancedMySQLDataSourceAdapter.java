@@ -1,107 +1,119 @@
 package com.insightdata.domain.adapter;
 
-import com.insightdata.domain.datasource.model.*;
-import com.insightdata.domain.security.encryption.EncryptionService;
-
 import java.util.List;
 import java.util.Map;
 
+import com.insightdata.domain.datasource.model.DataSource;
+import com.insightdata.domain.datasource.model.ForeignKeyInfo;
+import com.insightdata.domain.datasource.model.IndexInfo;
+import com.insightdata.domain.datasource.model.ProcedureInfo;
+import com.insightdata.domain.datasource.model.TableInfo;
+import com.insightdata.domain.datasource.model.TriggerInfo;
+import com.insightdata.domain.datasource.model.ViewInfo;
+import com.insightdata.domain.exception.DataSourceException;
+import com.insightdata.domain.security.encryption.EncryptionService;
+
 /**
- * 增强的MySQL数据源适配器接口
+ * Enhanced MySQL data source adapter interface that extends the base enhanced adapter
+ * with MySQL specific functionality
  */
-public interface EnhancedMySQLDataSourceAdapter {
-    /**
-     * 连接数据源
-     */
-    void connect(DataSource config, String keyId, EncryptionService encryptionService) throws Exception;
+public interface EnhancedMySQLDataSourceAdapter extends EnhancedDataSourceAdapter {
 
     /**
-     * 连接数据源
+     * Connect to data source with encryption
+     * @param config Data source configuration
+     * @param keyId Encryption key ID
+     * @param encryptionService Encryption service
+     * @throws DataSourceException if connection fails
      */
-    void connect(DataSource config) throws Exception;
+    void connect(DataSource config, String keyId, EncryptionService encryptionService) throws DataSourceException;
 
     /**
-     * 测试连接
+     * Get row count for a table
+     * @param schema Schema name
+     * @param table Table name
+     * @return Row count
+     * @throws DataSourceException if query fails
      */
-    boolean testConnection() throws Exception;
+    Long getRowCount(String schema, String table) throws DataSourceException;
 
     /**
-     * 测试连接
+     * Get data size for a table
+     * @param schema Schema name
+     * @param table Table name
+     * @return Data size in bytes
+     * @throws DataSourceException if query fails
      */
-    boolean testConnection(DataSource config) throws Exception;
+    Long getDataSize(String schema, String table) throws DataSourceException;
 
     /**
-     * 获取数据库列表
+     * Get primary key information for a table
+     * @param schema Schema name
+     * @param table Table name
+     * @return List of primary key information
+     * @throws DataSourceException if query fails
      */
-    List<String> getCatalogs() throws Exception;
+    List<IndexInfo> getPrimaryKeys(String schema, String table) throws DataSourceException;
 
     /**
-     * 获取模式列表
+     * Get index information for a table
+     * @param schema Schema name
+     * @param table Table name
+     * @return List of index information
+     * @throws DataSourceException if query fails
      */
-    List<String> getSchemas(String catalog) throws Exception;
+    List<IndexInfo> getIndexes(String schema, String table) throws DataSourceException;
 
     /**
-     * 获取表列表
+     * Get foreign key information for a table
+     * @param schema Schema name
+     * @param table Table name
+     * @return List of foreign key information
+     * @throws DataSourceException if query fails
      */
-    List<TableInfo> getTables(String catalog, String schema) throws Exception;
+    List<ForeignKeyInfo> getForeignKeys(String schema, String table) throws DataSourceException;
 
     /**
-     * 获取列信息
+     * Get view information for a schema
+     * @param schema Schema name
+     * @return List of view information
+     * @throws DataSourceException if query fails
      */
-    List<ColumnInfo> getColumns(String catalog, String schema, String table) throws Exception;
+    List<ViewInfo> getViews(String schema) throws DataSourceException;
 
     /**
-     * 获取表大小
+     * Get stored procedure information for a schema
+     * @param schema Schema name
+     * @return List of stored procedure information
+     * @throws DataSourceException if query fails
      */
-    Map<String, Long> getTableSizes(String catalog, String schema) throws Exception;
+    List<ProcedureInfo> getProcedures(String schema) throws DataSourceException;
 
     /**
-     * 获取表大小
+     * Get trigger information for a table
+     * @param schema Schema name
+     * @param table Table name
+     * @return List of trigger information
+     * @throws DataSourceException if query fails
      */
-    Map<String, Long> getTableSizes(String catalog, List<TableInfo> tables) throws Exception;
+    List<TriggerInfo> getTriggers(String schema, String table) throws DataSourceException;
 
     /**
-     * 获取表行数
+     * Check if a column is a primary key
+     * @param schema Schema name
+     * @param table Table name
+     * @param column Column name
+     * @return true if column is primary key
+     * @throws DataSourceException if query fails
      */
-    Long getRowCount(String schema, String table) throws Exception;
+    boolean isPrimaryKey(String schema, String table, String column) throws DataSourceException;
 
     /**
-     * 获取数据大小
+     * Get table sizes for a list of tables
+     * @param catalog Catalog name
+     * @param tables List of table information
+     * @return Map of table name to size
+     * @throws DataSourceException if query fails
      */
-    Long getDataSize(String schema, String table) throws Exception;
-
-    /**
-     * 获取主键信息
-     */
-    List<IndexInfo> getPrimaryKeys(String schema, String table) throws Exception;
-
-    /**
-     * 获取索引信息
-     */
-    List<IndexInfo> getIndexes(String schema, String table) throws Exception;
-
-    /**
-     * 获取外键信息
-     */
-    List<ForeignKeyInfo> getForeignKeys(String schema, String table) throws Exception;
-
-    /**
-     * 获取视图信息
-     */
-    List<ViewInfo> getViews(String schema) throws Exception;
-
-    /**
-     * 获取存储过程信息
-     */
-    List<ProcedureInfo> getProcedures(String schema) throws Exception;
-
-    /**
-     * 获取触发器信息
-     */
-    List<TriggerInfo> getTriggers(String schema, String table) throws Exception;
-
-    /**
-     * 判断是否为主键
-     */
-    boolean isPrimaryKey(String schema, String table, String column) throws Exception;
+    Map<String, Long> getTableSizes(String catalog, List<TableInfo> tables) throws DataSourceException;
 }

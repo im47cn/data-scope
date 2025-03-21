@@ -1,5 +1,6 @@
 package com.insightdata.domain.security;
 
+import com.insightdata.domain.security.service.KeyManagementService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -24,8 +25,4 @@ public class SecurityConfiguration {
         return new CredentialEncryptionService(keyManagementService);
     }
 
-    @Bean
-    public KeyManagementService keyManagementService() {
-        return new KeyManagementService();
-    }
 }

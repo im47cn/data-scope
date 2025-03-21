@@ -1,6 +1,5 @@
 package com.insightdata.domain.security.service;
 
-import com.insightdata.domain.security.KeyManagementService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;

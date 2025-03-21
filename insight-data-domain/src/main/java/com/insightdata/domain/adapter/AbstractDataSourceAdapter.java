@@ -27,7 +27,7 @@ public abstract class AbstractDataSourceAdapter implements EnhancedDataSourceAda
     protected DataSource currentDataSource;
     
     @Override
-    public void connect(DataSource config) throws Exception {
+    public void connect(DataSource config) throws DataSourceException {
         try {
             // 加载驱动
             Class.forName(config.getDriverClassName());
@@ -52,7 +52,7 @@ public abstract class AbstractDataSourceAdapter implements EnhancedDataSourceAda
     }
     
     @Override
-    public void disconnect() throws Exception {
+    public void disconnect() throws DataSourceException {
         if (connection != null && !connection.isClosed()) {
             connection.close();
             connection = null;
@@ -60,7 +60,7 @@ public abstract class AbstractDataSourceAdapter implements EnhancedDataSourceAda
     }
     
     @Override
-    public boolean testConnection(DataSource config) throws Exception {
+    public boolean testConnection(DataSource config) throws DataSourceException {
         try (Connection conn = getTestConnection(config)) {
             return conn != null && !conn.isClosed();
         } catch (Exception e) {
@@ -75,7 +75,7 @@ public abstract class AbstractDataSourceAdapter implements EnhancedDataSourceAda
     }
     
     @Override
-    public List<SchemaInfo> getSchemas(DataSource dataSource) throws Exception {
+    public List<SchemaInfo> getSchemas(DataSource dataSource) throws DataSourceException {
         if (currentDataSource == null || !dataSource.getId().equals(currentDataSource.getId())) {
             connect(dataSource);
         }
@@ -94,7 +94,7 @@ public abstract class AbstractDataSourceAdapter implements EnhancedDataSourceAda
     }
     
     @Override
-    public SchemaInfo getSchema(DataSource dataSource, String schemaName) throws Exception {
+    public SchemaInfo getSchema(DataSource dataSource, String schemaName) throws DataSourceException {
         if (currentDataSource == null || !dataSource.getId().equals(currentDataSource.getId())) {
             connect(dataSource);
         }
@@ -111,7 +111,7 @@ public abstract class AbstractDataSourceAdapter implements EnhancedDataSourceAda
     }
     
     @Override
-    public List<TableInfo> getTables(DataSource dataSource, String schema) throws Exception {
+    public List<TableInfo> getTables(DataSource dataSource, String schema) throws DataSourceException {
         if (currentDataSource == null || !dataSource.getId().equals(currentDataSource.getId())) {
             connect(dataSource);
         }

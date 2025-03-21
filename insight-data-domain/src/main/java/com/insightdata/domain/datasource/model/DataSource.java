@@ -1,9 +1,8 @@
 package com.insightdata.domain.datasource.model;
 
 import java.time.LocalDateTime;
-import java.util.Set;
+import java.util.Map;
 
-import com.insightdata.domain.datasource.enums.DataSourceType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -71,11 +70,13 @@ public class DataSource {
      * 密钥ID
      */
     private String keyId;
+    private String driverClassName;
+    private String jdbcUrl;
 
     /**
      * 连接属性
      */
-    private String connectionProperties;
+    private Map<String, String> connectionProperties;
 
     /**
      * 是否启用
@@ -86,11 +87,6 @@ public class DataSource {
      * 描述
      */
     private String description;
-
-    /**
-     * 标签
-     */
-    private Set<String> tags;
 
     /**
      * 最后同步时间
@@ -107,4 +103,17 @@ public class DataSource {
      */
     private LocalDateTime updatedAt;
 
+    private String createdBy;
+
+    private String updatedBy;
+    private Integer maxConnections;
+    private Integer minConnections;
+    private Integer connectionTimeout;
+    private Integer idleTimeout;
+    private Integer maxLifetime;
+    private Boolean autoCommit;
+    private String validationQuery;
+    private Integer validationTimeout;
+    private String schema;
+    private Map<String, Object> extendedProperties;
 }

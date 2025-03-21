@@ -11,6 +11,7 @@ import com.insightdata.domain.datasource.enums.DataSourceType;
 import com.insightdata.domain.datasource.model.DataSource;
 import com.insightdata.domain.datasource.model.SchemaInfo;
 import com.insightdata.domain.datasource.model.TableInfo;
+import com.insightdata.domain.security.service.KeyManagementService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,8 +24,7 @@ import com.insightdata.domain.exception.DataSourceException;
 import com.insightdata.domain.datasource.repository.DataSourceRepository;
 import com.insightdata.domain.metadata.service.CredentialEncryptionService;
 import com.insightdata.domain.metadata.service.DataSourceService;
-import com.insightdata.domain.security.KeyInfo;
-import com.insightdata.domain.security.service.KeyManagementService;
+import com.insightdata.domain.security.model.KeyInfo;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -46,7 +46,6 @@ public class DataSourceServiceImpl implements DataSourceService {
 
     @Autowired
     private KeyManagementService keyManagementService;
-
 
     @Override
     @Transactional

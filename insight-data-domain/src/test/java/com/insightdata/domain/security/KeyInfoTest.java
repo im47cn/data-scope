@@ -1,5 +1,7 @@
 package com.insightdata.domain.security;
 
+import com.insightdata.domain.security.enums.KeyStatus;
+import com.insightdata.domain.security.model.KeyInfo;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;

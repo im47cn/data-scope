@@ -35,7 +35,7 @@ public class DB2DataSourceAdapter extends AbstractDataSourceAdapter {
     }
     
     @Override
-    public List<String> getCatalogs() throws Exception {
+    public List<String> getCatalogs() throws DataSourceException {
         checkConnection();
         List<String> catalogs = new ArrayList<>();
         try (ResultSet rs = connection.getMetaData().getCatalogs()) {
@@ -50,7 +50,7 @@ public class DB2DataSourceAdapter extends AbstractDataSourceAdapter {
     }
     
     @Override
-    public List<String> getSchemas(String catalog) throws Exception {
+    public List<String> getSchemas(String catalog) throws DataSourceException {
         checkConnection();
         List<String> schemas = new ArrayList<>();
         try (ResultSet rs = connection.getMetaData().getSchemas(catalog, null)) {
@@ -65,7 +65,7 @@ public class DB2DataSourceAdapter extends AbstractDataSourceAdapter {
     }
     
     @Override
-    public List<TableInfo> getTables(String catalog, String schema) throws Exception {
+    public List<TableInfo> getTables(String catalog, String schema) throws DataSourceException {
         checkConnection();
         List<TableInfo> tables = new ArrayList<>();
         try (ResultSet rs = connection.getMetaData().getTables(catalog, schema, null, new String[]{"TABLE"})) {
@@ -88,7 +88,7 @@ public class DB2DataSourceAdapter extends AbstractDataSourceAdapter {
     }
     
     @Override
-    public List<ColumnInfo> getColumns(String catalog, String schema, String table) throws Exception {
+    public List<ColumnInfo> getColumns(String catalog, String schema, String table) throws DataSourceException {
         checkConnection();
         List<ColumnInfo> columns = new ArrayList<>();
         try (ResultSet rs = connection.getMetaData().getColumns(catalog, schema, table, null)) {
@@ -112,7 +112,7 @@ public class DB2DataSourceAdapter extends AbstractDataSourceAdapter {
     }
     
     @Override
-    public Map<String, Long> getTableSizes(String catalog, String schema) throws Exception {
+    public Map<String, Long> getTableSizes(String catalog, String schema) throws DataSourceException {
         checkConnection();
         Map<String, Long> sizes = new HashMap<>();
         

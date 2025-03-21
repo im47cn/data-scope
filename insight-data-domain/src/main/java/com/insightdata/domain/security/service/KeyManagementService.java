@@ -3,80 +3,74 @@ package com.insightdata.domain.security.service;
 import java.util.List;
 import java.util.Optional;
 
-import com.insightdata.domain.security.KeyInfo;
-import com.insightdata.domain.security.KeyStatus;
+import com.insightdata.domain.security.enums.KeyStatus;
+import com.insightdata.domain.security.model.KeyInfo;
 
 /**
- * 密钥管理服务接口
+ * Service interface for managing encryption keys
  */
 public interface KeyManagementService {
 
     /**
-     * 创建新密钥
+     * Creates a new encryption key for the specified purpose
      *
-     * @param purpose 密钥用途
-     * @return 新创建的密钥信息
+     * @param purpose The purpose/usage of the key
+     * @return The created key information
      */
     KeyInfo createKey(String purpose);
 
     /**
-     * 获取当前活跃密钥
+     * Retrieves a key by its ID
      *
-     * @param purpose 密钥用途
-     * @return 当前活跃密钥信息
-     */
-    Optional<KeyInfo> getCurrentKey(String purpose);
-
-    /**
-     * 根据ID获取密钥
-     *
-     * @param keyId 密钥ID
-     * @return 密钥信息
+     * @param keyId The unique identifier of the key
+     * @return The key information if found
      */
     Optional<KeyInfo> retrieveKeyById(String keyId);
 
     /**
-     * 轮换密钥
+     * Gets the current active key for a specific purpose
      *
-     * @param purpose 密钥用途
-     * @return 新创建的密钥信息
+     * @param purpose The purpose/usage of the key
+     * @return The current key information if found
+     */
+    Optional<KeyInfo> getCurrentKey(String purpose);
+
+    /**
+     * Lists all keys for a specific purpose
+     *
+     * @param purpose The purpose/usage of the keys
+     * @return List of key information
+     */
+    List<KeyInfo> listKeys(String purpose);
+
+    /**
+     * Rotates the current key for a specific purpose
+     *
+     * @param purpose The purpose/usage of the key to rotate
+     * @return The new key information
      */
     KeyInfo rotateKey(String purpose);
 
     /**
-     * 禁用密钥
+     * Updates the status of a key
      *
-     * @param keyId 密钥ID
-     */
-    void disableKey(String keyId);
-
-    /**
-     * 启用密钥
-     *
-     * @param keyId 密钥ID
-     */
-    void enableKey(String keyId);
-
-    /**
-     * 删除密钥
-     *
-     * @param keyId 密钥ID
-     */
-    void deleteKey(String keyId);
-
-    /**
-     * 更新密钥状态
-     *
-     * @param keyId 密钥ID
-     * @param status 新状态
+     * @param keyId The unique identifier of the key
+     * @param status The new status
      */
     void updateKeyStatus(String keyId, KeyStatus status);
 
     /**
-     * 列出指定用途的所有密钥
+     * Gets the next version number for a key purpose
      *
-     * @param purpose 密钥用途
-     * @return 密钥列表
+     * @param purpose The purpose/usage of the key
+     * @return The next version number
      */
-    List<KeyInfo> listKeys(String purpose);
+    int getNextKeyVersion(String purpose);
+
+    /**
+     * Deletes a key by its ID
+     *
+     * @param keyId The unique identifier of the key
+     */
+    void deleteKey(String keyId);
 }

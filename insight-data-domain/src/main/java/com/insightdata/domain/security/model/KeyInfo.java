@@ -1,59 +1,62 @@
 package com.insightdata.domain.security.model;
 
-import com.insightdata.domain.security.KeyStatus;
-import lombok.AllArgsConstructor;
+import java.time.LocalDateTime;
+import java.util.Map;
+
+import com.insightdata.domain.security.enums.KeyStatus;
+
 import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
-
-import java.time.LocalDateTime;
 
 /**
- * 密钥信息
+ * Represents encryption key information
  */
 @Data
 @Builder
-@NoArgsConstructor
-@AllArgsConstructor
 public class KeyInfo {
-
+    
     /**
-     * 密钥ID
+     * Unique identifier for the key
      */
     private String id;
-
+    
     /**
-     * 密钥版本号
+     * Version number of the key
      */
     private int version;
-
+    
     /**
-     * 密钥内容
-     */
-    private String keyContent;
-
-    /**
-     * 密钥用途
+     * Purpose/usage of the key (e.g. "CREDENTIAL_ENCRYPTION")
      */
     private String purpose;
-
+    
     /**
-     * 密钥状态
+     * Current status of the key
      */
     private KeyStatus status;
-
+    
     /**
-     * 创建时间
+     * The actual key content
+     */
+    private String keyContent;
+    
+    /**
+     * When the key was created
      */
     private LocalDateTime createdAt;
-
+    
     /**
-     * 更新时间
+     * When the key was last updated
      */
     private LocalDateTime updatedAt;
-
+    
     /**
-     * 过期时间
+     * When the key expires
      */
     private LocalDateTime expiresAt;
+    
+    /**
+     * Additional metadata for the key
+     */
+    private Map<String, String> metadata;
 }

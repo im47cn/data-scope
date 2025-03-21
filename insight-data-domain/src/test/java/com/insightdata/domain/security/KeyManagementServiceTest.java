@@ -1,5 +1,7 @@
 package com.insightdata.domain.security;
 
+import com.insightdata.domain.security.service.KeyManagementService;
+import com.insightdata.domain.security.service.impl.KeyManagementServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -14,7 +16,7 @@ class KeyManagementServiceTest {
 
     @BeforeEach
     void setUp() {
-        keyManagementService = new KeyManagementService();
+        keyManagementService = new KeyManagementServiceImpl();
         ReflectionTestUtils.setField(keyManagementService, "masterKey", "test-master-key-123");
         keyManagementService.init();
     }

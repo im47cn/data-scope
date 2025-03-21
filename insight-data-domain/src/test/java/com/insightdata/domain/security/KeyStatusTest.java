@@ -1,5 +1,6 @@
 package com.insightdata.domain.security;
 
+import com.insightdata.domain.security.enums.KeyStatus;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;

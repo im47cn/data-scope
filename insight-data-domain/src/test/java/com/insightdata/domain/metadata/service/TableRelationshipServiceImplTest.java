@@ -1,4 +1,4 @@
-package com.insightdata.domain.service.impl;
+package com.insightdata.domain.metadata.service;
 
 import com.insightdata.domain.metadata.model.*;
 import com.insightdata.domain.metadata.service.impl.TableRelationshipServiceImpl;
