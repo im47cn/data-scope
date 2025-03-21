@@ -1,4 +1,4 @@
-package com.insightdata.domain.querybuilder.api;
+package com.insightdata.facade.querybuilder;
 
 import java.util.List;
 import java.util.Map;

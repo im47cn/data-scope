@@ -1,6 +1,6 @@
 package com.insightdata.application.service.impl;
 
-import com.insightdata.domain.querybuilder.api.QueryModelContract;
+import com.insightdata.facade.querybuilder.QueryModelContract;
 import com.insightdata.domain.querybuilder.model.*;
 import com.insightdata.domain.querybuilder.repository.QueryModelRepository;
 import com.insightdata.application.service.QueryModelApplicationService;

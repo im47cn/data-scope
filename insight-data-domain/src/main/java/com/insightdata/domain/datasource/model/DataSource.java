@@ -3,6 +3,7 @@ package com.insightdata.domain.datasource.model;
 import java.time.LocalDateTime;
 import java.util.Map;
 
+import com.insightdata.domain.datasource.enums.DataSourceType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

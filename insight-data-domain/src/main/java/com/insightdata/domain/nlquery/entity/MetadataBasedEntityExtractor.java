@@ -64,7 +64,7 @@ public class MetadataBasedEntityExtractor implements EntityExtractor {
                         TableInfo table = tableMap.get(tableName);
                         entities.add(EntityTag.builder()
                                 .value(table.getName()) // Use original case for value
-                                .type(com.insightdata.domain.nlquery.entity.EntityType.TABLE) // Use the enum
+                                .type(EntityType.TABLE) // Use the enum
                                 .confidence(similarity)
                                 .build());
                     }

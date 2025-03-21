@@ -1,26 +1,26 @@
 package com.insightdata.domain.nlquery.preprocess;
 
 /**
- * 纠正建议的级别
+ * 纠正级别
  */
 public enum CorrectionLevel {
     /**
-     * 单词级别的纠正
+     * 错误
      */
-    WORD,
-
+    ERROR,
+    
     /**
-     * 句子级别的纠正
+     * 警告
      */
-    SENTENCE,
-
+    WARNING,
+    
     /**
-     * 上下文级别的纠正
+     * 建议
      */
-    CONTEXT,
-
+    SUGGESTION,
+    
     /**
-     * 关键性纠正
+     * 信息
      */
-    CRITICAL
+    INFO
 }

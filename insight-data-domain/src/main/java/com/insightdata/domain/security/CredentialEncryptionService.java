@@ -1,18 +1,25 @@
 package com.insightdata.domain.security;
 
-import com.insightdata.domain.security.service.KeyManagementService;
-import lombok.Data;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
+import java.security.SecureRandom;
+import java.util.Base64;
 
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.GCMParameterSpec;
-import java.security.SecureRandom;
-import java.util.Base64;
+import javax.crypto.spec.SecretKeySpec;
+
+import org.springframework.stereotype.Service;
+
+import com.insightdata.domain.security.model.KeyInfo;
+import com.insightdata.domain.security.service.KeyManagementService;
+
+import lombok.RequiredArgsConstructor;
+import lombok.Value;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class CredentialEncryptionService {
 
     private static final String ALGORITHM = "AES/GCM/NoPadding";
@@ -21,20 +28,25 @@ public class CredentialEncryptionService {
 
     private final KeyManagementService keyManagementService;
 
-    public CredentialEncryptionService(KeyManagementService keyManagementService) {
-        this.keyManagementService = keyManagementService;
-    }
-
     public EncryptionResult encrypt(String credential, String keyId) {
         try {
-            SecretKey key = keyManagementService.getKey(keyId);
+            KeyInfo keyInfo = keyManagementService.retrieveKeyById(keyId)
+                .orElseThrow(() -> new SecurityException("Key not found: " + keyId));
+            
+            byte[] keyBytes = Base64.getDecoder().decode(keyInfo.getKeyContent());
+            SecretKey key = new SecretKeySpec(keyBytes, "AES");
+            
             byte[] iv = new byte[GCM_IV_LENGTH];
             new SecureRandom().nextBytes(iv);
+            
             final Cipher cipher = Cipher.getInstance(ALGORITHM);
             GCMParameterSpec spec = new GCMParameterSpec(GCM_TAG_LENGTH, iv);
             cipher.init(Cipher.ENCRYPT_MODE, key, spec);
+            
             byte[] encryptedData = cipher.doFinal(credential.getBytes());
-            String encryptedCredential = Base64.getEncoder().encodeToString(iv) + ":" + Base64.getEncoder().encodeToString(encryptedData);
+            String encryptedCredential = Base64.getEncoder().encodeToString(iv) + ":" 
+                + Base64.getEncoder().encodeToString(encryptedData);
+            
             return new EncryptionResult(encryptedCredential, keyId);
         } catch (Exception e) {
             log.error("Encryption failed", e);
@@ -48,12 +60,20 @@ public class CredentialEncryptionService {
             if (parts.length != 2) {
                 throw new SecurityException("Invalid encrypted credential format");
             }
+
+            KeyInfo keyInfo = keyManagementService.retrieveKeyById(keyId)
+                .orElseThrow(() -> new SecurityException("Key not found: " + keyId));
+            
+            byte[] keyBytes = Base64.getDecoder().decode(keyInfo.getKeyContent());
+            SecretKey key = new SecretKeySpec(keyBytes, "AES");
+            
             byte[] iv = Base64.getDecoder().decode(parts[0]);
             byte[] encryptedData = Base64.getDecoder().decode(parts[1]);
-            SecretKey key = keyManagementService.getKey(keyId);
+            
             final Cipher cipher = Cipher.getInstance(ALGORITHM);
             GCMParameterSpec spec = new GCMParameterSpec(GCM_TAG_LENGTH, iv);
             cipher.init(Cipher.DECRYPT_MODE, key, spec);
+            
             byte[] decryptedData = cipher.doFinal(encryptedData);
             return new String(decryptedData);
         } catch (Exception e) {
@@ -62,7 +82,7 @@ public class CredentialEncryptionService {
         }
     }
 
-    @Data
+    @Value
     public static class EncryptionResult {
         private final String encryptedCredential;
         private final String keyId;

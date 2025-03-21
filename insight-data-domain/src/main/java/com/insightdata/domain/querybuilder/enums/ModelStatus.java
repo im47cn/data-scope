@@ -1,4 +1,4 @@
-package com.insightdata.domain.querybuilder.model;
+package com.insightdata.domain.querybuilder.enums;
 
 /**
  * Enumeration of possible statuses for a query model.

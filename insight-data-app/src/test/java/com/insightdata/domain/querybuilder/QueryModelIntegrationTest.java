@@ -1,8 +1,8 @@
 package com.insightdata.domain.querybuilder;
 
-import com.insightdata.domain.querybuilder.api.QueryModelContract;
+import com.insightdata.facade.querybuilder.QueryModelContract;
 import com.insightdata.domain.querybuilder.model.QueryModel;
-import com.insightdata.domain.querybuilder.util.QueryModelMapper;
+import com.insightdata.application.convertor.QueryModelConvertor;
 import com.insightdata.facade.querybuilder.QueryModelDto;
 import org.junit.jupiter.api.Test;
 
@@ -45,7 +45,7 @@ class QueryModelIntegrationTest {
         assertEquals(domainModel.getParameters(), dto.getParameters());
 
         // 转换回领域模型
-        QueryModel convertedModel = QueryModelMapper.toDomain(dto);
+        QueryModel convertedModel = QueryModelConvertor.toDomain(dto);
 
         // 验证转换后的领域模型
         assertEquals(domainModel.getId(), convertedModel.getId());

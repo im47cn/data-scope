@@ -1,6 +1,5 @@
 package com.insightdata.facade.querybuilder;
 
-import com.insightdata.domain.querybuilder.api.QueryModelContract;
 import lombok.Data;
 
 import java.util.ArrayList;

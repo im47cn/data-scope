@@ -9,14 +9,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.insightdata.domain.datasource.model.ColumnInfo;
-import com.insightdata.domain.datasource.model.TableInfo;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import com.insightdata.domain.datasource.model.ColumnInfo;
+import com.insightdata.domain.datasource.model.TableInfo;
 import com.insightdata.domain.exception.DataSourceException;
 import com.insightdata.domain.nlquery.executor.QueryResult;
-
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * DB2数据源适配器
@@ -26,7 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Component
 public class DB2DataSourceAdapter extends AbstractDataSourceAdapter {
-    
+
     /**
      * 构造函数
      */
@@ -70,13 +71,12 @@ public class DB2DataSourceAdapter extends AbstractDataSourceAdapter {
         List<TableInfo> tables = new ArrayList<>();
         try (ResultSet rs = connection.getMetaData().getTables(catalog, schema, null, new String[]{"TABLE"})) {
             while (rs.next()) {
-                TableInfo table = new TableInfo();
-                table.setName(rs.getString("TABLE_NAME"));
-                table.setSchemaName(schema);
-                table.setDescription(rs.getString("REMARKS"));
-                
-                // 设置表的统计信息 - 简化实现
-                table.setRowCount(getRowCountInternal(schema, table.getName()));
+                TableInfo table = TableInfo.builder()
+                        .name(rs.getString("TABLE_NAME"))
+                        .schemaName(schema)
+                        .description(rs.getString("REMARKS"))
+                        .rowCount(getRowCountInternal(schema, rs.getString("TABLE_NAME")))
+                        .build();
                 
                 tables.add(table);
             }
@@ -95,11 +95,13 @@ public class DB2DataSourceAdapter extends AbstractDataSourceAdapter {
             while (rs.next()) {
                 ColumnInfo column = ColumnInfo.builder()
                         .name(rs.getString("COLUMN_NAME"))
-                        .tableName(table)
-                        .dataType(rs.getString("TYPE_NAME"))
-                        .isNullable(rs.getInt("NULLABLE") == DatabaseMetaData.columnNullable)
-                        .isPrimaryKey(isPrimaryKey(catalog, schema, table, rs.getString("COLUMN_NAME")))
-                        .description(rs.getString("REMARKS"))
+                        .type(rs.getString("TYPE_NAME"))
+                        .nullable(rs.getInt("NULLABLE") == DatabaseMetaData.columnNullable)
+                        .primaryKey(isPrimaryKey(catalog, schema, table, rs.getString("COLUMN_NAME")))
+                        .comment(rs.getString("REMARKS"))
+                        .length(rs.getLong("COLUMN_SIZE"))
+                        .scale(rs.getInt("DECIMAL_DIGITS"))
+                        .autoIncrement("YES".equals(rs.getString("IS_AUTOINCREMENT")))
                         .build();
                 
                 columns.add(column);

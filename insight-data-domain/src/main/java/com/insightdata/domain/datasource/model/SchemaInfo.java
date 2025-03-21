@@ -21,7 +21,32 @@ public class SchemaInfo {
     private String name;
 
     /**
+     * 数据源ID
+     */
+    private String dataSourceId;
+
+    /**
      * schema下的表信息列表
      */
     private List<TableInfo> tables;
+
+    /**
+     * 是否是默认schema
+     */
+    private Boolean isDefault;
+
+    /**
+     * schema描述
+     */
+    private String description;
+
+    /**
+     * 表数量
+     */
+    private Integer tableCount;
+
+    /**
+     * 创建时间
+     */
+    private String createTime;
 }

@@ -1,41 +1,36 @@
 package com.insightdata.domain.nlquery.preprocess;
 
 /**
- * Types of text corrections that can be suggested
+ * 纠正类型
  */
 public enum CorrectionType {
     /**
-     * Spelling correction
+     * 拼写错误
      */
     SPELLING,
-
+    
     /**
-     * Grammar correction
+     * 语法错误
      */
     GRAMMAR,
-
+    
     /**
-     * Semantic correction
-     */
-    SEMANTIC,
-
-    /**
-     * Punctuation correction
+     * 标点符号错误
      */
     PUNCTUATION,
-
+    
     /**
-     * Word choice correction
+     * 大小写错误
      */
-    WORD_CHOICE,
-
+    CASE,
+    
     /**
-     * Word order correction
+     * 空格错误
      */
-    WORD_ORDER,
-
+    SPACING,
+    
     /**
-     * Other types of corrections
+     * 其他错误
      */
     OTHER
 }

@@ -6,7 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * 词法特征
+ * Token特征
  */
 @Data
 @Builder
@@ -15,14 +15,19 @@ import lombok.NoArgsConstructor;
 public class TokenFeature {
 
     /**
-     * 词元特征
+     * Token文本
      */
-    private LexicalFeature lexical;
+    private String token;
 
     /**
-     * 语法特征
+     * Token长度
      */
-    private GrammaticalDetails grammatical;
+    private int length;
+
+    /**
+     * 词法特征
+     */
+    private LexicalFeature lexical;
 
     /**
      * 语义特征
@@ -30,56 +35,19 @@ public class TokenFeature {
     private SemanticFeature semantic;
 
     /**
-     * 词元特征
+     * 词法特征
      */
     @Data
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
     public static class LexicalFeature {
-        /**
-         * 词元
-         */
-        private String lemma;
-
-        /**
-         * 词性
-         */
-        private String pos;
-
-        /**
-         * 词根
-         */
-        private String stem;
-
-        /**
-         * 是否停用词
-         */
-        private Boolean isStopWord;
-    }
-
-    /**
-     * 语法特征
-     */
-    @Data
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class GrammaticalDetails {
-        /**
-         * 依存关系
-         */
-        private String dependency;
-
-        /**
-         * 句法成分
-         */
-        private String syntacticComponent;
-
-        /**
-         * 语法功能
-         */
-        private String grammaticalFunction;
+        private String pos;  // 词性
+        private String lemma;  // 词根
+        private boolean isStopWord;  // 是否为停用词
+        private int length;  // 长度
+        private boolean containsDigit;  // 是否包含数字
+        private boolean containsPunctuation;  // 是否包含标点
     }
 
     /**
@@ -90,24 +58,8 @@ public class TokenFeature {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class SemanticFeature {
-        /**
-         * 实体类型
-         */
-        private String entityType;
-
-        /**
-         * 语义角色
-         */
-        private String semanticRole;
-
-        /**
-         * 语义类别
-         */
-        private String semanticCategory;
-
-        /**
-         * 语义关系
-         */
-        private String semanticRelation;
+        private String wordVector;  // 词向量
+        private double similarity;  // 相似度
+        private String category;  // 语义类别
     }
 }

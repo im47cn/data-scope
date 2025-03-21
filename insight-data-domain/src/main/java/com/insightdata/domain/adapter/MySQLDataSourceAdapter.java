@@ -12,11 +12,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import com.insightdata.domain.datasource.enums.DataSourceType;
 import org.springframework.stereotype.Component;
 
 import com.insightdata.domain.datasource.model.ColumnInfo;
 import com.insightdata.domain.datasource.model.DataSource;
-import com.insightdata.domain.datasource.model.DataSourceType;
 import com.insightdata.domain.datasource.model.ForeignKeyInfo;
 import com.insightdata.domain.datasource.model.IndexInfo;
 import com.insightdata.domain.datasource.model.ProcedureInfo;

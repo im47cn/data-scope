@@ -1,5 +1,6 @@
-package com.insightdata.domain.security;
+package com.insightdata.config;
 
+import com.insightdata.domain.security.CredentialEncryptionService;
 import com.insightdata.domain.security.service.KeyManagementService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

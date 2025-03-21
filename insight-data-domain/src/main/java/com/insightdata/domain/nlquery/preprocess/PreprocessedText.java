@@ -9,7 +9,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * Represents preprocessed text with various features and corrections
+ * 预处理后的文本
  */
 @Data
 @Builder
@@ -18,32 +18,32 @@ import lombok.NoArgsConstructor;
 public class PreprocessedText {
 
     /**
-     * Original input text
+     * 原始文本
      */
     private String originalText;
 
     /**
-     * Normalized text after basic preprocessing
+     * 标准化后的文本
      */
     private String normalizedText;
 
     /**
-     * Tokenized text
+     * 分词结果
      */
     private List<String> tokens;
 
     /**
-     * Token features including lexical, grammatical and semantic information
+     * 语言
+     */
+    private String language;
+
+    /**
+     * Token特征
      */
     private Map<String, TokenFeature> tokenFeatures;
 
     /**
-     * Suggested corrections for potential errors
+     * 纠正建议
      */
     private List<CorrectionSuggestion> corrections;
-
-    /**
-     * Confidence score of preprocessing (0-1)
-     */
-    private double confidence;
 }

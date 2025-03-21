@@ -5,6 +5,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import com.insightdata.domain.datasource.model.DataSource;
@@ -29,94 +30,144 @@ public abstract class AbstractDataSourceAdapter implements EnhancedDataSourceAda
     @Override
     public void connect(DataSource config) throws DataSourceException {
         try {
-            // 加载驱动
-            Class.forName(config.getDriverClassName());
-            
-            // 设置连接属性
-            Properties props = new Properties();
-            props.setProperty("user", config.getUsername());
-            props.setProperty("password", config.getPassword()); // 使用普通密码，非加密
-            
-            // 添加自定义连接属性
-            if (config.getConnectionProperties() != null) {
-                config.getConnectionProperties().forEach(props::setProperty);
+            // Use existing JDBC URL if provided, otherwise build it
+            String jdbcUrl = config.getJdbcUrl();
+            if (jdbcUrl == null || jdbcUrl.isEmpty()) {
+                jdbcUrl = String.format("jdbc:%s://%s:%d/%s",
+                    config.getType().getProtocol(),
+                    config.getHost(),
+                    config.getPort(),
+                    config.getDatabaseName());
             }
             
-            // 获取连接
-            connection = DriverManager.getConnection(config.getJdbcUrl(), props);
+            // Load driver if class name is provided
+            String driverClassName = config.getDriverClassName();
+            if (driverClassName != null && !driverClassName.isEmpty()) {
+                Class.forName(driverClassName);
+            }
+            
+            // Set connection properties
+            Properties props = new Properties();
+            props.setProperty("user", config.getUsername());
+            props.setProperty("password", config.getPassword());
+            
+            // Add custom connection properties
+            Map<String, String> connProps = config.getConnectionProperties();
+            if (connProps != null) {
+                connProps.forEach(props::setProperty);
+            }
+            
+            // Get connection
+            connection = DriverManager.getConnection(jdbcUrl, props);
             currentDataSource = config;
-        } catch (SQLException | ClassNotFoundException e) {
-            log.error("Failed to connect to database: {}", config.getName(), e);
-            throw new DataSourceException("Failed to connect to database: " + e.getMessage(), e);
+            
+            log.info("Successfully connected to database: {}", config.getName());
+        } catch (SQLException e) {
+            String errorMsg = String.format("Failed to connect to database %s: %s",
+                config.getName(), e.getMessage());
+            log.error(errorMsg, e);
+            throw new DataSourceException(errorMsg, e);
+        } catch (ClassNotFoundException e) {
+            String errorMsg = String.format("Database driver %s not found: %s",
+                config.getDriverClassName(), e.getMessage());
+            log.error(errorMsg, e);
+            throw new DataSourceException(errorMsg, e);
         }
     }
     
     @Override
     public void disconnect() throws DataSourceException {
-        if (connection != null && !connection.isClosed()) {
-            connection.close();
-            connection = null;
+        try {
+            if (connection != null && !connection.isClosed()) {
+                connection.close();
+                connection = null;
+            }
+        } catch (SQLException e) {
+            throw new DataSourceException("Error closing database connection", e);
         }
     }
     
     @Override
     public boolean testConnection(DataSource config) throws DataSourceException {
-        try (Connection conn = getTestConnection(config)) {
-            return conn != null && !conn.isClosed();
-        } catch (Exception e) {
-            log.error("Failed to test connection to database: {}", config.getName(), e);
-            throw e;
+        try (Connection testConn = getTestConnection(config)) {
+            boolean isValid = testConn != null && !testConn.isClosed();
+            if (isValid) {
+                log.info("Successfully tested connection to database: {}", config.getName());
+            } else {
+                log.warn("Connection test failed for database: {}", config.getName());
+            }
+            return isValid;
+        } catch (SQLException | ClassNotFoundException e) {
+            String errorMsg = String.format("Failed to test connection to database %s: %s",
+                config.getName(), e.getMessage());
+            log.error(errorMsg, e);
+            throw new DataSourceException(errorMsg, e);
         }
     }
     
     @Override
-    public Connection getConnection() {
-        return connection;
+    public Connection getConnection() throws DataSourceException {
+        try {
+            if (connection == null || connection.isClosed()) {
+                throw new DataSourceException("No active connection available");
+            }
+            return connection;
+        } catch (SQLException e) {
+            throw new DataSourceException("Error checking connection status", e);
+        }
     }
     
     @Override
     public List<SchemaInfo> getSchemas(DataSource dataSource) throws DataSourceException {
-        if (currentDataSource == null || !dataSource.getId().equals(currentDataSource.getId())) {
-            connect(dataSource);
-        }
+        ensureConnection(dataSource);
         
         List<SchemaInfo> schemas = new ArrayList<>();
-        List<String> schemaNames = getSchemas(dataSource.getDatabaseName());
-        
-        for (String schemaName : schemaNames) {
-            SchemaInfo schema = new SchemaInfo();
-            schema.setName(schemaName);
-            schema.setDataSourceId(dataSource.getId());
-            schemas.add(schema);
+        try {
+            List<String> schemaNames = getSchemas(dataSource.getDatabaseName());
+            
+            for (String schemaName : schemaNames) {
+                SchemaInfo schema = SchemaInfo.builder()
+                    .name(schemaName)
+                    .dataSourceId(dataSource.getId())
+                    .build();
+                schemas.add(schema);
+            }
+            
+            return schemas;
+        } catch (Exception e) {
+            throw new DataSourceException("Failed to get schemas: " + e.getMessage(), e);
         }
-        
-        return schemas;
     }
     
     @Override
     public SchemaInfo getSchema(DataSource dataSource, String schemaName) throws DataSourceException {
-        if (currentDataSource == null || !dataSource.getId().equals(currentDataSource.getId())) {
-            connect(dataSource);
+        ensureConnection(dataSource);
+        
+        try {
+            List<TableInfo> tables = getTables(dataSource.getDatabaseName(), schemaName);
+            
+            return SchemaInfo.builder()
+                .name(schemaName)
+                .dataSourceId(dataSource.getId())
+                .tables(tables)
+                .build();
+        } catch (Exception e) {
+            throw new DataSourceException("Failed to get schema: " + e.getMessage(), e);
         }
-        
-        SchemaInfo schema = new SchemaInfo();
-        schema.setName(schemaName);
-        schema.setDataSourceId(dataSource.getId());
-        
-        // 获取此schema的表信息
-        List<TableInfo> tables = getTables(dataSource, schemaName);
-        schema.setTables(tables);
-        
-        return schema;
     }
     
     @Override
     public List<TableInfo> getTables(DataSource dataSource, String schema) throws DataSourceException {
-        if (currentDataSource == null || !dataSource.getId().equals(currentDataSource.getId())) {
+        ensureConnection(dataSource);
+        return getTables(dataSource.getDatabaseName(), schema);
+    }
+    
+    protected void ensureConnection(DataSource dataSource) throws DataSourceException {
+        if (currentDataSource == null ||
+            !dataSource.getId().equals(currentDataSource.getId()) ||
+            connection == null) {
             connect(dataSource);
         }
-        
-        return getTables(dataSource.getDatabaseName(), schema);
     }
     
     // 保护方法，供子类使用

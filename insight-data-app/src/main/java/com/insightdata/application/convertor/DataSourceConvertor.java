@@ -7,7 +7,6 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
 
 import com.insightdata.domain.datasource.model.DataSource;
-import com.insightdata.domain.datasource.model.DataSourceType;
 import com.insightdata.facade.metadata.DataSourceDTO;
 
 /**

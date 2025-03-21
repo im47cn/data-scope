@@ -97,10 +97,15 @@ public class TableRelationshipServiceImpl implements TableRelationshipService {
                             // 检查是否已经存在外键关系
                             boolean existsForeignKey = false;
                             for (ForeignKeyInfo fkInfo : tableInfo.getForeignKeys()) {
-                                if (fkInfo.getTargetTable().equals(otherTable.getName()) &&
-                                        fkInfo.getColumns().stream().anyMatch(c -> c.getSourceColumnName().equals(column.getName()))) {
-                                    existsForeignKey = true;
-                                    break;
+                                if (fkInfo.getTargetTable().equals(otherTable.getName())) {
+                                    boolean sourceColumnMatch = fkInfo.getSourceColumnNames().stream()
+                                            .anyMatch(c -> c.equals(column.getName()));
+                                    boolean targetColumnMatch = fkInfo.getTargetColumnNames().stream()
+                                            .anyMatch(c -> c.equals(otherColumn.getName()));
+                                    if (sourceColumnMatch && targetColumnMatch) {
+                                        existsForeignKey = true;
+                                        break;
+                                    }
                                 }
                             }
 

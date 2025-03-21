@@ -3,7 +3,7 @@ package com.insightdata.infrastructure.persistence.entity;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import com.insightdata.domain.querybuilder.model.ModelStatus;
+import com.insightdata.domain.querybuilder.enums.ModelStatus;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;

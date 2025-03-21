@@ -6,7 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * Represents a correction suggestion for text preprocessing
+ * 文本纠正建议
  */
 @Data
 @Builder
@@ -15,68 +15,43 @@ import lombok.NoArgsConstructor;
 public class CorrectionSuggestion {
 
     /**
-     * Original text that needs correction
+     * 原始文本
      */
     private String originalText;
 
     /**
-     * Suggested correction text
+     * 建议的纠正文本
      */
     private String suggestedText;
 
     /**
-     * Type of correction
+     * 纠正类型
      */
     private CorrectionType type;
 
     /**
-     * Start position in original text
-     */
-    private int startPosition;
-
-    /**
-     * End position in original text
-     */
-    private int endPosition;
-
-    /**
-     * Confidence score of this suggestion (0-1)
+     * 置信度
      */
     private double confidence;
 
     /**
-     * Factory method for spelling correction
+     * 开始位置
      */
-    public static CorrectionSuggestion spelling(String original, String suggested, double confidence) {
-        return CorrectionSuggestion.builder()
-                .originalText(original)
-                .suggestedText(suggested)
-                .type(CorrectionType.SPELLING)
-                .confidence(confidence)
-                .build();
-    }
+    private int startOffset;
 
     /**
-     * Factory method for grammar correction
+     * 结束位置
      */
-    public static CorrectionSuggestion grammar(String original, String suggested, double confidence) {
-        return CorrectionSuggestion.builder()
-                .originalText(original)
-                .suggestedText(suggested)
-                .type(CorrectionType.GRAMMAR)
-                .confidence(confidence)
-                .build();
-    }
+    private int endOffset;
 
     /**
-     * Factory method for semantic correction
+     * 纠正类型枚举
      */
-    public static CorrectionSuggestion semantic(String original, String suggested, double confidence) {
-        return CorrectionSuggestion.builder()
-                .originalText(original)
-                .suggestedText(suggested)
-                .type(CorrectionType.SEMANTIC)
-                .confidence(confidence)
-                .build();
+    public enum CorrectionType {
+        SPELLING,       // 拼写错误
+        GRAMMAR,        // 语法错误
+        PUNCTUATION,   // 标点符号
+        WORD_CHOICE,   // 词语选择
+        FORMAT         // 格式问题
     }
 }

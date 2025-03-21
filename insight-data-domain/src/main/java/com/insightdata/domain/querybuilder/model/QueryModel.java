@@ -1,62 +1,25 @@
 package com.insightdata.domain.querybuilder.model;
 
-import com.insightdata.domain.querybuilder.api.QueryModelContract;
-import lombok.Data;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.insightdata.facade.querybuilder.QueryModelContract;
+
 /**
  * 查询模型领域对象
  * 实现 QueryModelContract 接口，用于 Domain 层业务逻辑
  */
-@Data
 public class QueryModel implements QueryModelContract {
-    /**
-     * 查询模型ID
-     */
     private String id;
-
-    /**
-     * 查询模型名称
-     */
     private String name;
-
-    /**
-     * 查询涉及的表列表
-     */
     private List<String> tables = new ArrayList<>();
-
-    /**
-     * 查询的字段列表
-     */
     private List<String> fields = new ArrayList<>();
-
-    /**
-     * 表连接条件列表
-     */
     private List<String> joins = new ArrayList<>();
-
-    /**
-     * 查询过滤条件
-     */
     private String filter;
-
-    /**
-     * 分组字段列表
-     */
     private List<String> groupBy = new ArrayList<>();
-
-    /**
-     * 排序字段列表
-     */
     private List<String> orderBy = new ArrayList<>();
-
-    /**
-     * 查询参数映射
-     */
     private Map<String, Object> parameters = new HashMap<>();
 
     /**
@@ -75,14 +38,104 @@ public class QueryModel implements QueryModelContract {
         if (contract != null) {
             this.id = contract.getId();
             this.name = contract.getName();
-            this.tables = new ArrayList<>(contract.getTables());
-            this.fields = new ArrayList<>(contract.getFields());
-            this.joins = new ArrayList<>(contract.getJoins());
+            setTables(contract.getTables());
+            setFields(contract.getFields());
+            setJoins(contract.getJoins());
             this.filter = contract.getFilter();
-            this.groupBy = new ArrayList<>(contract.getGroupBy());
-            this.orderBy = new ArrayList<>(contract.getOrderBy());
-            this.parameters = new HashMap<>(contract.getParameters());
+            setGroupBy(contract.getGroupBy());
+            setOrderBy(contract.getOrderBy());
+            setParameters(contract.getParameters());
         }
+    }
+
+    @Override
+    public String getId() {
+        return id;
+    }
+
+    @Override
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public List<String> getTables() {
+        return tables;
+    }
+
+    @Override
+    public void setTables(List<String> tables) {
+        this.tables = tables != null ? new ArrayList<>(tables) : new ArrayList<>();
+    }
+
+    @Override
+    public List<String> getFields() {
+        return fields;
+    }
+
+    @Override
+    public void setFields(List<String> fields) {
+        this.fields = fields != null ? new ArrayList<>(fields) : new ArrayList<>();
+    }
+
+    @Override
+    public List<String> getJoins() {
+        return joins;
+    }
+
+    @Override
+    public void setJoins(List<String> joins) {
+        this.joins = joins != null ? new ArrayList<>(joins) : new ArrayList<>();
+    }
+
+    @Override
+    public String getFilter() {
+        return filter;
+    }
+
+    @Override
+    public void setFilter(String filter) {
+        this.filter = filter;
+    }
+
+    @Override
+    public List<String> getGroupBy() {
+        return groupBy;
+    }
+
+    @Override
+    public void setGroupBy(List<String> groupBy) {
+        this.groupBy = groupBy != null ? new ArrayList<>(groupBy) : new ArrayList<>();
+    }
+
+    @Override
+    public List<String> getOrderBy() {
+        return orderBy;
+    }
+
+    @Override
+    public void setOrderBy(List<String> orderBy) {
+        this.orderBy = orderBy != null ? new ArrayList<>(orderBy) : new ArrayList<>();
+    }
+
+    @Override
+    public Map<String, Object> getParameters() {
+        return parameters;
+    }
+
+    @Override
+    public void setParameters(Map<String, Object> parameters) {
+        this.parameters = parameters != null ? new HashMap<>(parameters) : new HashMap<>();
     }
 
     /**

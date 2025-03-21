@@ -1,5 +1,6 @@
 package com.insightdata.domain.security.service;
 
+import com.insightdata.domain.security.model.KeyInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -26,9 +27,11 @@ public class KeyRotationScheduler {
     public void rotateKeys() {
         try {
             log.info("Starting scheduled key rotation");
-            String currentKeyId = keyManagementService.getCurrentKeyId();
-            keyManagementService.rotateKey(currentKeyId);
-            log.info("Successfully completed key rotation for key: {}", currentKeyId);
+            String purpose = "CREDENTIAL_ENCRYPTION"; // Default purpose for credential encryption
+            KeyInfo currentKey = keyManagementService.getCurrentKey(purpose)
+                .orElseThrow(() -> new SecurityException("No active key found for purpose: " + purpose));
+            KeyInfo newKey = keyManagementService.rotateKey(purpose);
+            log.info("Successfully rotated key from ID {} to new key ID {}", currentKey.getId(), newKey.getId());
         } catch (Exception e) {
             log.error("Failed to rotate encryption keys", e);
             throw new SecurityException("Key rotation failed", e);
