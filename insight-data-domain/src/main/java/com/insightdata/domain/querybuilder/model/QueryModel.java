@@ -6,13 +6,13 @@ import java.util.Map;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
  * Core query model class representing a structured query definition.
  */
 @Data
-
 @NoArgsConstructor
 @AllArgsConstructor
 public class QueryModel {
