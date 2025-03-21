@@ -69,7 +69,7 @@ public class TableRelationshipServiceImpl implements TableRelationshipService {
                         .dataSourceId(dataSourceId)
                         .sourceTableName(tableInfo.getName())
                         .sourceColumnNames(fkInfo.getSourceColumnNamesAsString()) // 使用字符串形式，逗号分隔
-                        .targetTableName(fkInfo.getTargetTableName())
+                        .targetTableName(fkInfo.getTargetTable())
                         .targetColumnNames(fkInfo.getTargetColumnNamesAsString()) // 使用字符串形式，逗号分隔
                         .relationType(RelationshipType.MANY_TO_ONE) // 默认为多对一
                         .relationSource(RelationshipSource.METADATA)
@@ -92,12 +92,12 @@ public class TableRelationshipServiceImpl implements TableRelationshipService {
                 for (ColumnInfo column : tableInfo.getColumns()) {
                     for (ColumnInfo otherColumn : otherTable.getColumns()) {
                         if (column.getName().equalsIgnoreCase(otherColumn.getName()) &&
-                                column.getDataType().equalsIgnoreCase(otherColumn.getDataType())) {
+                                column.getType().equalsIgnoreCase(otherColumn.getType())) {
 
                             // 检查是否已经存在外键关系
                             boolean existsForeignKey = false;
                             for (ForeignKeyInfo fkInfo : tableInfo.getForeignKeys()) {
-                                if (fkInfo.getTargetTableName().equals(otherTable.getName()) &&
+                                if (fkInfo.getTargetTable().equals(otherTable.getName()) &&
                                         fkInfo.getColumns().stream().anyMatch(c -> c.getSourceColumnName().equals(column.getName()))) {
                                     existsForeignKey = true;
                                     break;

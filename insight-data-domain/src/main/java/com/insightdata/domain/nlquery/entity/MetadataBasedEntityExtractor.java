@@ -77,8 +77,8 @@ public class MetadataBasedEntityExtractor implements EntityExtractor {
         for (TableInfo table : metadata.getTables()) {
             for (ColumnInfo column : table.getColumns()) {
                 columnMap.put(column.getName().toLowerCase(), column);
-                if (column.getDescription() != null && !column.getDescription().isEmpty()) {
-                    columnMap.put(column.getDescription().toLowerCase(), column);
+                if (column.getComment() != null && !column.getComment().isEmpty()) {
+                    columnMap.put(column.getComment().toLowerCase(), column);
                 }
             }
         }

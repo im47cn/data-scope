@@ -74,7 +74,7 @@ public class SchemaInfo {
         }
         
         return tables.stream()
-                .filter(table -> tableName.equals(table.getTableName()))
+                .filter(table -> tableName.equals(table.getName()))
                 .findFirst()
                 .orElse(null);
     }
@@ -89,8 +89,8 @@ public class SchemaInfo {
         
         List<TableRelationship> result = new ArrayList<>();
         for (TableRelationship relationship : relationships) {
-            if ((sourceTable.equals(relationship.getSourceTable()) && targetTable.equals(relationship.getTargetTable())) ||
-                (sourceTable.equals(relationship.getTargetTable()) && targetTable.equals(relationship.getSourceTable()))) {
+            if ((sourceTable.equals(relationship.getSourceTableName()) && targetTable.equals(relationship.getTargetTableName())) ||
+                (sourceTable.equals(relationship.getTargetTableName()) && targetTable.equals(relationship.getSourceTableName()))) {
                 result.add(relationship);
             }
         }
