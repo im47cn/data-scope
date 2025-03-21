@@ -3,6 +3,7 @@ package com.insightdata.facade.querybuilder.model;
 import java.time.LocalDateTime;
 import java.util.Map;
 
+import com.insightdata.facade.metadata.enums.DataSourceType;
 import lombok.Data;
 
 @Data

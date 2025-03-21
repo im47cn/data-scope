@@ -2,6 +2,7 @@ package com.insightdata.facade.datasource;
 
 import java.util.Map;
 
+import com.insightdata.facade.metadata.enums.DataSourceType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

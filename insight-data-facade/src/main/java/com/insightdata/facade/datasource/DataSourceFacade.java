@@ -1,6 +1,7 @@
 package com.insightdata.facade.datasource;
 
 import com.insightdata.facade.common.PageResponse;
+import com.insightdata.facade.metadata.enums.DataSourceType;
 
 /**
  * Facade interface for data source management
