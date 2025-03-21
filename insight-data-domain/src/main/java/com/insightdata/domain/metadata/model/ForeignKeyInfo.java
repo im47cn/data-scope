@@ -105,4 +105,18 @@ public class ForeignKeyInfo {
         }
         columns.add(column);
     }
+
+    /**
+     * 获取源列名字符串，逗号分隔
+     */
+    public String getSourceColumnNamesAsString() {
+        return String.join(",", getSourceColumnNames());
+    }
+
+    /**
+     * 获取目标列名字符串，逗号分隔
+     */
+    public String getTargetColumnNamesAsString() {
+        return String.join(",", getTargetColumnNames());
+    }
 }

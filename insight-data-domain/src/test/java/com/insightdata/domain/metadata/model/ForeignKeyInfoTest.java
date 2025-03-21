@@ -1,13 +1,15 @@
 package com.insightdata.domain.metadata.model;
 
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.DisplayName;
-
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+
+import com.insightdata.domain.datasource.model.ForeignKeyColumnInfo;
 
 /**
  * ForeignKeyInfo类的单元测试
@@ -26,23 +28,23 @@ public class ForeignKeyInfoTest {
                 ForeignKeyColumnInfo.builder().sourceColumnName("id").targetColumnName("user_id").build(),
                 ForeignKeyColumnInfo.builder().sourceColumnName("dept_id").targetColumnName("department_id").build()
         );
-        
+
         ForeignKeyInfo foreignKeyInfo = ForeignKeyInfo.builder()
                 .name("fk_test")
                 .sourceTableName("orders")
                 .targetTableName("users")
                 .columns(columns)
                 .build();
-        
+
         // 验证结果
         List<String> sourceColumnsList = foreignKeyInfo.getSourceColumnNames();
-        String sourceColumnsString = foreignKeyInfo.getSourceColumnNamesAsString();
-        
+        String sourceColumnsString = String.join(",", sourceColumnsList);
+
         assertEquals(2, sourceColumnsList.size());
         assertEquals("id,dept_id", sourceColumnsString);
         assertEquals(String.join(",", sourceColumnsList), sourceColumnsString);
     }
-    
+
     /**
      * 测试获取目标列名字符串方法 - 多列情况
      */
@@ -54,23 +56,23 @@ public class ForeignKeyInfoTest {
                 ForeignKeyColumnInfo.builder().sourceColumnName("id").targetColumnName("user_id").build(),
                 ForeignKeyColumnInfo.builder().sourceColumnName("dept_id").targetColumnName("department_id").build()
         );
-        
+
         ForeignKeyInfo foreignKeyInfo = ForeignKeyInfo.builder()
                 .name("fk_test")
                 .sourceTableName("orders")
                 .targetTableName("users")
                 .columns(columns)
                 .build();
-        
+
         // 验证结果
         List<String> targetColumnsList = foreignKeyInfo.getTargetColumnNames();
-        String targetColumnsString = foreignKeyInfo.getTargetColumnNamesAsString();
-        
+        String targetColumnsString = String.join(",", targetColumnsList);
+
         assertEquals(2, targetColumnsList.size());
         assertEquals("user_id,department_id", targetColumnsString);
         assertEquals(String.join(",", targetColumnsList), targetColumnsString);
     }
-    
+
     /**
      * 测试单列情况
      */
@@ -81,19 +83,21 @@ public class ForeignKeyInfoTest {
         List<ForeignKeyColumnInfo> columns = Collections.singletonList(
                 ForeignKeyColumnInfo.builder().sourceColumnName("id").targetColumnName("user_id").build()
         );
-        
+
         ForeignKeyInfo foreignKeyInfo = ForeignKeyInfo.builder()
                 .name("fk_test")
                 .sourceTableName("orders")
                 .targetTableName("users")
                 .columns(columns)
                 .build();
-        
+
         // 验证结果
-        assertEquals("id", foreignKeyInfo.getSourceColumnNamesAsString());
-        assertEquals("user_id", foreignKeyInfo.getTargetColumnNamesAsString());
+        List<String> sourceColumnNames = foreignKeyInfo.getSourceColumnNames();
+        List<String> targetColumnNames = foreignKeyInfo.getTargetColumnNames();
+        assertEquals("id", String.join(",", sourceColumnNames));
+        assertEquals("user_id", String.join(",", targetColumnNames));
     }
-    
+
     /**
      * 测试空列表情况
      */
@@ -102,18 +106,20 @@ public class ForeignKeyInfoTest {
     public void testColumnNamesWithEmptyList() {
         // 创建测试数据
         List<ForeignKeyColumnInfo> columns = Collections.emptyList();
-        
+
         ForeignKeyInfo foreignKeyInfo = ForeignKeyInfo.builder()
                 .name("fk_test")
                 .sourceTableName("orders")
                 .targetTableName("users")
                 .columns(columns)
                 .build();
-        
+
         // 验证结果
-        assertTrue(foreignKeyInfo.getSourceColumnNames().isEmpty());
-        assertTrue(foreignKeyInfo.getTargetColumnNames().isEmpty());
-        assertEquals("", foreignKeyInfo.getSourceColumnNamesAsString());
-        assertEquals("", foreignKeyInfo.getTargetColumnNamesAsString());
+        List<String> sourceColumnNames = foreignKeyInfo.getSourceColumnNames();
+        List<String> targetColumnNames = foreignKeyInfo.getTargetColumnNames();
+        assertTrue(sourceColumnNames.isEmpty());
+        assertTrue(targetColumnNames.isEmpty());
+        assertEquals("", String.join(",", sourceColumnNames));
+        assertEquals("", String.join(",", targetColumnNames));
     }
 }

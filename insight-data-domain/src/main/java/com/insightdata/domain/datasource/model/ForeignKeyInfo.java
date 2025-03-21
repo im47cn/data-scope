@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -91,8 +92,7 @@ public class ForeignKeyInfo {
      * @return 源列名列表
      */
     public List<String> getSourceColumnNames() {
-        return columns.stream()
-                .map(ForeignKeyColumnInfo::getSourceColumnName)
+        return Arrays.stream(sourceColumns)
                 .collect(Collectors.toList());
     }
 
@@ -101,8 +101,7 @@ public class ForeignKeyInfo {
      * @return 目标列名列表
      */
     public List<String> getTargetColumnNames() {
-        return columns.stream()
-                .map(ForeignKeyColumnInfo::getTargetColumnName)
+        return Arrays.stream(targetColumns)
                 .collect(Collectors.toList());
     }
 
