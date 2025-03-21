@@ -51,8 +51,8 @@ public class DataSourceController {
 
         if (type != null) {
             try {
-                com.insightdata.domain.metadata.enums.DataSourceType domainType =
-                        com.insightdata.domain.metadata.enums.DataSourceType.valueOf(type.name());
+                DataSourceType domainType =
+                        DataSourceType.valueOf(type.name());
                 dataSources = dataSourceService.getDataSourcesByType(domainType);
             } catch (IllegalArgumentException e) {
                 // 如果domain包中不存在该枚举值，返回空列表
@@ -144,7 +144,7 @@ public class DataSourceController {
      */
     @GetMapping("/types")
     public ResponseEntity<List<DataSourceType>> getSupportedTypes() {
-        List<com.insightdata.domain.metadata.enums.DataSourceType> domainTypes = dataSourceService.getSupportedTypes();
+        List<DataSourceType> domainTypes = dataSourceService.getSupportedTypes();
         List<DataSourceType> facadeTypes = domainTypes.stream()
                 .map(type -> DataSourceType.valueOf(type.name()))
                 .collect(Collectors.toList());

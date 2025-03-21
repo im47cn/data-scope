@@ -1,7 +1,7 @@
 package com.insightdata.application.service.impl;
 
 import com.insightdata.application.service.MetadataSyncJobApplicationService;
-import com.insightdata.application.util.EnumConverter;
+import com.insightdata.application.convertor.EnumConverter;
 import com.insightdata.domain.exception.InsightDataException;
 import com.insightdata.domain.metadata.model.MetadataSyncJob;
 import com.insightdata.domain.metadata.repository.MetadataSyncJobRepository;

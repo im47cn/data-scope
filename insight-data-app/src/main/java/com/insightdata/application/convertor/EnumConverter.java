@@ -1,4 +1,4 @@
-package com.insightdata.application.util;
+package com.insightdata.application.convertor;
 
 import com.insightdata.domain.metadata.model.MetadataSyncJob;
 import com.insightdata.facade.metadata.enums.SyncStatus;
