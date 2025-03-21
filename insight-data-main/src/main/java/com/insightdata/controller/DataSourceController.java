@@ -31,7 +31,7 @@ import com.insightdata.facade.metadata.enums.DataSourceType;
  * 数据源控制器
  */
 @RestController
-@RequestMapping("/api/datasources")
+@RequestMapping("/api/v1/datasources")
 public class DataSourceController {
 
     @Autowired

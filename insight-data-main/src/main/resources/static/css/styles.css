@@ -1,163 +1,229 @@
-/* 主题颜色变量 */
+/* 全局样式 */
 :root {
-  --color-primary: #4f46e5;
-  --color-primary-dark: #4338ca;
-  --color-primary-light: #6366f1;
-  --color-secondary: #0ea5e9;
-  --color-success: #10b981;
-  --color-warning: #f59e0b;
-  --color-danger: #ef4444;
-  --color-info: #3b82f6;
+  --primary-color: #4f46e5;
+  --primary-hover-color: #4338ca;
+  --secondary-color: #6b7280;
+  --success-color: #10b981;
+  --danger-color: #ef4444;
+  --warning-color: #f59e0b;
+  --info-color: #3b82f6;
+  --light-color: #f3f4f6;
+  --dark-color: #1f2937;
+  --sidebar-width: 240px;
+  --sidebar-collapsed-width: 64px;
+  --header-height: 64px;
+  --transition-speed: 0.3s;
 }
 
-/* 全局样式 */
-html, body {
-  height: 100%;
+/* 主题颜色 */
+.bg-primary {
+  background-color: var(--primary-color) !important;
+}
+
+.text-primary {
+  color: var(--primary-color) !important;
+}
+
+.border-primary {
+  border-color: var(--primary-color) !important;
+}
+
+.ring-primary {
+  --tw-ring-color: var(--primary-color) !important;
+}
+
+/* 布局样式 */
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  background-color: #f9fafb;
+  color: #111827;
   margin: 0;
   padding: 0;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-  color: #1f2937;
-  background-color: #f9fafb;
-}
-
-#app {
-  height: 100%;
+  min-height: 100vh;
 }
 
 .main-container {
-  height: 100%;
   display: flex;
   flex-direction: column;
+  min-height: 100vh;
 }
 
 .content-container {
-  flex: 1;
   display: flex;
-  overflow: hidden;
+  flex: 1;
+  height: calc(100vh - var(--header-height));
 }
 
 .page-content {
   flex: 1;
-  overflow: auto;
-  background-color: #f9fafb;
+  overflow-y: auto;
+  padding: 0;
+  transition: margin-left var(--transition-speed);
 }
 
-/* 工具类 */
-.bg-primary {
-  background-color: var(--color-primary);
+/* 侧边栏样式 */
+.sidebar {
+  width: var(--sidebar-width);
+  background-color: white;
+  border-right: 1px solid #e5e7eb;
+  height: 100%;
+  transition: width var(--transition-speed);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
-.text-primary {
-  color: var(--color-primary);
+.sidebar.collapsed {
+  width: var(--sidebar-collapsed-width);
 }
 
-.border-primary {
-  border-color: var(--color-primary);
+.sidebar-header {
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  border-bottom: 1px solid #e5e7eb;
 }
 
-.ring-primary {
-  --tw-ring-color: var(--color-primary);
+.logo-container {
+  display: flex;
+  align-items: center;
 }
 
-/* 表格样式 */
-.selected-table {
-  background-color: #eff6ff;
-  color: var(--color-primary);
+.logo {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
 }
 
-/* 表单元素样式 */
-input:focus, select:focus, textarea:focus {
-  outline: none;
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 1px var(--color-primary);
+.logo-text {
+  font-weight: 600;
+  font-size: 16px;
+  margin-left: 12px;
+  white-space: nowrap;
 }
 
-/* 按钮样式 */
-button {
+.collapse-btn {
+  background: none;
+  border: none;
+  color: #6b7280;
   cursor: pointer;
-}
-
-/* 动画 */
-.fade-enter-active, .fade-leave-active {
-  transition: opacity 0.3s;
-}
-.fade-enter-from, .fade-leave-to {
-  opacity: 0;
-}
-
-/* 滚动条样式 */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: #f1f1f1;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #c1c1c1;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   border-radius: 4px;
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background: #a8a8a8;
+.collapse-btn:hover {
+  background-color: #f3f4f6;
+}
+
+.sidebar-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 0;
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  padding: 10px 16px;
+  color: #4b5563;
+  text-decoration: none;
+  transition: background-color 0.2s;
+  border-left: 3px solid transparent;
+}
+
+.nav-item:hover {
+  background-color: #f3f4f6;
+  color: #111827;
+}
+
+.nav-item.active {
+  background-color: #f3f4f6;
+  color: var(--primary-color);
+  border-left-color: var(--primary-color);
+}
+
+.nav-icon {
+  width: 20px;
+  display: flex;
+  justify-content: center;
+  font-size: 16px;
+}
+
+.nav-text {
+  margin-left: 12px;
+  white-space: nowrap;
 }
 
 /* 暗黑模式 */
 .dark {
-  color-scheme: dark;
-}
-
-.dark body {
   background-color: #111827;
   color: #f9fafb;
 }
 
+.dark .sidebar,
 .dark .bg-white {
-  background-color: #1f2937;
+  background-color: #1f2937 !important;
+  border-color: #374151 !important;
 }
 
+.dark .text-gray-800,
+.dark .text-gray-900 {
+  color: #f3f4f6 !important;
+}
+
+.dark .text-gray-500,
+.dark .text-gray-600,
 .dark .text-gray-700 {
-  color: #e5e7eb;
-}
-
-.dark .text-gray-600 {
-  color: #d1d5db;
-}
-
-.dark .text-gray-500 {
-  color: #9ca3af;
-}
-
-.dark .border-gray-200 {
-  border-color: #374151;
-}
-
-.dark .hover\:bg-gray-50:hover {
-  background-color: #374151;
-}
-
-.dark .hover\:bg-gray-100:hover {
-  background-color: #1f2937;
+  color: #9ca3af !important;
 }
 
 .dark .bg-gray-50 {
-  background-color: #111827;
+  background-color: #374151 !important;
 }
 
-.dark .bg-gray-100 {
-  background-color: #1f2937;
+.dark .border-gray-200,
+.dark .border-gray-300 {
+  border-color: #4b5563 !important;
 }
 
-.dark .selected-table {
-  background-color: #312e81;
-  color: #e0e7ff;
+.dark .nav-item {
+  color: #d1d5db;
+}
+
+.dark .nav-item:hover {
+  background-color: #374151;
+  color: #f9fafb;
+}
+
+.dark .nav-item.active {
+  background-color: #374151;
 }
 
 /* 响应式设计 */
 @media (max-width: 768px) {
-  .md\:hidden {
-    display: none;
+  .sidebar {
+    position: fixed;
+    z-index: 40;
+    height: 100vh;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+  }
+  
+  .sidebar.collapsed {
+    transform: translateX(-100%);
+  }
+  
+  .page-content {
+    margin-left: 0 !important;
   }
 }

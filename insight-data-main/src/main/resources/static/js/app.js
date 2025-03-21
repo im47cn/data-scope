@@ -1,3 +1,6 @@
+// 导入API服务
+import { ApiService, DataSourceService, MetadataService, QueryService, NLQueryService, LowCodeService } from './services/api.js';
+
 // 定义路由
 const routes = [
   { path: '/', component: Dashboard },
@@ -5,7 +8,10 @@ const routes = [
   { path: '/datasource', component: Datasource },
   { path: '/data-browse', component: DataBrowse },
   { path: '/query-builder', component: QueryBuilder },
-  // 其他路由将在实现相应组件后添加
+  { path: '/nl-query', component: NLQuery },
+  { path: '/low-code', component: LowCode },
+  { path: '/query-history', component: QueryHistory },
+  { path: '/settings', component: Settings }
 ]
 
 // 创建路由实例
@@ -25,7 +31,9 @@ const app = Vue.createApp({
         role: 'admin'
       },
       sidebarCollapsed: false,
-      darkMode: false
+      darkMode: false,
+      loading: false,
+      error: null
     }
   },
   methods: {
@@ -35,6 +43,53 @@ const app = Vue.createApp({
     toggleDarkMode() {
       this.darkMode = !this.darkMode
       document.documentElement.classList.toggle('dark', this.darkMode)
+    },
+    // 全局错误处理
+    handleApiError(error) {
+      console.error('API错误:', error)
+      
+      let errorMessage = '操作失败'
+      
+      if (error.message) {
+        errorMessage = error.message
+      } else if (error.code) {
+        // 根据错误代码显示友好的错误消息
+        switch (error.code) {
+          case 'DATASOURCE_NOT_FOUND':
+            errorMessage = '数据源不存在'
+            break
+          case 'DATASOURCE_CONNECTION_FAILED':
+            errorMessage = '数据源连接失败'
+            break
+          case 'QUERY_SYNTAX_ERROR':
+            errorMessage = 'SQL语法错误'
+            break
+          case 'AUTHENTICATION_FAILED':
+            errorMessage = '认证失败，请重新登录'
+            // 可能需要重定向到登录页面
+            break
+          default:
+            errorMessage = `操作失败: ${error.code}`
+        }
+      }
+      
+      // 显示错误消息
+      this.error = errorMessage
+      
+      // 5秒后自动清除错误消息
+      setTimeout(() => {
+        if (this.error === errorMessage) {
+          this.error = null
+        }
+      }, 5000)
+    },
+    // 显示加载状态
+    showLoading() {
+      this.loading = true
+    },
+    // 隐藏加载状态
+    hideLoading() {
+      this.loading = false
     }
   },
   mounted() {
@@ -44,11 +99,35 @@ const app = Vue.createApp({
       this.darkMode = true
       document.documentElement.classList.add('dark')
     }
+    
+    // 全局API错误处理
+    window.addEventListener('unhandledrejection', (event) => {
+      if (event.reason && (event.reason.status || event.reason.code)) {
+        this.handleApiError(event.reason)
+        event.preventDefault()
+      }
+    })
   },
   watch: {
     darkMode(newValue) {
       // 保存暗黑模式设置到本地存储
       localStorage.setItem('darkMode', newValue)
+    }
+  },
+  provide() {
+    return {
+      // 提供API服务给所有组件
+      apiService: ApiService,
+      dataSourceService: DataSourceService,
+      metadataService: MetadataService,
+      queryService: QueryService,
+      nlQueryService: NLQueryService,
+      lowCodeService: LowCodeService,
+      
+      // 提供全局方法
+      handleApiError: this.handleApiError,
+      showLoading: this.showLoading,
+      hideLoading: this.hideLoading
     }
   }
 })

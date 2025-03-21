@@ -15,7 +15,7 @@ import javax.validation.Valid;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/query/templates")
+@RequestMapping("/api/v1/query/templates")
 @RequiredArgsConstructor
 public class SavedQueryController {
 

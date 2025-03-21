@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
  * 元数据同步作业控制器
  */
 @RestController
-@RequestMapping("/api/metadata-sync-jobs")
+@RequestMapping("/api/v1/metadata-sync-jobs")
 public class MetadataSyncJobController {
 
     private final MetadataSyncJobApplicationService metadataSyncJobApplicationService;
