@@ -308,6 +308,9 @@ export const Settings = {
   methods: {
     savePersonalSettings() {
       alert('个人设置已保存')
+      this.applyTheme(this.preferences.darkMode)
+      this.applyThemeColor(this.preferences.themeColor)
+      this.savePreferencesToLocalStorage()
     },
     
     saveSystemSettings() {
@@ -345,6 +348,114 @@ export const Settings = {
       if (confirm(`确定要删除用户 ${user.name} 吗？`)) {
         this.users = this.users.filter(u => u.id !== user.id)
       }
+    },
+    
+    // 主题和颜色相关方法
+    applyTheme(isDarkMode) {
+      const htmlElement = document.documentElement
+      
+      if (isDarkMode) {
+        htmlElement.setAttribute('data-theme', 'dark')
+        this.applyDarkModeStyles()
+      } else {
+        htmlElement.setAttribute('data-theme', 'light')
+        this.applyLightModeStyles()
+      }
+    },
+    
+    applyLightModeStyles() {
+      const root = document.documentElement
+      
+      // 设置浅色模式的颜色变量
+      root.style.setProperty('--color-text', '#1a202c')
+      root.style.setProperty('--color-text-secondary', '#4a5568')
+      root.style.setProperty('--color-background', '#f7fafc')
+      root.style.setProperty('--color-background-secondary', '#ffffff')
+      root.style.setProperty('--color-border', '#e2e8f0')
+      root.style.setProperty('--color-sidebar', '#1a202c')
+      root.style.setProperty('--color-sidebar-text', '#ffffff')
+    },
+    
+    applyDarkModeStyles() {
+      const root = document.documentElement
+      
+      // 设置深色模式的颜色变量
+      root.style.setProperty('--color-text', '#f7fafc')
+      root.style.setProperty('--color-text-secondary', '#cbd5e0')
+      root.style.setProperty('--color-background', '#1a202c')
+      root.style.setProperty('--color-background-secondary', '#2d3748')
+      root.style.setProperty('--color-border', '#4a5568')
+      root.style.setProperty('--color-sidebar', '#0f1521')
+      root.style.setProperty('--color-sidebar-text', '#f7fafc')
+    },
+    
+    applyThemeColor(colorName) {
+      const root = document.documentElement
+      const colorMap = {
+        'indigo': {
+          primary: '#4c51bf',
+          hover: '#434190'
+        },
+        'blue': {
+          primary: '#3182ce',
+          hover: '#2c5282'
+        },
+        'green': {
+          primary: '#38a169',
+          hover: '#2f855a'
+        },
+        'red': {
+          primary: '#e53e3e',
+          hover: '#c53030'
+        },
+        'purple': {
+          primary: '#805ad5',
+          hover: '#6b46c1'
+        }
+      }
+      
+      const colorValues = colorMap[colorName] || colorMap['indigo']
+      
+      // 设置主色调变量
+      root.style.setProperty('--color-primary', colorValues.primary)
+      root.style.setProperty('--color-primary-hover', colorValues.hover)
+    },
+    
+    savePreferencesToLocalStorage() {
+      localStorage.setItem('theme', this.preferences.darkMode ? 'dark' : 'light')
+      localStorage.setItem('color', this.preferences.themeColor)
+    },
+    
+    loadPreferencesFromLocalStorage() {
+      const savedTheme = localStorage.getItem('theme')
+      const savedColor = localStorage.getItem('color')
+      
+      if (savedTheme) {
+        this.preferences.darkMode = savedTheme === 'dark'
+      }
+      
+      if (savedColor) {
+        this.preferences.themeColor = savedColor
+      }
+      
+      // 应用保存的设置
+      this.applyTheme(this.preferences.darkMode)
+      this.applyThemeColor(this.preferences.themeColor)
     }
+  },
+  
+  mounted() {
+    // 在组件挂载时加载保存的设置
+    this.loadPreferencesFromLocalStorage()
+    
+    // 监听暗黑模式切换
+    this.$watch('preferences.darkMode', (newValue) => {
+      this.applyTheme(newValue)
+    })
+    
+    // 监听主题颜色切换
+    this.$watch('preferences.themeColor', (newValue) => {
+      this.applyThemeColor(newValue)
+    })
   }
 }

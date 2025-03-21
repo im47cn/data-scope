@@ -47,7 +47,8 @@ const app = createApp({
         role: 'admin'
       },
       sidebarCollapsed: false,
-      darkMode: false,
+      darkMode: false, // 兼容旧代码
+      themeColor: 'indigo', // 默认主题颜色
       loading: false,
       error: null
     }
@@ -58,7 +59,50 @@ const app = createApp({
     },
     toggleDarkMode() {
       this.darkMode = !this.darkMode
-      document.documentElement.classList.toggle('dark', this.darkMode)
+      this.applyTheme(this.darkMode)
+    },
+    // 应用主题
+    applyTheme(isDarkMode) {
+      // 使用 data-theme 属性设置主题
+      document.documentElement.setAttribute('data-theme', isDarkMode ? 'dark' : 'light')
+      // 兼容旧代码
+      document.documentElement.classList.toggle('dark', isDarkMode)
+    },
+    // 应用主题颜色
+    applyThemeColor(colorName) {
+      const root = document.documentElement
+      const colorMap = {
+        'indigo': {
+          primary: '#4c51bf',
+          hover: '#434190'
+        },
+        'blue': {
+          primary: '#3182ce',
+          hover: '#2c5282'
+        },
+        'green': {
+          primary: '#38a169',
+          hover: '#2f855a'
+        },
+        'red': {
+          primary: '#e53e3e',
+          hover: '#c53030'
+        },
+        'purple': {
+          primary: '#805ad5',
+          hover: '#6b46c1'
+        }
+      }
+      
+      const colorValues = colorMap[colorName] || colorMap['indigo']
+      
+      // 设置主色调变量
+      root.style.setProperty('--color-primary', colorValues.primary)
+      root.style.setProperty('--color-primary-hover', colorValues.hover)
+      
+      // 兼容旧变量名
+      root.style.setProperty('--primary-color', colorValues.primary)
+      root.style.setProperty('--primary-hover-color', colorValues.hover)
     },
     // 全局错误处理
     handleApiError(error) {
@@ -110,10 +154,24 @@ const app = createApp({
   },
   mounted() {
     // 检查本地存储中的暗黑模式设置
-    const savedDarkMode = localStorage.getItem('darkMode') === 'true'
-    if (savedDarkMode) {
-      this.darkMode = true
-      document.documentElement.classList.add('dark')
+    const savedTheme = localStorage.getItem('theme')
+    if (savedTheme) {
+      this.darkMode = savedTheme === 'dark'
+      this.applyTheme(this.darkMode)
+    } else {
+      // 兼容旧版本的设置
+      const savedDarkMode = localStorage.getItem('darkMode') === 'true'
+      if (savedDarkMode) {
+        this.darkMode = true
+        this.applyTheme(true)
+      }
+    }
+    
+    // 检查本地存储中的主题颜色设置
+    const savedColor = localStorage.getItem('color')
+    if (savedColor) {
+      this.themeColor = savedColor
+      this.applyThemeColor(this.themeColor)
     }
     
     // 全局API错误处理
@@ -127,7 +185,8 @@ const app = createApp({
   watch: {
     darkMode(newValue) {
       // 保存暗黑模式设置到本地存储
-      localStorage.setItem('darkMode', newValue)
+      localStorage.setItem('theme', newValue ? 'dark' : 'light')
+      localStorage.setItem('darkMode', newValue) // 兼容旧版本
     }
   },
   provide() {

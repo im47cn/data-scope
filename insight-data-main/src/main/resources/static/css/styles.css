@@ -1,8 +1,19 @@
 /* 全局样式 */
 :root {
-  --primary-color: #4f46e5;
-  --primary-hover-color: #4338ca;
-  --secondary-color: #6b7280;
+  /* 主题颜色变量 */
+  --color-primary: #4c51bf;
+  --color-primary-hover: #434190;
+  --color-text: #1a202c;
+  --color-text-secondary: #4a5568;
+  --color-background: #f7fafc;
+  --color-background-secondary: #ffffff;
+  --color-border: #e2e8f0;
+  --color-sidebar: #1a202c;
+  --color-sidebar-text: #ffffff;
+  
+  /* 兼容旧变量名 */
+  --primary-color: var(--color-primary);
+  --primary-hover-color: var(--color-primary-hover);
   --success-color: #10b981;
   --danger-color: #ef4444;
   --warning-color: #f59e0b;
@@ -15,21 +26,44 @@
   --transition-speed: 0.3s;
 }
 
+/* 暗黑模式变量 */
+[data-theme="dark"] {
+  --color-text: #f7fafc;
+  --color-text-secondary: #cbd5e0;
+  --color-background: #1a202c;
+  --color-background-secondary: #2d3748;
+  --color-border: #4a5568;
+  --color-sidebar: #0f1521;
+  --color-sidebar-text: #f7fafc;
+}
+
 /* 主题颜色 */
 .bg-primary {
-  background-color: var(--primary-color) !important;
+  background-color: var(--color-primary) !important;
 }
 
 .text-primary {
-  color: var(--primary-color) !important;
+  color: var(--color-primary) !important;
 }
 
 .border-primary {
-  border-color: var(--primary-color) !important;
+  border-color: var(--color-primary) !important;
 }
 
 .ring-primary {
-  --tw-ring-color: var(--primary-color) !important;
+  --tw-ring-color: var(--color-primary) !important;
+}
+
+.hover\:bg-primary:hover {
+  background-color: var(--color-primary-hover) !important;
+}
+
+.focus\:ring-primary:focus {
+  --tw-ring-color: var(--color-primary) !important;
+}
+
+.focus\:border-primary:focus {
+  border-color: var(--color-primary) !important;
 }
 
 /* 布局样式 */
@@ -37,8 +71,8 @@ body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
   background-color: #f9fafb;
   color: #111827;
-  margin: 0;
-  padding: 0;
+  background-color: var(--color-background);
+  color: var(--color-text);
   min-height: 100vh;
 }
 
@@ -64,7 +98,7 @@ body {
 /* 侧边栏样式 */
 .sidebar {
   width: var(--sidebar-width);
-  background-color: white;
+  background-color: var(--color-background-secondary);
   border-right: 1px solid #e5e7eb;
   height: 100%;
   transition: width var(--transition-speed);
@@ -149,8 +183,8 @@ body {
 
 .nav-item.active {
   background-color: #f3f4f6;
-  color: var(--primary-color);
-  border-left-color: var(--primary-color);
+  color: var(--color-primary);
+  border-left-color: var(--color-primary);
 }
 
 .nav-icon {
@@ -166,48 +200,48 @@ body {
 }
 
 /* 暗黑模式 */
-.dark {
-  background-color: #111827;
-  color: #f9fafb;
+[data-theme="dark"] body {
+  background-color: var(--color-background);
+  color: var(--color-text);
 }
 
-.dark .sidebar,
-.dark .bg-white {
-  background-color: #1f2937 !important;
-  border-color: #374151 !important;
+[data-theme="dark"] .sidebar,
+[data-theme="dark"] .bg-white {
+  background-color: var(--color-background-secondary) !important;
+  border-color: var(--color-border) !important;
 }
 
-.dark .text-gray-800,
-.dark .text-gray-900 {
-  color: #f3f4f6 !important;
+[data-theme="dark"] .text-gray-800,
+[data-theme="dark"] .text-gray-900 {
+  color: var(--color-text) !important;
 }
 
-.dark .text-gray-500,
-.dark .text-gray-600,
-.dark .text-gray-700 {
-  color: #9ca3af !important;
+[data-theme="dark"] .text-gray-500,
+[data-theme="dark"] .text-gray-600,
+[data-theme="dark"] .text-gray-700 {
+  color: var(--color-text-secondary) !important;
 }
 
-.dark .bg-gray-50 {
-  background-color: #374151 !important;
+[data-theme="dark"] .bg-gray-50 {
+  background-color: var(--color-background) !important;
 }
 
-.dark .border-gray-200,
-.dark .border-gray-300 {
-  border-color: #4b5563 !important;
+[data-theme="dark"] .border-gray-200,
+[data-theme="dark"] .border-gray-300 {
+  border-color: var(--color-border) !important;
 }
 
-.dark .nav-item {
-  color: #d1d5db;
+[data-theme="dark"] .nav-item {
+  color: var(--color-text-secondary);
 }
 
-.dark .nav-item:hover {
-  background-color: #374151;
-  color: #f9fafb;
+[data-theme="dark"] .nav-item:hover {
+  background-color: var(--color-background);
+  color: var(--color-text);
 }
 
-.dark .nav-item.active {
-  background-color: #374151;
+[data-theme="dark"] .nav-item.active {
+  background-color: var(--color-background);
 }
 
 /* 响应式设计 */
