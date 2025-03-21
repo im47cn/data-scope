@@ -1,61 +1,128 @@
 package com.insightdata.domain.querybuilder.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
+import com.insightdata.domain.querybuilder.api.QueryModelContract;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 /**
- * Reference to a field in a table
+ * 字段引用
+ * 表示对数据表中字段的引用
  */
 @Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
 public class FieldReference {
     /**
-     * Unique identifier for the field reference
+     * 表引用
      */
-    private String id;
+    private TableReference table;
 
     /**
-     * Name of the field in the table
+     * 字段名
      */
-    private String name;
+    private String fieldName;
 
     /**
-     * Alias for the field in the query
+     * 所属的查询模型
      */
-    private String alias;
+    private QueryModelContract queryModel;
 
     /**
-     * Expression used to compute the field value
+     * 字段描述
      */
-    private String expression;
+    private String description;
 
     /**
-     * Type of the field (e.g., STRING, NUMBER, etc.)
+     * 字段类型
      */
-    private FieldType type;
+    private String dataType;
 
     /**
-     * Whether this field is an aggregate
+     * 创建一个空的字段引用
      */
-    private boolean isAggregate;
+    public FieldReference() {
+    }
 
     /**
-     * Aggregate function if this is an aggregate field
-     */
-    private String aggregateFunction;
-
-    /**
-     * Validates the field reference
+     * 使用表引用和字段名创建字段引用
      *
-     * @throws QueryModelValidationException if validation fails
+     * @param table 表引用
+     * @param fieldName 字段名
      */
-    public void validate() throws QueryModelValidationException {
-        if (name == null || name.trim().isEmpty()) {
-            throw new QueryModelValidationException("Field name cannot be empty");
+    public FieldReference(TableReference table, String fieldName) {
+        this.table = table;
+        this.fieldName = fieldName;
+    }
+
+    /**
+     * 使用完整信息创建字段引用
+     *
+     * @param table 表引用
+     * @param fieldName 字段名
+     * @param queryModel 查询模型
+     */
+    public FieldReference(TableReference table, String fieldName, QueryModelContract queryModel) {
+        this.table = table;
+        this.fieldName = fieldName;
+        this.queryModel = queryModel;
+    }
+
+    /**
+     * 获取完整的字段引用表达式
+     *
+     * @return 字段引用表达式
+     */
+    public String getFullReference() {
+        if (!isValid()) {
+            return "";
         }
+
+        String tableRef = table.getReferenceIdentifier();
+        return tableRef + "." + fieldName;
+    }
+
+    /**
+     * 创建字段引用的副本
+     *
+     * @return 新的字段引用实例
+     */
+    public FieldReference copy() {
+        FieldReference copy = new FieldReference();
+        copy.setTable(this.table != null ? this.table.copy() : null);
+        copy.setFieldName(this.fieldName);
+        copy.setQueryModel(this.queryModel); // 浅复制
+        copy.setDescription(this.description);
+        copy.setDataType(this.dataType);
+        return copy;
+    }
+
+    /**
+     * 验证字段引用是否有效
+     *
+     * @return true 如果字段引用有效，false 否则
+     */
+    public boolean isValid() {
+        return table != null && table.isValid() &&
+               fieldName != null && !fieldName.trim().isEmpty();
+    }
+
+    @Override
+    public String toString() {
+        return getFullReference();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof FieldReference)) return false;
+
+        FieldReference that = (FieldReference) o;
+
+        if (table != null ? !table.equals(that.table) : that.table != null) return false;
+        return fieldName != null ? fieldName.equals(that.fieldName) : that.fieldName == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = table != null ? table.hashCode() : 0;
+        result = 31 * result + (fieldName != null ? fieldName.hashCode() : 0);
+        return result;
     }
 }

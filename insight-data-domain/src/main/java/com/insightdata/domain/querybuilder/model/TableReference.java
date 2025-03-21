@@ -1,100 +1,141 @@
 package com.insightdata.domain.querybuilder.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
+import com.insightdata.domain.querybuilder.api.QueryModelContract;
 import lombok.Data;
-import lombok.NoArgsConstructor;
-
-import java.util.List;
 
 /**
- * Reference to a table used in a query
+ * 表引用
+ * 表示查询中使用的表及其别名
  */
 @Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
 public class TableReference {
     /**
-     * Unique identifier for the table reference
-     */
-    private String id;
-
-    /**
-     * ID of the data source containing this table
-     */
-    private String dataSourceId;
-
-    /**
-     * Catalog name in the data source
-     */
-    private String catalogName;
-
-    /**
-     * Schema name in the data source
-     */
-    private String schemaName;
-
-    /**
-     * Table name
+     * 表名
      */
     private String tableName;
 
     /**
-     * Alias for the table in the query
+     * 表别名
      */
     private String alias;
 
     /**
-     * Type of the table (BASE_TABLE, VIEW, etc.)
+     * 所属的查询模型
      */
-    private TableType type;
+    private QueryModelContract queryModel;
 
     /**
-     * Fields selected from this table
+     * 表描述
      */
-    private List<FieldReference> fields;
+    private String description;
 
     /**
-     * Validates the table reference
+     * 是否是主表
+     */
+    private boolean isPrimary;
+
+    /**
+     * 创建一个空的表引用
+     */
+    public TableReference() {
+    }
+
+    /**
+     * 使用表名和别名创建表引用
      *
-     * @throws QueryModelValidationException if validation fails
+     * @param tableName 表名
+     * @param alias 表别名
      */
-    public void validate() throws QueryModelValidationException {
-        if (tableName == null || tableName.trim().isEmpty()) {
-            throw new QueryModelValidationException("Table name cannot be empty");
-        }
-
-        if (dataSourceId == null || dataSourceId.trim().isEmpty()) {
-            throw new QueryModelValidationException("Data source ID must be specified");
-        }
-
-        if (fields != null) {
-            for (FieldReference field : fields) {
-                field.validate();
-            }
-        }
+    public TableReference(String tableName, String alias) {
+        this.tableName = tableName;
+        this.alias = alias;
     }
 
     /**
-     * Gets the full qualified name of the table
+     * 使用表名、别名和查询模型创建表引用
+     *
+     * @param tableName 表名
+     * @param alias 表别名
+     * @param queryModel 查询模型
      */
-    public String getFullQualifiedName() {
-        StringBuilder sb = new StringBuilder();
-        if (catalogName != null && !catalogName.isEmpty()) {
-            sb.append(catalogName).append(".");
-        }
-        if (schemaName != null && !schemaName.isEmpty()) {
-            sb.append(schemaName).append(".");
-        }
-        sb.append(tableName);
-        return sb.toString();
+    public TableReference(String tableName, String alias, QueryModelContract queryModel) {
+        this.tableName = tableName;
+        this.alias = alias;
+        this.queryModel = queryModel;
     }
 
     /**
-     * Gets the name to use in SQL (alias if specified, otherwise table name)
+     * 获取完整的表引用名
+     * 如果有别名，返回 "表名 AS 别名"
+     * 如果没有别名，返回表名
+     *
+     * @return 完整的表引用名
      */
-    public String getSqlName() {
-        return alias != null && !alias.isEmpty() ? alias : tableName;
+    public String getFullReference() {
+        if (alias != null && !alias.trim().isEmpty()) {
+            return tableName + " AS " + alias;
+        }
+        return tableName;
+    }
+
+    /**
+     * 获取用于引用的名称
+     * 如果有别名，返回别名
+     * 如果没有别名，返回表名
+     *
+     * @return 用于引用的名称
+     */
+    public String getReferenceIdentifier() {
+        if (alias != null && !alias.trim().isEmpty()) {
+            return alias;
+        }
+        return tableName;
+    }
+
+    /**
+     * 创建表引用的副本
+     *
+     * @return 新的表引用实例
+     */
+    public TableReference copy() {
+        TableReference copy = new TableReference();
+        copy.setTableName(this.tableName);
+        copy.setAlias(this.alias);
+        copy.setQueryModel(this.queryModel); // 注意：这里是浅复制
+        copy.setDescription(this.description);
+        copy.setPrimary(this.isPrimary);
+        return copy;
+    }
+
+    /**
+     * 验证表引用是否有效
+     *
+     * @return true 如果表引用有效，false 否则
+     */
+    public boolean isValid() {
+        return tableName != null && !tableName.trim().isEmpty();
+    }
+
+    @Override
+    public String toString() {
+        return getFullReference();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof TableReference)) return false;
+
+        TableReference that = (TableReference) o;
+
+        if (tableName != null ? !tableName.equals(that.tableName) : that.tableName != null) return false;
+        return alias != null ? alias.equals(that.alias) : that.alias == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = tableName != null ? tableName.hashCode() : 0;
+        result = 31 * result + (alias != null ? alias.hashCode() : 0);
+        return result;
     }
 }

@@ -1,179 +1,175 @@
 package com.insightdata.domain.querybuilder.model;
 
-import java.time.LocalDateTime;
+import com.insightdata.domain.querybuilder.api.QueryModelContract;
+import lombok.Data;
+
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
 /**
- * Core query model class representing a structured query definition.
+ * 查询模型领域对象
+ * 实现 QueryModelContract 接口，用于 Domain 层业务逻辑
  */
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class QueryModel {
+public class QueryModel implements QueryModelContract {
     /**
-     * Unique identifier for the query model
+     * 查询模型ID
      */
     private String id;
 
     /**
-     * Name of the query model
+     * 查询模型名称
      */
     private String name;
 
     /**
-     * Description of the query's purpose
+     * 查询涉及的表列表
      */
-    private String description;
+    private List<String> tables = new ArrayList<>();
 
     /**
-     * List of data sources used in the query
+     * 查询的字段列表
      */
-    private List<DataSourceReference> dataSources;
+    private List<String> fields = new ArrayList<>();
 
     /**
-     * List of table references used in the query
+     * 表连接条件列表
      */
-    private List<TableReference> tables;
+    private List<String> joins = new ArrayList<>();
 
     /**
-     * List of field selections
+     * 查询过滤条件
      */
-    private List<FieldSelection> fields;
+    private String filter;
 
     /**
-     * List of join definitions between tables
+     * 分组字段列表
      */
-    private List<JoinDefinition> joins;
+    private List<String> groupBy = new ArrayList<>();
 
     /**
-     * Root filter group for WHERE conditions
+     * 排序字段列表
      */
-    private FilterGroup rootFilter;
+    private List<String> orderBy = new ArrayList<>();
 
     /**
-     * List of GROUP BY expressions
+     * 查询参数映射
      */
-    private List<GroupingExpression> groupBy;
+    private Map<String, Object> parameters = new HashMap<>();
 
     /**
-     * List of ORDER BY expressions
+     * 创建一个空的查询模型对象
      */
-    private List<SortExpression> orderBy;
+    public QueryModel() {
+        // 使用字段初始化器创建空集合
+    }
 
     /**
-     * Query parameters
-     */
-    private Map<String, ParameterDefinition> parameters;
-
-    /**
-     * Additional options for query execution
-     */
-    private Map<String, Object> options;
-
-    /**
-     * Creation timestamp
-     */
-    private LocalDateTime createdAt;
-
-    /**
-     * Last update timestamp
-     */
-    private LocalDateTime updatedAt;
-
-    /**
-     * Creator user ID
-     */
-    private String createdBy;
-
-    /**
-     * Last updater user ID
-     */
-    private String updatedBy;
-
-    /**
-     * Whether this query model is public
-     */
-    private boolean isPublic;
-
-    /**
-     * Tags for categorization
-     */
-    private List<String> tags;
-
-    /**
-     * Current status of the query model
-     */
-    private ModelStatus status;
-
-    /**
-     * Validates the query model structure and relationships
+     * 使用现有的 QueryModelContract 创建查询模型对象
      *
-     * @throws QueryModelValidationException if validation fails
+     * @param contract 查询模型契约对象
      */
-    public void validate() throws QueryModelValidationException {
-        validateBasicProperties();
-        validateDataSources();
-        validateTables();
-        validateFields();
-        validateJoins();
-        validateFilters();
-        validateParameters();
-    }
-
-    private void validateBasicProperties() throws QueryModelValidationException {
-        if (name == null || name.trim().isEmpty()) {
-            throw new QueryModelValidationException("Query model name cannot be empty");
+    public QueryModel(QueryModelContract contract) {
+        if (contract != null) {
+            this.id = contract.getId();
+            this.name = contract.getName();
+            this.tables = new ArrayList<>(contract.getTables());
+            this.fields = new ArrayList<>(contract.getFields());
+            this.joins = new ArrayList<>(contract.getJoins());
+            this.filter = contract.getFilter();
+            this.groupBy = new ArrayList<>(contract.getGroupBy());
+            this.orderBy = new ArrayList<>(contract.getOrderBy());
+            this.parameters = new HashMap<>(contract.getParameters());
         }
     }
 
-    private void validateDataSources() throws QueryModelValidationException {
-        if (dataSources == null || dataSources.isEmpty()) {
-            throw new QueryModelValidationException("At least one data source must be specified");
+    /**
+     * 添加查询表
+     *
+     * @param table 表名
+     */
+    public void addTable(String table) {
+        if (table != null && !table.trim().isEmpty()) {
+            this.tables.add(table.trim());
         }
     }
 
-    private void validateTables() throws QueryModelValidationException {
-        if (tables == null || tables.isEmpty()) {
-            throw new QueryModelValidationException("At least one table must be specified");
+    /**
+     * 添加查询字段
+     *
+     * @param field 字段名
+     */
+    public void addField(String field) {
+        if (field != null && !field.trim().isEmpty()) {
+            this.fields.add(field.trim());
         }
     }
 
-    private void validateFields() throws QueryModelValidationException {
-        if (fields == null || fields.isEmpty()) {
-            throw new QueryModelValidationException("At least one field must be selected");
+    /**
+     * 添加连接条件
+     *
+     * @param join 连接条件
+     */
+    public void addJoin(String join) {
+        if (join != null && !join.trim().isEmpty()) {
+            this.joins.add(join.trim());
         }
     }
 
-    private void validateJoins() throws QueryModelValidationException {
-        if (joins != null) {
-            for (JoinDefinition join : joins) {
-                if (join.getLeftTableId() == null || join.getRightTableId() == null) {
-                    throw new QueryModelValidationException("Join must specify both left and right tables");
-                }
-            }
+    /**
+     * 添加分组字段
+     *
+     * @param groupField 分组字段
+     */
+    public void addGroupBy(String groupField) {
+        if (groupField != null && !groupField.trim().isEmpty()) {
+            this.groupBy.add(groupField.trim());
         }
     }
 
-    private void validateFilters() throws QueryModelValidationException {
-        if (rootFilter != null) {
-            rootFilter.validate();
+    /**
+     * 添加排序字段
+     *
+     * @param orderField 排序字段
+     */
+    public void addOrderBy(String orderField) {
+        if (orderField != null && !orderField.trim().isEmpty()) {
+            this.orderBy.add(orderField.trim());
         }
     }
 
-    private void validateParameters() throws QueryModelValidationException {
-        if (parameters != null) {
-            for (Map.Entry<String, ParameterDefinition> entry : parameters.entrySet()) {
-                if (entry.getValue() == null) {
-                    throw new QueryModelValidationException("Parameter definition cannot be null: " + entry.getKey());
-                }
-                entry.getValue().validate();
-            }
+    /**
+     * 添加查询参数
+     *
+     * @param key 参数名
+     * @param value 参数值
+     */
+    public void addParameter(String key, Object value) {
+        if (key != null && !key.trim().isEmpty()) {
+            this.parameters.put(key.trim(), value);
         }
+    }
+
+    /**
+     * 验证查询模型是否有效
+     *
+     * @return true 如果模型有效，false 否则
+     */
+    public boolean isValid() {
+        return !tables.isEmpty() && !fields.isEmpty();
+    }
+
+    /**
+     * 清空所有集合
+     */
+    public void clear() {
+        tables.clear();
+        fields.clear();
+        joins.clear();
+        groupBy.clear();
+        orderBy.clear();
+        parameters.clear();
     }
 }
